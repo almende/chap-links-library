@@ -54,7 +54,7 @@ body {
 h2 {
   padding-top: 20px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #76aeff;
+  border-bottom: 1px solid #a0c0f0;
   color: #2B7CE9;
 }
 
@@ -63,7 +63,7 @@ a {
   text-decoration: none;
 }
 a:hover {
-  color: #76aeff;
+  color: #a0c0f0;
   text-decoration: underline;
 }
 
@@ -178,6 +178,6 @@ div.lastupdate {
   font-size: 75%;
   margin-top: 40px;
   
-  border-top: 1px solid #76aeff;
+  border-top: 1px solid #a0c0f0;
   color: #2B7CE9;  
 }
