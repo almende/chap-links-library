@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <style>
+    #high {
+      width: 400px;
+      border: 1px solid red;
+    }
+    
+    #container {
+      border: 1px solid green;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+
+<table id="container">
+  <tr>
+    <td id="high">very large height...</td>
+  </tr>
+  <tr>
+    <td>end</td>
+  </tr>
+</table>
+
+
+<script type="text/javascript">
+
+var high = document.getElementById('high');
+high.style.height = 32 * 1e10 + 'px';  // This fails
+high.style.height = 32 * 1e6 + 'px';  // ok on chrome
+//high.style.height = 32 * 1e7 + 'px';  // This fails
+
+/*
+var container = document.getElementById('container');
+var iMax = 1e4;
+for (var i = 0; i < iMax; i++) {
+  var tr = document.createElement('tr');
+  var td = document.createElement('td');
+}*/
+
+</script>
+
+
+
+</body>
+
+</html>

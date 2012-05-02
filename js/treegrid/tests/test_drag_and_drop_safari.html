@@ -1,0 +1,88 @@
+<!--
+http://developer.apple.com/library/safari/#documentation/appleapplications/Conceptual/SafariJSProgTopics/Tasks/DragAndDrop.html
+-->
+
+<html>
+<head>
+ 
+<script language="javascript" type="text/javascript"><!--
+    var dragitem = undefined;
+ 
+    function setdragitem(item, evt) {
+        dragitem=item;
+        // alert('item: '+item);
+        // item is an HTML DIV element.
+        // evt is an event.
+ 
+        // If the item should not be draggable, enable this next line.
+        // evt.preventDefault();
+ 
+        return true;
+    }
+    function cleardragitem() {
+        dragitem=undefined;
+        // alert('item: '+item);
+    }
+    function dodrag() {
+        // alert('item: '+dragitem);
+    }
+ 
+    // This is required---used to tell WebKit that the drag should
+    // be allowed.
+    function handledragenter(elt, evt) {
+        evt.preventDefault();
+        return true;
+    }
+    function handledragover(elt, evt) {
+        evt.preventDefault();
+        return true;
+    }
+ 
+ 
+    function handledragleave(elt, evt) {
+ 
+    }
+ 
+    function handledrop(elt, evt) {
+        // alert('drop');
+        dragitem.style.display="none";
+        var newid=dragitem.id + '_dest';
+        var dest = document.getElementById(newid);
+        dest.innerHTML = dragitem.innerHTML;
+    }
+ 
+ 
+// --></script>
+ 
+<style type="text/css"><!--
+ 
+    .wordbox { border: 1px solid black; text-align: center; width: 50px; float: left; -webkit-user-drag: element; -webkit-user-select: none; }
+    .spacer { clear: both; }
+    .target { margin-top: 30px; padding: 30px; width: 70px; border: 1px solid black; background: #c0c0ff; margin-bottom: 30px; -webkit-user-drop: element; }
+    .word   { margin: 30px; min-height: 30px; border-bottom: 1px solid black; width: 50px;  float: left; }
+ 
+--></style>
+ 
+</head>
+<body>
+ 
+<p>Drop words onto target area to put them in their places.</p>
+ 
+<div class='wordbox' id='this' ondragstart='setdragitem(this, event);' ondrag='dodrag();' ondragend='cleardragitem();'>This</div>
+<div class='wordbox' id='is' ondragstart='setdragitem(this, event);' ondrag='dodrag();' ondragend='cleardragitem();'>is</div>
+<div class='wordbox' id='a' ondragstart='setdragitem(this, event);' ondrag='dodrag();' ondragend='cleardragitem();'>a</div>
+<div class='wordbox' id='test' ondragstart='setdragitem(this, event);' ondrag='dodrag();' ondragend='cleardragitem();'>test</div>
+ 
+<div class='spacer'></div>
+<div class='target' ondragenter='handledragenter(this, event);' ondragover='handledragover(this, event);' ondragleave='handledragleave(this, event);' ondrop='handledrop(this, event);'>TARGET</div>
+ 
+<div class='words'>
+<div class='word' id='this_dest'></div>
+<div class='word' id='is_dest'></div>
+<div class='word' id='a_dest'></div>
+<div class='word' id='test_dest'></div>
+</div>
+ 
+ 
+</body>
+</html>

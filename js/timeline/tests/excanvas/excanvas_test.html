@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<!-- saved from url=(0032)http://gnuzoo.org/rose/index.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<!--[if IE]><script src="excanvas.js"></script><![endif]-->
+	</head>
+	<body onload="run();">
+		<canvas id="myCanvas" width="500" height="500"></canvas>
+		<script type="text/javascript">
+			function run() {
+				var c = document.getElementById("myCanvas");
+				var cx = c.getContext("2d");
+
+				cx.strokeStyle = "#0000FF";
+				cx.fillStyle   = "#FF0000";
+
+				cx.translate(250,250);
+
+				for (var r = 0; r < 36; r++) {
+					cx.rotate(10 * 0.0174532925);
+					cx.strokeRect(0,0,150,75);
+				}
+				
+				//cx.strokeStyle = "red";
+				cx.fillStyle   = "red";
+				cx.font = "16pt Arial"
+				cx.fillText("Canvas test" , -240, -200);
+			}
+		</script> 
+	
+ 
+</body></html>

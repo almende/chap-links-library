@@ -1,0 +1,87 @@
+<html>
+<head>
+
+<style>
+
+</style>
+
+<script>
+var elems = [];
+
+function draw() {
+  var canvas = document.getElementById("canvas");
+  canvas.position = "absolute";
+  
+  var startTime = new Date();
+  var xmax = 1000;
+  for (x = 0; x < xmax; x++) {
+    //create vertical line
+    var vline = document.createElement("DIV");
+    vline.style.position = "absolute";
+    vline.style.top = 50 + "px";
+    vline.style.left = x + "px"; 
+    vline.style.width = 1 + "px";
+    vline.style.height = 200 + "px";
+    vline.style.borderWidth = 0 + "px";
+    vline.style.backgroundColor = "gray";
+    canvas.appendChild(vline);
+    
+    elems.push(vline);
+  }  
+  
+  var time = new Date() - startTime;
+  document.getElementById("info").innerHTML = "draw took " + time + " millisecs";
+}
+
+
+function redraw() {
+  var canvas = document.getElementById("canvas");
+  canvas.position = "absolute";
+  
+  var startTime = new Date();
+  for (x = 0; x < elems.length; x++) {
+    //create vertical line
+    elems[x].style.left = (x + 10) + "px";
+    elems[x].style.top = (parseInt(elems[x].style.top) + 1) + "px";
+    elems[x].style.backgroundColor = "lightgray";
+  }  
+  
+  var time = new Date() - startTime;
+  document.getElementById("info").innerHTML = "draw took " + time + " millisecs";
+}
+
+
+function redraw2() {
+  var canvas = document.getElementById("canvas");
+  canvas.position = "absolute";
+  
+  var startTime = new Date();
+  for (x = 0; x < canvas.childNodes.length; x++) {
+    //create vertical line
+    canvas.childNodes[x].style.left = (x + 10) + "px";
+    canvas.childNodes[x].style.top = (parseInt(canvas.childNodes[x].style.top) + 1) + "px";
+    canvas.childNodes[x].style.backgroundColor = "lightgray";
+  }  
+  
+  var time = new Date() - startTime;
+  document.getElementById("info").innerHTML = "draw took " + time + " millisecs";
+}
+
+</script>
+
+</head>
+<body>
+
+<p>
+  <input type="button" value="draw" onclick="draw();">
+  <input type="button" value="redraw via array" onclick="redraw();">
+  <input type="button" value="redraw via childnodes" onclick="redraw2();">
+</p>
+
+<div id="canvas" style="width: 400px; height:200px; border: 1px solid black;"></div>
+
+<div id="info"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<!--
+<div id="div1" style="position: absolute; left: 100; top: 100; height: 200; width:100; background-color: red;"></div>
+-->
+<div id="div1" style="position: absolute; left: 100; top: 100; height: 200; width:100; background-color: red;"></div>
+<div id="div2" style="position: absolute; left: 150; top: 250; background-color: green;">hello there how are you doing</div>
+
+<script>
+
+
+/* Test if the two provided div elements collide
+ * the divs must have an position:absolute, left defined, right defined, 
+ * and either have content or have width and height defined.
+ * @param {divelement} div1   the first div
+ * @param {divelement} div2   the second div
+ * @return {bool} true if div1 and div2 collide, else false 
+ */
+function collide(div1, div2) {
+  var left1 = parseInt(div1.style.left);
+  var right1 = parseInt(div1.style.left) + 
+               parseInt(div1.clientWidth ? div1.clientWidth : 
+                        div1.style.width ? div1.style.width : 0);
+  var top1 = parseInt(div1.style.top);
+  var bottom1 = parseInt(div1.style.top) + 
+                parseInt(div1.clientHeight ? div1.clientHeight : 
+                         div1.style.height ? div1.style.height : 0);
+  
+  var left2 = parseInt(div2.style.left);
+  var right2 = parseInt(div2.style.left) + 
+               parseInt(div2.clientWidth ? div2.clientWidth : 
+                        div2.style.width ? div2.style.width : 0);
+  var top2 = parseInt(div2.style.top);
+  var bottom2 = parseInt(div2.style.top) + 
+                parseInt(div2.clientHeight ? div2.clientHeight : 
+                         div2.style.height ? div2.style.height : 0);
+  
+  document.write("div1: " + left1 + " " + right1 + " " + top1 + " " + bottom1 + "<br>");
+  document.write("div2: " + left2 + " " + right2 + " " + top2 + " " + bottom2 + "<br>");
+  
+  return (left1 < right2 && 
+      right1 > left2 &&
+      top1 < bottom2 &&
+      bottom1 > top2);
+}
+
+var div1 = document.getElementById("div1");
+var div2 = document.getElementById("div2");
+
+document.write("collision: " + collide(div1, div2));
+
+
+</script>
+
+</body>
+
+</html>

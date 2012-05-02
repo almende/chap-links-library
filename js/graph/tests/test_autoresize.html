@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Graph offline example</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+
+    <script type="text/javascript" src="../graph.js"></script>
+    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <link rel="stylesheet" type="text/css" href="../graph.css">
+    
+    <script type="text/javascript">
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+
+        function functionA(x) {
+          return (Math.sin(x / 100) * Math.cos(x / 50) * 50 + (Math.random()-0.5) * 10);
+        }
+
+        function functionB(x) {
+          return (Math.sin(x/50) * 50 + Math.cos(x / 7) * 75 + (Math.random()-0.5) * 20 + 50) + 200;
+        }
+
+        // Create and populate dataset with function A
+        dataset1 = {
+          'label': 'Function A',
+          'data': []
+        };
+        var d = new Date(2010, 9, 23, 20, 0, 0);
+        for (i = 0; i < 1000; i++) {
+          dataset1.data.push({
+            'date': new Date(d), 
+            'value': functionA(i)
+          });
+          d.setMinutes(d.getMinutes() + 1);
+        }
+        
+        // Create and populate dataset with function B
+        dataset2 = {
+          'label': 'Function B',
+          'data': []
+        };
+        var d = new Date(2010, 9, 23, 20, 0, 0);
+        for (i = 0; i < 1000; i++) {
+          dataset2.data.push({
+            'date': new Date(d), 
+            'value': functionB(i)
+          });
+          d.setMinutes(d.getMinutes() + 1);
+        }
+
+        // specify options
+        options = {
+          'width':  '100%', 
+          'height': '350px',
+          'vStart': 500,
+          'vEnd': 510
+        };
+
+        // Instantiate our graph object.
+        graph = new links.Graph(document.getElementById('mygraph'));
+        
+        // Draw our graph with the created data and options 
+        graph.draw([dataset1, dataset2], options);
+        
+        // use the Links event bus (not googles event bus)
+        var onRangeChange = function (params) {
+          document.getElementById('range').innerHTML = 
+            'Visible range from ' + params.start + ' to ' + params.end;
+        };
+        links.events.addListener(graph, 'rangechange', onRangeChange);
+      }
+   </script>
+  </head>
+
+  <body onload="drawVisualization();">
+    <h1>Graph offline example</h1>
+    <p>
+      This demo is almost identical to <a href="example01_basis.html">example01_basis.html</a>,
+      except that this example uses a JSON Table instead of a Google DataTable.
+      Not needing the Google JSAPI enables offline usage of the Graph.
+    </p>
+    
+    <div id="mygraph"></div>
+    
+    <p id="range"></p>
+    
+    
+    <div id="info"></div>
+  </body>
+</html>

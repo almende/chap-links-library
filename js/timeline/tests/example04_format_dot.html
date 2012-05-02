@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>Timeline demo</title>
+
+    <style>
+		  body {font: 10pt arial;}
+		</style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../timeline.js"></script>
+    <link rel="stylesheet" type="text/css" href="../timeline.css">
+    
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+      
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'start');
+        data.addColumn('datetime', 'end');
+        data.addColumn('string', 'content');
+
+        for (var i = 0; i < 500; i++) {
+          data.addRows([
+            [new Date((new Date()).getTime() + 1000*60*i), , 'Power On ' + i]
+          ]);
+        }
+
+        // specify options
+        options = {
+          'width':  "100%", 
+          'height': "auto", 
+          //'height': "800px", 
+          'editable': false,
+          'enableKeys': true,
+          'animate': false,
+          'axisOnTop': false,
+          'style': "dot"
+        };
+
+        // Instantiate our timeline object.
+        var vis = new links.Timeline(document.getElementById('mytimeline'));
+
+        // Draw our timeline with the created data and options 
+        vis.draw(data, options);
+      }
+   </script>
+  </head>
+
+  <body>
+    <h1>Test</h1>
+    <div id="mytimeline" style="background-color: #FAFAFA;"></div>
+    
+  </body>
+</html>

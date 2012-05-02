@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+                                                                        
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create a datatable for the nodes.
+        var nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'style');  // optional
+        nodesTable.addRow([1, "Office", "circle"]);
+        nodesTable.addRow([2, "Main", "circle"]);
+        nodesTable.addRow([3, "Server 1", "database"]);
+        nodesTable.addRow([4, "Server 2", "database"]);
+        nodesTable.addRow([5, "Internet", "circle"]);
+        nodesTable.addRow([101, "Computer A", undefined]);
+        nodesTable.addRow([102, "Computer B", undefined]);
+        nodesTable.addRow([103, "Computer C", undefined]);
+        nodesTable.addRow([104, "Computer D", undefined]);
+        nodesTable.addRow([105, "Computer E", undefined]);
+
+        // create a datatable for the links between the nodes
+        var linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('number', 'width');  // optional
+        linksTable.addRow([1, 101, undefined]);   
+        linksTable.addRow([1, 102, 2]);   
+        linksTable.addRow([1, 103, undefined]);   
+        linksTable.addRow([1, 104, undefined]);   
+        linksTable.addRow([1, 105, undefined]);   
+        linksTable.addRow([1, 2, 5]);   
+        linksTable.addRow([2, 3, 3]);   
+        linksTable.addRow([2, 5, 4]);   
+        linksTable.addRow([5, 4, 2]);   
+
+        // specify options
+        var options = {width:  "400px", 
+                       height: "500px",
+                       stabilize: false, // do not stabilize before displaying
+                      };
+
+        // Instantiate our network object.
+        var network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our network with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+   </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+  </body>
+</html>

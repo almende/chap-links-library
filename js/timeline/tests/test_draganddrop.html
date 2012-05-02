@@ -1,0 +1,45 @@
+<html>
+<head>
+
+<script type='text/javascript'>  
+  var text = 'Error: Oh Balls'; 
+  function pickup(target) { 
+    //text = $(target).attr('descr'); 
+    text = target.innerHTML;
+  } 
+    
+  function drop() { 
+    //$('#dropbox').html('<p>' + text + '</p>'); 
+    document.getElementById('dropbox').innerHTML = '<p>' + text + '</p>';
+
+  } 
+</script> 
+
+</head>
+<body>
+<!-- source: http://dylanjones.info/blog/id/59 -->
+
+<span id='drag-2' descr='HTML5: I am learning about HTML5 as it comes out - it is great fun and provides lots of opportunities' 
+                  draggable='true' ondrag='pickup(this)'>HTML5</span>  
+
+<span id='drag-5' descr='Baking: I am very found of Bakery goods, mainly cake, cookies and sweet things' 
+                  draggable='true' 
+                  ondrag='pickup(this)'>Baking</span>  
+                  
+<span id='drag-6' descr='Welsh: I lived in Wales for a long time' 
+                  draggable='true' 
+                  ondrag='pickup(this)'>Welsh</span> 
+
+<span id='drag-8' descr='Student: I am a student' 
+                  draggable='true' 
+                  ondrag='pickup(this)'>Student</span> 
+
+<div id="dropbox" ondrop="drop(this)" 
+                  ondragenter="return false" 
+                  ondragover="return false">  
+  <p>drag and drop stuff from the cloud above here</p>  
+</div>
+
+</body>
+
+</html>

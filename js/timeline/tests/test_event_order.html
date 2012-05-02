@@ -1,0 +1,51 @@
+<html>
+<head>
+  <style>
+    #div1 {
+      width: 400px;
+      height: 300px;
+      border: 1px solid black;
+      background-color: yellow;
+    }
+    
+    #div2 {
+      position: relative;
+      left: 100px;
+      top: 100px;
+      width: 200px;
+      height: 100px;
+      border: 1px solid black;
+      background-color: red;
+      
+    }
+  </style>
+
+  <script>
+    var div1 = null;
+    var div2 = null;
+  
+    function load() {
+      div1 = document.getElementById("div1");
+      div2 = document.getElementById("div2");
+      
+      div1.onmousedown = function () {
+        alert("div1 mouesedown");
+      }
+      div2.onmousedown = function () {
+        alert("div2 mouesedown");
+      }
+    }
+  </script>
+
+</head>
+
+
+<body onload="load();">
+
+<div id="div1">
+  <div id="div2"></div>
+</div>
+
+</body>
+
+</html>

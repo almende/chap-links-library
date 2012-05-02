@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo - images</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+                                                                        
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+
+      var DIR = 'img/refresh-cl/';
+
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create a data table with nodes.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');   // optional
+        nodesTable.addColumn('string', 'image');  // optional
+        nodesTable.addColumn('string', 'style');   // optional
+        
+        // Create a data table with links.
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('number', 'length'); // optional
+        var lengthMain = 150;
+        var lengthSub = 50;
+        
+        nodesTable.addRow([1, 'Main', DIR + 'Network-Pipe-icon.png', 'image']);
+        nodesTable.addRow([2, 'Office', DIR + 'Network-Pipe-icon.png', 'image']);
+        nodesTable.addRow([3, 'Wireless', DIR + 'Network-Pipe-icon.png', 'image']);
+        linksTable.addRow([1, 2, lengthMain]);
+        linksTable.addRow([1, 3, lengthMain]);
+        
+        for (var i = 4; i <= 7; i++) {
+          nodesTable.addRow([i, 'Computer', DIR + 'Hardware-My-Computer-3-icon.png', 'image']);
+          linksTable.addRow([2, i, lengthSub]);
+        }
+        
+        nodesTable.addRow([101, 'Printer', DIR + 'Hardware-Printer-Blue-icon.png', 'image']);
+        linksTable.addRow([2, 101, lengthSub]);
+        
+        nodesTable.addRow([102, 'Laptop', DIR + 'Hardware-Laptop-1-icon.png', 'image']);
+        linksTable.addRow([3, 102, lengthSub]);
+        
+        nodesTable.addRow([103, 'Network drive', DIR + 'Network-Drive-icon.png', 'image']);
+        linksTable.addRow([1, 103, lengthSub]);
+
+        nodesTable.addRow([104, 'Internet', DIR + 'System-Firewall-2-icon.png', 'image']);
+        linksTable.addRow([1, 104, lengthSub]);
+        
+        for (var i = 200; i <= 201; i++ ) {
+          nodesTable.addRow([i, 'Smartphone', DIR + 'Hardware-My-PDA-02-icon.png', 'image']);
+          linksTable.addRow([3, i, lengthSub]);
+        }
+          
+        // specify options
+        var options = {
+          'width': '600px', 
+          'height': '600px',
+          'stabilize': false   // stabilize positions before displaying
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+    <p>
+      Icons: <a href="http://www.tpdkdesign.net" target="_blank">Refresh Cl by TpdkDesign.net</a>
+    </p>
+    
+    <div id="info"></div>
+  </body>
+</html>

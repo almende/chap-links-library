@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>LinkedIn Connections</title>
+
+    <style>
+      body {
+        font-family: arial;
+        font-size: 10pt;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+
+    <script type="text/javascript" src="http://platform.linkedin.com/in.js">
+       api_key: 2g67wjhkl2xq
+       authorize: true
+    </script>
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+      
+      /**
+       * Connector to retrieve LinkedIn connections
+       * http://developer.linkedinlabs.com/tutorials/jsapi_connections/
+       *
+       * @param {String} person    The person for who to retrieve its connection
+       */ 
+      var LinkedInConnector = function (id) {
+        this.id = id || 'me';
+        this.connections = undefined;
+      }
+      LinkedInConnector.prototype = new links.DataConnector();
+
+      LinkedInConnector.prototype.getChanges = function (index, num, items, callback, errback) {
+        // we just none of the items, supposing that the data never changes
+        var changedItems = [];
+
+        callback({
+          'totalItems': this.connections ? this.connections.length : 0,
+          'items': changedItems
+        });
+      }
+
+      LinkedInConnector.prototype.getItems = function (index, num, callback, errback) {
+        var me = this;
+        var response = function () {
+          var count = me.connections.length;
+          var items = [];
+          for (var i = index, iMax = Math.min(index + num, count) ; i < iMax; i++) {
+            items.push(me.connections[i]);
+          }
+          callback({
+            'totalItems': count,
+            'items': items
+          });
+        }
+        
+        if (this.connections) {
+          response();
+          return;
+        }
+        
+        // retrieve the connections
+        IN.API.Connections(me.id)
+          //.fields(['firstName', 'lastName', 'headline', 'pictureUrl'])
+          //.params({"count":30}) // TODO: offset and limit 
+          .result(function(result) { 
+            console.log(me.id, result);  // TODO: cleanup
+            
+            var connections = [];
+            me.connections = connections;
+            for (var i = 0; i < result.values.length; i++) {
+              var value = result.values[i];
+              var connection = {
+                'firstName': value.firstName,
+                'lastName': value.lastName,
+                'headline': value.headline,
+                '_icons': [{'image': value.pictureUrl, 'width': '40px', 'height': '40px'}]
+              }
+              connections.push(connection);
+            }
+            
+            response();
+        });        
+      }
+
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        // specify options
+        var options = {
+          'width': '800px',
+          'height': '600px'
+        };
+
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+        /* TODO: cleanup
+        
+        // on selection of an item, we want to open the concering
+        links.events.addListener(treegrid, 'select', function (params) {
+          var item = (params && params.items) ? params.items[0] : undefined;
+          if (item) {
+            show(item._url);
+          }
+        });
+
+        // on click on the action button 'details', show the description in a popup
+        links.events.addListener(treegrid, 'details', function (params) {
+          var item = (params && params.items) ? params.items[0] : undefined;
+          if (item) {
+            alert(item._description);
+          }
+        });
+        
+        IN.API.Connections('me')
+            .result(function(result) { 
+          c = result;
+          console.log('me', result);
+        });
+        
+        // This is forbidden :(
+        IN.API.Connections('chCluRNBSy')
+            .result(function(result) { 
+          console.log('chCluRNBSy', result);
+        });
+        */
+        
+        // create a youtube connector and draw the TreeGrid.
+        var id = 'me';
+        data = new LinkedInConnector(id);
+        treegrid.draw(data);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>LinkedIn Connections</h1>
+    
+    <p>
+    <script type="in/Login">
+       Hello, <?js= firstName ?> <?js= lastName ?>.
+    </script>
+    </p>
+    
+    <div id="mytreegrid"></div>
+
+  </body>
+</html>

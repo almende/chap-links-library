@@ -1,0 +1,64 @@
+<html>
+
+<head>
+  <style>
+    #row {
+      width: 500px;
+      border: 1px solid green;
+      overflow: hidden;
+      position: absolute;
+      left: 200px;
+      top: 200px;
+    }
+
+    #first, #second, #third {
+      /*
+      position: relative;
+      width: 100px;
+      */
+      border: 1px solid red;
+      float: left;
+      padding: 4px;
+    }
+    
+    #button {
+      float: left;
+    }
+    #first {
+      /*
+      left: 0px;
+      */
+      padding-right: 100px;
+    }
+    #second {
+      /*
+      left: 100px;
+      top: -20px;
+      */
+    }
+    #third {
+      /*
+      left: 200px;
+      top: -40px;
+      */
+    }
+  </style>
+</head>
+
+<body>
+
+<div id='row'><button id="button">Click</button><div id="first">First bla bla bla bla</div><div id="second">Second</div><div id="third">Third</div></div>
+
+
+<script type="text/javascript">
+
+var high = document.getElementById('high');
+//high.style.height = 32 * 1e10 + 'px';
+//high.style.top = 32 * 1e20 + 'px';  // fails in FF and chrome
+
+</script>
+
+
+
+</body>
+</html>

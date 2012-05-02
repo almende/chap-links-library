@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="100%" 
+     onclick="remove(evt)">
+<script><![CDATA[
+document.documentElement.setAttribute("onclick","remove(evt)")
+function remove(evt){
+	document.documentElement.removeChild(evt.target)
+}
+//]]>
+</script>
+<rect x="0" y="0" height="100%" width="100%" fill="yellow"/>
+<text font-size="12" x="5" y="20" id="hint">Click button for 
+circle</text>
+<text font-size="12" x="15" y="130" id="hint">Click circle to 
+cleanup</text>
+</svg>

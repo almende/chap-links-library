@@ -1,0 +1,57 @@
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+</head>
+<body>
+<!--
+<div id="div1" style="height: 200px; width:100px; background-color: red; border-radius: 20px; border-Top-Left-Radius: 50px;></div>
+-->
+
+<div id="div2" style="position: absolute; left: 400px; top: 300px; width:100px; height: 100px; border: 10px solid red; background-color: yellow;" >
+  <div id="div3" style="position: absolute; left: 40px; top: 40px; width:20px; height: 20px; background-color: blue;" ></div>
+</div>
+
+
+<script>
+
+
+function circle(parent, cx, cy, radius, color) {
+
+  var circle = document.createElement('DIV');
+  circle.style.position = "absolute"; 
+  circle.style.left = cx + "px";
+  circle.style.top = cy + "px";
+  circle.style.width = (2*radius) + "px";
+  circle.style.height = (2*radius) + "px";
+  parent.appendChild(circle);
+
+  for (x = -radius; x < radius; x++) {
+    y = Math.sqrt(radius*radius - x*x);
+
+    //alert(x +  "\n" +y );
+
+    var div = document.createElement('DIV');
+    div.style.position = "absolute";
+    div.style.left =  (x + radius) + "px"; 
+    div.style.top  = (-y + radius) + "px"; 
+    div.style.width = "1px";
+    div.style.height = (2.0*y) + "px";
+    div.style.backgroundColor = color;
+    circle.appendChild(div);
+    
+    //alert(div.style.left +  "\n" + div.style.top +  "\n" + div.style.width +  "\n" + div.style.height );
+  }
+}
+                       
+div1 = document.getElementById( "div1" );
+
+//round(document.getElementById('div2'),  "green");
+
+var parent = document.getElementById('div2');
+circle(parent, -100, -100, 25,  "green" );
+
+</script>
+
+</body>
+
+</html>

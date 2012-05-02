@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network nodes history</title>
+
+    <style>
+      body {
+        font: 10pt arial; 
+      }
+    </style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+      
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(draw); 
+
+      // Called when the Visualization API is loaded.
+      function draw() {
+        var timestamp = new Date();
+
+        // Create and populate a data table.
+        var idStart = 0,
+            idEnd = 1;
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'title');
+        nodesTable.addColumn('string', 'action');
+        nodesTable.addColumn('datetime', 'timestamp');
+        nodesTable.addRow([idEnd, 'End', 'This is the <b>end</b> node', 'update', undefined]);
+        nodesTable.addRow([idStart, 'Start', 'This is the <b>start</b> node', 'update', undefined]);
+        
+        var idLink = 0,
+            idMainLink = idLink;
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'id');
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');        
+        linksTable.addColumn('string', 'title');        
+        linksTable.addColumn('number', 'length');        
+        linksTable.addColumn('number', 'width');
+        linksTable.addColumn('string', 'action');
+        linksTable.addColumn('datetime', 'timestamp');
+        linksTable.addRow([idLink, idStart, idEnd, 
+          'This is the <b>link</b> between<br>start and end node<br><br>' +
+          '<a href="http://www.almende.com" target="_blank">Click here</a> ' +
+          'to go to the Almende website<br>' +
+          '<a href="javascript: alert(\'Just because we can\');">why?</a>',
+          200, undefined, undefined, undefined]);
+
+        // add nodes and links dynamically
+        var id = idEnd;   // id of the last creeted
+        var hour = 1000 * 60 * 60;
+        for (n = 0; n < 10; n++) {
+          timestamp = new Date(timestamp.getTime() + hour * 6);
+
+          var t = timestamp.getTime();
+          id++;
+          nodesTable.addRow([id, id + '', undefined, 'update', new Date(t)]);
+
+          idLink++;
+          var from = Math.floor(Math.random() * (id-1) );
+          var to = id;
+          linksTable.addRow([idLink, from, to, undefined, undefined, 1, 'update', new Date(t)]);
+          
+          // adjust the width and color of the link between the two main nodes
+          linksTable.addRow([idMainLink, idStart, idEnd, undefined, undefined, n+1, 'update', new Date(t)]);
+        }
+
+        // specify options
+        options = {
+          'width': '600px',
+          'height': '600px',
+          'stabilize': false
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+   </script>
+  </head>
+
+  <body>
+    <table align="center">
+      <tr>
+        <td>
+          <div id="mynetwork"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <form onsubmit="javascript: network.animationSetAcceleration(this.acc.value); return false;">
+            Animation acceleration (1 is real time): <input type="text" name="acc" id="acc" value="100" style="width: 50px;">
+            <input type="submit" value="Set">
+          </form>
+          <i>Or</i>
+          <form onsubmit="javascript: network.animationSetDuration(this.duration.value); return false;">
+            Animation duration (seconds): <input type="text" name="duration" id="duration" value="5" style="width: 50px;">
+            <input type="submit" value="Set">
+          </form>
+
+        </td>
+      </tr>
+    </table>
+    
+    <div id="info"></div>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+<html>
+
+<body>
+<h1>Test iframe with xhtml</h1>
+<script>
+  var div = document.createElement('div');
+  var iframe = document.createElement('iframe');
+  div.appendChild(iframe);
+  document.body.appendChild(div);
+  
+  iframe.onload = function (evt) {
+  alert(evt.type + '; target: ' + evt.target + '; currentTarget: ' +
+  evt.currentTarget);
+  if (evt && evt.currentTarget && evt.currentTarget.contentDocument) {
+  var element = evt.currentTarget.contentDocument.documentElement;
+  alert('nodeName: ' + element.nodeName + '; namespaceURI: ' +
+  element.namespaceURI);
+  }
+  };
+  iframe.src = 'data:application/xhtml+xml,' + [
+  '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">',
+  '<head>',
+  '</head>',
+  '<body>',
+  '<h1>test</h1>',
+  '</body>',
+  '</html>'
+  ].join('');
+</script>
+
+</body>
+</html>

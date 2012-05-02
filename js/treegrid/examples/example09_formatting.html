@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid format example</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+      var dataConnector;
+      
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        data = [
+          {"firstname": "John", "lastname": "Smith"},
+          {"firstname": "Susan", "lastname": "Brown"},
+          {"firstname": "David", "lastname": "Harris"},
+          {"firstname": "Harry", "lastname": "Jones"}
+        ];
+        var connectorOptions = {
+          "columns": [
+            {
+              "name": "fullname", 
+              "text": "Full name", 
+              "format": function() {
+                return this.firstname + ' ' + this.lastname;
+              }
+            },
+            {
+              "name": "uppercase", 
+              "text": "Capital name", 
+              "format": "function () {return this.lastname.toUpperCase();}"
+              // WARNING: format as string will be evaluated using the javascript 
+              //          eval method, which is unsafe. It may be needed though
+              //          when the dataconnector options need to be valid JSON.
+            },
+            {
+              "name": "firstname", 
+              "text": "First name"
+            },
+            {
+              "name": "lastname", 
+              "text": "Last name"
+            }
+          ]
+        };
+        dataConnector = new links.DataTable(data, connectorOptions);
+        
+        // specify options
+        var options = {
+          "width": "500px",
+          "height": "400px"
+        };  
+
+        // Instantiate our treegrid object.
+        var container = document.getElementById('mytreegrid');
+        treegrid = new links.TreeGrid(container, options);
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(dataConnector);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>TreeGrid format example</h1>
+    <div id="mytreegrid"></div>
+  </body>
+</html>

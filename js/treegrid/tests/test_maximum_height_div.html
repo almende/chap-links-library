@@ -1,0 +1,38 @@
+<html>
+
+<head>
+  <style>
+    #high {
+      position: absolute;
+      width: 400px;
+      border: 1px solid red;
+    }
+    
+    #container {
+      width: 500px;
+      height: 99%;
+      border: 1px solid green;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id='container'><div id="high"></div></div>
+
+
+
+<script type="text/javascript">
+
+var high = document.getElementById('high');
+high.style.height = 32 * 1e10 + 'px';
+//high.style.top = 32 * 1e20 + 'px';  // fails in FF and chrome
+
+</script>
+
+
+
+</body>
+
+</html>

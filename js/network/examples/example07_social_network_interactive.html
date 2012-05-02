@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo - interactive images</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+                                
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+
+      var DIR = 'img/soft-scraps-icons/';
+
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create a data table with nodes.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');   // optional
+        nodesTable.addColumn('string', 'image');  // optional
+        nodesTable.addColumn('string', 'style');   // optional
+        
+        // Create a data table with links.
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('number', 'value');  // optional
+        linksTable.addColumn('string', 'color');  // optional
+        linksTable.addColumn('number', 'length');  // optional
+        var width = 3.0;
+        var color = '#BFBFBF';
+        var len = 100; // pixels
+        
+        // create people
+        nodesTable.addRow([1, 'Algie', DIR + 'Smiley-Angry-icon.png', 'image']);
+        nodesTable.addRow([2, 'Alston', DIR + 'Smiley-Grin-icon.png', 'image']);
+        nodesTable.addRow([3, 'Barney', DIR + 'User-Administrator-Blue-icon.png', 'image']);
+        nodesTable.addRow([4, 'Coley', DIR + 'User-Administrator-Green-icon.png', 'image']);
+        nodesTable.addRow([5, 'Grant', DIR + 'User-Coat-Blue-icon.png', 'image']);
+        nodesTable.addRow([6, 'Langdon', DIR + 'User-Coat-Green-icon.png', 'image']);
+        nodesTable.addRow([7, 'Lee', DIR + 'User-Coat-Red-icon.png', 'image']);
+        nodesTable.addRow([8, 'Merlin', DIR + 'User-Executive-Green-icon.png', 'image']);
+        nodesTable.addRow([9, 'Mick', DIR + 'User-Preppy-Blue-icon.png', 'image']);
+        nodesTable.addRow([10, 'Tod', DIR + 'User-Preppy-Red-icon.png', 'image']);        
+
+        // create connections
+        linksTable.addRow([2, 8, 3, color, len]);
+        linksTable.addRow([2, 9, 5, color, len]);
+        linksTable.addRow([2, 10, 1, color, len]);
+        linksTable.addRow([4, 6, 8, color, len]);
+        linksTable.addRow([5, 7, 2, color, len]);
+        linksTable.addRow([4, 5, 1, color, len]);
+        linksTable.addRow([9, 10, 2, color, len]);
+        linksTable.addRow([2, 3, 6, color, len]);
+        linksTable.addRow([3, 9, 4, color, len]);
+        linksTable.addRow([5, 3, 1, color, len]);
+        linksTable.addRow([2, 7, 4, color, len]);
+        
+        // specify options
+        var options = {
+          'width':  '600px', 
+          'height': '600px',
+          'packages': {
+            'style': 'image',
+            'image': DIR + 'Email-icon32.png'
+          }
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+        
+        // start generating random emails
+        timeout();
+      }
+      
+      function timeout() {
+        sendRandomMail();
+        
+        var delay = Math.round(100 + Math.random() * 1000);
+        setTimeout(timeout, delay)
+      }
+      
+      function sendRandomMail() {
+        try {
+          var nodesCount = nodesTable.getNumberOfRows();
+          var randomRow = Math.round(Math.random() * (nodesCount-1));
+          var from = nodesTable.getValue(randomRow, 0);
+          do {
+            var randomRow = Math.round(Math.random() * (nodesCount-1));
+            var to = nodesTable.getValue(randomRow, 0);
+          }
+          while (to == from);
+
+          var packagesTable = new google.visualization.DataTable();
+          packagesTable.addColumn('number', 'from');
+          packagesTable.addColumn('number', 'to');        
+          packagesTable.addRow([from, to]);
+          network.addPackages(packagesTable);
+        }
+        catch(err) {
+          alert(err);
+        }
+      }      
+      
+   </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+    <p>
+      Icons: <a href="http://www.deleket.com/" target="_blank">Scrap Icons by Deleket</a>
+    </p>
+
+    <div id="info"></div>
+  </body>
+</html>

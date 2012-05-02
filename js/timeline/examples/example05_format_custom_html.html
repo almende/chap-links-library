@@ -1,0 +1,159 @@
+<html>
+  <head>
+    <title>Timeline demo</title>
+
+    <style>
+		  body {font: 14pt arial;}
+      input {font: 14pt arial;}
+		</style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../timeline.js"></script>
+    <link rel="stylesheet" type="text/css" href="../timeline.css">
+    
+    <style>
+      div.timeline-event {
+        border-color: black;
+      }
+      div.timeline-event-box, div.timeline-event-range {
+        border-radius: 0px;
+        border: none;
+      }
+      div.timeline-event-content {
+        margin: 0px;
+      }
+      div.timeline-event-dot {
+        border-width: 3px;
+        border-radius: 3px;
+        -moz-border-radius: 3px;
+      }
+    </style>
+    
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      var timeline;
+      var data;
+
+      // Called when the timelineualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'start');
+        data.addColumn('datetime', 'end');
+        data.addColumn('string', 'content');
+				
+        function addRow(startDate, endDate, content, backgroundColor, borderColor)
+        {
+          // we make our own customized layout for the events
+          
+          if (backgroundColor == undefined)
+            backgroundColor = "yellow";
+          if (borderColor == undefined)
+            borderColor = "gold";
+          
+          var fill = endDate ? "pink" : "yellow";
+          var div = '<div style="background-color:' + backgroundColor + 
+                    '; border:1px solid ' + borderColor + ';padding:5px;">' + 
+                    content + '</div>';
+
+          data.addRows([
+            [startDate, endDate, div]
+          ]);
+        }
+        
+        addRow(new Date(2010,07,19),          null,                 "<img src='img/comments-icon.png' style='width:32;height:32;'>", "orange", "red");
+        addRow(new Date(2010,07,23),          null,                 "<img src='img/notes-edit-icon.png' style='width:32;height:32;'>", "yellow", "orange");
+        addRow(new Date(2010,07,25),          new Date(2010,08,01), "<img src='img/community-users-icon.png' style='width:32;height:32;'>", "green", "darkgreen");
+        addRow(new Date(2010,07,27),          null,                 "<img src='img/attachment-icon.png' style='width:32;height:32;'>", "pink", "purple");
+        addRow(new Date(2010,08,02,12,00,00), null,                 "<img src='img/mail-icon.png' style='width:32;height:32;'>", "lightblue", "blue");
+ 
+        // specify options
+        options = {
+          width:     "75%", 
+          height:    "200px", 
+          start: new Date(2010,07,16),
+          end:   new Date(2010,08,07),  
+          style:    "box"    // optional. choose "dot" (default), "box", or "none"
+        };
+
+        // Instantiate our table object.
+        timeline = new links.Timeline(document.getElementById('mytimeline'));
+
+        // Attach event listeners
+        google.visualization.events.addListener(timeline, 'select', onselect);
+        google.visualization.events.addListener(timeline, 'rangechange', onrangechange);
+
+        // Draw our table with the data we created locally.
+        timeline.draw(data, options);
+
+        // Set the scale by hand. Autoscaling will be disabled.
+        // Note: you can achieve the same by specifying scale and step in the
+        // options for the timeline.
+        timeline.setScale(links.Timeline.StepDate.SCALE.DAY, 1);
+      }
+      
+      // adjust start and end time.
+      function setTime() {
+        if (!timeline) return;
+        
+        var newStartDate = new Date(document.getElementById('startDate').value);
+        var newEndDate   = new Date(document.getElementById('endDate').value);
+        timeline.setVisibleChartRange(newStartDate, newEndDate);
+        timeline.redraw();        
+      }
+
+      function onrangechange() {
+        // adjust the values of startDate and endDate
+        var range = timeline.getVisibleChartRange();
+        document.getElementById('startDate').value = dateFormat(range.start);
+        document.getElementById('endDate').value   = dateFormat(range.end);
+      }
+
+      function onselect() {
+        var sel = timeline.getSelection();
+        if (sel.length) {
+          if (sel[0].row != undefined) {
+            var row = sel[0].row;
+            alert("event " + row + " selected");
+          }
+        }
+      }
+      
+      // Format given date as "yyyy-mm-dd hh:ii:ss"
+      // @param datetime   A Date object.
+      function dateFormat(date) {
+        datetime =   date.getFullYear() + "-" + 
+                   ((date.getMonth()   <  9) ? "0" : "") + (date.getMonth() + 1) + "-" +
+                   ((date.getDate()    < 10) ? "0" : "") +  date.getDate() + " " +
+                   ((date.getHours()   < 10) ? "0" : "") +  date.getHours() + ":" + 
+                   ((date.getMinutes() < 10) ? "0" : "") +  date.getMinutes() + ":" + 
+                   ((date.getSeconds() < 10) ? "0" : "") +  date.getSeconds()
+        return datetime;
+      }
+      
+   </script>
+  </head>
+  <body onresize="timeline.redraw();">
+    <p>This page demonstrates the timeline visualization.</p>
+    <p>Click and drag to move the timeline, scroll to zoom the timeline.</p>
+    <p>
+      Starttime: <input type="text" id="startDate" value="2010-08-16">
+      Endtime:   <input type="text" id="endDate" value="2010-09-07">
+      <input type="button" id="setStartDate" value="set" onclick="setTime();">
+    </p>
+
+    <div id="mytimeline"></div>
+
+    <!-- Information about where the used icons come from -->
+    <p style="color:gray; font-size:10px; font-style:italic;">
+      Icons by <a href="http://dryicons.com" target="_blank" title="Aesthetica 2 Icons by DryIcons" style="color:gray;" >DryIcons</a>
+      and <a href="http://www.tpdkdesign.net" target="_blank" title="Refresh Cl Icons by TpdkDesign.net" style="color:gray;" >TpdkDesign.net</a>
+    </p>
+    
+    <div id="info"></div>
+  </body>
+</html>

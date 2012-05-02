@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>DataConnector example</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <style>
+      pre {
+        border: 1px solid lightgray;
+      }
+    </style>
+    
+    <script type="text/javascript">
+      // Called when the page is loaded
+      function draw() {
+        // generate some random data
+        var data = [];
+        for (var i = 0; i < 100; i++) {
+          data.push({
+            '_id': i,
+            'name': 'Item ' + i,
+            'description': 'A random item'
+          })
+        }
+        
+        var options = {
+          // options go here...
+        };
+        
+        var table = new links.DataTable(data, options);
+        
+        function callback (resp) {
+          var itemCount = resp.totalItems;
+          var items = resp.items;
+          document.getElementById('data').innerHTML = JSON.stringify(items, null, 2);
+        }
+          
+        function errback(err) {
+          document.getElementById('data').innerHTML = 'Error: ' + err;
+        }
+        
+        // retrieve 4 items, starting at index 20
+        var index = 20;
+        var num = 4;
+        table.getItems(index, num, callback, errback);
+      }
+   </script>
+  </head>
+
+  <body onload="draw();">
+    <pre id="data"></pre>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <title>Datasource test</title>
+
+    <style>
+		  body {font: 10pt arial;}
+		</style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(initialize); 
+
+      var query;
+
+      function initialize() {
+        // var dataSourceUrl = 'datasource.html';
+        var dataSourceUrl = 'datasource2.html';
+        // var dataSourceUrl = 'http://spreadsheets.google.com/tq?key=rCaVQNfFDMhOM6ENNYeYZ9Q&pub=1';
+        // var dataSourceUrl = 'http://spreadsheets.google.com/tq?range=A1:D11&headers=-1&key=0AtbpzGdXYTjpdDdkUlNLcjV2ZWNZNUVveFZzdU05dmc&gid=0';
+        var dataSourceUrl = 'https://spreadsheets0.google.com/a/almende.org/tq?key=tpN13qnPm37g3qTXT5Hc9sg&hl=en#gid=0';
+
+        handleQueryResponse = function(response) {
+          if (response.isError()) {
+            alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+            return;
+          }
+
+          document.getElementById('info').innerHTML += "data received<br>";
+
+          var data = response.getDataTable();
+
+          document.getElementById('info').innerHTML += "data.getNumberOfColumns()=" + data.getNumberOfColumns() + "<br>";
+          document.getElementById('info').innerHTML += "data.getNumberOfRows()=" + data.getNumberOfRows() + "<br>";
+          
+          document.getElementById('info').innerHTML += "<br>";
+          for (r = 0; r < data.getNumberOfRows(); r++) {
+            for (c = 0; c < data.getNumberOfColumns(); c++) {
+              document.getElementById('info').innerHTML += data.getValue(r,c) + ", ";
+            }
+            document.getElementById('info').innerHTML += "<br>";
+          }
+          
+        }
+        
+        query && query.abort();
+        query = new google.visualization.Query(dataSourceUrl);
+        query.send(handleQueryResponse);
+        
+        document.getElementById('info').innerHTML += "data requested<br>";
+      }
+      
+   </script>
+  </head>
+  <body>
+  <div id="orgchart"></div>
+  <div id="info"></div>
+  </body>
+</html>

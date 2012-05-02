@@ -1,0 +1,58 @@
+CHAP Links Library - Graph3d
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+Graph3d is an interactive visualization chart to draw data in a three 
+dimensional graph. You can freely move and zoom in the graph by dragging and 
+scrolling in the window. Graph3d also supports animation of a graph.
+
+The graph works smooth on any modern browser for data up to 10.000 points.
+
+The Graph is developed as a Google Visualization Chart in javascript. There is 
+a GWT wrapper available to use the Graph in GWT (Google Web Toolkit). 
+It runs on all modern browsers without additional requirements. Graph3d is 
+tested on Firefox 3.6+, Safari 5.0+, Chrome 6.0+, Opera 10.6+, 
+Internet Explorer 9+.
+
+To get started with Graph3d, download graph3d.zip, and unzip the contents in 
+a subfolder graph3d on your site. Examples can be found in the examples 
+directory. The possiblities of Graph3d can be tested on the playground.
+
+
+USAGE
+
+Graph3d is no built-in visualization of Google. To load Graph3d, download the 
+file graph3d.zip, and unzip it in your html page such that the files are 
+located in a subfolder graph3d. Include the google API and the following files 
+in the head of your html code:
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="graph/graph3d.js"></script>
+    
+The google visualization needs to be loaded in order to use DataTable.
+
+    google.load("visualization", "1");
+    google.setOnLoadCallback(drawVisualization);
+    function drawVisualization() {
+      // load data and create the graph here
+    }
+    
+The class name of the Graph3d is links.Graph3d
+
+    var graph = new links.Graph3d(container);
+
+After being loaded, the graph can be drawn via the function draw(), provided 
+with data and options.
+
+    graph.draw(data, options);
+
+where data is a DataTable, and options is a name-value map in the JSON format.
+
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+Examples can be found in the directory examples

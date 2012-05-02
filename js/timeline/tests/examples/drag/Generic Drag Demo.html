@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/strict.dtd">
+<!-- saved from url=(0044)http://www.brainjar.com/dhtml/drag/demo.html -->
+<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><HEAD><META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>BrainJar.com: Generic Drag Demo</TITLE>
+
+<LINK href="./Generic Drag Demo_files/default.css" rel="stylesheet" type="text/css">
+<STYLE type="text/css">
+
+.box {
+  background-color: #ffff00;
+  border: 1px solid #000000;
+  color: #000000;
+  padding: 0px;
+  position: absolute;
+}
+
+.bar {
+  background-color: #008080;
+  color: #ffffff;
+  cursor: move;
+  font-weight: bold;
+  padding: 2px 1em 2px 1em;
+}
+
+.content {
+  padding: 1em;
+}
+
+</STYLE>
+<SCRIPT type="text/javascript">//<![CDATA[
+
+//*****************************************************************************
+// Do not remove this notice.
+//
+// Copyright 2001 by Mike Hall.
+// See http://www.brainjar.com for terms of use.
+//*****************************************************************************
+
+// Determine browser and version.
+
+function Browser() {
+
+  var ua, s, i;
+
+  this.isIE    = false;
+  this.isNS    = false;
+  this.version = null;
+
+  ua = navigator.userAgent;
+
+  s = "MSIE";
+  if ((i = ua.indexOf(s)) >= 0) {
+    this.isIE = true;
+    this.version = parseFloat(ua.substr(i + s.length));
+    return;
+  }
+
+  s = "Netscape6/";
+  if ((i = ua.indexOf(s)) >= 0) {
+    this.isNS = true;
+    this.version = parseFloat(ua.substr(i + s.length));
+    return;
+  }
+
+  // Treat any other "Gecko" browser as NS 6.1.
+
+  s = "Gecko";
+  if ((i = ua.indexOf(s)) >= 0) {
+    this.isNS = true;
+    this.version = 6.1;
+    return;
+  }
+}
+
+var browser = new Browser();
+
+// Global object to hold drag information.
+
+var dragObj = new Object();
+dragObj.zIndex = 0;
+
+function dragStart(event, id) {
+
+  var el;
+  var x, y;
+
+  // If an element id was given, find it. Otherwise use the element being
+  // clicked on.
+
+  if (id)
+    dragObj.elNode = document.getElementById(id);
+  else {
+    if (browser.isIE)
+      dragObj.elNode = window.event.srcElement;
+    if (browser.isNS)
+      dragObj.elNode = event.target;
+
+    // If this is a text node, use its parent element.
+
+    if (dragObj.elNode.nodeType == 3)
+      dragObj.elNode = dragObj.elNode.parentNode;
+  }
+
+  // Get cursor position with respect to the page.
+
+  if (browser.isIE) {
+    x = window.event.clientX + document.documentElement.scrollLeft
+      + document.body.scrollLeft;
+    y = window.event.clientY + document.documentElement.scrollTop
+      + document.body.scrollTop;
+  }
+  if (browser.isNS) {
+    x = event.clientX + window.scrollX;
+    y = event.clientY + window.scrollY;
+  }
+
+  // Save starting positions of cursor and element.
+
+  dragObj.cursorStartX = x;
+  dragObj.cursorStartY = y;
+  dragObj.elStartLeft  = parseInt(dragObj.elNode.style.left, 10);
+  dragObj.elStartTop   = parseInt(dragObj.elNode.style.top,  10);
+
+  if (isNaN(dragObj.elStartLeft)) dragObj.elStartLeft = 0;
+  if (isNaN(dragObj.elStartTop))  dragObj.elStartTop  = 0;
+
+  // Update element's z-index.
+
+  dragObj.elNode.style.zIndex = ++dragObj.zIndex;
+
+  // Capture mousemove and mouseup events on the page.
+
+  if (browser.isIE) {
+    document.attachEvent("onmousemove", dragGo);
+    document.attachEvent("onmouseup",   dragStop);
+    window.event.cancelBubble = true;
+    window.event.returnValue = false;
+  }
+  if (browser.isNS) {
+    document.addEventListener("mousemove", dragGo,   true);
+    document.addEventListener("mouseup",   dragStop, true);
+    event.preventDefault();
+  }
+}
+
+function dragGo(event) {
+
+  var x, y;
+
+  // Get cursor position with respect to the page.
+
+  if (browser.isIE) {
+    x = window.event.clientX + document.documentElement.scrollLeft
+      + document.body.scrollLeft;
+    y = window.event.clientY + document.documentElement.scrollTop
+      + document.body.scrollTop;
+  }
+  if (browser.isNS) {
+    x = event.clientX + window.scrollX;
+    y = event.clientY + window.scrollY;
+  }
+
+  // Move drag element by the same amount the cursor has moved.
+
+  dragObj.elNode.style.left = (dragObj.elStartLeft + x - dragObj.cursorStartX) + "px";
+  dragObj.elNode.style.top  = (dragObj.elStartTop  + y - dragObj.cursorStartY) + "px";
+
+  if (browser.isIE) {
+    window.event.cancelBubble = true;
+    window.event.returnValue = false;
+  }
+  if (browser.isNS)
+    event.preventDefault();
+}
+
+function dragStop(event) {
+
+  // Stop capturing mousemove and mouseup events.
+
+  if (browser.isIE) {
+    document.detachEvent("onmousemove", dragGo);
+    document.detachEvent("onmouseup",   dragStop);
+  }
+  if (browser.isNS) {
+    document.removeEventListener("mousemove", dragGo,   true);
+    document.removeEventListener("mouseup",   dragStop, true);
+  }
+}
+
+//]]></SCRIPT>
+</HEAD><BODY>
+
+<!-- Normal page content. -->
+
+<DIV id="demoBox">
+
+<H3>Generic Drag Demo</H3>
+
+<P>This page contains three absolutely positioned elements and one relatively
+positioned element, all of which can be dragged around the browser window.</P>
+
+<P>Use your browser's <CODE>View Source</CODE> option to see the full source
+code.</P>
+
+</DIV>
+
+<P style="border:1px solid #000000;width:12em;text-align:center;" onmousedown="dragStart(event, &#39;boxC&#39;)">Drag Box C</P>
+
+<DIV id="boxA" class="box content" style="width: 12em; z-index: 1; left: 463px; top: 28px; " onmousedown="dragStart(event)">
+This is Box A, drag it.
+</DIV>
+
+<DIV id="boxB" class="box" style="z-index: 3; left: 459px; top: 286px; ">
+  <DIV class="bar" style="width:12em;" onmousedown="dragStart(event, &#39;boxB&#39;)">Drag Box B</DIV>
+  <DIV class="content" style="width:12em;">This is Box B, drag it using the bar above.</DIV>
+</DIV>
+
+<DIV id="boxC" class="box content" style="width: 12em; z-index: 5; left: 399px; top: 155px; ">
+This is Box C, drag it using the box at left.
+</DIV>
+
+<DIV id="boxD" class="box content" style="position: relative; width: 12em; z-index: 7; left: 114px; top: 102px; " onmousedown="dragStart(event)">
+This is Box D which is relatively positioned, drag it.
+</DIV>
+
+
+
+</BODY></HTML>

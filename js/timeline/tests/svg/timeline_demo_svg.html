@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>Timeline demo</title>
+
+    <style>
+		  body {font: 12pt arial;}
+
+		</style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="timeline_svg.js"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+			
+        // Create and populate a data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'time');
+        data.addColumn('string', 'title');
+        data.addColumn('string', 'icon');
+        data.addColumn('string', 'onclick');
+				
+        data.addRows([
+          [new Date(2010,07,19), 'Conversation', 'img/aesthetica2/comments-icon.png', 'alert("bla bla...");'],
+          [new Date(2010,07,23), 'Memo', 'img/aesthetica2/note-edit-icon.png', ''],
+          [new Date(2010,08,02), 'Report', 'img/aesthetica2/attachment-icon.png', '']
+        ]);
+				
+        // specify options
+        options = {width:     600, 
+                   height:    200, 
+                   startTime: new Date(2010,07,16),
+                   endTime:   new Date(2010,08,07),  };
+
+        // Instantiate our table object.
+        var vis = new cvt.Timeline(document.getElementById('mytimeline'));
+        
+        // Draw our table with the data we created locally.
+        vis.draw(data, options);
+      }
+   </script>
+  </head>
+  <body>
+    <p>This page demonstrates the timeline visualization.</p>
+    <div id="mytimeline"></div>
+  </body>
+</html>

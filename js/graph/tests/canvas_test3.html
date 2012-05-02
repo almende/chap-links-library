@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<!-- saved from url=(0032)http://gnuzoo.org/rose/index.htm -->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		
+    <!--[if IE]><script src="excanvas.js"></script><![endif]-->
+		
+    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+
+		<script type="text/javascript">
+                         
+      google.load('visualization', '1');
+      google.setOnLoadCallback(draw);
+                         
+		  function draw() {                 
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'Date');
+        data.addColumn('number', 'Math.sin(i/10)*100');
+        data.addColumn('string', 'title1');
+        data.addColumn('string', 'text1');
+        
+        var date = new Date(2008, 1 ,1);
+        for (i = 0; i < 1000; i++) {
+          data.addRow([new Date(date), Math.sin(i/10)*100, undefined, undefined])
+          date.setDate(date.getDate() + 1);
+        }			
+				
+				var container = document.getElementById( "container" );
+ 				var canvas = document.createElement( "canvas" );
+				canvas.width =  "500";
+				canvas.height =  "500";
+        isIE = (/MSIE/.test(navigator.userAgent) && !window.opera);
+        if (isIE && (typeof(G_vmlCanvasManager) != 'undefined')) {
+          canvas = G_vmlCanvasManager.initElement(canvas);
+        }
+        container.appendChild(canvas);
+				
+				var ctx = canvas.getContext("2d");
+
+        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        var i = 0;
+        var x = i/10;
+        var y = data.getValue(i, 1) + 100;
+        ctx.moveTo(x, y); 
+        for (i = 1; i < data.getNumberOfRows(); i++) {
+          x = i;
+          y = data.getValue(i, 1) + 100;
+          ctx.lineTo(x, y);  
+        }
+        ctx.stroke();       				
+
+			}		
+		</script> 
+	</head>
+	<body>
+	  <div id="container"></div>
+  </body>
+</html>

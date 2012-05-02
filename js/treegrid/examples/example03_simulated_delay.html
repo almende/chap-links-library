@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid - simulated slow data connection</title>
+
+    <style>
+      body {
+        font: 10pt arial;
+        width: 780px;
+      }
+      table, tr, td {
+        font: inherit;
+      }
+      input[type="text"] {
+        border: 1px solid lightgray;
+        width: 100px;
+      }
+      img.icon {
+        width: 24px; 
+        height: 24px; 
+        vertical-align: top;
+      }
+      td.main {
+        vertical-align: top;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+
+      function randomTruckCapacity() {
+        return Math.round(Math.random() * 100 + 100) * 10;
+      } 
+
+      function randomPostcode() {
+        return String(Math.random() * 10000).substring(0, 4) + ' AB';
+      }
+      
+      function randomOrderCapacity() {
+        return Math.round(Math.random() * 10 + 10) * 10;
+      }
+
+      function createTruck(index) {
+        var truck = {
+          'name': 'Truck ' + index + (index == 0 ? ' (first)' : ''),
+          'capacity': randomTruckCapacity()
+        }
+        truck['orders'] = createOrders();
+        return truck;
+      }
+
+      function createOrder(index, count) {
+        var order = {
+          //'id': '<img src="img/product-icon.png" class="icon"> ' + 
+          'id': '' + 
+            'Order ' + index,
+          'postcode': randomPostcode(),
+          'capacity': randomOrderCapacity()
+        }
+
+        if (index == count - 1) {
+          order.id += ' (last order)'; 
+        }
+
+        return order;
+      }
+      
+      function createOrders(data) {
+        var orderCount = getOrderCount();
+
+        // create datatable
+        if (data == undefined) {
+          data = new DelayedDataTable([]);
+        }
+        
+        // remove orders
+        while (data.data.length > orderCount) {
+          data.data.pop();
+        }
+        // append orders
+        while (data.data.length < orderCount) {
+          var index = data.data.length;
+          data.data.push(createOrder(index, orderCount));
+        }
+        
+        // update orders
+        var orders = [];
+        for (var i = 0; i < orderCount; i++) {
+          var order = data.data[i];
+          order.postcode = randomPostcode();
+          order.capacity = randomOrderCapacity();
+        }
+        
+        data.update();
+        return data;
+      }
+
+      function createTrucks() {
+        var truckCount = getTruckCount();
+        
+        // create datatable
+        if (data == undefined) {
+          data = new DelayedDataTable([]);
+        }
+        
+        // remove trucks
+        while (data.data.length > truckCount) {
+          data.data.pop();
+        }
+
+        // update trucks
+        for (var i = 0, iMax = data.data.length; i < iMax; i++) {
+          data.data[i] = createTruck(i);
+        }
+        
+        // append trucks
+        while (data.data.length < truckCount) {
+          var index = data.data.length;
+          data.data.push(createTruck(index));
+        }
+        
+        data.update();
+      }
+   
+      function getTruckCount() {
+        return Number(document.getElementById('trucks').value) || 0;
+      }
+                  
+      function getOrderCount() {
+        return Number(document.getElementById('orders').value) || 0;
+      }
+            
+      function getServerDelay() {
+        return Number(document.getElementById('serverdelay').value) || 0;
+      }
+
+      function getServerDown() {
+        return document.getElementById('serverdown').checked;
+      }
+
+      /**
+       * Asynchronous link to a data table, which is simulated to be 
+       * slow or unavailable.
+       */ 
+      var DelayedDataTable = function (data, options) {
+        // call prototype constructor
+        links.DataTable.call(this, data, options);
+      }
+      
+      DelayedDataTable.prototype = new links.DataTable();
+      
+      DelayedDataTable.prototype.getChanges = function (index, num, items, callback, errback) {
+        var me = this;
+        setTimeout(function () {
+          if (getServerDown()) {
+            if (errback) {
+              errback('Could not get items');
+            }
+          }
+          else {
+            links.DataTable.prototype.getChanges.call(me, index, num, items, 
+              callback, errback);
+          }
+        }, getServerDelay() / 5);
+      }
+      
+      DelayedDataTable.prototype.getItems = function (index, num, callback, errback) {
+        var me = this;
+        setTimeout(function () {
+          if (getServerDown()) {
+            if (errback) {
+              errback('Could not get items');
+            }
+          }
+          else {
+            links.DataTable.prototype.getItems.call(me, index, 
+              num, callback, errback);
+          }
+        }, getServerDelay());        
+      }
+
+      DelayedDataTable.prototype.updateItems = function (items, callback, errback) {
+        var me = this;
+        setTimeout(function () {
+          if (getServerDown()) {
+            if (errback) {
+              errback('Could not get items');
+            }
+          }
+          else {
+            links.DataTable.prototype.updateItems.call(me, items, callback, errback);
+          }
+        }, getServerDelay());  
+      }
+
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        createTrucks();
+
+        // specify options
+        var options = {
+          'width': '500px',
+          'height': '400px',
+          'items': {
+            'defaultHeight': 32   // px
+          }
+        };
+        
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(data);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>Simulated slow data connection</h1>
+    <p>
+      This example shows how the TreeGrid handles slow data and unavailable connections.
+      The interface always remains responsive, and on screen information is shown
+      about what is being loaded and if there are errors.
+    </p>
+    
+    <table><tr><td class="main">
+      <b>Data</b>
+      <table>
+        <tr><td>Number of trucks</td><td><input type="text" name="trucks" id="trucks" value="25" /></td></tr>
+        <tr><td>Number of orders</td><td><input type="text" name="orders" id="orders" value="10" /></td></tr>
+        <tr><td></td><td style="text-align: right;"><input type='button' value="update" onclick="createTrucks();"/></td></tr>
+      </table>
+      <br>
+      
+      <b>Simulation</b>
+      <table>
+        <tr><td>server delay (ms)</td><td><input type="text" name="serverdelay" id="serverdelay" value="1000" /></td></tr>
+        <tr><td>server down</td><td><input type="checkbox" name="serverdown" id="serverdown" value="false" /></td></tr>
+      </table>
+    </td><td class="main">
+      <div id="mytreegrid"></div>
+    </td></tr></table>
+    
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid demo - drag and drop</title>
+
+    <style>
+      body {
+        font-family: arial;
+        font-size: 10pt;
+      }
+      th {
+        text-align: left;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var filesTreeGrid;
+      var foldersTreeGrid;
+
+      // Called when the page is loaded
+      function draw() {
+        // randomly generate some files
+        var files = [];
+        for (var i = 0; i < 50; i++) {
+          files.push({
+            'name': 'File ' + i,
+            'size': (Math.round(Math.random() * 50) * 10 + 100) + ' kB',
+            'date': (new Date()).toDateString(),
+            '_id': i     // this is a hidden field, as it starts with an underscore
+          });
+        }
+        
+        // randomly generate folders, containing a dataconnector which supports
+        // drag and drop
+        var folders = [];
+        var chars = 'ABCDE';
+        for (var i in chars) {
+          var c = chars[i];
+          var options = {
+            'dataTransfer' : {
+              'allowedEffect': 'move',
+              'dropEffect': 'move'
+            }
+          };
+          var dataConnector = new links.DataTable([], options);
+          var item = {
+            'name': 'Folder ' + c, 
+            'files': dataConnector, 
+            '_id': c
+          };
+          folders.push(item);
+        }
+        folders.push({'name': 'File X', '_id': 'X'});
+        folders.push({'name': 'File Y', '_id': 'Y'});
+        folders.push({'name': 'File Z', '_id': 'Z'});
+
+        // specify options
+        var treeGridOptions = {
+          'width': '350px',
+          'height': '400px'
+        };  
+
+        // Instantiate treegrid object with files
+        var filesContainer = document.getElementById('files');
+        var filesOptions = {
+          'columns': [
+            {'name': 'name', 'text': 'Name', 'title': 'Name of the files'},
+            {'name': 'size', 'text': 'Size', 'title': 'Size of the files in kB (kilo bytes)'},
+            {'name': 'date', 'text': 'Date', 'title': 'Date the file is last updated'}
+          ],
+          'dataTransfer' : {
+            'allowedEffect': 'move',
+            'dropEffect': 'none'
+          }
+        };
+        filesTreeGrid = new links.TreeGrid(filesContainer, treeGridOptions);
+        filesDataConnector = new links.DataTable(files, filesOptions);
+        /*
+        filesDataConnector.setFilters([{
+          'field': 'size',
+          'order': 'ASC'
+          //'startValue': '300 kB',
+          //'endValue': '500 kB',
+        }]);
+        //*/
+        filesTreeGrid.draw(filesDataConnector);    
+
+        // Instantiate treegrid object with folders
+        var foldersOptions = {};
+        //* TDOO: cleanup temporary foldersOptions
+        var foldersOptions = {
+          'dataTransfer' : {
+            'allowedEffect': 'move',
+            'dropEffect': 'move'
+          }
+        };
+        //*/
+        var foldersContainer = document.getElementById('folders');
+        var foldersDataConnector = new links.DataTable(folders, foldersOptions);
+        foldersTreeGrid = new links.TreeGrid(foldersContainer, treeGridOptions);
+        foldersTreeGrid.draw(foldersDataConnector);
+      }
+   </script>
+  </head>
+
+  <body onload="draw();">
+    <h1>TreeGrid Demo - drag and drop</h1>
+    <p>Assign files to folders by dragging them to a folder.
+    Keep Ctrl down to select multiple files, 
+    or Shift to select a range of files.</p>
+    <table id="main">
+      <tr>
+        <th>Uncategorized files</th>
+        <th>Folders</th>
+      </tr>      
+      <tr>
+        <td id="files"></td>
+        <td id="folders"></td>
+      </tr>
+    </table>
+    
+  </body>
+</html>

@@ -1,0 +1,1856 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="generator" content="JsDoc Toolkit" />
+		
+		<title>JsDoc Reference - links.Network</title>
+
+		<style type="text/css">
+			/* default.css */
+body
+{
+	font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+	width: 800px;
+}
+
+.header
+{
+	clear: both;
+	background-color: #ccc;
+	padding: 8px;
+}
+
+h1
+{
+	font-size: 150%;
+	font-weight: bold;
+	padding: 0;
+	margin: 1em 0 0 .3em;
+}
+
+hr
+{
+	border: none 0;
+	border-top: 1px solid #7F8FB1;
+	height: 1px;
+}
+
+pre.code
+{
+	display: block;
+	padding: 8px;
+	border: 1px dashed #ccc;
+}
+
+#index
+{
+	margin-top: 24px;
+	float: left;
+	width: 160px;
+	position: absolute;
+	left: 8px;
+	background-color: #F3F3F3;
+	padding: 8px;
+}
+
+#content
+{
+	margin-left: 190px;
+	width: 600px;
+}
+
+.classList
+{
+	list-style-type: none;
+	padding: 0;
+	margin: 0 0 0 8px;
+	font-family: arial, sans-serif;
+	font-size: 1em;
+	overflow: auto;
+}
+
+.classList li
+{
+	padding: 0;
+	margin: 0 0 8px 0;
+}
+
+.summaryTable { width: 100%; }
+
+h1.classTitle
+{
+	font-size:170%;
+	line-height:130%;
+}
+
+h2 { font-size: 110%; }
+caption, div.sectionTitle
+{
+	background-color: #7F8FB1;
+	color: #fff;
+	font-size:130%;
+	text-align: left;
+	padding: 2px 6px 2px 6px;
+	border: 1px #7F8FB1 solid;
+}
+
+div.sectionTitle { margin-bottom: 8px; }
+.summaryTable thead { display: none; }
+
+.summaryTable td
+{
+	vertical-align: top;
+	padding: 4px;
+	border-bottom: 1px #7F8FB1 solid;
+	border-right: 1px #7F8FB1 solid;
+}
+
+/*col#summaryAttributes {}*/
+.summaryTable td.attributes
+{
+	border-left: 1px #7F8FB1 solid;
+	width: 140px;
+	text-align: right;
+}
+
+td.attributes, .fixedFont
+{
+	line-height: 15px;
+	color: #002EBE;
+	font-family: "Courier New",Courier,monospace;
+	font-size: 13px;
+}
+
+.summaryTable td.nameDescription
+{
+	text-align: left;
+	font-size: 13px;
+	line-height: 15px;
+}
+
+.summaryTable td.nameDescription, .description
+{
+	line-height: 15px;
+	padding: 4px;
+	padding-left: 4px;
+}
+
+.summaryTable { margin-bottom: 8px; }
+
+ul.inheritsList
+{
+	list-style: square;
+	margin-left: 20px;
+	padding-left: 0;
+}
+
+.detailList {
+	margin-left: 20px; 
+	line-height: 15px;
+}
+.detailList dt { margin-left: 20px; }
+
+.detailList .heading
+{
+	font-weight: bold;
+	padding-bottom: 6px;
+	margin-left: 0;
+}
+
+.light, td.attributes, .light a:link, .light a:visited
+{
+	color: #777;
+	font-style: italic;
+}
+
+.fineprint
+{
+	text-align: right;
+	font-size: 10px;
+}
+		</style>
+	</head>
+
+	<body>
+<!-- ============================== header ================================= -->	
+		<!-- begin static/header.html -->
+		<div id="header">
+</div>
+		<!-- end static/header.html -->
+
+<!-- ============================== classes index ============================ -->
+		<div id="index">
+			<!-- begin publish.classesIndex -->
+			<div align="center"><a href="../index.html">Class Index</a>
+| <a href="../files.html">File Index</a></div>
+<hr />
+<h2>Classes</h2>
+<ul class="classList">
+	
+	<li><i><a href="../symbols/_global_.html">_global_</a></i></li>
+	
+	<li><a href="../symbols/links.Network.html">links.Network</a></li>
+	
+	<li><a href="../symbols/links.Network.Groups.html">links.Network.Groups</a></li>
+	
+	<li><a href="../symbols/links.Network.Images.html">links.Network.Images</a></li>
+	
+	<li><a href="../symbols/links.Network.Link.html">links.Network.Link</a></li>
+	
+	<li><a href="../symbols/links.Network.Node.html">links.Network.Node</a></li>
+	
+	<li><a href="../symbols/links.Network.Package.html">links.Network.Package</a></li>
+	
+	<li><a href="../symbols/links.Network.Slider.html">links.Network.Slider</a></li>
+	
+</ul>
+<hr />
+			<!-- end publish.classesIndex -->
+		</div>
+		
+		<div id="content">
+<!-- ============================== class title ============================ -->
+			<h1 class="classTitle">
+				
+				Class links.Network
+			</h1>
+
+<!-- ============================== class summary ========================== -->			
+			<p class="description">
+				
+				
+			
+				<p>
+Links Network is an interactive chart to visualize networks. 
+It allows creating nodes, links between the nodes, and interactive packages 
+moving between nodes. The visualization supports custom styles, colors, 
+sizes, images, and more.
+</p>
+<p>
+The network visualization works smooth on any modern browser for up to a 
+few hundred nodes and connections.
+</p>
+<p>Network is developed as a Google Visualization Chart in javascript. 
+There is a GWT wrapper available to use the Network in GWT (Google Web 
+Toolkit). It runs on all modern browsers without additional requirements. 
+Network is tested on Firefox 3.6+, Safari 5.0+, Chrome 6.0+, Opera 10.6+, 
+Internet Explorer 9+.
+</p>
+
+Usage:
+<code><pre>
+  var nodesTable = new google.visualization.DataTable();
+  nodesTable.addColumn('number', 'id');
+  nodesTable.addColumn('string', 'text');
+  nodesTable.addRow([1, "Node 1"]);
+  nodesTable.addRow([2, "Node 2"]);
+  // ...
+
+  var linksTable = new google.visualization.DataTable();
+  linksTable.addColumn('number', 'from');
+  linksTable.addColumn('number', 'to');
+  linksTable.addRow([1, 2]);   
+
+  var packageTable = undefined; 
+
+  var network = new links.Network(document.getElementById('network'));
+  network.draw(nodesTable, linksTable, packagesTable, options);
+</pre></code>
+<br>
+				
+				
+					<br /><i>Defined in: </i> <a href="../symbols/src/network.js.html">network.js</a>.
+				
+			</p>
+
+<!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class links.Network.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/links.Network.html#constructor">links.Network</a></b>(container)
+							</div>
+							<div class="description"></div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+
+<!-- ============================== properties summary ===================== -->
+			
+
+<!-- ============================== methods summary ======================== -->
+			
+				
+				
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class links.Network.">
+					<caption>Method Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.addEventListener">addEventListener</a></b>(element, action, listener, useCapture)
+								</div>
+								<div class="description">Add and event listener.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#addLinks">addLinks</a></b>(linksTable)
+								</div>
+								<div class="description">Load links by reading the data table
+Note that Object DataTable is defined in google.visualization.DataTable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#addNodes">addNodes</a></b>(nodesTable)
+								</div>
+								<div class="description">Append nodes 
+Nodes with a duplicate id will be replaced</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#addPackages">addPackages</a></b>(packagesTable)
+								</div>
+								<div class="description">Append packages 
+Packages with a duplicate id will be replaced
+Note that Object DataTable is defined in google.visualization.DataTable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#animationStart">animationStart</a></b>()
+								</div>
+								<div class="description">Start animation.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#animationStop">animationStop</a></b>()
+								</div>
+								<div class="description">Start animation.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#draw">draw</a></b>(nodes, links, packages, options)
+								</div>
+								<div class="description">Main drawing logic.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#getSelection">getSelection</a></b>()
+								</div>
+								<div class="description">retrieve the currently selected nodes</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.isArray">isArray</a></b>(obj)
+								</div>
+								<div class="description">Check if given object is a Javascript Array</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#isMoving">isMoving</a></b>(vmin)
+								</div>
+								<div class="description">Check if any of the nodes is still moving</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#onmousemove">onmousemove</a></b>(event)
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#onmouseup">onmouseup</a></b>(event)
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#ontouchend">ontouchend</a></b>(event)
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#ontouchmove">ontouchmove</a></b>(event)
+								</div>
+								<div class="description"></div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.Popup">Popup</a></b>(container, x, y, text)
+								</div>
+								<div class="description">Popup is a class to create a popup window with some text</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.preventDefault">preventDefault</a></b>(event)
+								</div>
+								<div class="description">Cancels the event if it is cancelable, without stopping further propagation of the event.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#redraw">redraw</a></b>()
+								</div>
+								<div class="description">Redraw the network with the current data
+chart will be resized too.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.removeEventListener">removeEventListener</a></b>(element, action, listener, useCapture)
+								</div>
+								<div class="description">Remove an event listener from an element</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setAnimationAcceleration">setAnimationAcceleration</a></b>(acceleration)
+								</div>
+								<div class="description">Set the time acceleration for playing the history.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setAnimationDuration">setAnimationDuration</a></b>(duration)
+								</div>
+								<div class="description">Set the duration of playing the whole package history
+Only applicable when packages with a timestamp are available</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setAnimationFramerate">setAnimationFramerate</a></b>(framerate)
+								</div>
+								<div class="description">Set framerate for the animation.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setLinks">setLinks</a></b>(linksTable)
+								</div>
+								<div class="description">Load links by reading the data table
+Note that Object DataTable is defined in google.visualization.DataTable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setNodes">setNodes</a></b>(nodesTable)
+								</div>
+								<div class="description">Load all nodes by reading the data table nodesTable
+Note that Object DataTable is defined in google.visualization.DataTable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setPackages">setPackages</a></b>(packagesTable)
+								</div>
+								<div class="description">Set a new packages table
+Packages with a duplicate id will be replaced
+Note that Object DataTable is defined in google.visualization.DataTable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setSelection">setSelection</a></b>(an)
+								</div>
+								<div class="description">select zero or more nodes</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setTimestamp">setTimestamp</a></b>(timestamp)
+								</div>
+								<div class="description">Set the current timestamp.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#start">start</a></b>()
+								</div>
+								<div class="description">Start animating nodes, links, and packages.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#stop">stop</a></b>()
+								</div>
+								<div class="description">Stop animating nodes, links, and packages.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.stopPropagation">stopPropagation</a></b>(event)
+								</div>
+								<div class="description">Stop event propagation</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Network.<b><a href="../symbols/links.Network.html#.tableToArray">tableToArray</a></b>(table)
+								</div>
+								<div class="description">Convert a Google DataTable to a Javascript Array</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#trigger">trigger</a></b>(event, params)
+								</div>
+								<div class="description">fire an event</div>
+							</td>
+						</tr>
+					
+					</tbody>
+				</table>
+				
+				
+				
+			
+<!-- ============================== events summary ======================== -->
+			
+
+<!-- ============================== constructor details ==================== -->		
+			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Class Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>links.Network</b>(container)
+				</div>
+				
+				<div class="description">
+					
+					
+				</div>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{dom_element}</span>  <b>container</b>
+								
+							</dt>
+								<dd>The DOM element in which the Network will
+                                 be created. Normally a div element.</dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
+			
+
+<!-- ============================== field details ========================== -->		
+			
+
+<!-- ============================== method details ========================= -->		
+			
+				<div class="sectionTitle">
+					Method Detail
+				</div>
+				
+					<a name=".addEventListener"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Network.</span><b>addEventListener</b>(element, action, listener, useCapture)
+					
+					</div>
+					<div class="description">
+						Add and event listener. Works for all browsers
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{DOM Element}</span> <b>element</b>
+									
+								</dt>
+								<dd>An html element</dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>action</b>
+									
+								</dt>
+								<dd>The action, for example "click", 
+                                without the prefix "on"</dd>
+							
+								<dt>
+									<span class="light fixedFont">{function}</span> <b>listener</b>
+									
+								</dt>
+								<dd>The callback function to be executed</dd>
+							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>useCapture</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="addLinks"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>addLinks</b>(linksTable)
+					
+					</div>
+					<div class="description">
+						Load links by reading the data table
+Note that Object DataTable is defined in google.visualization.DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>linksTable</b>
+									
+								</dt>
+								<dd>The data containing the links.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="addNodes"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>addNodes</b>(nodesTable)
+					
+					</div>
+					<div class="description">
+						Append nodes 
+Nodes with a duplicate id will be replaced
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>nodesTable</b>
+									
+								</dt>
+								<dd>The data containing the nodes.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="addPackages"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>addPackages</b>(packagesTable)
+					
+					</div>
+					<div class="description">
+						Append packages 
+Packages with a duplicate id will be replaced
+Note that Object DataTable is defined in google.visualization.DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>packagesTable</b>
+									
+								</dt>
+								<dd>The data containing the packages.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="animationStart"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>animationStart</b>()
+					
+					</div>
+					<div class="description">
+						Start animation. 
+Only applicable when packages with a timestamp are available
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="animationStop"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>animationStop</b>()
+					
+					</div>
+					<div class="description">
+						Start animation. 
+Only applicable when packages with a timestamp are available
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="draw"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>draw</b>(nodes, links, packages, options)
+					
+					</div>
+					<div class="description">
+						Main drawing logic. This is the function that needs to be called 
+in the html page, to draw the Network.
+Note that Object DataTable is defined in google.visualization.DataTable
+
+A data table with the events must be provided, and an options table.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{DataTable or Array}</span> <b>nodes</b>
+									
+								</dt>
+								<dd>The data containing the nodes. 
+                                           Optional.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{DataTable or Array}</span> <b>links</b>
+									
+								</dt>
+								<dd>The data containing the links.
+                                           Optional</dd>
+							
+								<dt>
+									<span class="light fixedFont">{DataTable or Array}</span> <b>packages</b>
+									
+								</dt>
+								<dd>The data containing the packages 
+                                           Optional.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{name/value map}</span> <b>options</b>
+									
+								</dt>
+								<dd>A name/value map containing settings</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="getSelection"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Array with objects}</span>
+					<b>getSelection</b>()
+					
+					</div>
+					<div class="description">
+						retrieve the currently selected nodes
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Array with objects}</span> an array with zero or more objects. Each object
+                             contains the parameter row</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".isArray"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{Boolean}</span>
+					<span class="light">links.Network.</span><b>isArray</b>(obj)
+					
+					</div>
+					<div class="description">
+						Check if given object is a Javascript Array
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{any type}</span> <b>obj</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Boolean}</span> isArray    true if the given object is an array</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="isMoving"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>isMoving</b>(vmin)
+					
+					</div>
+					<div class="description">
+						Check if any of the nodes is still moving
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{number}</span> <b>vmin</b>
+									
+								</dt>
+								<dd>the minimum velocity considered as "moving"</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> true if moving, false if non of the nodes is moving</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="onmousemove"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>onmousemove</b>(event)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>event</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="onmouseup"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>onmouseup</b>(event)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>event</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="ontouchend"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>ontouchend</b>(event)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>event</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="ontouchmove"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>ontouchmove</b>(event)
+					
+					</div>
+					<div class="description">
+						
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>event</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".Popup"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Network.</span><b>Popup</b>(container, x, y, text)
+					
+					</div>
+					<div class="description">
+						Popup is a class to create a popup window with some text
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{DOM element}</span> <b>container</b>
+									
+								</dt>
+								<dd>The container object.</dd>
+							
+								<dt>
+									<b>x</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>y</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>text</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".preventDefault"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Network.</span><b>preventDefault</b>(event)
+					
+					</div>
+					<div class="description">
+						Cancels the event if it is cancelable, without stopping further propagation of the event.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>event</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="redraw"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>redraw</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the network with the current data
+chart will be resized too.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".removeEventListener"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Network.</span><b>removeEventListener</b>(element, action, listener, useCapture)
+					
+					</div>
+					<div class="description">
+						Remove an event listener from an element
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{DOM element}</span> <b>element</b>
+									
+								</dt>
+								<dd>An html dom element</dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>action</b>
+									
+								</dt>
+								<dd>The name of the event, for example "mousedown"</dd>
+							
+								<dt>
+									<span class="light fixedFont">{function}</span> <b>listener</b>
+									
+								</dt>
+								<dd>The listener function</dd>
+							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>useCapture</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setAnimationAcceleration"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setAnimationAcceleration</b>(acceleration)
+					
+					</div>
+					<div class="description">
+						Set the time acceleration for playing the history. 
+Only applicable when packages with a timestamp are available
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{number}</span> <b>acceleration</b>
+									
+								</dt>
+								<dd>Acceleration, for example 10 means play
+                                ten times as fast as real time. A value
+                                of 1 will play the history in real time.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setAnimationDuration"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setAnimationDuration</b>(duration)
+					
+					</div>
+					<div class="description">
+						Set the duration of playing the whole package history
+Only applicable when packages with a timestamp are available
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{number}</span> <b>duration</b>
+									
+								</dt>
+								<dd>The duration in seconds</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setAnimationFramerate"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setAnimationFramerate</b>(framerate)
+					
+					</div>
+					<div class="description">
+						Set framerate for the animation. 
+Only applicable when packages with a timestamp are available
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{number}</span> <b>framerate</b>
+									
+								</dt>
+								<dd>The framerate in frames per second</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setLinks"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setLinks</b>(linksTable)
+					
+					</div>
+					<div class="description">
+						Load links by reading the data table
+Note that Object DataTable is defined in google.visualization.DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>linksTable</b>
+									
+								</dt>
+								<dd>The data containing the links.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setNodes"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setNodes</b>(nodesTable)
+					
+					</div>
+					<div class="description">
+						Load all nodes by reading the data table nodesTable
+Note that Object DataTable is defined in google.visualization.DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>nodesTable</b>
+									
+								</dt>
+								<dd>The data containing the nodes.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setPackages"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setPackages</b>(packagesTable)
+					
+					</div>
+					<div class="description">
+						Set a new packages table
+Packages with a duplicate id will be replaced
+Note that Object DataTable is defined in google.visualization.DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>packagesTable</b>
+									
+								</dt>
+								<dd>The data containing the packages.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setSelection"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setSelection</b>(an)
+					
+					</div>
+					<div class="description">
+						select zero or more nodes
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Array with objects}</span> <b>an</b>
+									
+								</dt>
+								<dd>array with zero or more objects. Each object
+                             contains the parameter row</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setTimestamp"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setTimestamp</b>(timestamp)
+					
+					</div>
+					<div class="description">
+						Set the current timestamp. All packages with a timestamp smaller or equal 
+than the given timestamp will be drawn.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Date or number}</span> <b>timestamp</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="start"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>start</b>()
+					
+					</div>
+					<div class="description">
+						Start animating nodes, links, and packages.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="stop"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>stop</b>()
+					
+					</div>
+					<div class="description">
+						Stop animating nodes, links, and packages.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".stopPropagation"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Network.</span><b>stopPropagation</b>(event)
+					
+					</div>
+					<div class="description">
+						Stop event propagation
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>event</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".tableToArray"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{Array}</span>
+					<span class="light">links.Network.</span><b>tableToArray</b>(table)
+					
+					</div>
+					<div class="description">
+						Convert a Google DataTable to a Javascript Array
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable}</span> <b>table</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Array}</span> array</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="trigger"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>trigger</b>(event, params)
+					
+					</div>
+					<div class="description">
+						fire an event
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>event</b>
+									
+								</dt>
+								<dd>The name of an event, for example "select" or "ready"</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>params</b>
+									
+								</dt>
+								<dd>Optional object with event parameters</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					
+				
+			
+			
+<!-- ============================== event details ========================= -->		
+			
+			
+			<hr />
+		</div>
+
+		
+<!-- ============================== footer ================================= -->
+		<div class="fineprint" style="clear:both">
+			
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Wed May 02 2012 11:29:56 GMT+0200 (CEST)
+		</div>
+	</body>
+</html>

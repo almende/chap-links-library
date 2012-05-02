@@ -1,0 +1,66 @@
+div.graph-frame {
+  border: 1px solid lightgray;
+} 
+  
+div.graph-canvas {
+}
+                                             
+div.graph-axis {
+  border-color: #bfbfbf;
+  border-width: 1px;
+}  
+div.graph-axis-vertical {
+}
+div.graph-axis-grid {
+  border-width: 1px;
+}  
+div.graph-axis-grid-minor {
+  border-color: #e5e5e5;
+}  
+div.graph-axis-grid-major {
+  border-color: #bfbfbf;
+}  
+div.graph-axis-grid-vertical {
+  border-color: #bfbfbf;
+}
+div.graph-axis-button-menu {
+  background-color: white;
+  left: 10px;
+  top: 10px;
+}
+div.graph-axis-button {
+  color: white;
+  background-color: lightgray;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  font-size: 13px;
+  border-radius: 2px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+div.graph-axis-button:hover {
+  background-color: gray;
+}
+
+div.graph-axis-text {
+  padding: 3px;
+  color: #4D4D4D;
+}
+
+div.graph-axis-text-minor {
+} 
+div.graph-axis-text-major {
+}
+div.graph-axis-text-vertical {
+  padding-right: 10px;
+} 
+
+div.graph-legend {
+  border: 1px solid #bfbfbf;
+}
+div.graph-legend-item {
+  color: #4D4D4D;
+  margin: 5px;
+} 

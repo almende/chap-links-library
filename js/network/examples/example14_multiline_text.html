@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo multiline text</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+                
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+    
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'style');
+        
+        // randomly create some nodes
+        nodesTable.addRow([1, 'Node in\nthe center', 'text']);
+        nodesTable.addRow([2, 'Node\nwith\nmultiple\nlines', 'circle']);
+        nodesTable.addRow([3, 'This is a lot of text\nbut luckily we can spread\nover multiple lines', 'database']);
+        nodesTable.addRow([4, 'This is text\non multiple lines', 'rect']);
+        nodesTable.addRow([5, 'Little text', 'rect']);
+        
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('string', 'style');
+        linksTable.addColumn('string', 'color');
+        linksTable.addColumn('number', 'width');
+        linksTable.addColumn('number', 'length');
+        linksTable.addRow([1, 2, 'line', 'red', 3, 200]);
+        linksTable.addRow([1, 3, undefined, undefined, 1, 200]);
+        linksTable.addRow([1, 4, 'line', undefined, 1, 200]);
+        linksTable.addRow([1, 5, 'arrow', undefined, 3, 200]);
+
+        // specify options
+        options = {width:  '600px', 
+                   height: '600px',
+                   stabilize: false,
+                   };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+
+    <div id="info"></div>
+  </body>
+</html>

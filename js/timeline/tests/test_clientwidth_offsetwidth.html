@@ -1,0 +1,39 @@
+<html>
+<head>
+<!--    -->
+  <meta http-equiv="X-UA-Compatible" content="IE=7" />
+<!--  -->
+
+  
+  <script type="text/javascript">
+    
+    function test() {
+      var div1 = document.getElementById( "div1" );
+      var info = document.getElementById( "info" );
+
+      info.innerHTML += "<br>" +
+                        "width: " + div1.style.width + "<br>" + 
+                        "clientWidth (inner width): " + div1.clientWidth +  "<br>" +
+                        "offsetWidth (outer width): " + div1.offsetWidth +  "<br>";
+      if (parseInt(div1.style.width) == div1.clientWidth) {
+        info.innerHTML += "<font style='color:darkgreen;'>CORRECT</font><br>"; 
+      }
+      else {
+        info.innerHTML += "<font style='color:red;'>WRONG</font><br>"; 
+      }
+                        
+    }
+  </script>
+
+</head>
+<body onload= "test();" >
+
+<div id="div1" style="position: absolute; left: 100px; top: 150px; width: 200px; height: 200px; border: 10px solid red; background-color: yellow;"></div>
+<div id="info">
+  Test that in all browsers and in IE7+ mode, width is equal to the clientWidth (the inner width).<br>
+  In IE 6 and older width is equal to the offsetWidth (the outer width).<br>
+</div>
+
+</body>
+
+</html>

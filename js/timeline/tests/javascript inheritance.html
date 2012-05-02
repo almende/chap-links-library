@@ -1,0 +1,35 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<script>
+
+  function superClass() {
+
+    this.bye = function () {
+      document.write("Bye from superClass<br>");
+    }
+    
+    this.hello = function () {
+      document.write("Hello from superClass<br>");
+    }
+  }
+
+  function subClass() {
+    this.bye = function () {
+      document.write("Bye from subClass<br>");
+    }
+  }
+  subClass.prototype = new superClass;
+
+
+  var newClass = new subClass();
+  newClass.bye();
+  newClass.hello();
+
+</script>
+
+</body>
+</html>

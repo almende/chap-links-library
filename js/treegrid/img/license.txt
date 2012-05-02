@@ -1,0 +1,12 @@
+The treeDown and treeRight icons are copied from the Chromium Developer Tools.
+
+The spinning wait icon comes from
+http://www.andrewdavidson.com/articles/spinning-wait-icons/
+and is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.
+
+The warning icon comes from
+http://www.iconarchive.com/show/3d-vol2-icons-by-3dlb/warning-icon.html
+http://www.iconarchive.com/show/3d-vol2-icons-by-3dlb.html
+http://www.iconarchive.com/artist/3dlb.html
+and is licensed freeware
+

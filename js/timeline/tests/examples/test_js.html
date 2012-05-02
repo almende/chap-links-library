@@ -1,0 +1,91 @@
+<!--
+
+Demo code to drag all childs inside a div around.
+
+Usage: Create a div. Put elements in this div. Specify overflow:hidden, and 
+specify a width and height in the style of this element. Create the event
+onmousedown="dragDown(event, this);". The elements inside this div must be
+specified with the style position:relative, and with a left and top.
+
+EXAMPLE USAGE:
+  <div style="overflow: hidden; width:400px; height:400px; border: 1px solid black;" onmousedown = "dragDown(event, this);" >
+    Drag the elements inside this box
+    
+    <div style="position:relative; left:50px; top:50px; width:100px; height:100px; background:red; " >Bla Bla</div>
+    
+    <div id="inner2" style="position:relative; left:200px; top:20px; "> Child2 </div>
+    <span style="position:relative; left:100px; top:200px; border:1px solid red;">Test span...</span>
+  </div>
+
+
+TODO
+- test on IE
+
+DOCUMENTATION
+  http://www.brainjar.com/dhtml/drag/
+
+-->
+
+<html>
+<head>
+  <title>Test js</title>
+
+
+
+</head>
+<body>
+
+
+
+<script type="text/javascript">
+
+var std = {};
+
+std.Add = function (a,b) {return a+b;}
+
+std.Op = function (op) {
+  this.op = op;
+  this.calc = function(a, b)
+  {
+    return eval(a + op + b);
+  }
+}
+std.op = new std.Op("*");
+
+std.constants = {};
+std.constants.pi = 3.14;
+
+document.write(std.Add(3,4)+ "<br>");
+
+var op = new std.Op("*");
+document.write(op.calc(5,6)+ "<br>");
+
+document.write(std.op.calc(5,6)+ "<br>");
+
+document.write("pi="+ std.constants.pi + "<br>");
+
+
+/* wrong:
+function std2() {
+
+  function Add(a,b) {return a+b;}
+
+  function Op(op) {
+    this.op = op;
+    this.calc = function(a, b)
+    {
+      return eval(a + op + b);
+    }
+  }
+  var op = new std.Op("*");
+
+  
+};
+
+document.write(std2.op.calc(7.5, 6)+ "<br>");
+*/
+
+</script>
+
+</body>
+</html>

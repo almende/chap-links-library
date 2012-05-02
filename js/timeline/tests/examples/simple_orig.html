@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<style>
+textarea {
+	background-color:#e0e0ff;
+	border-width:1;
+	border-color:#ee22aa;
+	overflow:auto;
+	color: #200040;
+	font-family:ariel;
+	font-size: 10;
+}
+</style>
+	<title>embed, object, iframe for SVG</title>
+<script>
+xmlns="http://www.w3.org/2000/svg"
+OBJS=new Array("OBJECT","OBJECT","EMBED","IFRAME","IFRAME")
+function start(){
+	for (i in OBJS){
+		document.getElementById("p"+i).value=eval(OBJS[i])
+	}
+}
+function insert(id){
+	var D=document.getElementById(id)
+	S=eval(D.nodeName)(D,id) //sends OBJECT to function OBJECT, EMBED to EMBED etc.
+	if (!S) return
+  	Root=S.documentElement;
+	//alert(Root.nodeName)
+  	R=S.createElementNS(xmlns,"circle")
+	R.setAttribute("fill","red")
+	R.setAttribute("opacity","0.35")
+	R.setAttribute("cx",Math.random()*150)
+	R.setAttribute("cy",Math.random()*150)
+	R.setAttribute("r",12+Math.random()*25)
+	Root.appendChild(R)
+}
+function IFRAME(D,id){
+  try{
+    C=D.contentWindow;
+    S=C.document
+	//return false
+  }
+  catch(e){
+    try{
+    S=D.getSVGDocument()
+    }
+    catch(e){
+		try{
+			S=frames[id].getSVGDocument()
+		}
+		catch(e){alert('nothing is working');return false}
+	}
+  }
+	body=S.documentElement
+ 	body.style.background="aqua"
+  return S
+}
+function OBJECT(D){
+  try {S=D.getSVGDocument()}
+  catch(e){S=D.contentDocument}
+  return S
+}
+function EMBED(D){
+  return D.getSVGDocument()
+}
+</script>
+</head>
+
+<body onload="start()"><div align="center">
+<b>Accessing SVG DOM from HTML using embed, object or iframe</b></div>
+<form>
+
+<table border=1>
+<tr bgcolor="#e0ffe0">
+<td align="center">svg object</td>
+<td align="center">svg embed in object</td>
+<td align="center">svg embed</td>
+<td align="center">svg iframe</td>
+<td align="center">HTML iframe</td>
+</tr>
+<tr>
+<!--<td align="center"><object id="ob" type="image/svg+xml" 
+data="simple.svg" width="150"></object></td>-->
+<td align="center"><object id="ob" 
+data="simple.svg" width="150"></object></td>
+<td align="center"><object id="obem" type="image/svg+xml" 
+data="simple.svg" 
+width="150"><embed 
+src="simple.svg" width="150" 
+/></object></td>
+
+<td align="center"><embed id="em" 
+src="simple.svg" 
+width="150"></embed></td>
+<td align="center"><iframe id="I" name="I" 
+type="image/svg+xml" 
+src="simple.svg" 
+width="150"></iframe></td>
+<td align="center"><iframe id="H" 
+src="http://srufaculty.sru.edu/david.dailey/svg/addNode.html" 
+width="150"></iframe></td>
+</tr>
+<tr>
+<td align="center"><input type=button onclick="insert('ob')" value="svg 
+object"></td>
+<td align="center"><input type=button onclick="insert('obem')" value="svg 
+object"></td>
+<td align="center"><input type=button onclick="insert('em')" value="svg 
+embed"></td>
+<td align="center"><input type=button onclick="insert('I')" value="svg 
+iframe"></td>
+<td align="center"><input type=button onclick="insert('H')" value="HTML 
+iframe"></td>
+</tr>
+<tr>
+<td><textarea id="p0" cols="25" rows="8"></textarea></td>
+<td><textarea id="p1" cols="25" rows="8"></textarea></td>
+
+<td><textarea id="p2" cols="25" rows="8"></textarea></td>
+<td><textarea id="p3" cols="25" rows="8"></textarea></td>
+<td><textarea id="p4" cols="25" rows="8"></textarea></td>
+</tr>
+<tr>
+<td valign="top">working in 
+<li type="disc">(-) IE/ASV (v6:no,v7:yes)</li>
+<li type="disc">Opera 9</li>
+<li type="disc">Firefox 1.5</li></td>
+<td valign="top">working in 
+<li type="disc">(-) IE/ASV (v6:no,v7:yes)</li>
+
+<li type="disc">Opera 9</li>
+<li type="disc">Firefox 1.5</li></td>
+<td valign="top">working in 
+<li type="disc">IE/ASV</li>
+<li type="disc">Opera 9</li>
+<li type="disc">Firefox 1.5</li></td>
+<td valign="top">working in 
+<li type="disc">Opera 9</li>
+<li type="disc">Firefox 1.5</li></td>
+<td valign="top">working in 
+
+<li type="disc">(-) IE/ASV</li> 
+<li type="disc">Opera 9</li>
+<li type="disc">Firefox loads wrong frame?</li> </td>
+</tr>
+</table>
+</form>
+</body>
+</html>
+

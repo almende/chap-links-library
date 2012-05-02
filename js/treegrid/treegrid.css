@@ -1,0 +1,149 @@
+
+.treegrid-frame {
+  border: 1px solid #BEBEBE;
+  color: #1A1A1A;  
+} 
+
+.treegrid-header {
+  font-weight: bold;
+  background-color: #D5DDF6;
+  border-bottom: 1px solid #97B0F8;
+}
+
+.treegrid-header-field {
+  /*border-right: 1px solid #97B0F8;*/
+  padding: 4px;
+}
+
+.treegrid-item {
+  /*border-bottom: 1px solid lightgray;*/
+  border-width: 1px;
+  border-style: solid;
+  border-color: white;
+}
+
+.treegrid-item-selected {
+  background-color: #FFFF80;
+  border-color: #FFD500;
+  /*
+  font-weight: bold;
+  color: red;
+  */
+}
+
+.treegrid-item-dirty {
+  color: gray;
+}
+
+.treegrid-droparea, .treegrid-item-dragover {
+  background-color: #F5F5F5;
+  border: 1px dashed gray;
+}
+
+
+.treegrid-item-dragbefore {
+  border-top-color: red;
+  border-style: dashed;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.treegrid-drag-image {
+  padding: 5px;
+  background-color: #FFFF80;
+  border: 1px solid #FFD500;
+  font-weight: bold;
+  border-radius: 3px;
+  
+  z-index: 99999;
+  position: relative;
+}
+
+.treegrid-item-field {
+  padding: 4px;
+  /*border-right: 1px solid lightgray;*/
+}
+
+.treegrid-fold {
+  background: url('img/treeRightTriangleBlack.png') no-repeat center;
+  cursor: pointer;
+}
+
+.treegrid-unfold {
+  background: url('img/treeDownTriangleBlack.png') no-repeat center;
+  cursor: pointer;
+}
+
+.treegrid-loading-icon {
+ background: url('img/wait16trans.gif') no-repeat center;
+}
+
+.treegrid-error-icon {
+ background: url('img/warning-icon-16.png') no-repeat center;
+}
+
+.treegrid-fold, .treegrid-unfold, .treegrid-loading-icon, .treegrid-error-icon {
+  width: 20px;
+  height: 24px;
+  border: none;
+  float: left;
+}
+
+.treegrid-verticalscroll-background {
+/*
+  background-color: gray;
+  opacity: 0.1;
+  filter: alpha(opacity=10);*/ /* For IE8 and earlier */
+  width: 100%;
+  height: 100%;
+}
+
+.treegrid-verticalscroll-bar {
+  background-color: #BFBFBF;
+  border: 2px solid white;
+}
+
+.treegrid-loading {
+  color: lightgray;
+}
+
+.treegrid-error {
+  color: red;
+}
+
+.treegrid-loading, .treegrid-error {
+  padding: 4px;
+}
+
+.treegrid-actions {
+  padding: 4px;
+}
+
+.treegrid-action-image {
+  margin-left: 5px;
+  border: none;
+}
+
+.treegrid-action-link {
+  margin-left: 5px;
+  color: #97B0F8;
+}
+.treegrid-action-link:hover {
+  color: red;
+}
+
+.treegrid-icons {
+  padding: 4px;
+}
+
+.treegrid-icon {
+  padding-right: 4px;
+}
+
+/* TODO
+.treegrid-verticalscroll-bar:hover {
+  background-color: #7F7F7F;
+}
+*/
+
+

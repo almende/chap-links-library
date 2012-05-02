@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>TreeGrid demo</title>
+
+    <style>
+      body {
+        font-family: arial;
+        font-size: 10pt;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        var data = [
+          {
+            "firstname": "John",
+            "lastname": "Smith",
+            "age": 15,
+            "class": "B10",
+            "courses": [
+              {
+                "course": "physics", 
+                "grade": "B", 
+                "courses": [
+                  {"test": "test 1", "grade": "A"},
+                  {"test": "test 2", "grade": "B"},
+                  {"test": "final exam", "grade": "B"}
+                ]
+              },
+              {"course": "maths", "grade": "C"},
+              {"course": "economy", "grade": "B"}
+            ]
+          },
+          {
+            "firstname": "Susan",
+            "lastname": "Brown",
+            "age": 16,
+            "class": "B10"
+          },
+          {
+            "firstname": "David",
+            "lastname": "Harris",
+            "age": 14,
+            "class": "B10",
+            "courses": [
+              {"course": "economy", "grade": "A"},
+              {"course": "maths", "grade": "D"}
+            ]           
+          }
+        ];
+        
+        // specify options
+        var options = {
+          'width': '400px',
+          'height': '200px',
+        };  
+
+        // Instantiate our treegrid object.
+        var container = document.getElementById('mytreegrid');
+        var treegrid = new links.TreeGrid(container, options);
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(data);        
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <div id="mytreegrid"></div>
+  </body>
+</html>

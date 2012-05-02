@@ -1,0 +1,1016 @@
+<html>
+
+<head>
+  <title>TreeGrid documentation</title>
+  <link rel='stylesheet' href='default.css' type='text/css'>
+
+  <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="prettify/prettify.js"></script>
+  <script src="smoothscroll.js" type="text/javascript"></script>
+</head>
+
+<body onload="prettyPrint();">
+
+<h1>TreeGrid documentation</h1>
+<p>
+By: Jos de Jong, Almende B.V.<br>
+Homepage: <a href="http://www.almende.com" target="_blank">http://www.almende.com</a><br>
+License: <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>
+</p>
+
+<h2><a name="Contents" id="Contents"></a>Contents</h2>
+<ul>
+  <li><a href="#Overview">Overview</a></li> 
+  <li><a href="#Example">Example</a></li> 
+  <li><a href="#Loading">Loading</a></li> 
+  <li><a href="#Data_Format">Data Format</a></li> 
+  <li><a href="#Configuration_Options">Configuration Options</a></li> 
+  <li><a href="#Methods">Methods</a></li> 
+  <li><a href="#Events">Events</a></li> 
+  <li><a href="#Styles">Styles</a></li>
+  <li><a href="#Data_Policy">Data Policy</a></li> 
+</ul>
+
+<p>
+Related pages:
+</p>
+<ul>
+  <li><a href="dataconnector.html">DataConnector documentation</a></li> 
+</ul>
+
+
+<h2><a name="Overview" id="Overview"></a>Overview</h2>
+<p>
+TreeGrid is a visualization which represents data in a hierarchical grid 
+view. It is designed to handle large amouts of data.
+
+Items in the TreeGrid can contain custom HTML. Information in 
+one item can be spread over multiple columns, and can have action buttons on 
+the right.
+</p>
+
+<p>
+Data for the TreeGrid can be a JSON array or a DataConnector. 
+A DataConnector can be used to connect to a datasource on a server (for example 
+a RESTful web service). Only data which is actually displayed in the TreeGrid
+will be requested via this DataConnector.
+
+TreeGrid offers built in functionality to sort, arrange, and filter items. 
+</p>
+
+<p>
+The TreeGrid is a stand alone library, and can be used as a Google Visualization 
+Chart. 
+It runs in every modern browser without additional requirements, 
+and is tested on Firefox 3.6, Safari 5.0, Chrome 6.0, Opera 10.6, and
+Internet Explorer 8+. <!-- TODO: test on IE -->
+
+There is a GWT wrapper available to use the TreeGrid in GWT (Google Web Toolkit),
+you can find relevant documentation <a href="../../gwt/doc">here</a>.
+</p>
+
+<h3><a name="DataConnector" id="DataConnector"></a>DataConnector</h3>
+<p>
+A TreeGrid can be connected to a DataConnector, 
+which is useful for data manipulation and lazy loading.
+When you are dealing with a small amount of readonly data, it is
+probably easiest to put the data in a simple JSON Array which is loaded 
+from the server at once.
+But when dealing with large amounts of data, it will not be feasible to
+retrieve all data from the server, as it will take to much time and
+is very expensive for the server.
+</p>
+
+<p>
+When dealing with large amounts of data, it is a good idea to 
+use a DataConnector. 
+When a TreeGrid is connected to a DataConnector, every time it redraws
+it will request the data that is currently displayed from the DataConnector.
+The DataConnector will check if it has the data in cache, and if it
+is up to date. If not, it will retrieve the missing data from the server.
+</p>
+
+<p>
+Only retrieving the displayed items saves a lot of load on the server side,
+and keeps the client side fast and reactive.
+Retrieval of data is always done asynchronously. 
+While retrieving data, the TreeGrid will display a "loading" status for 
+the items being retrieved, to give the user feedback.
+</p>
+
+<img src="img/overview.png" alt="Data flow between treegrid, dataconnector, and a server.">
+
+<p>
+A DataConnector typically retrieves data from a RESTful web service.
+To connect a TreeGrid with your own RESTful web service, you will need to 
+create your own DataConnector which connects to your RESTful web service.
+</p>
+
+<p>
+How to create or use a DataConnector is described on the documentation
+page of the DataConnector at
+<a href="dataconnector.html">dataconnector.html</a>.
+</p>
+
+<h3><a name="Drag_and_Drop" id="Drag_and_Drop"></a>Drag and Drop</h3>
+<p>
+The TreeGrid supports drag and drop operations inside one TreeGrid, and 
+between different TreeGrids in one page.
+</p>
+
+<p>
+Drag and drop is only supported when using a DataConnector. 
+The dataconnector can be configured to allow or disallow various drag
+and drop actions. 
+Drag and Drop must be supported by the server side of the DataConnector,
+A drag and drop action will remove items from one DataConnector, and
+append them to another DataConnector.
+</p>
+
+<h3><a name="Subgrids" id="Subgrids"></a>Subgrids</h3>
+<p>
+The Treegrid supports nesting of data (hence the name TreeGrid).
+Each item can have one or multiple fields containing a JSON Array or a DataConnector.
+In that case, the item becomes expandable. 
+When expanded, the item displays the nested data as a subgrid right below itself.
+</p>
+
+
+<h2><a name="Example" id="Example"></a>Example</h2>
+<p>
+Below a treegrid example. 
+</p>
+<p>
+More examples can be found in the <a href="../examples">examples</a> directory. 
+</p>
+
+<iframe src="example.html" style="border:none; width:450px; height:250px;"></iframe>
+
+<pre class="prettyprint lang-html">&lt;!DOCTYPE HTML&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;TreeGrid demo&lt;/title&gt;
+
+    &lt;style&gt;
+      body {
+        font-family: arial;
+        font-size: 10pt;
+      }
+    &lt;/style&gt;
+
+    &lt;script type="text/javascript" src="../treegrid.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" type="text/css" href="../treegrid.css"&gt;
+    
+    &lt;script type="text/javascript"&gt;
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        var data = [
+          {
+            "firstname": "John",
+            "lastname": "Smith",
+            "age": 15,
+            "class": "B10",
+            "courses": [
+              {
+                "course": "physics", 
+                "grade": "B", 
+                "courses": [
+                  {"test": "test 1", "grade": "A"},
+                  {"test": "test 2", "grade": "B"},
+                  {"test": "final exam", "grade": "B"}
+                ]
+              },
+              {"course": "maths", "grade": "C"},
+              {"course": "economy", "grade": "B"}
+            ]
+          },
+          {
+            "firstname": "Susan",
+            "lastname": "Brown",
+            "age": 16,
+            "class": "B10"
+          },
+          {
+            "firstname": "David",
+            "lastname": "Harris",
+            "age": 14,
+            "class": "B10",
+            "courses": [
+              {"course": "economy", "grade": "A"},
+              {"course": "maths", "grade": "D"}
+            ]           
+          }
+        ];
+        
+        // specify options
+        var options = {
+          'width': '400px',
+          'height': '200px'
+        };
+
+        // Instantiate our treegrid object.
+        var container = document.getElementById('mytreegrid');
+        var treegrid = new links.TreeGrid(container, options);
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(data);        
+      }
+   &lt;/script&gt;
+  &lt;/head&gt;
+
+  &lt;body onload="drawTreeGrid();"&gt;
+    &lt;div id="mytreegrid"&gt;&lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre> 
+
+
+<h2><a name="Loading" id="Loading"></a>Loading</h2>
+
+<p>
+To load the TreeGrid, download the file 
+<a href="http://sourceforge.net/projects/links/files/javascript/treegrid.zip">treegrid.zip</a> 
+and unzip it in a sub directory timeline on your html page.
+Include the files treegrid.js and treegrid.css in the head of your html code.
+<!--
+When you use a Google DataTable for providing the data,
+the Google API must be included too. 
+
+Note that the Google API is only available online, so it is not possible
+to use it in an offline application. 
+-->
+</p>
+
+<pre class="prettyprint lang-html">&lt;script type="text/javascript" src="treegrid/treegrid.js"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" type="text/css" href="treegrid/treegrid.css"&gt;</pre>
+
+<!--
+<p>
+When the Google API is used, the google visualization tools needs to be 
+loaded. This is not needed when using a JSON Array as data type.
+</p>
+<pre class="prettyprint lang-js">google.load("visualization", "1");
+google.setOnLoadCallback(drawTreeGrid);
+function drawTreeGrid() {
+  // load data and create the treegrid here
+}
+</pre>
+-->
+
+The class name of the TreeGrid is <code>links.TreeGrid</code>
+<pre class="prettyprint lang-js">var treegrid = new links.TreeGrid(container);</pre>
+
+After being loaded, the treegrid can be drawn via the method <code>draw</code>,
+provided with data and options.
+<pre class="prettyprint lang-js">treegrid.draw(data, options);</pre>
+<p>
+where data is a <code>DataConnector</code> or a JSON <code>Array</code>, 
+and options is a name-value map in the JSON format. 
+</p>
+
+<!--
+<p>
+The Timeline stores a link to the original data table, and applies changes 
+made from within the Timeline to this data table. 
+When the data table is changed externally, the Timeline can be updated by executing 
+<code>redraw()</code>. The Timeline can be linked to an other/new table
+via <code>draw(data)</code> (without providing options). 
+When the website layout has been changed or resized, use <code>checkResize()</code>
+to update the size of the timeline.
+</p>
+-->
+
+<h2><a name="Data_Format" id="Data_Format"></a>Data Format</h2>
+<p>
+The TreeGrid supports two data types: a JSON Array or a DataConnector.
+The items in an array or dataconnector can contain pointers to other arrays
+or dataconnectors, and the two data types can be mixed together.
+</p>
+
+<h3><a name="Array" id="Array"></a>Array</h3>
+<p>
+The TreeGrid supports a JSON Array as data format. 
+The data from an array will be loaded once, and is usable for static data.
+The array must contain objects, with an arbitrary set of fields.
+</p>
+
+<p>
+A table is constructed as:
+</p>
+
+<pre class="prettyprint lang-js">
+var data = [
+  {"firstname": "John", "lastname": "Smith", "age": 15, "class": "B10"},
+  {"firstname": "Susan", "lastname": "Brown", "age": 16, "class": "B10"},
+  {"firstname": "David", "lastname": "Harris", "age": 14, "class": "B10"}
+];
+</pre>
+
+
+
+<h3><a name="Data_Format_DataConnector" id="Data_Format_DataConnector"></a>DataConnector</h3>
+
+<p>
+In case of a <code>DataConnector</code>, data will be loaded and updated via
+this data connector. There are a couple of DataConnectors provided by default,
+such as the <code>DataTable</code>. New data connectors can be created for 
+other data sources, such as a RESTful web service or a database connection.
+</p>
+<p>The DataConnector is documented on the page 
+<a href="dataconnector.html">dataconnector.html</a>.</p>
+
+
+<h3><a name="Special_fields" id="Special_fields"></a>Special fields</h3>
+
+<ul>
+<li>
+  <b>Subgrids</b>
+  <p>
+  When an item has one or multiple fields containing a JSON Array or a DataConnector,
+  the item becomes expandable. 
+  When expanded, the item displays this nested data as a subgrid right below itself.
+  </p>
+    
+  <p>Example:</p>
+<pre class="prettyprint lang-js">
+var data = [
+  {"name": "John", "friends": [{"name": "Susan"},{"name": "Harry"}]},
+  {"name": "Susan"},
+  {"name": "David"}
+];
+</pre>
+
+</li>
+
+<li>
+  <b>Actions</b>
+  <p>
+  Each item can contain a field <code>_actions</code>, containing an array
+  with one or multiple actions. Actions are displayed as a button or
+  a link at the right side of an item. When clicked, an 
+  <a href="#Events">event</a> will be fired.
+  </p>
+
+  <table>
+    <tr> 
+      <th>Name</th> 
+      <th>Type</th> 
+      <th>Required</th> 
+      <th>Description</th> 
+    </tr> 
+    
+    <tr> 
+      <td>event</td> 
+      <td>String</td> 
+      <td>yes</td> 
+      <td>The name of the action. When the action is clicked, an event with 
+      this name is fired. Example events are 'delete', 'edit', 'open'.
+      An eventlistener can be used to link an event to execution of a method.
+      </td> 
+    </tr>
+
+    <tr> 
+      <td>image</td> 
+      <td>String</td> 
+      <td>no</td> 
+      <td>Url of an image to be displayed on the button. If no image is provided,
+      the action will be displayed as a link.</td> 
+    </tr>
+
+    <tr>
+      <td>text</td> 
+      <td>String</td> 
+      <td>no</td> 
+      <td>The value of <code>text</code> will be displayed as text for the link.
+      If no text is provided, the name of the event will be displayed on the link.
+      Only applicable when no image is provided.</td> 
+    </tr>
+
+    <tr>
+      <td>title</td> 
+      <td>String</td> 
+      <td>no</td> 
+      <td>When the mouse is hovered over an action, the title will be displayed.
+      The title can contain an explanation of the action.</td> 
+    </tr>
+    
+  </table>
+  
+  <p>Example:</p>
+<pre class="prettyprint lang-js">
+var data = [
+  {"name": "John",  "_actions": [{"event": "edit"}, {"event": "delete"}]},
+  {"name": "Susan", "_actions": [{"event": "edit"}, {"event": "delete"}]},
+  {"name": "David", "_actions": [{"event": "edit"}, {"event": "delete"}]}
+];
+</pre>
+</li>
+
+<li>
+  <b>Icons</b>
+  <p>
+  Each item can contain a field <code>_icons</code>, containing an array
+  with one or multiple items. Items are displayed as an image  at the left side 
+  of an item and can be used for visualizing a status or the type of an icon.
+  </p>
+
+  <table>
+    <tr> 
+      <th>Name</th> 
+      <th>Type</th> 
+      <th>Required</th> 
+      <th>Description</th> 
+    </tr> 
+    
+    <tr> 
+      <td>height</td> 
+      <td>String</td> 
+      <td>no</td> 
+      <td>The height of the icon, for example '32px'.</td> 
+    </tr>
+    
+    <tr> 
+      <td>image</td> 
+      <td>String</td> 
+      <td>yes</td> 
+      <td>Url of an image to be displayed.</td> 
+    </tr>
+
+    <tr> 
+      <td>title</td> 
+      <td>String</td> 
+      <td>no</td> 
+      <td>When the mouse is hovered over an icon, the title will be displayed.
+      The title can contain an explanation of the icon.</td> 
+    </tr>
+
+    <tr> 
+      <td>width</td> 
+      <td>String</td> 
+      <td>no</td> 
+      <td>The width of the icon, for example '32px'.</td> 
+    </tr>
+    
+  </table>
+
+  <p>Example:</p>
+<pre class="prettyprint lang-js">
+var data = [
+  {"name": "John",  "_icons": [{"image": "img/leader.png"}, {"image": "img/online.png"}]},
+  {"name": "Susan", "_icons": [{"image": "img/member.png"}]},
+  {"name": "David", "_icons": [{"image": "img/member.png"}, {"image": "img/online.png"}]}
+];
+</pre>
+
+</li>
+
+<li>
+  <b>Hidden fields</b>
+  <p>
+  All fields starting with an underscore <code>_</code> are hidden by default.
+  For example to store a hidden field containing an id in the items, on can use
+  a field named <code>_id</code>. The visibility and order of fields can be 
+  specified in more detail via a DataConnector (see <a href="dataconnector.html">dataconnector.html</a>).
+  </p>
+
+  <p>Example:</p>
+<pre class="prettyprint lang-js">
+var data = [
+  {"name": "John",  "_id": "145912", "_rev": 6},
+  {"name": "Susan", "_id": "142831", "_rev": 2},
+  {"name": "David", "_id": "148692", "_rev": 14}
+];
+</pre>  
+</li>
+
+</ul>
+
+
+<h2><a name="Configuration_Options" id="Configuration_Options"></a>Configuration Options</h2>
+
+<p>
+Options can be used to customize the treegrid. Options are defined as a JSON object.
+</p>
+
+<pre class="prettyprint lang-js">
+var options = {
+  'width': '100%', 
+  'height': '600px',
+  'items': {
+    'defaultHeight' : 24,   // px
+  }
+};
+</pre>
+
+<p>
+The following options are available.
+</p>
+
+<table>
+  <tr> 
+    <th>Name</th> 
+    <th>Type</th> 
+    <th>Default</th> 
+    <th>Description</th> 
+  </tr> 
+  
+  <tr> 
+    <td>width</td> 
+    <td>String</td> 
+    <td>'100%'</td> 
+    <td>The width of the TreeGrid in pixels or as a percentage.</td> 
+  </tr>
+
+  <tr> 
+    <td>height</td> 
+    <td>String</td> 
+    <td>'100%'</td> 
+    <td>The width of the TreeGrid in pixels or as a percentage.</td> 
+  </tr>
+  
+  <tr> 
+    <td>indentationWidth</td> 
+    <td>Number</td> 
+    <td>20</td> 
+    <td>The indentation with for nested grids, in pixels.</td> 
+  </tr>
+
+  <tr> 
+    <td>items.defaultHeight</td> 
+    <td>Number</td> 
+    <td>24</td> 
+    <td>The default height of an item in pixels. This height is used to estimate
+    the height of the TreeGrid contents for items which are not yet loaded.</td> 
+  </tr>
+
+  <tr> 
+    <td>items.minHeight</td> 
+    <td>Number</td> 
+    <td>24</td> 
+    <td>The minimum height of an item in pixels. 
+      A minimum height of an item prevents the item from getting a height of
+      zero in case of no data.</td> 
+  </tr>
+</table>
+
+<h2><a name="Methods" id="Methods"></a>Methods</h2>
+
+<p>
+The TreeGrid supports the following methods. Note that methods to manipulate
+the data are not available in the TreeGrid, but in the DataConnector of the 
+data.
+</p>
+
+<table>
+  <tr> 
+    <th>Method</th> 
+    <th>Return Type</th> 
+    <th>Description</th> 
+  </tr> 
+
+  <tr> 
+    <td>draw(data, options)</td> 
+    <td>none</td> 
+    <td>Loads data, sets options, and draws the TreeGrid.
+    <code>data</code> is a JSON Array or DataTable.
+    <code>options</code> is an (optional) JSON Object containing values for options.
+    </td> 
+  </tr> 
+  
+  <tr> 
+    <td>redraw()</td> 
+    <td>none</td> 
+    <td>Redraw the TreeGrid. When the height of the TreeGrid has been changed
+    (for example when the height is 100% and the page is resized),
+    this method can be used to force a redraw of the TreeGrid.
+    </td> 
+  </tr> 
+</table>
+
+<h2><a name="Events" id="Events"></a>Events</h2>
+
+<p>
+The TreeGrid fires events after an item is selected, expanded, collaped, or when 
+an action button is clicked. The events can be cached by creating a listener.
+Listeners can be registered using the event messages from the Google API 
+or event messages from the CHAP Links library.
+</p>
+
+<p>
+Here an example on how to catch a <code>select</code> event.
+</p>
+
+<pre class="prettyprint lang-js">
+function onselect(properties) {
+  alert('Selected items: ' + JSON.stringify(properties.items));
+}
+
+google.visualization.events.addListener(mytreegrid, 'select', onselect);
+// Or, when using the event bus of the CHAP Links library:
+//   links.events.addListener(mytreegrid, 'select', onselect);
+</pre>
+
+<p>
+The following events are available.
+</p>
+
+<table>
+  <col width="10%">
+  <col width="60%">
+  <col width="30%">
+
+  <tr> 
+    <th>name</th> 
+    <th>Description</th> 
+    <th>Properties</th> 
+  </tr>
+
+  <tr> 
+    <td>collapse</td> 
+    <td>Collapse an item.
+    </td> 
+    <td>
+      <ul>
+      <li><code>items</code>: Array with Objects. This array will contain
+        one item: the collapsed item.</li>
+      </ul>
+    </td> 
+  </tr>
+  
+  <tr> 
+    <td>expand</td> 
+    <td>Expand an item. This is only possible when the item contains
+    nested data. This data will be displayed as a subgrid below the item.
+    </td>
+    <td>
+      <ul>
+      <li><code>items</code>: Array with Objects. This array will contain
+        one item: the expanded item.</li>
+      </ul>
+    </td> 
+  </tr>
+  
+  <tr> 
+    <td>rangechange</td> 
+    <td>Visible range is changing. Fired repeatedly while the user is modifying
+    the visible window by moving (dragging) or by zooming (scrolling).
+    </td>
+    <td>none</td>
+  </tr>  
+  <tr> 
+    <td>rangechanged</td> 
+    <td>Visible range has been changed. Fired once after the user has modified 
+    the visible window by moving (dragging) or by zooming (scrolling)
+    </td> 
+    <td>
+      none
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>ready</td> 
+    <td>The chart is ready for external method calls. 
+    If you want to interact with the chart, and call methods after you draw it, 
+    you should set up a listener for this event before you call the draw method, 
+    and call them only after the event was fired.</td> 
+    <td>none</td> 
+  </tr>
+
+  <tr>
+    <td>select</td> 
+    <td>When the user clicks on an item on the treegrid, 
+    it will be selected. The visualization then fires this event.
+    
+    The event is also fired when an item is deselected. 
+    This will return an empty array with items.
+    </td> 
+    <td>
+      <ul>
+      <li><code>items</code>: Array with Objects. The currently selected items.</li>
+      </ul>
+    </td> 
+  </tr>
+  
+</table>
+
+
+<h3><a name="User_defined_events" id="User_defined_events"></a>User defined events</h3>
+<p>
+The TreeGrid can fire user defined events. This occurs when an item has
+action buttons defined (see <a href="#Actions">Actions</a>). 
+The custom defined action event will be fired when the user clicks the action button.
+
+
+</p>
+
+
+<h2><a name="Styles" id="Styles"></a>Styles</h2>
+<p>
+All HTML elements of the TreeGrid have a class name and a default css style. 
+The styles can be overwritten, which enables full customization of the layout 
+of the TreeGrid.
+</p>
+
+<p>For example, to change the background and the border of the header, include the 
+following code inside the head of your html code or in a separate stylesheet.</p>
+<pre class="prettyprint lang-html">
+&lt;style&gt;
+.treegrid-header {
+  color: white;
+  background-color: #E157E9;
+  border-color: #BF29C8;
+}
+&lt;/style&gt;
+</pre>
+
+<table>
+  <col width="25%">
+  <col width="50%">
+  <col width="25%">
+
+  <tr> 
+    <th>Class name</th> 
+    <th>Description</th> 
+    <th>Default style</th> 
+  </tr>
+
+  <tr> 
+    <td>.treegrid-frame</td> 
+    <td>The frame surrounding the TreeGrid.</td> 
+    <td>
+      border: 1px solid #BEBEBE;<br>
+      color: #1A1A1A;  <br>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>.treegrid-header</td> 
+    <td>The header, showing field names on top of a Grid.</td> 
+    <td>
+      font-weight: bold;<br>
+      background-color: #D5DDF6;<br>
+      border-bottom: 1px solid #97B0F8;<br>
+    </td> 
+  </tr>
+  
+  <tr>
+    <td>.treegrid-header-field</td> 
+    <td>An individual field containing one field name in the header.</td> 
+    <td>
+      padding: 4px;<br>
+    </td> 
+  </tr>
+  
+  <tr>
+    <td>.treegrid-item</td> 
+    <td>One item in a Grid, one row containing field values.</td> 
+    <td>
+      border-width: 1px;<br>
+      border-style: solid;<br>
+      border-color: white;<br>
+    </td> 
+  </tr>
+
+  <tr>
+    <td>.treegrid-item</td> 
+    <td>A selected item.</td> 
+    <td>
+      background-color: #FFFF80;<br>
+      border-color: #FFD500;<br>
+    </td> 
+  </tr>
+
+  <tr>
+    <td>.treegrid-item-dirty</td> 
+    <td>An item which data is not up to date.</td> 
+    <td>
+      color: gray;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-droparea,<br>
+      .treegrid-item-dragover
+    </td> 
+    <td>A Drop area for dropping an item on another item.</td> 
+    <td>
+      background-color: #F5F5F5;<br>
+      border: 1px dashed gray;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-item-dragbefore</td> 
+    <td>A Drop area for dropping an item in between two items.</td> 
+    <td>
+      border-top-color: red;<br>
+      border-style: dashed;<br>
+      border-top-width: 1px;<br>
+      border-bottom-width: 1px;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-item-dragbefore</td> 
+    <td>A single field value in an item.</td> 
+    <td>
+      padding: 4px;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-drag-image</td> 
+    <td>Layout for the drag image, shown when dragging one or multiple items 
+      around.</td> 
+    <td>
+      padding: 5px;<br>
+      background-color: #FFFF80;<br>
+      border: 1px solid #FFD500;<br>
+      font-weight: bold;<br>
+      border-radius: 3px;<br>
+  
+      z-index: 99999;<br>
+      position: relative;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-fold</td> 
+    <td>The fold/expand button in folded state.</td> 
+    <td>
+      background: url('img/treeRightTriangleBlack.png') no-repeat center;<br>
+      cursor: pointer;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-unfold</td> 
+    <td>The fold/expand button in expanded state.</td> 
+    <td>
+      background: url('img/treeDownTriangleBlack.png') no-repeat center;<br>
+      cursor: pointer;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-loading-icon</td> 
+    <td>Icon shown on the left side of an item when the item is being loaded.</td> 
+    <td>
+      background: url('img/wait16trans.gif') no-repeat center;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>.treegrid-error-icon</td> 
+    <td>Icon shown on the left side of an item when there was an error retrieving this item.</td> 
+    <td>
+      background: url('img/warning-icon-16.png') no-repeat center;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-fold,<br>
+      .treegrid-unfold,<br>
+      .treegrid-loading-icon,<br>
+      .treegrid-error-icon
+    </td> 
+    <td>Layout equal for all buttons and icons.</td> 
+    <td>
+      width: 20px;<br>
+      height: 24px;<br>
+      border: none;<br>
+      float: left;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-verticalscroll-background
+    </td> 
+    <td>Background of the vertical scrollbar.</td> 
+    <td>
+      background-color: gray;<br>
+      opacity: 0.1;<br>
+      filter: alpha(opacity=10);*/ /* For IE8 and earlier */<br>
+      width: 100%;<br>
+      height: 100%;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-verticalscroll-bar
+    </td> 
+    <td>The draggable bar of the vertical scrollbar.</td> 
+    <td>
+      background-color: #BFBFBF;<br>
+      border: 2px solid white;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-loading
+    </td> 
+    <td>Text displaying a loading message.</td> 
+    <td>
+      color: lightgray;
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-error
+    </td> 
+    <td>Text displaying an error message.</td> 
+    <td>
+      color: red;
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-loading,<br>
+      .treegrid-error<br>
+    </td> 
+    <td>Style common for the loading and error messages</td> 
+    <td>
+      padding: 4px;
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      .treegrid-icons
+    </td> 
+    <td>Container for the icons, shown on the left of an item.</td> 
+    <td>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-icon
+    </td> 
+    <td>A single icon image, shown on the left of an item.</td> 
+    <td>
+      padding-right: 4px;<br>
+      padding-bottom: 4px;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-actions<br>
+    </td> 
+    <td>Container for the action buttons, shown on the right of an item.</td> 
+    <td>
+      padding: 4px;
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-action-image<br>
+    </td> 
+    <td>Style for an individual action, 
+      when an image is provided and the action is displayed as a button.</td> 
+    <td>
+      margin-left: 5px;<br>
+      border: none;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-action-link<br>
+    </td> 
+    <td>Style for an individual action, 
+      when no image is provided and the action button is displayed as a link.</td> 
+    <td>
+      margin-left: 5px;<br>
+      color: #97B0F8;<br>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      .treegrid-action-link:hover<br>
+    </td> 
+    <td>Style for an individual action link when hovered.</td> 
+    <td>
+      color: red;<br>
+    </td>
+  </tr>
+
+</table>
+
+<h2><a name="Data_Policy" id="Data_Policy"></a>Data Policy</h2>
+<p>
+All code and data are processed and rendered in the browser. No data is sent to any server.
+</p>
+
+</body>
+</html>
