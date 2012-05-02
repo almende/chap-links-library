@@ -1,0 +1,103 @@
+<html>
+<head>
+
+<!--
+
+DOCUMENTATION
+http://www.crockford.com/javascript/private.html
+http://www.howtocreate.co.uk/tutorials/javascript/objects
+-->
+
+<script>
+
+// create namespace
+var links = {};
+
+// Declare a class with all functions inside the declaration
+links.Box = function(width, height) {
+  // public
+  this.getWidth = function () {
+    return w;
+  }
+  
+  this.getHeight = function () {
+    return h;
+  }
+  
+  this.publicTest = function () {
+    test();
+  }
+  
+  // private
+  var test = function () {
+    document.write("test...<br>");
+  }
+
+  // private
+  var w = width;
+  var h = height;
+}
+
+// Declare a class with all functions declared outside the class itself
+links.Box2 = function(width, height) {
+
+}
+
+links.Box2.prototype.w = 0;
+links.Box2.prototype.h = 0;
+
+links.Box2.prototype.set = function (width, height) {
+  w = width;
+  h = height;
+}
+
+// public
+links.Box2.prototype.getWidth = function () {
+  return this.w;
+}
+
+links.Box2.prototype.getHeight = function () {
+  return this.h;
+}
+
+// private
+links.Box2.prototype.test = function () {
+  document.write("test...<br>");
+}
+
+links.Box2.prototype.publicTest = function () {
+  this.test();
+}
+
+</script>
+
+</head>
+<body>
+
+<script>
+
+var box = new links.Box(10,15);
+
+document.write("box=(" + box.getWidth() + "," + box.getHeight() + ")<br>");
+
+// fucntion test is private and should not be available outside the function
+try {
+  box.test();
+} catch (err) {
+  document.write("<font style='color:red;'>" + err + "</font><br>");
+}
+
+// variable w and h are private and should not be available outside the function
+try {
+  document.write("box=(" + box.w + "," + box.h + ") should give undefined<br>");
+} catch (err) {
+  document.write("<font style='color:red;'>" + err + "</font><br>");
+}
+
+// access a private function from within a public function
+box.publicTest();
+
+</script>
+
+</body>
+</html>

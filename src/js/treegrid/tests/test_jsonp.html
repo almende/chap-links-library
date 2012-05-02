@@ -1,0 +1,120 @@
+<html>
+<head>
+  <title>Test JSONP</title>
+  
+  <script>
+
+    /**
+     * Retrieve a JSON response via javascript injection.
+     * Note: jsonp must be enabled on the server side. (For example in the 
+     * couchdb configuration the option 'allow_jsonp' must be set true)
+     * @param {String} url         The url to be retrieved
+     * @param {function} callback. On response, the callback function will be called
+     *                             with the retrieved data as parameter (JSON object)
+     * @param {function} errback   On failure (when the url could not be fetched),
+     *                             the errback callback method is executed.
+     * @param {Number} timeout     timeout for sending an error
+     */
+    getJSONP = function (url, callback, errback, timeout) {
+      // create a random function name to use as temporary callback function
+      var callbackName = 'callback' + Math.round(Math.random() * 1e10);
+      
+      // create a script to be injected in the document
+      var script = document.createElement('script');
+      var separator = (url.indexOf('?') == -1) ? '?' : '&';
+      script.src = url + separator + 'callback=' + callbackName;
+      script.type = 'text/javascript';
+      
+      // create the temporary callback function
+      window[callbackName] = function (data) {
+        // clean up created function and script
+        delete window[callbackName];
+        document.body.removeChild(script);
+
+        // call callback function with retrieved data
+        callback(data);
+      }
+      
+      // inject the script in the document
+      document.body.appendChild(script); 
+
+      if (errback) {
+        setTimeout(function () {
+          if (window[callbackName]) {
+            // our callback method still exists, thus, the script was not 
+            // succesfully injected. 
+            
+            // cleanup the callback method and injected script
+            delete window[callbackName];
+            document.body.removeChild(script);
+            
+            // send error
+            errback({
+              'error': 'Fetching url failed',
+              'url': url
+            });
+          }
+        }, timeout || 30000);
+      }
+
+    /* TODO: get error handling with JSONP working. Seems to be only possible via a timeout...
+      // create a cleanup script, which checks if the injection was succesful
+      var cleanupCallbackName = 'callback' + Math.round(Math.random() * 1e10);
+      var cleanupScript = document.createElement('script');
+      cleanupScript.innerHTML = cleanupCallbackName + '();';
+      window[cleanupCallbackName] = function () {
+        console.log('check script cleanup')
+        if (window[callbackName]) {
+          // our callback method still exists, thus, the script was not 
+          // succesfully injected. 
+          
+          // cleanup the callback method and injected script
+          delete window[callbackName];
+          document.body.removeChild(script);
+          
+          // send error
+          if (errback) {
+            errback({
+              'error': 'Fetching url failed',
+              'url': url
+            });
+          }
+        }
+
+        // cleanup the cleanup script
+        delete window[cleanupScript];
+        document.body.removeChild(cleanupScript);
+      }
+
+      document.body.appendChild(cleanupScript);
+console.log('jsonp cleanupscript appended')
+      //*/
+    }  
+  </script>  
+</head>
+
+<body>
+  <!-- this works well... 
+  <script>
+    function bla(data) {
+      console.log('bla', data);
+    }
+  </script>
+  <script>
+    console.log('before bla');
+  </script>
+  <script src="http://localhost:1337/?callback=bla"></script>
+  <script>
+    console.log('after bla');
+  </script>
+  -->
+  
+  <script>
+    getJSONP('http://localhost:1337/', function callback(data) {
+    //getJSONP('http://bla/', function callback(data) {
+      console.log('callback', data);
+    }, function (err) {console.log('error', err);}, 10000);
+  </script>
+
+</body>
+</html>

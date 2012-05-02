@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<!-- saved from url=(0032)http://gnuzoo.org/rose/index.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<!--[if IE]><script src="excanvas.js"></script><![endif]-->
+	</head>
+	<body onload="run();">
+		<canvas id="myCanvas" width="500" height="500"></canvas>
+		<script type="text/javascript">
+			function run() {
+				var c = document.getElementById("myCanvas");
+				var ctx = c.getContext("2d");
+
+        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        var i = 0;
+        var x = i/10;
+        var y = Math.sin(i/10)*100 + 100;
+        ctx.moveTo(x, y); 
+        for (i = 1; i < 500; i++) {
+          x = i;
+          y = Math.sin(i/10)*100 + 100;
+          ctx.lineTo(x, y);  
+        }
+        ctx.stroke();      				
+
+			}
+		</script> 
+	
+ 
+</body></html>

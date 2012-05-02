@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>HTML5 Demo: Drag and drop</title>
+
+
+<style type="text/css">
+
+*[draggable=true] {
+  -moz-user-select:none;
+  -khtml-user-drag: element;
+}
+
+#bin {
+  height: 250px;
+  width: 166px;
+  border: 1px dashed black;
+}
+
+</style>
+</head>
+<body>
+  <h1>Drag and drop...</h1>
+
+  <p>Drag the list items over the dustbin, and drop them to have the bin eat the item</p>
+  <div id="bin">bin</div>
+
+<!-- Drag and drop only works in IE with links and images (!). IE does not support the draggable property  -->
+  <a id="drag1">one</a>
+  <a href="#" id="drag2">two</a>
+  <a href="#" id="drag3">three</a>
+  <a href="#" id="drag4">four</a>
+  <a href="#" id="drag5">five</a>
+  
+  <script>
+
+	var addEvent = function (el, type, fn) {
+	  if (el.addEventListener) { // TODO
+		el.addEventListener(type, fn, false);
+	  } else {
+		el.attachEvent('on' + type, function () { return fn.call(el, window.event); });
+	  }
+	};
+
+
+  for (var i = 1; i <= 5; i++) {
+    el = document.getElementById('drag' + i);
+    el.draggable = true;
+  
+    addEvent(el, 'dragstart', function (e) {
+      e.dataTransfer.effectAllowed = 'copy'; // only dropEffect='copy' will be dropable
+      e.dataTransfer.setData('Text', this.id); // required otherwise doesn't work
+    });
+  }
+
+  var bin = document.getElementById('bin');
+
+  addEvent(bin, 'dragover', function (e) {
+    if (e.preventDefault) e.preventDefault(); // allows us to drop
+    e.dataTransfer.dropEffect = 'copy';
+    return false;
+  });
+/*
+  addEvent(bin, 'dragenter', function (e) {
+    return false;
+  });
+
+  addEvent(bin, 'dragleave', function () {
+  });
+*/
+
+  addEvent(bin, 'drop', function (e) {
+    if (e.stopPropagation) e.stopPropagation(); // stops the browser from redirecting...why???
+ 	  
+    var el = document.getElementById(e.dataTransfer.getData('Text'));
+    el.parentNode.removeChild(el);
+	bin.innerHTML = el.innerHTML;
+    return false;
+  });
+
+  </script>
+</body>
+</html>

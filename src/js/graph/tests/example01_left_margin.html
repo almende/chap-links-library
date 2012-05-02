@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <title>Graph demo</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../graph.js"></script>
+    <link rel="stylesheet" type="text/css" href="../graph.css">
+    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'time');
+        data.addColumn('number', 'Function A');
+        data.addColumn('number', 'Function B');
+
+        function functionA(x) {
+          return Math.sin(x / 100) * Math.cos(x / 50) * 50 + (Math.random()-0.5) * 10;
+        }
+
+        function functionB(x) {
+          return Math.sin(x/50) *50 + Math.cos(x / 7) * 75 + (Math.random()-0.5) * 20 + 50;
+        }
+
+        // create data
+        var d = new Date(2010, 9, 23, 20, 0, 0);
+        for (i = 0; i < 1000; i++) {
+          data.addRow([new Date(d), 
+                       functionA(i) / 200, 
+                       functionB(i) / 200]);
+          d.setMinutes(d.getMinutes() + 1);
+        }
+
+        // specify options
+        options = {width:  "800px", 
+                   height: "350px" 
+                   };
+
+        // Instantiate our graph object.
+        var graph = new links.Graph(document.getElementById('mygraph'));
+        
+        // Draw our graph with the created data and options 
+        graph.draw(data, options);
+      }
+   </script>
+  </head>
+
+  <body>
+    <div id="mygraph" style="margin-left: 200px;"></div>
+    
+    <div id="info"></div>
+  </body>
+</html>

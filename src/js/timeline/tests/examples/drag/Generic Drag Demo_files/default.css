@@ -1,0 +1,91 @@
+/******************************************************************************
+* Defines default styles for site pages.                                      *
+******************************************************************************/
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body {
+  background-color: #ffffff;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+}
+
+h2 {
+  font-size: 140%;
+}
+
+h3 {
+  font-size: 120%;
+}
+
+h4 {
+  font-size: 100%;
+}
+
+pre {
+  font-family: Courier New, Courier, monospace;
+  font-size: 80%;
+}
+
+td, th {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  font-weight: bold;
+  vertical-align: bottom;
+}
+
+ul {
+  list-style-type: square;
+}
+
+#demoBox {
+  border-color: #000000;
+  border-style: solid;
+  border-width: 1px;
+  padding: 8px;
+  width: 24em;
+}
+
+.footer {
+  margin-bottom: 0px;
+  text-align: center;
+}
+
+/* Boxed table styles */
+
+table.boxed {
+  border-spacing: 2px;
+  empty-cells: hide;
+}
+
+td.boxed, th.boxed, th.boxedHeader {
+  background-color: #ffffff;
+  border-color: #000000;
+  border-style: solid;
+  border-width: 1px;
+  color: #000000;
+  padding: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+th.boxed {
+  background-color: #c0c0c0;
+}
+
+th.boxedHeader {
+  background-color: #808080;
+  color: #ffffff;
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo</title>
+
+    <style>
+      body {
+        font: 10pt sans; 
+      }
+    </style>
+
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+      
+      // Called when the Visualization API is loaded.
+      function draw() {
+        nodesTable = [];
+        linksTable = [];
+        
+        var connectionCount = new Array();
+        
+        // randomly create some nodes
+        var nodeCount = document.getElementById('nodeCount').value;
+        for (var i = 0; i < nodeCount; i++) {
+          nodesTable.push({
+            'id': i, 
+            'text': String(i)
+          });
+          
+          connectionCount[i] = 0;
+          
+          // create links in a scale-free-network way
+          if (i == 1) {
+            var from = i;
+            var to = 0;
+            linksTable.push({
+              'from': from, 
+              'to': to
+            });
+            connectionCount[from]++;
+            connectionCount[to]++;
+          }
+          else if (i > 1) {
+            var conn = linksTable.length * 2;
+            var rand = Math.floor(Math.random() * conn);
+            var cum = 0;
+            var j = 0;
+            while (j < connectionCount.length && cum < rand) {
+              cum += connectionCount[j];
+              j++;
+            }
+            
+            var from = i;
+            var to = j;
+            linksTable.push({
+              'from': from, 
+              'to': to
+            });
+            connectionCount[from]++;
+            connectionCount[to]++;
+          }          
+        }
+
+        // specify options
+        var options = {
+          'width': '600px',
+          'height': '600px',
+          'links': {
+            'length': 50
+          },
+          'stabilize': false
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+        
+        // Add event listeners
+        links.events.addListener(network, 'select', function(params) {
+          document.getElementById('selection').innerHTML = 
+            'Selection: ' + JSON.stringify(network.getSelection());
+        });        
+      }
+   </script>
+  </head>
+
+  <body onload="draw();">
+    <p>
+      This example is almost identical to 
+      <a href="example01_random_nodes.html">example01_random_nodes.html</a>,
+      except that it does not use a Google DataTable, and therefore does not
+      need the Google JSAPI, making the example available offline.
+    </p>
+    
+    <form onsubmit= "javascript: draw(); return false;">
+      Number of nodes:
+      <input type="text" value="25" id="nodeCount" style="width: 50px;"> 
+      <input type="submit" value="Go">
+    </form>
+    <br>
+    
+    <div id="mynetwork"></div>
+
+    <p id="selection"></p>
+  </body>
+</html>

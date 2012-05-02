@@ -1,0 +1,69 @@
+<html>
+
+<head>
+  <style>
+    .table {
+      display: box;
+      border: 1px solid blue;
+      width: 150px;
+    }
+    
+    .row {
+      display: -moz-box;
+      display: -webkit-box;
+      display: box;
+      -moz-box-orient: horizontal;
+      -webkit-box-orient: horizontal;
+      box-orient: horizontal;
+      box-align: left;
+    }
+    
+    .col-1 {
+      -moz-box-flex: 1;
+      -webkit-box-flex: 1;
+      box-flex: 1;
+    }
+
+    .col-2 {
+      -moz-box-flex: 1;
+      -webkit-box-flex: 1;
+      box-flex: 1;
+    }
+
+    .col-3 {
+      -moz-box-flex: 2;
+      -webkit-box-flex: 2;
+      box-flex: 2;
+
+    }
+    
+    .col-1, .col-2, .col-3 {
+      border: 1px solid red;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="table">
+  <div class="row">
+    <div class="col-1">1</div>
+    <div class="col-2">2</div>
+    <div class="col-3">3</div>
+  </div>
+  <div class="row">
+    <div class="col-1">four</div>
+    <div class="col-2">five</div>
+    <div class="col-3">six</div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<html>
+
+<head>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+  // module where all methods and variables are public
+  var module = {
+    name: '',
+
+    getName: function () {
+      return this.name;
+    },
+
+    setName: function (name) {
+      this.name = name;
+    }
+  };
+
+  // module where everything is in a private scope except the methods that
+  // you explicitly make public.
+  var module2 = function () {
+    var name = '';
+    
+    function getName () {
+      return name;
+    }
+    
+    function setName (newName) {
+      name = newName;
+    }
+    
+    return {
+      'setName': setName,
+      'getName': getName
+    };
+  }();
+  
+</script>
+
+</body>
+</html>

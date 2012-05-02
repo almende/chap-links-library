@@ -1,0 +1,958 @@
+<html>
+
+<head>
+  <title>Graph documentation</title>
+  <link rel='stylesheet' href='default.css' type='text/css'>
+
+  <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="prettify/prettify.js"></script>
+</head>
+
+<body onload="prettyPrint();">
+
+<h1>Graph documentation</h1>
+
+<ul>
+  <li><a href="#Overview">Overview</a></li> 
+  <li><a href="#Example">Example</a></li> 
+  <li><a href="#Loading">Loading</a></li> 
+  <li><a href="#Data_Format">Data Format</a></li> 
+  <li><a href="#Configuration_Options">Configuration Options</a></li> 
+  <li><a href="#Methods">Methods</a></li> 
+  <li><a href="#Events">Events</a></li> 
+  <li><a href="#Styles">Styles</a></li>
+  <li><a href="#Data_Policy">Data Policy</a></li> 
+</ul>
+
+<h2><a name="Overview" id="Overview"></a>Overview</h2>
+<p>
+The Graph is an interactive visualization chart to draw (measurement) data in time. 
+You can freely move and zoom in the graph by dragging and scrolling in the 
+window.
+The time scale on the axis is adjusted automatically, and supports scales ranging 
+from milliseconds to years.
+</p>
+
+<p>
+The Graph visualization is designed to display large amouts of data in your browser. 
+Modern browsers can render up to 100.000 (or even a million) datapoints without problems. 
+However, to keep rendering smooth on older browsers too, it is better to keep
+the number of datapoints below 10.000.
+Note that rendering is faster when a smaller part of the data is visible, 
+i.e. when zooming in.
+</p>
+
+<p>
+The Graph is developed as a Google Visualization Chart in javascript. 
+There is a GWT wrapper available to use the Graph in GWT (Google Web Toolkit).
+
+It runs in all browsers without additional requirements. 
+Graph is tested on Firefox 3.6, Safari 5.0, Chrome 6.0, Opera 10.6, 
+Internet Explorer 6 to 9.
+</p>
+
+
+<h2><a name="Example" id="Example"></a>Example</h2>
+<p>
+Here a graph example. Click and drag to move the graph, scroll to zoom the graph.
+</p>
+<p>
+More examples can be found in the <a href="../examples">examples</a> directory. 
+</p>
+
+<iframe src="../examples/example01_basis.html" style="border:none; width:100%; height:400px;"></iframe>
+
+<pre class="prettyprint lang-html">&lt;!DOCTYPE HTML PUBLIC 
+    "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Graph demo&lt;/title&gt;
+
+    &lt;style&gt;
+      body {font: 10pt arial;}
+    &lt;/style&gt;
+
+    &lt;script type="text/javascript" src="http://www.google.com/jsapi"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" src="../graph.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" type="text/css" href="../graph.css"&gt;
+    &lt;!--[if IE]&gt;&lt;script src="../excanvas.js"&gt;&lt;/script&gt;&lt;![endif]--&gt;
+    
+    &lt;script type="text/javascript"&gt;
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'time');
+        data.addColumn('number', 'Function A');
+        data.addColumn('number', 'Function B');
+
+        function functionA(x) {
+          return Math.sin(x / 25) * Math.cos(x / 25) * 50 + (Math.random()-0.5) * 10;
+        }
+
+        function functionB(x) {
+          return Math.sin(x / 50) *50 + Math.cos(x / 7) * 75 + (Math.random()-0.5) * 20 + 20;
+        }
+
+        // create data
+        var d = new Date(2010, 9, 23, 20, 0, 0);
+        for (i = 0; i < 100; i++) {
+          data.addRow([new Date(d), functionA(i), functionB(i)]);
+          d.setMinutes(d.getMinutes() + 1);
+        }
+
+        // specify options
+        var options = {
+          "width":  "100%", 
+          "height": "350px" 
+        };
+
+        // Instantiate our graph object.
+        var graph = new links.Graph(document.getElementById('mygraph'));
+        
+        // Draw our graph with the created data and options 
+        graph.draw(data, options);
+      }
+   &lt;/script&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;div id="mygraph"&gt;&lt;/div&gt;
+    
+    &lt;div id="info"&gt;&lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre> 
+
+
+<h2><a name="Loading" id="Loading"></a>Loading</h2>
+<p>
+To load the Graph, download the file 
+<a href="http://sourceforge.net/projects/links/files/javascript"><code>graph.zip</code></a>, 
+and unzip it in your html page such that the files are located in a subfolder graph.
+
+When you use a Google DataTable or Events, the Google API must be included too. 
+Note that the Google API is only available online, so it is not possible to use 
+it in an offline application.
+</p>
+
+<pre class="prettyprint lang-html">&lt;script type="text/javascript" src="http://www.google.com/jsapi"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="graph/graph.js"&gt;&lt;/script&gt;
+&lt;!--[if IE]&gt;&lt;script src="../excanvas.js"&gt;&lt;/script&gt;&lt;![endif]--&gt;
+&lt;link rel="stylesheet" type="text/css" href="graph/graph.css"&gt;</pre>
+
+<p>
+When the Google API is used, the google visualization tools needs to be loaded. 
+This is not needed when using a JSON Array as data type.
+</p>
+<pre class="prettyprint lang-js">google.load("visualization", "1");
+google.setOnLoadCallback(drawVisualization);
+function drawVisualization() {
+  // load data and create the graph here
+}
+</pre>
+
+The class name of the Graph is <code>links.Graph</code>
+<pre class="prettyprint lang-js">var graph = new links.Graph(container);</pre>
+
+After being loaded, the graph can be drawn via the function <code>draw()</code>,
+provided with data and options.
+<pre class="prettyprint lang-js">graph.draw(data, options);</pre>
+where data is a Google <code>DataTable</code> or a <code>JSON Object</code>, 
+and options is a name-value map in the JSON format.
+
+<h2><a name="Data_Format" id="Data_Format"></a>Data Format</h2>
+
+<p>
+The Graph can be fed with two types of data: a Google DataTable, or a 
+Javascript Array. Using a Google DataTable requires loading the Google JSAPI, 
+which is only available online.
+</p>
+
+<h3>Google DataTable</h3>
+<p>
+The graph requires a data table with at least two columns. The first column must
+contain dates, and the second (and optionally more columns) contains numeric data
+values.
+A table is constructed as:
+</p>
+
+<pre class="prettyprint lang-js">
+var data = new google.visualization.DataTable();
+data.addColumn('datetime', 'time');
+data.addColumn('number', 'Values A');
+data.addColumn('number', 'Values B'); // optionally add more than one data column
+
+data.addRow([new Date(2010,7,15), 12.5, 34.6]);
+// ...
+</pre>
+
+<p>
+The columns are defined as:
+</p>
+
+<table>
+  <tr> 
+    <th>Name</th> 
+    <th>Type</th> 
+    <th>Description</th> 
+  </tr> 
+  <tr> 
+    <td>time</td> 
+    <td>datetime</td> 
+    <td>The date of the data point, for example <code>new Date(2010,09,23)</code>.</td> 
+  </tr> 
+  <tr> 
+    <td>value</td> 
+    <td>number</td> 
+    <td>The data value.</td> 
+  </tr> 
+  <tr> 
+    <td>value</td> 
+    <td>number</td> 
+    <td>Optional: more data columns.</td> 
+  </tr> 
+</table>
+
+<h3>Javascript Array</h3>
+<p>
+The Graph requires a Javascript Array with at least one dataset.
+A dataset is an Javascript Object containing two parameters: <code>label</code>
+and <code>data</code>. The label is displayed in the legend of the Graph,
+and the data parameter contains an Array with Objects, 
+each containing two parameters: <code>date</code> and <code>value</code>.
+</p>
+
+<pre class="prettyprint lang-js">
+
+var dataset1 = {
+  "label" : "Dataset A", 
+  "data" : [
+    {"date": new Date(2010,7,15), "value" : 12.5},
+    {"date": new Date(2010,7,16), "value" : 3.5},
+    // ...
+  ]
+};
+
+var dataset2 = {
+  "label" : "Dataset B", 
+  "data" : [
+    {"date": new Date(2010,7,15), "value" : 3.2},
+    {"date": new Date(2010,7,17), "value" : 6.1},
+    // ...
+  ]
+};
+
+var data = [dataset1, dataset2];
+</pre>
+
+<p>
+
+
+</p>
+
+<h2><a name="Configuration_Options" id="Configuration_Options"></a>Configuration Options</h2>
+
+<p>
+Options can be used to customize the graph. Options are defined as a JSON object.
+All options are optional.
+</p>
+
+<pre class="prettyprint lang-js">
+var options = {
+  "width":  "100%",
+  "height": "400px", 
+  "line": {
+    "width": 1  // width applied to all lines
+  },       
+  "lines": [
+    {
+      "style": "dot-line",
+      "radius": 2,
+      "color": "cornflowerblue".
+      "legend": false
+    },
+    {
+      "style": "line",
+      "color": "navy"
+    }
+  ]
+};
+</pre>
+
+<p>
+The following options are available.
+</p>
+
+<table>
+  <tr> 
+    <th>Name</th> 
+    <th>Type</th> 
+    <th>Default</th> 
+    <th>Description</th> 
+  </tr> 
+  
+  <tr> 
+    <td>autoDataStep</td> 
+    <td>boolean</td> 
+    <td>true</td> 
+    <td>If true, intermediate data points will be skipped in case of much data.
+    This makes drawing large amounts of data much faster. For example, when
+    the data contains 10000 points, and the width of the graph is 1000 pixels,
+    every tenth datapoint will be drawn and the rest will be skipped.</td>
+  </tr>
+  
+  <tr> 
+    <td>end</td> 
+    <td>Date</td> 
+    <td>none</td> 
+    <td>The initial start date for the axis of the graph.
+    If not provided, the latest date present in the events is taken as end date.</td> 
+  </tr>
+  
+  <tr> 
+    <td>height</td> 
+    <td>string</td> 
+    <td>"300px"</td> 
+    <td>The height of the graph in pixels or as a percentage.</td> 
+  </tr>   
+
+  <tr>
+    <td>intervalMax</td> 
+    <td>Number</td> 
+    <td>315360000000000</td> 
+    <td>Set a maximum interval for the visible range in milliseconds. 
+      It will not be possible to zoom out further than this maximum.
+      Default value equals about 10000 years.
+    </td> 
+  </tr>
+
+  <tr>
+    <td>intervalMin</td> 
+    <td>Number</td> 
+    <td>10</td> 
+    <td>Set a minimum interval for the visible range in milliseconds. 
+      It will not be possible to zoom in further than this minimum.
+    </td> 
+  </tr>
+  
+  <tr>
+    <td>legend.toggleVisibility</td> 
+    <td>boolean</td>
+    <td>false</td> 
+    <td>Enable toggling the visibility of individual lines in the graph. 
+    When <code>legend.toggleVisibility</code> is true, checkboxes are added in 
+    the legend to show or hide a line. A line can initially be set invisible by
+    setting <code>visible</code> to false for the specified line 
+    (see next table). 
+    </td> 
+  </tr>
+
+  <tr>
+    <td>legend.visible</td> 
+    <td>boolean</td> 
+    <td>true</td> 
+    <td>If true, the legend is shown. If false, the legend is hidden.</td> 
+  </tr>
+  <tr>
+    <td>legend.width</td> 
+    <td>String</td> 
+    <td>"auto"</td> 
+    <td>Set a width for the legend, for example "200px" or "15%". 
+    This can be useful when the function names are very long.</td> 
+  </tr>
+    
+  <tr>
+    <td>line</td> 
+    <td>Object</td> 
+    <td>{ }</td> 
+    <td>An object with styles applied to all lines: color, width, 
+    radius, style, legend. 
+    See the table below.</td> 
+  </tr>
+  <tr>
+    <td>lines</td> 
+    <td>Array with objects</td> 
+    <td>[ ]</td> 
+    <td>An array with specific styles for the individual lines: color, width, 
+    radius, style, legend. These styles override the styles set in the option 
+    <code>line</code>.
+    See the table below.</td> 
+  </tr>
+  
+  <tr>
+    <td>max</td> 
+    <td>Date</td> 
+    <td>none</td> 
+    <td>Set a maximum Date for the visible range.
+      It will not be possible to move beyond this maximum.
+    </td> 
+  </tr>
+
+  <tr>
+    <td>min</td> 
+    <td>Date</td> 
+    <td>none</td> 
+    <td>Set a minimum Date for the visible range.
+      It will not be possible to move beyond this minimum.
+    </td> 
+  </tr>
+  
+  <tr>
+    <td>moveable</td> 
+    <td>boolean</td> 
+    <td>true</td> 
+    <td>If true, the graph is movable. 
+    When the graph moved, the <code>rangechange</code> events are fired.
+    </td> 
+  </tr>
+
+  <tr>
+    <td>scale</td> 
+    <td>links.StepDate.SCALE</td> 
+    <td>none</td> 
+    <td>Set a custom scale. Automatic scaling will be disabled. 
+    Both options <code>scale</code> and <code>step</code> must be set.
+    
+    For example scale=SCALE.MINUTES and step=5 will result in minor steps of 
+    5 minutes, and major steps of an hour. 
+    Available scales: <code>MILLISECOND</code>, <code>SECOND</code>,
+    <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>,
+    <code>YEAR</code>. As step size, choose for example 1, 2, 5, or 10.
+    </td> 
+  </tr>
+
+  
+  <tr> 
+    <td>start</td> 
+    <td>Date</td> 
+    <td>none</td> 
+    <td>The initial start date for the axis of the graph.
+    If not provided, the earliest date present in the events is taken as start date.</td> 
+  </tr>     
+  
+  <tr>
+    <td>step</td> 
+    <td>number</td> 
+    <td>none</td> 
+    <td>See option <code>scale</code>.
+    </td> 
+  </tr>
+  <tr>
+    <td>vEnd</td> 
+    <td>number</td> 
+    <td>none</td> 
+    <td>The initial end value of the vertical axis.
+    </td> 
+  </tr>
+  <tr>
+    <td>vStart</td> 
+    <td>number</td> 
+    <td>none</td> 
+    <td>The initial start value of the vertical axis.
+    </td> 
+  </tr>
+  <tr>
+    <td>vMin</td> 
+    <td>number</td> 
+    <td>none</td> 
+    <td>The minium value for the vertical axis.
+      If undefined, vMin is taken as the minimum value in the data minus
+      5% of the data range.
+    </td> 
+  </tr>
+  <tr>
+    <td>vMax</td> 
+    <td>number</td> 
+    <td>none</td> 
+    <td>The start value of the vertical axis.
+      If undefined, vMax is taken as the maximum value in the data plus
+      5% of the data range.
+    </td> 
+  </tr>
+  <tr>
+    <td>vStep</td> 
+    <td>number</td> 
+    <td>none</td> 
+    <td>The step size of the vertical axis. This must be a positive value.
+    </td>
+  </tr>
+
+  <tr> 
+    <td>width</td> 
+    <td>string</td> 
+    <td>"100%"</td> 
+    <td>The width of the graph in pixels or as a percentage.</td> 
+  </tr>   
+  
+  <tr>
+    <td>zoomable</td> 
+    <td>boolean</td> 
+    <td>true</td> 
+    <td>If true, the graph is zoomable. 
+    When the graph is zoomed, the <code>rangechange</code> event is fired.
+    </td> 
+  </tr>
+
+</table>
+
+<p>
+With the options <code>line</code> and <code>lines</code>, styles can be 
+specified for respectively all lines and individual lines.
+The following styles are available:  
+</p>
+
+<table>
+  <tr> 
+    <th>Name</th> 
+    <th>Type</th> 
+    <th>Default</th> 
+    <th>Description</th>
+  </tr> 
+  <tr> 
+    <td>style</td> 
+    <td>string</td> 
+    <td>"line"</td> 
+    <td>A line style. Available styles are: <code>line</code>, 
+    <code>dot</code>, or <code>dot-line</code>.
+    Dots are drawn at each data point. 
+    Lines are drawn between the data points.</td> 
+  </tr>   
+  <tr> 
+    <td>color</td> 
+    <td>string</td> 
+    <td>black</td> 
+    <td>A string with an HTML color, for example <code>red</code> or 
+    <code>#FF0000</code>. 
+    If color is not specified, a color is chosen from an array with default 
+    colors.</td> 
+  </tr>   
+  <tr> 
+    <td>width</td>
+    <td>number</td> 
+    <td>1.0</td> 
+    <td>The width of the line in pixels. 
+    Only applicable when the line style is <code>line</code> or 
+    <code>dot-line</code>.</td> 
+  </tr>   
+  <tr> 
+    <td>radius</td>
+    <td>number</td> 
+    <td>1.0</td> 
+    <td>The radius of dots in pixels.
+    Only applicable when the line style is <code>dot</code> or 
+    <code>dot-line</code>.</td> 
+  </tr>   
+  <tr> 
+    <td>legend</td> 
+    <td>boolean</td> 
+    <td>true</td> 
+    <td>Show or hide the legend for this line. If true, the legend is 
+    visible.</td> 
+  </tr>
+  <tr> 
+    <td>visible</td> 
+    <td>boolean</td> 
+    <td>true</td> 
+    <td>Show or hide this line. If false, the line is hidden. See also the 
+    option <code>legend.toggleVisibility</code>, 
+    which creates checkboxes to toggle the visibility of a line in the legend.
+    </td> 
+  </tr>  
+</table>
+
+
+<h2><a name="Methods" id="Methods"></a>Methods</h2>
+<p>
+The Graph supports the following methods.
+</p>
+
+<table>
+  <tr> 
+    <th>Method</th> 
+    <th>Return Type</th> 
+    <th>Description</th> 
+  </tr> 
+
+  <tr> 
+    <td>draw(data, options)</td> 
+    <td>none</td> 
+    <td>Loads data, sets the provided options, and draws the graph.</td> 
+  </tr> 
+  
+  <tr> 
+    <td>getValueRange()</td> 
+    <td>An object with <code>start</code> and <code>end</code> properties</td> 
+    <td>Returns an object with <code>start</code> and <code>end</code> properties, 
+    which each one of them is a Number object, 
+    representing the current value range (vertical axis).</td> 
+  </tr> 
+  
+  <tr> 
+    <td>getVisibleChartRange()</td> 
+    <td>An object with <code>start</code> and <code>end</code> properties</td> 
+    <td>Returns an object with <code>start</code> and <code>end</code> properties, 
+    which each one of them is a Date object, 
+    representing the currently visible time range.</td> 
+  </tr> 
+  
+  <tr> 
+    <td>redraw()</td> 
+    <td>none</td> 
+    <td>Redraw the graph. Useful after the visible range is changed externally,
+     when data is changed, or when the layout of the webpage changed.</td> 
+  </tr> 
+
+  <tr>
+    <td>setAutoScale(enable)</td> 
+    <td>none</td> 
+    <td>Enable or disable autoscaling. 
+      If <code>enable</code> true or not defined, autoscaling is enabled. 
+      If false, autoscaling is disabled. 
+    </td>
+  </tr>
+  
+  <tr>
+    <td>setSize(width, height)</td> 
+    <td>none</td> 
+    <td>Parameters <code>width</code> and <code>height</code> are strings,
+    containing a new size for the graph. Size can be provided in pixels
+    or in percentages.</td>
+  </tr>     
+
+  <tr>
+    <td>setScale(scale, step)</td> 
+    <td>none</td> 
+    <td>Set a custom scale. Automatic scaling will be disabled. 
+    For example setScale(SCALE.MINUTES, 5) will result in minor steps of 
+    5 minutes, and major steps of an hour. 
+    Available scales: <code>MILLISECOND</code>, <code>SECOND</code>,
+    <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>,
+    <code>YEAR</code>. As step size, choose for example 1, 2, 5, or 10.
+    </td>
+  </tr>    
+
+  <tr> 
+    <td>setValueRange (start, end)</td> 
+    <td>none</td> 
+    <td>Sets the (vertical) value range. 
+    Accepts two parameters of type Number that represent the start and the end
+    of the range. 
+    Set start to null to set the start of the range to the lowest data value; 
+    set end to null to set the end of the range to the highest data value.
+    The values must lie within the the range between lowest and highest data 
+    value.
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>setValueRangeAuto()</td> 
+    <td>none</td> 
+    <td>Adjust the (vertical) value range to fit all data.</td> 
+  </tr>   
+  
+  <tr> 
+    <td>setVisibleChartRange (start, end)</td> 
+    <td>none</td> 
+    <td>Sets the visible range (zoom) to the specified range. 
+    Accepts two parameters of type Date that represent the first and last time 
+    of the desired selected visible range. 
+    Set start to null to include everything from the earliest date to end; 
+    set end to null to include everything from start to the last date.
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>setVisibleChartRangeNow()</td> 
+    <td>none</td> 
+    <td>Move the visible range such that the current time is located in the
+    center of the graph. 
+    This method does not trigger a <code>rangechange</code> event.</td> 
+  </tr>
+  
+  <tr> 
+    <td>setVisibleChartRangeAuto()</td> 
+    <td>none</td> 
+    <td>Adjust the visible time range to fit all data.
+    This method does not trigger a <code>rangechange</code> event.</td> 
+    </td> 
+  </tr>   
+
+
+</table>
+
+<h2><a name="Events" id="Events"></a>Events</h2>
+
+<p>
+The Graph fires events after the visible range changed. 
+The events can be catched by creating a listener. Listeners can be registered 
+using the event messages from the Google API or event messages from the CHAP Links library.
+</p>
+
+<p>
+Here an example on how to catch a <code>rangechange</code> event.
+</p>
+
+<pre class="prettyprint lang-js">
+function onrangechange(event) {
+  alert("The range changed to:\n" +
+        "Start: " + event.start + "\n" + 
+        "End: " + event.end);
+}
+
+google.visualization.events.addListener(mygraph, 'rangechange', onrangechange);
+// Or, when using the Links Events instead of the Google API:
+//   links.events.addListener(mygraph, 'rangechange', onrangechange);
+</pre>
+
+<p>
+The following events are available.
+</p>
+
+<table>
+  <col width="10%">
+  <col width="60%">
+  <col width="30%">
+
+  <tr> 
+    <th>name</th> 
+    <th>Description</th> 
+    <th>Properties</th> 
+  </tr>
+    
+  <tr> 
+    <td>rangechange</td> 
+    <td>Visible range is changing. Fired repeatedly while the user is modifying
+    the visible time by moving (dragging) the graph, or by zooming (scrolling), 
+    but not after a call to <code>setVisibleChartRange</code> method.
+    The new range can be retrieved by calling <code>getVisibleChartRange</code> method.</td> 
+    <td>
+      <ul>
+      <li><code>start</code>: Date. The start time of the visible range.</li>
+      <li><code>end</code>: Date. The end time of the visible range.</li>
+      </ul>
+    </td> 
+  </tr>
+  
+  <tr> 
+    <td>rangechanged</td> 
+    <td>Visible range has been changed. Fired once after the user has modified 
+    the visible time by moving (dragging) the timeline, or by zooming (scrolling), 
+    but not after a call to <code>setVisibleChartRange</code> or 
+    <code>setRangeToCurrentTime</code> methods.
+    The new range can be retrieved by calling <code>getVisibleChartRange</code> 
+    method.</td> 
+    <td>
+      <ul>
+      <li><code>start</code>: Date. The start time of the visible range.</li>
+      <li><code>end</code>: Date. The end time of the visible range.</li>
+      </ul>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>ready</td> 
+    <td>The chart is ready for external method calls. 
+    If you want to interact with the chart, and call methods after you draw it, 
+    you should set up a listener for this event before you call the draw method, 
+    and call them only after the event was fired.</td> 
+    <td>none</td> 
+  </tr>
+</table>
+
+<h2><a name="Styles" id="Styles"></a>Styles</h2>
+
+<p>
+All parts of the Graph have a class name and a default css style. 
+The styles can be overwritten, which enables full customization of the layout of 
+the Graph.
+</p>
+
+<p>For example, to change the background color of the graph, include the 
+following code inside the head of your html code or in a separate stylesheet.</p>
+<pre class="prettyprint lang-html">
+&lt;style&gt;
+div.graph-canvas {
+  background-color: yellow;
+}
+&lt;/style&gt;
+</pre>
+
+<table>
+  <col width="25%">
+  <col width="50%">
+  <col width="25%">
+
+  <tr> 
+    <th>Class name</th> 
+    <th>Description</th> 
+    <th>Default style</th> 
+  </tr>
+  
+  <tr> 
+    <td>div.graph-frame</td> 
+    <td>The frame contains the canvas. It determines the size and the border 
+      of the Graph.</td> 
+    <td>
+      border: 1px solid lightgray;
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-canvas</td> 
+    <td>The canvas is located inside the frame and can be moved and zoomed. 
+      All elements (data, axis) are drawn on the canvas. 
+      Use this css class for example to give the Graph a background color.</td> 
+    <td>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis</td> 
+    <td>The horizontal axis.</td> 
+    <td>
+      border-color: #bfbfbf;<br>
+      border-width: 1px;<br>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-vertical</td> 
+    <td>The vertical axis.</td> 
+    <td>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-grid</td> 
+    <td>Both horizontal and vertical axis have grid lines.</td> 
+    <td>
+      border-width: 1px;
+    </td>
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-grid-minor</td> 
+    <td>The axis has two grid lines: minor and major. When the scale is in days, 
+      each day gets a minor grid line, and each month a major grid line.</td> 
+    <td>
+      border-color: #e5e5e5;
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-grid-major</td> 
+    <td>See <code>div.graph-axis-grid-major</code></td> 
+    <td>
+      border-color: #bfbfbf;
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-grid-vertical</td> 
+    <td>The grid lines on the vertical axis.</td> 
+    <td>
+      border-color: #bfbfbf;
+    </td> 
+  </tr>
+
+
+  <tr> 
+    <td>div.graph-axis-button-menu</td> 
+    <td>The menu around the zoom buttons on the top left.</td> 
+    <td>
+      background-color: white;<br>
+      left: 10px;<br>
+      top: 10px;<br>
+    </td> 
+  </tr>
+  <tr> 
+    <td>div.graph-axis-button</td> 
+    <td>The zoom buttons on the top left.</td> 
+    <td>
+      color: white;<br>
+      background-color: lightgray;<br>
+      width: 16px;<br>
+      height: 16px;<br>
+      text-align: center;<br>
+      font-size: 13px;<br>
+      border-radius: 2px;<br>
+      margin-right: 5px;<br>
+      margin-bottom: 5px;<br>
+      cursor: pointer;<br>
+    </td> 
+  </tr>
+  <tr> 
+    <td>div.graph-axis-button:hover</td> 
+    <td>The zoom buttons when hovered</td> 
+    <td>
+      background-color: gray;
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-text</td> 
+    <td>Both <code>div.graph-axis-text-minor</code> and 
+      <code>div.graph-axis-text-major</code> have
+      also the class <code>div.graph-axis-text</code>. 
+      Use this class to set font styles for both classes at once</td> 
+    <td>
+      padding: 3px;<br>
+      color: #4d4d4d;
+    </td> 
+  </tr>
+  <tr> 
+    <td>div.graph-axis-text-minor</td> 
+    <td>The horizontal axis has two grid types: minor and major. 
+      When the scale is in days, each day gets a minor text, and each month a 
+      major text</td> 
+    <td>
+    </td> 
+  </tr>
+  <tr> 
+    <td>div.graph-axis-text-major</td> 
+    <td>See <code>div.graph-axis-text-minor</code></td> 
+    <td>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-axis-text-vertical</td> 
+    <td>The text on the vertical axis.</td> 
+    <td>
+      padding-right: 10px;<br>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-legend</td> 
+    <td>The legend. The legend contains oen or multiple items, one for each
+      data line in the graph.</td> 
+    <td>
+      border: 1px solid #bfbfbf;<br>
+    </td> 
+  </tr>
+
+  <tr> 
+    <td>div.graph-legend-item</td> 
+    <td>Each line has an legend item.</td> 
+    <td>
+      color: #4d4d4d;<br>
+      margin: 5px;<br>
+    </td> 
+  </tr>
+
+</table>
+
+<h2><a name="Data_Policy" id="Data_Policy"></a>Data Policy</h2>
+<p>
+All code and data are processed and rendered in the browser. No data is sent to any server.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<html>
+
+<head>
+  <style>
+    .table {
+      display: table;
+      border: 1px solid blue;
+      width: 150px;
+    }
+    
+    .row {
+      display: table-row;
+    }
+    
+    .rowgroup {
+      /*
+      display: table-row-group;
+      */
+      border: 1px solid green;
+    }
+    
+    .cell {
+      display: table-cell;
+    }
+    
+    .merged {
+      display: table-cell;
+      border: 1px solid red;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="table">
+  <div class="row">
+    <div class="cell">1</div>
+    <div class="cell">2</div>
+    <div class="cell">3</div>
+  </div>
+  <div class="row">
+    <div class="cell" colspan="3">
+      merged bla bla bla
+    </div>
+  </div>
+  <div class="row">
+    <div class="cell">four</div>
+    <div class="cell">five</div>
+    <div class="cell">six</div>
+  </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+</script>
+
+</body>
+
+</html>

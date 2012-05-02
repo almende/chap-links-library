@@ -1,0 +1,210 @@
+<html>
+  <head>
+    <title>Timeline JSON data</title>
+
+    <style>
+      body {
+        font-size: 10pt;
+        font-family: verdana, arial;
+      }
+    </style>
+
+    <script type="text/javascript" src="../timeline.js"></script>
+    <link rel="stylesheet" type="text/css" href="../timeline.css">
+    
+      <script type="text/javascript"> 
+      var timeline; 
+      var data;
+      function drawVisualization() {
+        alert(2)
+        data = [ 
+          { 
+         'start': new Date(2012,2,02,21,07,03),
+         'content': 'The 16 Best Science Visualizations of 2011'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,06,13,54,25),
+         'content': 'JHU scientist wins NSF international visualization challenge'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,08,16,36,24),
+         'content': 'Weave open-source data visualization offers power, flexibility'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,13,06,12,14),
+         'content': 'Data Visualization Principles: Lessons from Tufte'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,13,16,04,39),
+         'content': 'How to create a visualization'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,14,09,03,24),
+         'content': 'Building Information Modeling (BIM) in Global Construction Industry'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,14,17,05,59),
+         'content': 'LSU Chooses Avizio for 3D Imaging'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,15,17,05,47),
+         'content': 'Why data visualization matters'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,16,04,40,13),
+         'content': 'Louisiana State University Picks Avizo for 3D Imaging Class'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,16,13,07,37),
+         'content': 'Tableau Public Announces Top 100 Vizes of Q4 2011 and New Sharing Capability'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,16,23,09,27),
+         'content': 'Asset Information Management Vital for Operational Excellence'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,17,14,06,18),
+         'content': 'Dotmatics Licenses Its Informatics Suite to IRBM-Science Park'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,17,14,18,22),
+         'content': 'A new way to visualize Earth'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,17,21,43,59),
+         'content': 'Beyond climate models: Rethinking how to envision the future with climate change'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,17,23,42,35),
+         'content': 'This Business of Data Visualization'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,18,13,19,13),
+         'content': 'Tech Insight: Getting The Picture With Data Visualization'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,19,17,49,29),
+         'content': 'NASA JSC: Research Development and Advanced Technology Support &quot;RDATS&quot;'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,19,21,07,38),
+         'content': 'Preparing for the flood: Visualizations help communities plan for sea-level rise'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,20,15,26,10),
+         'content': 'Lucky Sort Grabs Half A Million For Big Data Visualization On Web &amp; iPad'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,20,15,38,18),
+         'content': 'AGFA-GEVAERT : South Tees hospitals signs seven-year deal with Agfa HealthCare'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,20,17,20,49),
+         'content': 'Corporate Knowledge: February 20, 2012'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,05,08,21),
+         'content': 'Viagra Woman Handstand'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,06,02,13),
+         'content': 'Revionics Showcases Price Optimization Solutions at the 2012 Retail Business ...'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,07,38,06),
+         'content': 'CIVS marches on with new projects and student opportunities'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,08,17,43),
+         'content': 'Alternative Ways to Think About Time with NOOKA&apos;s iPhone App'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,09,36,18),
+         'content': 'BARCO : General Dynamics UK selects more Barco technology for Specialist ...'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,09,40,01),
+         'content': 'Kitware Launches Visomics, an Open-Source Bioinformatics Application'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,11,40,57),
+         'content': 'IB5k&apos;s Correlate Selected as a Finalist at SXSW&apos;s Interactive Accelerator Program'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,12,02,17),
+         'content': 'Locus Technologies Forms Alliance With UNC Asheville&apos;s NEMAC to Advance Cloud ...'
+        }
+        ,
+                  { 
+         'start': new Date(2012,2,21,12,04,57),
+         'content': 'Repligen Announces FDA Grant of Priority Review for SecreFlo(TM) NDA'
+        }
+        ]
+       var options = {
+          'width':  '100%', 
+          'height': 'auto', 
+          'editable': false,   // enable dragging and editing events 
+          'style': 'box'
+        };
+        timeline = new links.Timeline(document.getElementById('mytimeline'));
+        function onRangeChanged(properties) { 
+          document.getElementById('info').innerHTML += 'rangechanged ' +
+            properties.start + ' - ' + properties.end + '<br>';
+        }
+        links.events.addListener(timeline, 'rangechanged', onRangeChanged);
+        // Draw our timeline with the created data and options 
+        timeline.draw(data, options);
+        
+        alert(1)
+      }
+      </script>
+  </head>
+
+  <body onload="drawVisualization();">
+    <h1>Timeline JSON data</h1>
+    <p>
+      This demo shows how to feed the Timeline with JSON data. 
+      No Google DataTable is used, and therefore the Google JSAPI is
+      not needed by the Timeline, which can thus be used offline.
+    </p>
+    
+    <div id="mytimeline"></div>
+    
+    <!-- Information about where the used icons come from -->
+    <p style="color:gray; font-size:10px; font-style:italic;">
+      Icons by <a href="http://dryicons.com" target="_blank" title="Aesthetica 2 Icons by DryIcons" style="color:gray;" >DryIcons</a>
+      and <a href="http://www.tpdkdesign.net" target="_blank" title="Refresh Cl Icons by TpdkDesign.net" style="color:gray;" >TpdkDesign.net</a>
+    </p>
+
+    <div id="info"></div>
+
+  </body>
+</html>

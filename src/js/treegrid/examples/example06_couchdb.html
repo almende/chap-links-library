@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid DataConnector</title>
+
+    <style>
+      body {
+        font: 10pt arial;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+      
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        var couchTrucks = new links.CouchConnector(
+          'http://localhost:5984/trucks/_design/trucks/_view/trucks');
+        var couchOrders = new links.CouchConnector(
+          'http://localhost:5984/orders/_design/orders/_view/orders');
+        /*
+        // TODO: get filters working in the couchconnector
+        couchTrucks.setFilters([{
+          'startValue': 'Truck 000005',
+          'endValue': 'Truck 000030',
+          //'value': 'Truck 000030'
+        }]);
+        */
+
+        /* TODO
+        var relations = [
+          {
+            'parent': {
+              'dataconnector': 'Trucks',
+              'field': 'Name'
+            },
+            'child': {
+              'dataconnector': 'Orders',
+              'field': 'Truck'
+            },
+            'columns': ['Name', 'Status', 'Age']  // TODO: use column specification?
+          }
+        ];
+        */
+
+        // specify options
+        var options = {
+          'width': '500px',
+          'height': '600px'
+        };
+
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(document.getElementById('mytreegrid'));
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(couchOrders, options);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+  <h1>TreeGrid CouchDB connector (experimental)</h1>
+  <p>
+    Note: jumping to an arbitrary position is slow.<br>
+    CouchDB has no pagination solution,
+    it is key-based and not index-based.
+  </p>
+  <div id="mytreegrid"></div>
+  </body>
+</html>

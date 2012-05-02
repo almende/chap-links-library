@@ -1,0 +1,6 @@
+
+- adjust HTML DOM to a table, such that drag&drop works fine
+- adjust the dataconnector as andries and I discussed
+- treegrid must handle changed dataconnectors correctly
+
+- GWT version doesn't work in Firefox

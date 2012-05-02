@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #drag {
+      border: 1px solid gray;
+      border-radius: 5px;
+      background-color: lightgray;
+    }
+
+    #drag {
+      position: absolute;
+      left: 100px;
+      top: 100px;
+      padding: 20px; 
+    }
+
+    #drop {
+      border: 1px solid orange;
+      border-radius: 5px;
+      background-color: yellow;
+      position: absolute;
+      left: 200px;
+      top: 200px;
+      padding: 20px; 
+    }
+
+    #drop.over {
+      background-color: orange;
+    }
+
+  </style>
+</head>  
+<body>
+  <h1>Test drag and drop</h1>
+  
+  <div id="drag">Drag me</div>
+  <div id="drop"><div>Drop here</div><div>This div contains a few child divs</div></div>
+  
+  <script>
+    // http://html5demos.com/drag
+
+    var drag = document.getElementById('drag');
+    var drop = document.getElementById('drop');
+
+    //var dataType = 'application/json'; // does not work :(
+    var dataType = 'text/plain';
+
+    drag.draggable = true;
+    drag.addEventListener('dragstart', function (event) {
+      event.dataTransfer.effectAllowed = 'all';
+      var text = drag.innerHTML;
+      event.dataTransfer.setData(dataType, text);
+      console.log(text, event.dataTransfer.getData(dataType));
+    });
+
+    drag.addEventListener('dragend', function (event) {
+      console.log('dragend', event.dataTransfer.dropEffect);
+    });
+    
+    drop.addEventListener('dragover', function (event) {
+      console.log('dragover');
+      drop.className = 'over';
+      event.dataTransfer.dropEffect = 'link';
+      if (event.preventDefault) {
+        event.preventDefault(); // allows us to drop
+      }
+      return false;
+    });
+
+    drop.addEventListener('dragenter', function (event) {
+      console.log('dragenter');
+      drop.className = 'over';
+      if (event.preventDefault) {
+        event.preventDefault();
+      }      
+      return false;
+    });
+
+    drop.addEventListener('dragleave', function (event) {
+      console.log('dragleave');
+      drop.className = '';
+    });
+    
+    drop.addEventListener('drop', function (event) {
+      var data = event.dataTransfer.getData('text');
+      console.log('drop', event, data);
+      drop.className = '';
+      if (event.preventDefault) {
+        event.preventDefault();
+      }      
+      return false;
+    });
+  </script>
+  
+</body>  
+</html>

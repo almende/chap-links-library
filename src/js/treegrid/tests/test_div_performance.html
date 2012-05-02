@@ -1,0 +1,90 @@
+<html>
+
+<head>
+  <style>
+    #largeTable {
+      width: 400px;
+      height: 99%;
+      border: 1px solid gray;
+      overflow: auto;
+    }
+    
+    div.row {
+      width: 300px;
+      height: 30px;
+    }
+    
+    div.cell {
+      float: left;
+      width: 100px;
+    }
+    
+  </style>
+</head>
+
+<body>
+
+<div id="largeTable"></div>
+
+
+<script type="text/javascript">
+
+  function load(rows) {
+    var start = +new Date();
+    
+    var cols = 3;
+    var rows = rows || 1000;
+
+    var container = document.createElement("DIV");
+    
+    for (var row = 0; row < rows; row++) {
+      var domRow = document.createElement("DIV");
+      //domRow.className = "row";
+      
+      for (var col = 0; col < cols; col++) {
+        var domCell = document.createElement('DIV');
+        domCell.className = "cell";
+        
+        domCell.appendChild(document.createTextNode('Bla bla'));
+        domRow.appendChild(domCell);
+      }
+      
+      container.appendChild(domRow);
+    }    
+    
+    document.getElementById('largeTable').innerHTML = "";
+    document.getElementById('largeTable').appendChild(container);
+
+    // force reflow
+    var height = container.clientHeight;
+
+    var end = +new Date();
+    console.log('loaded ' + rows + ' rows in ' + (end-start) + " milliseconds");
+  }
+
+  /*
+  Conclusions 
+  Tested on Chrome
+  
+  Without fixed col width / height
+  1000 rows 1670 ms
+  10000 rows x
+  100000 rows x
+  1000000 rows x 
+
+  with fixed width:
+  1000 rows 66 ms
+  10000 rows 600 ms, 50 MB
+  100000 rows 6200 ms, 700 MB
+  1000000 rows x 
+
+  
+  On Firefox:
+  
+  */
+
+</script>
+
+</body>
+
+</html>

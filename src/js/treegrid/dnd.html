@@ -1,0 +1,90 @@
+<html>
+
+<head>
+  <style>
+
+    #drag {
+      border: 1px solid red;
+      background: pink;
+      
+      position: absolute;
+      left: 100px;
+      top: 100px;
+      width: 200px;
+      height: 200px;
+      
+    }
+    
+    #drop {
+      border: 1px solid orange;
+      background: yellow;
+
+      position: absolute;
+      left: 500px;
+      top: 100px;
+      width: 200px;
+      height: 200px;
+    }
+
+  </style>
+  
+  <script type="text/javascript" src="dnd.js"></script>
+  
+</head>
+
+<body>
+
+<div id="drag">drag<div style="height: 50px; background-color: lightblue;">Element in div</div></div>
+
+
+<div id="drop">drop<div style="height: 50px; background-color: lightblue;">Element in div</div></div>
+
+
+<script type="text/javascript">
+  var drag = document.getElementById('drag');
+  dnd.makeDraggable(drag, {
+    //'effectAllowed': 'copyMove',
+    //'dragImage': '<b>drag</b>',
+    //'dragImageOffsetX': -30,
+    //'dragImageOffsetY': -30,
+    'dragStart': function (event) {
+      event.dataTransfer.setData('message', {
+        'text':'bla bla',
+        'value': 123
+      });
+      console.log('dragstart', event);
+    },
+    /*
+    'drag': function (event) {
+      console.log('drag', event);
+    },
+    */
+    'dragEnd': function (event) {
+      console.log('dragend', event);
+    }
+  });
+  
+  var drop = document.getElementById('drop');
+  dnd.makeDroppable(drop, {
+    'dropEffect': 'move',
+    'dragEnter': function (event) {
+      drop.style.opacity = '0.5';
+      drop.style.filter = 'alpha(opacity=50)';
+      console.log('dragenter', event);
+    },
+    'dragLeave': function (event) {
+      drop.style.opacity = '';
+      drop.style.filter = '';
+      console.log('dragleave', event);
+    },
+    'dragOver': function (event) {
+      console.log('dragOver', event);
+    },
+    'drop': function (event) {
+      console.log('drop', event, event.dataTransfer.getData('message'));
+    }
+  });
+</script>
+
+</body>
+</html>

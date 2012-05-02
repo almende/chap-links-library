@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title>test touch</title>
+
+    
+    <!--
+    
+    http://scripty2.com/demos/touch/
+    http://backtothecode.blogspot.com/2009/10/javascript-touch-and-gesture-events.html
+    http://mir.aculo.us/2009/10/15/pinch-twist-zoom-bringing-multitouch-to-a-browser-near-you/
+    
+    -->
+
+    <!-- for mobile devices like android and iphone --> 
+    <meta content="True" name="HandheldFriendly" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+    <script type="text/javascript" >
+      var start;
+      var move;
+      var end;
+      var gesture;
+      
+      function load(event) {
+        start = document.getElementById("start");
+        move = document.getElementById("move");
+        end = document.getElementById("end");
+        gesture = document.getElementById("gesture");
+      }
+      
+      function touchstart(event) {
+        var text = (new Date()).getMilliseconds() + "<br>";
+        for (var i = 0, len = event.targetTouches.length; i < len; i++) {
+          text += i + " " + event.targetTouches[i].clientX + " " + event.targetTouches[i].clientY + "<br>";
+        }
+        
+        start.innerHTML = text;
+      }
+      
+      function touchmove(event) {
+        var text = (new Date()).getMilliseconds() + "<br>";
+        for (var i = 0, len = event.targetTouches.length; i < len; i++) {
+          text += i + " " + event.targetTouches[i].clientX + " " + event.targetTouches[i].clientY + "<br>";
+        }
+        
+        move.innerHTML = text;
+      }
+
+      function touchend(event) {
+        var text = (new Date()).getMilliseconds() + "<br>";
+        for (var i = 0, len = event.targetTouches.length; i < len; i++) {
+          text += i + " " + event.targetTouches[i].clientX + " " + event.targetTouches[i].clientY + "<br>";
+        }
+        
+        end.innerHTML = text;
+      }
+
+      
+      function gesturestart(event) {
+        var text = (new Date()).getMilliseconds() + "<br>";
+        text += "scale:" + event.scale + ", rotation:" + event.rotation;
+        
+        gesture.innerHTML = text;
+      }
+      
+    </script>
+  </head>
+<body 
+  ontouchstart="touchstart(event);" 
+  ontouchmove="touchmove(event);" 
+  ontouchend="touchend(event);"
+  ongesturestart="gesture(event);"
+  ongesturechange="gesture(event);"
+  ongestureend="gesture(event);"
+  onload="load(event);">
+
+  <div id="start" style="background-color: #E5E5E5"></div>
+  <div id="move" style="background-color: #BFBFBF"></div>
+  <div id="end" style="background-color: #7F7F7F"></div>
+  <div id="gesture" style="background-color: #FFFF00"></div>
+
+</body>
+
+</html>

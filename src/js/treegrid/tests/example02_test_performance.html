@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid DataTable</title>
+
+    <style>
+      body {
+        font: 10pt arial;
+      }
+      input[type="text"] {
+        border: 1px solid lightgray;
+      }
+      img.icon {
+        width: 24px; 
+        height: 24px; 
+        vertical-align: top;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+
+      /**
+       * Get URL parameter
+       * http://www.netlobo.com/url_query_string_javascript.html
+       */
+      function gup( name ) {
+        name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+        var regexS = "[\\?&]"+name+"=([^&#]*)";
+        var regex = new RegExp( regexS );
+        var results = regex.exec( window.location.href );
+        return results ? results[1] : undefined;
+      }
+      
+      function createTruck(index, orderCount) {
+        var truck = {
+          '_icons': [
+            {'image': '../examples/img/24/autoship-icon.png', 'title': 'Truck', 'width': '24px', 'height': '24px'}
+          ],
+          'name': 'Truck ' + (index + 1),
+          'capacity': Math.round(Math.random() * 100 + 100) * 10
+        };
+        if (index > 3) {
+          var orders = createOrders(orderCount);
+          truck['orders'] = orders;
+        }
+        return truck;
+      }
+      
+      function createTrucks(truckCount, orderCount) {
+        var trucks = [];
+        for (var i = 0; i < truckCount; i++) {
+          var truck = createTruck(i, orderCount);
+          trucks.push(truck);
+        }
+        //var trucksDataConnector = new links.DataTable(trucks);
+        return trucks;
+      }
+      
+      function createOrder(index, count) {
+        var order = {
+          '_icons': [
+            {'image': '../examples/img/24/product-icon.png', 'title': 'Order', 'width': '24px', 'height': '24px'}
+          ],
+          'id': 'Order ' + (index + 1),
+          'postcode': String(Math.random() * 10000).substring(0, 4) + "AB",
+          'capacity': Math.round(Math.random() * 10 + 10) * 10
+        }
+        if (Math.random() > 0.7) {
+          order._icons.push({'image': '../examples/img/24/success-icon.png', 'title': 'Order completed', 'width': '24px', 'height': '24px'});
+        }
+
+        if (index == count - 1) {
+          order.id += ' (last order)'; 
+        }
+
+        return order;
+      }
+      
+      function createOrders(orderCount) {
+        var orders = [];
+        for (var i = 0; i < orderCount; i++) {
+          var order = createOrder(i, orderCount);
+          if (Math.random() > 0.67) {
+            var packageCount = 4;
+            var packages = createPackages(packageCount);
+            order['packages'] = packages;
+          }
+
+          orders.push(order);
+        }
+        return orders;
+      }
+
+      function createPackage(index) {
+        var pkg = {
+          'name': 'Package ' + (index + 1),
+          'contents': Math.random() > 0.67 ? 'eggs' : 
+            (Math.random() > 0.5 ? 'bread' : 'milk'),
+          'capacity': Math.round(Math.random() * 10 + 10) * 2
+        };
+
+        return pkg;
+      }
+
+      function createPackages(packageCount) {
+        var packages = [];
+        for (var i = 0; i < packageCount; i++) {
+          var pkg = createPackage(i);
+          packages.push(pkg);
+        }
+        return packages;
+      }
+      
+      
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        var truckCount = Number(gup('trucks') || 10);
+        var orderCount = Number(gup('orders') || 10);
+        document.getElementById('trucks').value = truckCount;
+        document.getElementById('orders').value = orderCount;
+
+        data = createTrucks(truckCount, orderCount);
+
+        // specify options
+        var options = {
+          'width': '500px',
+          'height': '400px',
+          'items': {
+            'defaultHeight': 32   // px
+          }
+        };
+
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+        // Draw our treegrid with the created data and options 
+        table = new links.DataTable(data);
+        treegrid.draw(table);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>TreeGrid DataTable</h1>
+    <form method="GET">
+      Number of trucks: <input type="text" name="trucks" id="trucks" value="10" /><br>
+      Number of orders: <input type="text" name="orders" id="orders" value="1000" /><br>
+      <input type='submit' value="Go" />
+    </form>
+    <br>
+    <div id="mytreegrid"></div>
+  </body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #drag1, #drag2 {
+      border: 1px solid gray;
+      border-radius: 5px;
+      background-color: lightgray;
+    }
+
+    #drag1 {
+      position: absolute;
+      left: 100px;
+      top: 100px;
+      padding: 20px; 
+    }
+
+    #drag1abs {
+      position: absolute; 
+      left: 80px; 
+      top: 40px; 
+      width: 100px; 
+      color: blue; 
+      background-color: lightblue;
+    }
+
+    #drag2 {
+      position: absolute;
+      left: 300px;
+      top: 100px;
+      padding: 20px; 
+    }
+
+    #drop1 {
+      border: 1px solid orange;
+      border-radius: 5px;
+      background-color: yellow;
+      position: absolute;
+      left: 200px;
+      top: 200px;
+      padding: 20px; 
+    }
+
+    #drop1.over {
+      background-color: orange;
+    }
+
+    #drop1abs {
+      position: absolute; 
+      left: 60px; 
+      top: 30px; 
+      width: 100px;
+      color: blue; 
+      background-color: lightblue;
+      padding: 10px;
+      margin: 10px;
+      border: 5px solid blue;
+    }
+
+  </style>
+</head>  
+<body>
+  <h1>Test drag and drop</h1>
+  
+  <div id="drag1">Drag me 1<br><div id="drag1abs">abs text</div></div>
+  <div id="drag2">Drag me 2</div>
+  <div id="drop1">Drop here<br><div>this is a div</div><br><div id="drop1abs">abs text</div></div>
+  
+  <script>
+    // http://html5demos.com/drag
+
+    var drag1 = document.getElementById('drag1');
+    var drag2 = document.getElementById('drag2');
+    var drop1 = document.getElementById('drop1');
+
+    //var dataType = 'application/json'; // does not work :(
+    var dataType = 'text/plain';
+
+    drag1.draggable = true;
+    drag1.addEventListener('dragstart', function (event) {
+      event.dataTransfer.effectAllowed = 'all';
+      var json = {'innerHTML': drag1.innerHTML};
+      var text = JSON.stringify(json);
+      event.dataTransfer.setData(dataType, text);
+      console.log(json, event.dataTransfer.getData(dataType));
+    });
+
+    drag1.addEventListener('dragend', function (event) {
+      console.log('dragend', event.dataTransfer.dropEffect);
+    });
+    
+    drag2.draggable = true;
+    drag2.addEventListener('dragstart', function (event) {
+      //event.dataTransfer.effectAllowed = 'copy'; // copy, move, link, all
+      event.dataTransfer.setData(dataType, drag2.innerHTML);
+    });
+
+    drop1.addEventListener('dragover', function (event) {
+      console.log('dragover');
+      event.dataTransfer.dropEffect = 'link';
+      if (event.preventDefault) {
+        event.preventDefault(); // allows us to drop
+      }
+    });
+
+
+    var count = 0;
+  
+    drop1.addEventListener('dragleave', function (event) {
+      count--;
+      console.log('dragleave', count);
+      if (count == 0) {
+        drop1.className = '';
+      }
+    });
+    
+    drop1.addEventListener('dragenter', function (event) {
+      count++;
+      console.log('dragenter', count);
+      drop1.className = 'over';
+    });
+
+    drop1.addEventListener('drop', function (event) {
+      var data = event.dataTransfer.getData('text');
+      console.log('drop', event, data);
+      //drop1.innerHTML = data;
+      drop1.className = '';
+      return false;
+    }); 
+  
+  </script>
+  
+</body>  
+</html>

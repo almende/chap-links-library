@@ -1,0 +1,121 @@
+div.timeline-frame {
+  border: 1px solid black;
+} 
+  
+div.timeline-canvas {
+} 
+                                             
+div.timeline-axis {
+  border-color: black;
+  border-width: 1px;
+  border-top-style: solid;
+}  
+div.timeline-axis-grid {
+  border-left-style: solid;
+  border-width: 1px;
+}  
+div.timeline-axis-grid-minor {
+  border-color: #e5e5e5;
+}  
+div.timeline-axis-grid-major {
+  border-color: #bfbfbf;
+}  
+div.timeline-axis-text {
+  padding: 3px;
+  white-space: nowrap;
+}  
+div.timeline-axis-text-minor {
+} 
+div.timeline-axis-text-major {
+}  
+                 
+div.timeline-event {
+  border-color: #B7B7FF;
+  background-color: #E0E0FF;
+  cursor: default;
+}
+
+div.timeline-event-box {
+  text-align: center;   
+  
+  border-style: solid;
+  border-width: 1px;  
+  border-radius: 5px;  
+  -moz-border-radius: 5px; /* For Firefox 3.6 and older */ 
+}  
+
+div.timeline-event-dot {
+  border-style: solid;
+  border-width: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;  /* For Firefox 3.6 and older */ 
+}
+
+div.timeline-event-range {
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 2px;
+  -moz-border-radius: 2px;  /* For Firefox 3.6 and older */
+}
+     
+div.timeline-event-line {
+  border-left-width: 1px;
+  border-left-style: solid;
+} 
+
+div.timeline-event-content {
+  margin: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+div.timeline-button-add {
+  left: 0px;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  margin: 5px;
+  background: url('img/basic/plus-icon16.png') no-repeat;
+  /* TODO: IE 6 does not support transparany in png's */
+}
+
+div.timeline-label-add {
+  left: 20px;
+  top: 0px;
+  margin: 5px;
+  
+  color: gray;
+  font-style: italic;
+}
+
+div.timeline-button-cancel {
+  left: 0px;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  margin: 5px;
+  background: url('img/basic/block-icon16.png') no-repeat;
+  /* TODO: IE 6 does not support transparany in png's */
+}
+
+div.timeline-button-delete {
+  /* set the width and height larger than the image size to create some margin 
+   * around it*/ 
+  width: 24px;
+  height: 24px;
+  background: url('img/basic/delete-icon16.png') no-repeat center top;
+  /* TODO: IE 6 does not support transparany in png's */
+}
+
+div.timeline-groups-axis {
+  background-color: white;
+  border-color: black;
+  border-width: 1px;
+  border-right-style: solid;  
+}
+div.timeline-groups-text {
+  padding-left: 10px;
+  padding-right: 10px;
+  white-space: nowrap;  
+}
+

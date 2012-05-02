@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+                
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+    
+      google.load('visualization', '1');
+
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('number', 'value');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'style');
+        nodesTable.addColumn('string', 'group');
+
+        // randomly create some nodes
+        nodesTable.addRow([1, undefined, 'circle', 'circle', 'group_x']);
+        nodesTable.addRow([2, undefined, 'circle', 'circle', 'group_x']);
+        nodesTable.addRow([3, undefined, 'database', 'database', 'group_x']);
+        nodesTable.addRow([4, undefined, 'rect', 'rect', 'group_x']);
+ 
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('string', 'style');
+        linksTable.addColumn('string', 'color');
+        linksTable.addColumn('number', 'width');
+        linksTable.addRow([3, 1, 'arrow', undefined, 1]);
+        linksTable.addRow([1, 4, 'moving-dot', undefined, 1]);
+        linksTable.addRow([1, 2, 'moving-arrows', undefined, 2]);
+
+        var mainId = 5;
+        nodesTable.addRow([mainId, undefined, 'styles\nand\nsizes', 'rect', 'group_main']);
+        var styles = ['dot', 'square', 'triangle', 'triangleDown', 'star'];
+        var id = 6;
+        for (var size = 1; size < 4; size++) {
+          var groupId = id;
+          nodesTable.addRow([id, undefined, 'size ' + size, 'rect', 'group' + size]);
+          linksTable.addRow([mainId, groupId, undefined, 'gray', size]);          
+          id++;
+          
+          for (var i in styles) {
+            if (styles.hasOwnProperty(i)) {
+              nodesTable.addRow([id, size, styles[i], styles[i], 'group' + size]);
+              linksTable.addRow([groupId, id, undefined, 'gray', size]);
+              id++;
+            }
+          }
+        }
+        
+        // specify options
+        var options = {
+          'width':  '780px', 
+          'height': '600px',
+          'stabilize': false,
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+
+    <div id="info"></div>
+  </body>
+</html>

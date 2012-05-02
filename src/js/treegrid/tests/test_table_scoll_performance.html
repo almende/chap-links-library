@@ -1,0 +1,116 @@
+<html>
+
+<head>
+  <style>
+    #largeTable {
+      width: 400px;
+      height: 99%;
+      border: 1px solid gray;
+      overflow: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="largeTable"></div>
+
+
+<script type="text/javascript">
+
+  var table;
+  var tbody;
+  var total = 0;
+
+  function load(rows) {
+    var start = +new Date();
+    
+    var cols = 3;
+    var rows = rows || 1000;
+    var fixedWidth = true;
+    
+    table = document.createElement("TABLE");
+    if (fixedWidth) {
+      table.style.tableLayout = 'fixed';
+      table.width = 100 * cols;
+    
+      var colgroup = document.createElement('COLGROUP');
+      for (var col = 0; col < cols; col++) {
+        var c = document.createElement('COL');
+        c.width = 100;
+        colgroup.appendChild(c);
+      }
+      table.appendChild(colgroup);
+    }
+    
+    tbody = document.createElement("TBODY");
+    table.appendChild(tbody);
+    
+    function addRow() {
+      var tr = document.createElement("TR");
+      
+      for (var col = 0; col < cols; col++) {
+        var td = document.createElement('TD');
+        var text = (col == 0) ? total : 'Bla bla';
+        td.appendChild(document.createTextNode(text));
+        tr.appendChild(td);
+      }
+      total++;
+      
+      tbody.appendChild(tr);
+    }
+    
+    for (var row = 0; row < rows; row++) {
+      addRow();
+    }    
+    
+    document.getElementById('largeTable').innerHTML = "";
+    document.getElementById('largeTable').appendChild(table);
+
+    addEventListener(table, 'mousewheel', function () {
+      addRow();
+      
+      while (tbody.childNodes.length > 50) {
+        tbody.removeChild(tbody.firstChild);
+      }
+    });
+
+    // force reflow
+    var height = table.clientHeight;
+
+    var end = +new Date();
+    console.log('loaded ' + rows + ' rows in ' + (end-start) + " milliseconds");
+  }
+
+/**
+ * Add and event listener. Works for all browsers
+ * @param {DOM Element} element    An html element
+ * @param {string}      action     The action, for example 'click', 
+ *                                 without the prefix 'on'
+ * @param {function}    listener   The callback function to be executed
+ * @param {boolean}     useCapture
+ */ 
+addEventListener = function (element, action, listener, useCapture) {
+  if (element.addEventListener) {
+    if (useCapture === undefined) {
+      useCapture = false;
+    }
+      
+    if (action === 'mousewheel' && navigator.userAgent.indexOf('Firefox') >= 0) {
+      action = 'DOMMouseScroll';  // For Firefox
+    }
+      
+    element.addEventListener(action, listener, useCapture);
+  } else {    
+    element.attachEvent('on' + action, listener);  // IE browsers
+  }
+};
+
+
+  load(30);
+
+</script>
+
+</body>
+
+</html>

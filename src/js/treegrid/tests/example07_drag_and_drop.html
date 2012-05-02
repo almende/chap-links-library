@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid demo - drag and drop</title>
+
+    <style>
+      html, body {
+        font-family: arial;
+        font-size: 10pt;
+      }
+      th {
+        text-align: left;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var filesTreeGrid;
+      var foldersTreeGrid;
+
+      var dataOptions = {
+
+        'dataTransfer' : {
+          'allowedEffect': 'move',
+          'dropEffect': 'move'
+        }
+      };
+      
+      // Called when the page is loaded
+      function draw() {
+        // randomly generate some files
+        var files = [
+          {'name': 'File 1'},
+          {'name': 'File 2'},
+          {'name': 'File 3'},
+          {'name': 'File 4', 
+            '_childs': new links.DataTable([
+              {'name': 'File 10'},
+              {'name': 'File 11'}
+            ], dataOptions)},
+          {'name': 'File 5',
+            '_childs': new links.DataTable([
+              {'name': 'File 20'},
+              {'name': 'File 21'}
+            ], dataOptions)},
+          {'name': 'File 6'},
+          {'name': 'File 7'}
+        ];
+      
+      
+        var folders = [
+          {'name': 'File 1'},
+          {'name': 'File 2'},
+          {'name': 'File 3'},
+          {'name': 'File 4', 
+            '_childs': new links.DataTable([
+              {'name': 'File 10'},
+              {'name': 'File 11'}
+            ], dataOptions)},
+          {'name': 'File 5'},
+          {'name': 'File 6',
+            '_childs': new links.DataTable([
+              {'name': 'File 20'},
+              {'name': 'File 21'}
+            ], dataOptions)},
+          {'name': 'File 7'},
+          {'name': 'File 8'},
+          {'name': 'File 9'},
+          {'name': 'File 10'},
+          {'name': 'File 11'},
+          {'name': 'File 12'},
+          {'name': 'File 13'},
+          {'name': 'File 14'},
+          {'name': 'File 15'},
+          {'name': 'File 16'},
+          {'name': 'File 17'},
+          {'name': 'File 18'},
+          {'name': 'File 19'},
+          {'name': 'File 20'},
+          {'name': 'File 21'},
+          {'name': 'File 22'},
+          {'name': 'File 23'},
+          {'name': 'File 24'},
+          {'name': 'File 25'},
+          {'name': 'File 26'},
+          {'name': 'File 27'},
+          {'name': 'File 28'},
+          {'name': 'File 29'},
+          {'name': 'File 30'}
+        ];
+
+        // specify options
+        var treeGridOptions = {
+          'width': '350px',
+          'height': '300px'
+        }; 
+        
+        // Instantiate treegrid object with files
+        var filesContainer = document.getElementById('files');
+        filesDataConnector = new links.DataTable(files, dataOptions);
+        filesTreeGrid = new links.TreeGrid(filesContainer, treeGridOptions);
+        filesTreeGrid.draw(filesDataConnector);
+        
+        var foldersContainer = document.getElementById('folders');
+        foldersDataConnector = new links.DataTable(folders, dataOptions);
+        foldersTreeGrid = new links.TreeGrid(foldersContainer, treeGridOptions);
+        foldersTreeGrid.draw(foldersDataConnector);
+      }
+      
+      
+      function getVisibleItems(grid) {
+        var items = grid.visibleItems;
+        var v = [];
+        for (var i = 0; i < items.length; i++) {
+          v.push(items[i].fields[0]);
+        }
+        return v;
+      }
+      
+   </script>
+  </head>
+
+  <body onload="draw();">
+    <table id="main" height="100%">
+      <tr>
+        <th>Uncategorized files</th>
+        <th>Folders</th>
+      </tr>      
+      <tr>
+        <td id="files"></td>
+        <td id="folders"></td>
+      </tr>
+    </table>
+  </body>
+</html>

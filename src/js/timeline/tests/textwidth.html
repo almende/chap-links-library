@@ -1,0 +1,34 @@
+<html>
+<head>
+
+<style>
+    #Test
+    {
+        position: absolute;
+        /*height: auto;
+        width: auto;*/
+        /*font-size:22px;*/
+    }
+</style>
+
+</head>
+<body>
+
+<div id="Test">
+    abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+</div>
+
+
+<script>
+fontSize = "12";
+    var test = document.getElementById("Test");
+    var height = (test.clientHeight + 1) + "px";
+    var width = (test.clientWidth + 1) + "px";
+
+    document.write("<div style='width:" + width+ "; height:" + height + ";border: 1px solid red;'>")
+
+</script>
+
+</body>
+
+</html>

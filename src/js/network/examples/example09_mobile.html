@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo</title>
+
+    <style>
+      body {
+        font: 10pt arial; 
+        padding: 0; 
+        margin: 0;
+        width: 100%;
+        height: 100%;        
+      }
+      
+      #mynetwork {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }      
+    </style>
+
+    <!-- for mobile devices like android and iphone --> 
+    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width" />
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+      
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(draw); 
+
+      // Called when the Visualization API is loaded.
+      function draw() {
+        // Create and populate a data table.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');        
+        linksTable.addColumn('number', 'length');
+        var len = 50;        
+        
+        var connectionCount = new Array();
+        
+        // randomly create some nodes
+        var nodeCount = 20;
+        var cols = parseInt(Math.sqrt(nodeCount));
+        for (var i = 0; i < nodeCount; i++) {
+          nodesTable.addRow([i, '' + i]);
+          
+          connectionCount[i] = 0;
+          
+          // create links in a scale-free-network way
+          if (i == 1) {
+            var from = i;
+            var to = 0;
+            linksTable.addRow([from, to, len]);
+            connectionCount[from]++;
+            connectionCount[to]++;
+          }
+          else if (i > 1) {
+            var conn = linksTable.getNumberOfRows() * 2;
+            var rand = Math.floor(Math.random() * conn);
+            var cum = 0;
+            var j = 0;
+            while (j < connectionCount.length && cum < rand) {
+              cum += connectionCount[j];
+              j++;
+            }
+            
+            var from = i;
+            var to = j;
+            linksTable.addRow([from, to, len]);
+            connectionCount[from]++;
+            connectionCount[to]++;
+          }          
+        }
+
+        // specify options
+        var options = {
+          'width': '100%',
+          'height': '100%',
+          'stabilize': false,
+          'nodes': {
+            'style': 'dot',
+            'radius': 24,
+            'fontSize': 24
+          },
+          'links': {
+            'width': 2
+          },
+          'backgroundColor': {
+            'strokeWidth': 0
+          }
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+   </script>
+  </head>
+
+  <body onresize="network.redraw();">
+    <div id="mynetwork"></div>
+  </body>
+</html>

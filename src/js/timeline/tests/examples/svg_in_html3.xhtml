@@ -1,0 +1,30 @@
+<html xmlns="http://www.w3.org/1999/xhtml">  
+<head>  
+  <title>Inline SVG Demo</title>  
+
+  <style>  
+    stop.begin { stop-color:yellow; }  
+    stop.end { stop-color:green; }  
+  </style>  
+
+</head>  
+<body id="body">  
+  <h1>Inline SVG demo</h1>
+
+  <div>
+
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1"  
+    viewBox="0 0 100 100" 
+    style="width:200px; height:200px;">  
+    <linearGradient id="gradient">  
+      <stop class="begin" offset="0%"/>  
+      <stop class="end" offset="100%"/>  
+    </linearGradient>  
+    <rect x="0" y="0" width="100" height="100" style="fill:url(#gradient)" />  
+    <circle cx="50" cy="50" r="30" style="fill:url(#gradient)" />
+  </svg>  
+
+  </div>
+
+</body>  
+</html> 

@@ -1,0 +1,42 @@
+CHAP Links TreeGrid
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+The TreeGrid displays expandable data in a grid. Individual items can be 
+expanded to display nested data. Items can have customizable action buttons on 
+the right. 
+
+The TreeGrid is designed to work with large amounts of data. Data is loaded via
+a dataconnector, and only the part of the data which is currently visible is
+requested from the dataconnector (lazy loading). Each of the items can contain
+a pointer to a new dataconnector to load a grid with data nested under this 
+item.
+
+
+USAGE
+
+The TreeGrid is a standalone Javascript library. To include it on an HTML page,
+add the following links in the header of your page
+
+    <script type="text/javascript" src="treegrid/treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="treegrid/treegrid.css">
+
+The class name of the TreeGrid is links.TreeGrid
+
+    var treegrid = new links.TreeGrid(container, options);
+
+After being loaded, the treegrid can be drawn via the function draw(), providing 
+data.
+
+    treegrid.draw(data);
+
+where data is a JSON array.
+
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+Examples can be found in the directory examples

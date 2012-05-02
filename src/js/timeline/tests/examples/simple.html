@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+  <title>embed, object, iframe for SVG</title>
+  <script>
+
+  xmlns="http://www.w3.org/2000/svg"
+
+  function insert(id){
+    var D=document.getElementById(id)
+    S=D.getSVGDocument();
+    if (!S) return
+    Root=S.documentElement;
+    //alert(Root.nodeName)
+    R=S.createElementNS(xmlns,"circle")
+    R.setAttribute("fill","red")
+    R.setAttribute("opacity","0.35")
+    R.setAttribute("cx",Math.random()*150)
+    R.setAttribute("cy",Math.random()*150)
+    R.setAttribute("r",12+Math.random()*25)
+    Root.appendChild(R)
+  }
+  </script>
+</head>
+
+<body>
+
+<embed id="em" src="simple.svg" width="150"></embed>
+<br>
+<input type=button onclick="insert('em')" value="Add circle">
+
+</body>
+</html>
+

@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {'packages':['annotatedtimeline']});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        
+        var startTime = new Date();
+        
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'Date');
+        data.addColumn('number', 'Math.sin(i/10)*100');
+        data.addColumn('string', 'title1');
+        data.addColumn('string', 'text1');
+        
+        var date = new Date(2008, 1 ,1);
+        for (i = 0; i < 100000; i++) {
+          data.addRow([new Date(date), Math.sin(i/10)*100, undefined, undefined])
+          date.setDate(date.getDate() + 1);
+        }
+        
+        var loadTime = new Date().valueOf() - startTime;
+        info.innerHTML += "load time: " + loadTime + " milliseconds<br>";
+        
+        var options = {thickness: 0,
+                       displayAnnotations: true
+                      };
+
+        startTime = new Date();
+
+        var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+        chart.draw(data, options);
+        
+        var drawTime = new Date().valueOf() - startTime;
+        info.innerHTML += "draw time: " + drawTime + " milliseconds<br>";
+                
+      }
+    </script>
+  </head>
+
+  <body>
+    
+    <div id='chart_div' style='width: 50%; height: 240px;'></div>
+    <div id="info"></div>
+  </body>
+</html>

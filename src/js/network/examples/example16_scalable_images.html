@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo - scalable images</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+                                
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var packagesTable = null;
+      var network = null;
+
+      var DIR = 'img/soft-scraps-icons/';
+
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create a data table with nodes.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('number', 'value');  // optional
+        nodesTable.addColumn('string', 'style');   // optional
+        nodesTable.addColumn('string', 'text');   // optional
+        nodesTable.addColumn('string', 'title');   // optional
+        nodesTable.addColumn('string', 'image');   // optional
+        
+        // create people. 
+        // value corresponds with the age of the person
+        var DIR = 'img/soft-scraps-icons/';
+        var style = 'image';
+        var age = 0;
+        age = 2; nodesTable.addRow([1, age, style, 'Algie', 'Algie' + ' (' + age + ' years old)', DIR + 'Smiley-Angry-icon.png']);
+        age = 31; nodesTable.addRow([2, age, style, 'Alston', 'Alston' + ' (' + age + ' years old)', DIR + 'Smiley-Grin-icon.png']);
+        age = 12; nodesTable.addRow([3, age, style, 'Barney', 'Barney' + ' (' + age + ' years old)', DIR + 'User-Administrator-Blue-icon.png']);
+        age = 16; nodesTable.addRow([4, age, style, 'Coley', 'Coley' + ' (' + age + ' years old)', DIR + 'User-Administrator-Green-icon.png']);
+        age = 17; nodesTable.addRow([5, age, style, 'Grant', 'Grant' + ' (' + age + ' years old)', DIR + 'User-Coat-Blue-icon.png']);
+        age = 15; nodesTable.addRow([6, age, style, 'Langdon', 'Langdon' + ' (' + age + ' years old)', DIR + 'User-Coat-Green-icon.png']);
+        age = 6; nodesTable.addRow([7, age, style, 'Lee', 'Lee' + ' (' + age + ' years old)', DIR + 'User-Coat-Red-icon.png']);
+        age = 5; nodesTable.addRow([8, age, style, 'Merlin', 'Merlin' + ' (' + age + ' years old)', DIR + 'User-Executive-Green-icon.png']);
+        age = 30; nodesTable.addRow([9, age, style, 'Mick', 'Mick' + ' (' + age + ' years old)', DIR + 'User-Preppy-Blue-icon.png']);
+        age = 18; nodesTable.addRow([10, age, style, 'Tod', 'Tod' + ' (' + age + ' years old)', DIR + 'User-Preppy-Red-icon.png']);      
+
+        // Create a data table with links.
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('number', 'value');  // optional
+        linksTable.addColumn('string', 'title');  // optional
+
+        // create connections. 
+        // value corresponds with the amount of contact between two people
+        var emails = 0;
+        emails = 3; linksTable.addRow([2, 8, emails, emails + ' emails per week']);
+        emails = 5; linksTable.addRow([2, 9, emails, emails + ' emails per week']);
+        emails = 1; linksTable.addRow([2, 10,emails, emails + ' emails per week']);
+        emails = 8; linksTable.addRow([4, 6, emails, emails + ' emails per week']);
+        emails = 2; linksTable.addRow([5, 7, emails, emails + ' emails per week']);
+        emails = 1; linksTable.addRow([4, 5, emails, emails + ' emails per week']);
+        emails = 2; linksTable.addRow([9, 10,emails, emails + ' emails per week']);
+        emails = 6; linksTable.addRow([2, 3, emails, emails + ' emails per week']);
+        emails = 4; linksTable.addRow([3, 9, emails, emails + ' emails per week']);
+        emails = 1; linksTable.addRow([5, 3, emails, emails + ' emails per week']);
+        emails = 4; linksTable.addRow([2, 7, emails, emails + ' emails per week']);
+
+        // Create a table with packages.
+        packagesTable = new google.visualization.DataTable();
+        packagesTable.addColumn('number', 'from');
+        packagesTable.addColumn('number', 'to');
+        packagesTable.addColumn('string', 'color');
+        packagesTable.addColumn('number', 'progress');  // optional
+        packagesTable.addColumn('number', 'value');  // optional
+        packagesTable.addColumn('string', 'title');  // optional
+
+        // create some packages. 
+        // value corresponds with the size of the email in bytes
+        var color = '#E42BD8';
+        var size = 0;
+        var rand = function (min, max) {
+          return min + Math.random() * (max - min)
+        }
+        var randInt = function (min, max) {
+          return Math.round(rand(min, max));
+        }        
+        progress = rand(0.1, 0.9); size = randInt(100, 10000); 
+        packagesTable.addRow([2, 9, color, progress, size, 'Email size: ' + size + ' bytes']);
+        progress = rand(0.1, 0.5); size = randInt(100, 10000); 
+        packagesTable.addRow([4, 6, color, progress, size, 'Email size: ' + size + ' bytes']);
+        progress = rand(0.5, 0.9); size = randInt(100, 10000); 
+        packagesTable.addRow([4, 6, color, progress, size, 'Email size: ' + size + ' bytes']);
+        progress = rand(0.1, 0.5); size = randInt(100, 10000); 
+        packagesTable.addRow([2, 3, color, progress, size, 'Email size: ' + size + ' bytes']);
+        progress = rand(0.5, 0.9); size = randInt(100, 10000); 
+        packagesTable.addRow([2, 3, color, progress, size, 'Email size: ' + size + ' bytes']);
+        progress = rand(0.1, 0.9); size = randInt(100, 10000); 
+        packagesTable.addRow([2, 7, color, progress, size, 'Email size: ' + size + ' bytes']);
+        
+        // specify options
+        var options = {
+          'width':  '600px', 
+          'height': '600px',
+          'nodes': {
+            'widthMin': 20,  // min width in pixels
+            'widthMax': 100  // max width in pixels
+          },
+          'packages': {
+            'style': 'image',
+            'image': DIR + 'Email-icon32.png',
+            'widthMin': 10,  // min width in pixels
+            'widthMax': 50   // max width in pixels
+          }
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, packagesTable, options);
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+    
+    <div id="info"></div>
+  </body>
+</html>

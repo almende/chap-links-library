@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo</title>
+
+    <style>
+      body {
+        font: 10pt arial; 
+      }
+    </style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+      
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(draw); 
+
+      // Called when the Visualization API is loaded.
+      function draw() {
+        // Create and populate a data table.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'title');
+        nodesTable.addColumn('string', 'group');
+        
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');        
+        
+        var connectionCount = new Array();
+        
+        // randomly create some nodes
+        var nodeCount = document.getElementById("nodeCount").value;
+        var cols = parseInt(Math.sqrt(nodeCount));
+        for (var i = 0; i < nodeCount; i++) {
+          var text = String(i);
+          if (i > 20)
+            text = String(i) + " " + String(i) + " " + String(i) + " " + String(i) + " " + String(i);
+
+          var group = "black";
+          if (i > 10) 
+            group = "gray";
+          if (i > 20)
+            group = "white";
+          nodesTable.addRow([i, text, text, group]);
+          
+          connectionCount[i] = 0;
+          
+          // create links in a scale-free-network way
+          if (i == 1) {
+            var from = i;
+            var to = 0;
+            linksTable.addRow([from, to]);
+            connectionCount[from]++;
+            connectionCount[to]++;
+          }
+          else if (i > 1) {
+            var conn = linksTable.getNumberOfRows() * 2;
+            var rand = Math.floor(Math.random() * conn);
+            var cum = 0;
+            var j = 0;
+            while (j < connectionCount.length && cum < rand) {
+              cum += connectionCount[j];
+              j++;
+            }
+            
+            var from = i;
+            var to = j;
+            linksTable.addRow([from, to]);
+            connectionCount[from]++;
+            connectionCount[to]++;
+          }          
+        }
+
+        // specify options
+        options = {
+          width: "600px",
+          height: "600px",
+          stabilize: false,
+          links: {
+            defaultLength: 75,
+            color: "gray"
+          },
+          nodes: {
+            //minimumDistance: 100
+          },
+          "groups": {
+            "black": {
+              "borderColor": "black", 
+              "backgroundColor": "black", 
+              "highlightColor": "black",
+              "fontColor": "white",
+              "fontSize": 18,
+              "fontFace": "courier",
+              "style": "rect"  // default for nodes in this group
+            },
+            "gray": {
+              "borderColor": "black", 
+              "backgroundColor": "gray", 
+              "highlightColor": "gray",
+              "fontSize": 18,
+              "fontFace": "arial",
+              "style": "circle"
+            },
+            "white": {
+              "borderColor": "black", 
+              "backgroundColor": "white", 
+              "highlightColor": "white",
+              "fontColor": "red",
+              "style": "database"
+            }
+          }
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+   </script>
+  </head>
+
+  <body>
+    <form onsubmit= "javascript: draw(); return false;">
+      Number of nodes:
+      <input type="text" value="25" id="nodeCount" style="width: 50px;"> 
+      <input type="submit" value="Go">
+    </form>
+    <br>
+    
+    <div id="mynetwork"></div>
+
+    <div id="info"></div>
+  </body>
+</html>

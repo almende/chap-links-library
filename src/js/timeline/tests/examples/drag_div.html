@@ -1,0 +1,108 @@
+<!--
+
+Demo code to drag all childs inside a div around.
+
+Usage: Create a div. Put elements in this div. Specify overflow:hidden, and 
+specify a width and height in the style of this element. Create the event
+onmousedown="dragDown(event, this);". The elements inside this div must be
+specified with the style position:relative, and with a left and top.
+
+EXAMPLE USAGE:
+  <div style="overflow: hidden; width:400px; height:400px; border: 1px solid black;" onmousedown = "dragDown(event, this);" >
+    Drag the elements inside this box
+    
+    <div style="position:relative; left:50px; top:50px; width:100px; height:100px; background:red; " >Bla Bla</div>
+    
+    <div id="inner2" style="position:relative; left:200px; top:20px; "> Child2 </div>
+    <span style="position:relative; left:100px; top:200px; border:1px solid red;">Test span...</span>
+  </div>
+
+
+TODO
+- test on IE
+
+DOCUMENTATION
+  http://www.brainjar.com/dhtml/drag/
+
+-->
+
+<html>
+<head>
+    <title>Drag div</title>
+
+    <script type="text/javascript">
+    
+    // create an object to store the mouse positions
+    function Drag() {
+      this.mousex = 0;
+      this.mousey = 0;
+      this.parent = null; // parent element (all child nodes will be dragged)
+    }
+    var drag = new Drag(); // object to store mouse positions
+  
+    function dragDown(evt, parentElement) {
+      drag.parent = parentElement;
+      drag.mousex = evt.clientX;
+      drag.mousey = evt.clientY;
+
+      drag.parent.style.cursor = 'move';
+      
+      // add event listeners to handle the dragging
+      document.addEventListener("mousemove", dragMove, true);
+      document.addEventListener("mouseup",   dragUp, true);
+      
+      evt.preventDefault();
+    }
+
+    function dragMove(evt) {
+      // calculate change in mouse position
+      var diffx = parseInt(evt.clientX) - drag.mousex;
+      var diffy = parseInt(evt.clientY) - drag.mousey;
+      drag.mousex = parseInt(evt.clientX);
+      drag.mousey = parseInt(evt.clientY);
+
+      // move all childnodes of the parent 
+      if (drag.parent.hasChildNodes())
+      {        
+        for (var i = 0; i < drag.parent.childNodes.length; i++)
+        {
+          var elem = drag.parent.childNodes[i];
+          if (elem.nodeName != "#text" && elem.nodeName != "#comment") {
+            var left  = (elem.style.left) ? parseInt(elem.style.left) : 0;
+            var top   = (elem.style.top)  ? parseInt(elem.style.top)  : 0;
+            elem.style.left = left + diffx;
+            elem.style.top  = top + diffy;
+          }
+        }
+      }
+    }
+
+    function dragUp(evt) {
+      drag.parent.style.cursor = 'auto';
+      
+      // remove event listeners
+      document.removeEventListener("mousemove", dragMove, true);
+      document.removeEventListener("mouseup",   dragUp, true);      
+    }
+    
+  </script>
+
+
+</head>
+<body>
+
+  <div style="overflow: hidden; width:400px; height:400px; border: 1px solid black;" 
+       onmousedown = "dragDown(event, this);" >
+    Drag the elements inside this box
+    
+    <div style="position:absolute; left:50px; top:50px; width:100px; height:100px; border:1px solid red; background:red;" >
+      I am a child element.
+    </div>
+    
+    <div style="position:absolute; left:200px; top:20px; "> Child2 </div>
+    
+    <span style="position:absolute; left:100px; top:200px; border:1px solid red;">Test span...</span>
+  </div>
+
+</body>
+</html>

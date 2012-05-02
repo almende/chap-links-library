@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid YoutubeConnector</title>
+
+    <style>
+      body, html {
+        font: 10pt arial;
+        width: 99%;
+      }
+      table, tr, td {
+        font: inherit;
+        vertical-align: top;
+      }
+      input[type="text"] {
+        border: 1px solid lightgray;
+      }
+      img.icon {
+        width: 24px; 
+        height: 24px; 
+        vertical-align: top;
+      }
+      /*
+      div.entry {
+        max-width: 250px;
+      } */     
+      img.thumbnail {
+        height: 45px;
+        margin-right: 5px;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      /*
+      docs:
+      http://code.google.com/apis/youtube/2.0/reference.html#Searching_for_videos
+      https://gdata.youtube.com/feeds/api/videos?alt=json
+      https://gdata.youtube.com/feeds/api/videos?q=almende&orderby=published&start-index=11&max-results=10&v=2&alt=json
+      */
+      
+      var treegrid;
+      var data;
+      
+      /**
+       * Get URL parameter
+       * http://www.netlobo.com/url_query_string_javascript.html
+       */
+      function gup( name ) {
+        name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+        var regexS = "[\\?&]"+name+"=([^&#]*)";
+        var regex = new RegExp( regexS );
+        var results = regex.exec( window.location.href );
+        return results ? results[1] : undefined;
+      }
+      
+      /**
+       * Load a URL in the Flash Player
+       */
+      function show(url) {
+        document.getElementById('player').src = url;
+      }
+      
+      /**
+       * Strip the HTML code from given string
+       */
+      function stripHTML(str) {
+        return str.replace(/<(?:.|\n)*?>/gm, '');
+      }
+      
+      /**
+       * Connector to search youtube.
+       */ 
+      var YoutubeConnector = function (query) {
+        this.query = query || '';
+        this.url = 'https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + escape(query);
+        this.items = [];
+        this.setOptions({
+          'columns': [
+            {'name': 'image'},
+            {'name': 'title', 'width': 250},
+            {'name': 'views'},
+            {'name': 'rating'}
+          ]
+        });
+      }
+      YoutubeConnector.prototype = new links.DataConnector();
+
+      /**
+       * make up an item count based on the currently received items
+       * number of results is calculated as the number of fetched items + 10
+       * return {Number} count
+       */
+      YoutubeConnector.prototype.getCount = function() {
+        return (this.items.length + 10);
+      }
+
+      YoutubeConnector.prototype.getChanges = function (index, num, items, callback, errback) {
+        // we just none of the items, supposing that the data never changes
+        var changedItems = [];
+
+        callback({
+          'totalItems': this.getCount(),
+          'items': changedItems
+        });
+      }
+
+      YoutubeConnector.prototype.getItems = function (index, num, callback, errback) {
+        var itemUrl = this.url + '&start-index=' + (index+1) + '&max-results=' + num;
+        var me = this;
+        var items = this.items;
+        
+        var createResponse = function () {
+          var retrievedItems = [];
+          for (var i = 0; i < num; i++) {
+            retrievedItems[i] = items[index + i];
+          }
+          return {
+            'totalItems': me.getCount(),
+            'items': retrievedItems
+          };
+        }
+
+        // check if there are uncached items
+        var hasUncachedItems = false;
+        for (var i = index, iMax = index+num; i < iMax; i++) {
+          if (!items[i])  {
+            hasUncachedItems = true;
+            break;
+          }
+        }
+        
+        // if all items are cached, we can directly return them
+        if (!hasUncachedItems) {
+          callback(createResponse());
+          return;
+        }
+        
+        // retrieve items from youtube
+        links.getJSONP(itemUrl, function (data) {
+          if (data && data.feed && data.feed.entry) {
+            // read the entries
+            var entry = data.feed.entry;
+            for (var i = 0, iMax = entry.length; i < iMax; i++) {
+              var item = me.entryToItem(entry[i]);
+              items[index + i] = item;
+            }
+            callback(createResponse());
+          }
+          else {
+            errback('Could not retrieve results');
+          }
+        });
+      }
+
+      /**
+       * convert a youtube entry to an (html formatted) item for the TreeGrid
+       * @param {Object} entry
+       * @return {Object} item 
+       */
+      YoutubeConnector.prototype.entryToItem = function (entry) {
+        var title = (entry.title && entry.title.$t) ? stripHTML(entry.title.$t) : '';
+        var description;
+        var url = '';
+        var viewCount = (entry.yt$statistics && entry.yt$statistics.viewCount) ? entry.yt$statistics.viewCount : '';
+        var rating = (entry.gd$rating && entry.gd$rating.average) ? entry.gd$rating.average.toFixed(1) : '';
+        var thumbnail = ''; 
+        
+        var media$group = entry.media$group;
+        if (media$group) {
+          description = (media$group.media$description && media$group.media$description.$t) ? 
+            stripHTML(media$group.media$description.$t) : '' ;
+          var media$content = media$group.media$content;
+          if (media$content) {
+            for (var i = 0; i < media$content.length; i++) {
+              var content = media$content[i];
+              if (content && content.isDefault == 'true') {
+                url = content.url;
+                break;
+              }
+            }
+          }
+          var media$thumbnail = media$group.media$thumbnail;
+          if (media$thumbnail && media$thumbnail.length) {
+            thumbnail = media$thumbnail[0].url;
+          }
+        }
+        
+        var item = {
+          // you can create fields containing HTML
+          'image': '<img src="' + thumbnail + '" class="thumbnail">',
+          'title': '<div class="entry">' + title + '</div>',
+          'views': viewCount,
+          'rating': rating,
+          
+          // fields starting with an underscore will be hidden
+          '_url': url,    
+          '_description': description,
+          
+          // '_actions' is a special field, and will create event buttons on the right
+          '_actions': [
+            {'event': 'details'}
+          ]
+        };
+        
+        return item;
+      }
+      
+      function decode (str) {
+        return unescape(str.replace(/\+/g, ' '));
+      }
+      
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        // read the query parameter
+        var q = gup('q');
+        if (q) {
+          document.getElementById('q').value = decode(q);
+        }
+        else {
+          q = document.getElementById('q').value;
+        }
+        document.getElementById('q').focus();
+
+        // specify options
+        var options = {
+          'width': '100%',
+          'height': '500px',
+          'items': {
+            'defaultHeight': 60   // px
+          }
+        };
+
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+        // on selection of an item, we want to open the concering
+        links.events.addListener(treegrid, 'select', function (params) {
+          var item = (params && params.items) ? params.items[0] : undefined;
+          if (item) {
+            show(item._url);
+          }
+        });
+
+        // on click on the action button 'details', show the description in a popup
+        links.events.addListener(treegrid, 'details', function (params) {
+          var item = (params && params.items) ? params.items[0] : undefined;
+          if (item) {
+            alert(item._description);
+          }
+        });
+
+        // create a youtube connector and draw the TreeGrid.
+        var data = new YoutubeConnector(q);
+        treegrid.draw(data);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>TreeGrid YoutubeConnector</h1>
+    
+    <form method="GET">
+      Search: <input type="text" name="q" id="q" value="self organization" />
+      <input type='submit' value="Search" />
+    </form>
+
+    <table width="100%">
+      <col width="600px">
+      <col width="20px">
+      <tr>
+        <td>
+          <div id="mytreegrid"></div>
+        </td>
+        <td></td>
+        <td>
+          <iframe id='player' class="youtube-player" type="text/html" 
+            width="100%" 
+            height="500px" 
+            frameborder="0"
+            style="border: 1px solid lightgray;">
+          </iframe>          
+        </td>
+      </tr>
+    </table>
+    
+    <!--
+    <p style="font-style: italic;">
+    Remark: Google often claim to have hundreds of thousands of results, 
+    but in practice only returns the first thousand results...
+    </p>
+    -->
+   
+  </body>
+</html>

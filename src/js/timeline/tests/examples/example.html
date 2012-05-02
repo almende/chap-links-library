@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="example.js"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        
+        // Create and populate a data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task');
+        data.addColumn('number', 'Daily Hours');
+        data.addRows(5);
+        data.setCell(0, 0, 'Work');
+        data.setCell(0, 1, 11);
+        // Add more data rows and cells here
+
+        // Instantiate our table object.
+        var vis = new example.MyTable(document.getElementById('mydiv'));
+        
+        // Draw our table with the data we created locally.
+        vis.draw(data, {showLineNumber: true});
+      }
+   </script>
+  <title>MyTable example page</title></head>
+  <body>
+    <div id="mydiv"></div>
+    <p>This page demonstrates hosting a table visualization.</p>
+  </body>
+</html>

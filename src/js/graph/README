@@ -1,0 +1,59 @@
+CHAP Links Graph
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+The Graph is an interactive visualization chart to draw (measurement) data in 
+time. You can freely move and zoom in the graph by dragging and scrolling in the 
+window. The time scale on the axis is adjusted automatically, and supports 
+scales ranging from milliseconds to years.
+
+The Graph visualization is designed to display large amouts of data in your 
+browser. Modern browsers can render up to 100.000 datapoints without problems. 
+However, to keep rendering smooth on older browsers too, it is better to keep 
+the number of datapoints below 10.000. Note that rendering is faster when a 
+smaller part of the data is visible, i.e. when zooming in.
+
+The Graph is developed as a Google Visualization Chart in javascript. There is 
+a GWT wrapper available to use the Graph in GWT (Google Web Toolkit). It runs
+in all browsers without additional requirements. Graph is tested on Firefox 3.6, 
+Safari 5.0, Chrome 6.0, Opera 10.6, Internet Explorer 6 to 9.
+
+
+USAGE
+
+The Graph is no built-in visualization of Google. To load the Graph, download 
+the file graph.zip, and unzip it in your html page such that the files are 
+located in a subfolder graph. Include the google API and the following files 
+in the head of your html code:
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="graph/graph.js"></script>
+    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <link rel="stylesheet" type="text/css" href="graph/graph.css">
+
+The google visualization needs to be loaded in order to use DataTable.
+
+    google.load("visualization", "1");
+    google.setOnLoadCallback(drawVisualization);
+    function drawVisualization() {
+      // load data and create the graph here
+    }
+    
+The class name of the Graph is links.Graph
+
+    var graph = new links.Graph(container);
+
+After being loaded, the graph can be drawn via the function draw(), provided 
+with data and options.
+
+    graph.draw(data, options);
+
+where data is a DataTable, and options is a name-value map in the JSON format.
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+Examples can be found in the directory examples

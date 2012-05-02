@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid events and actions</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <style>
+      body {
+        font-family: verdana, arial;
+        font-size: 12pt;
+      }
+      td.main {
+        vertical-align: top;
+      }
+      
+      div.treegrid-frame {
+        border-color: #BF29C8;
+      }
+      div.treegrid-header {
+        color: white;
+        background-color: #E157E9;
+        border-color: #BF29C8;
+      }
+
+      img.icon {
+        vertical-align: top;
+      }      
+    </style>
+
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+      
+      function createDepartment(index) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';        
+        var personCount = Math.round(Math.random() * 20);
+        var department = {
+          'name': 'Department ' + chars.charAt(index),
+          'employees': personCount,
+          'sales': '$ ' + (10 + personCount * 10 * Math.round(7 * Math.random())) + '.000'
+        }
+        department.persons = createPersons(personCount);
+        department._actions = [
+          {'event': 'delete', 'title': 'Delete this department', 'image': 'img/24/Close-2-icon.png'}
+          //{'event': 'delete', 'title': 'Delete this department'}
+        ];
+        return department;
+      }
+      
+      function createDepartments(departmentCount) {
+        var departments = [];
+        for (var i = 0; i < departmentCount; i++) {
+          var department = createDepartment(i);
+          departments.push(department);
+        }
+        return departments;
+      }      
+      
+      function createPerson(index, count) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var person = {
+          'name': '<img src="img/24/Preppy-icon.png" class="icon"> Person '+ chars[index],
+          'age': Math.round(20 + Math.random() * 40)
+        }
+        
+        person._actions = [
+          {'event': 'edit', 'image': 'img/24/Document-Write-icon.png'},
+          {'event': 'ok', 'image': 'img/24/Ok-icon.png'},
+          {'event': 'delete', 'image': 'img/24/Close-2-icon.png'}
+          /*{'event': 'edit'},
+          {'event': 'ok'},
+          {'event': 'delete'}*/
+        ];
+
+        return person;
+      }
+      
+      function createPersons(personCount) {
+        var persons = [];
+        for (var i = 0; i < personCount; i++) {
+          var person = createPerson(i);
+          persons.push(person);
+        }
+        return persons;
+      }
+
+      
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        var departmentCount = 20;
+        data = createDepartments(departmentCount);
+        
+        // specify options
+        var options = {
+          'width': '500px',
+          'height': '400px',
+          'items': {
+            'defaultHeight': 32   // px
+          }
+        };  
+
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+        // register listeners for interesting events
+        var info = document.getElementById('log');
+
+        function getNameOfFirstItem(items) {
+          var name;
+          if (items && items.length) {
+            name = items[0].name;
+          }
+          return name || '';
+        }
+        
+        // bind the events to our functions
+        links.events.addListener(treegrid, 'expand', function (properties) {
+          info.innerHTML += 'event: expand, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+        });
+        links.events.addListener(treegrid, 'collapse', function (properties) {
+          info.innerHTML += 'event: collapse, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+        });
+        links.events.addListener(treegrid, 'select', function (properties) {
+          info.innerHTML += 'event: select, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+        });
+        
+        // The following three events are defined and fired via action buttons
+        links.events.addListener(treegrid, 'edit', function (properties) {
+          info.innerHTML += 'event: edit, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          alert('so you would like to edit item ' + getNameOfFirstItem(properties.items) + '?');
+        });
+        links.events.addListener(treegrid, 'ok', function (properties) {
+          info.innerHTML += 'event: ok, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          alert('Is that person ok?');
+        });
+        links.events.addListener(treegrid, 'delete', function (properties) {
+          info.innerHTML += 'event: delete, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          alert('why?');
+          /* TODO: implement a real deletion
+          data.splice(properties.index, 1);
+          //*/
+        });
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(data);
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>TreeGrid events and actions</h1>
+
+    <table><tr><td class="main">
+      <div id="mytreegrid"></div>
+    </td><td class="main">
+      <div id="log"></div>
+    </td></tr></table>
+    
+  </body>
+</html>

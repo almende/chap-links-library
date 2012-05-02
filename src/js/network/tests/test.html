@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC>
+<html>
+  <head>
+    <title>Links Network demo</title>
+
+    <style>
+      body {font: 10pt arial;}
+    </style>
+
+    <!-- For running IE9 mode, define the meta X-UA-Compatible, and specify DOCTYPE -->                                 
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+                                                                        
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+    
+      google.load("visualization", "1");
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(drawVisualization); 
+
+      // Called when the Visualization API is loaded.
+      function drawVisualization() {
+        // Create and populate a data table.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('number', 'x');
+        nodesTable.addColumn('number', 'y');
+        
+        nodesTable.addRow([1, "A", 200, 200]);
+        nodesTable.addRow([2, "B", 400, 400]);
+        nodesTable.addRow([3, "C", 300, 400]);
+        nodesTable.addRow([4, "D", 100, 400]);
+
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');
+        linksTable.addColumn('number', 'length');
+        linksTable.addRow([1, 2, 200]);
+        linksTable.addRow([2, 3, 200]);
+        linksTable.addRow([3, 4, 200]);
+        linksTable.addRow([4, 1, 200]);
+        linksTable.addRow([1, 3, Math.sqrt(200*200+200*200)]);
+        linksTable.addRow([2, 4, Math.sqrt(200*200+200*200)]);
+
+        // specify options
+        options = {width:  "100%", 
+                   height: "100%",
+                   };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, linksTable, options);
+      }
+   </script>
+   
+   <style>
+     #mynetwork {
+       border: 1px solid gray;
+       width: 600px;
+       height: 600px;
+     }
+   </style>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+
+    <div id="info"></div>
+  </body>
+</html>

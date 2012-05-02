@@ -1,0 +1,58 @@
+CHAP Links Network
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+Links Network is an interactive chart to visualize networks.
+It allows creating nodes, links between the nodes, and interactive packages
+moving between nodes. 
+The visualization supports custom styles, colors, sizes, images, and more. 
+
+The network visualization works smooth on any modern browser for up to a 
+few hundred nodes and connections.
+
+Network is developed as a Google Visualization Chart in javascript. 
+There is a GWT wrapper available to use the Network in GWT (Google Web Toolkit).
+
+It runs on all modern browsers without additional requirements. 
+Network is tested on Firefox 3.6+, Safari 5.0+, Chrome 6.0+, Opera 10.6+, 
+Internet Explorer 9+.
+
+
+USAGE
+
+Network is no built-in visualization of Google. To load Network, download the 
+file network.zip, and unzip it in your html page such that the files are located 
+in a subfolder network. Include the google API and the following files in the 
+head of your html code:
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="network/network.js"></script> 
+
+The google visualization API needs to be loaded in order to use DataTable.
+
+    google.load("visualization", "1");
+    google.setOnLoadCallback(drawVisualization);
+    function drawVisualization() {
+      // load data and create the network here
+    }
+
+The class name of the Network is links.Network
+
+    var network = new links.Network(container);
+
+After being loaded, the network can be drawn via the function draw(), provided 
+with data and options.
+
+    network.draw(nodes, links, packages, options);
+
+where nodes, links, and packages are a DataTable, and options is a name-value 
+map in the JSON format. Both links and packages are optional.
+
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+Examples can be found in the directory examples

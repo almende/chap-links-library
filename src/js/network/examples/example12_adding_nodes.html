@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Links Network demo - add nodes dynamically</title>
+
+    <style>
+      body {
+        font: 10pt arial; 
+      }
+    </style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../network.js"></script>
+    
+    <script type="text/javascript">
+      var nodesTable = null;
+      var linksTable = null;
+      var network = null;
+      
+      google.load('visualization', '1');
+      
+      // Set callback to run when API is loaded
+      google.setOnLoadCallback(draw); 
+
+      var id = 0;
+
+      // Called when the Visualization API is loaded.
+      function draw() {
+        // Create and populate a data table.
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addRow([0, '0']);
+        
+        // specify options
+        var options = {
+          'width': '600px',
+          'height': '600px',
+          'stabilize': false
+        };
+
+        // Instantiate our graph object.
+        network = new links.Network(document.getElementById('mynetwork'));
+
+        // Draw our graph with the created data and options 
+        network.draw(nodesTable, options);
+      }
+      
+      // add a node and link it to one of the existing nodes
+      function add() {
+        id++;
+        nodesTable = new google.visualization.DataTable();
+        nodesTable.addColumn('number', 'id');
+        nodesTable.addColumn('string', 'text');
+        nodesTable.addColumn('string', 'action');
+        nodesTable.addRow([id, id + '', 'create']);
+        nodesTable.addRow([0, '0 (' + id + ' childs)', 'update']);
+        network.addNodes(nodesTable);
+
+        var from = Math.floor(Math.random() * (id-1) );
+        var to = id;
+        linksTable = new google.visualization.DataTable();
+        linksTable.addColumn('number', 'from');
+        linksTable.addColumn('number', 'to');        
+        linksTable.addRow([from, to]);
+        network.addLinks(linksTable);
+      }
+   </script>
+  </head>
+
+  <body>
+    <form onsubmit= "javascript: try{add();} catch (e){alert(e);}; return false;">
+      <input type="submit" value="Add">
+    </form>
+    <br>
+    
+    <div id="mynetwork"></div>
+
+    <div id="info"></div>
+  </body>
+</html>
