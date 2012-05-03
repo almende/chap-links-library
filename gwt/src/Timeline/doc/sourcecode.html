@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <title>Timeline GWT sourcecode documentation</title>
+  <link rel='stylesheet' href='default.css' type='text/css'>
+</head>
+
+<body>
+<h1>Timeline GWT sourcecode documentation</h1>
+<p>
+The timeline is written in pure Javascript. There is a GWT wrapper written
+that enables you to use the Timeline from within GWT (Google Web Toolkit).
+This page explains how the sourcecode is built up. 
+For detailed information about all functions, one can use the 
+<a href="javadoc">JavaDoc</a> reference pages.
+</p>
+
+<h2>Description</h2>
+<p>
+Todo...
+</p>
+
+<h2>Creation of JAR module</h2>
+<p>
+In order to put the Timeline files in one jar module:
+</p>
+
+<ul>
+ <li>Comment the line with the entry point in Timeline.gwt.xml</li>
+ <li>Right click on the project, choose Export, "Jar file".</li>
+ <li>Select the following files and folder
+   <ul>
+     <li>src/com.chap.links/Timeline.gwt.xml</li>
+     <li>src/com.chap.links/public/timeline.js</li>
+     <li>src/com.chap.links.client/Timeline.java</li>
+    <li>src/META-INF</li>
+   </ul>
+ </li>
+ <li>Select two options:
+   <ul>
+     <li>Export generated class files and resources</li>
+     <li>Export Java source files and resources</li>
+   </ul>
+ </li>
+ <li>Select an output filename and location</li>
+ <li>Click Finish</li>
+</ul>
+
+</body>
+</html>

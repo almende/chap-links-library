@@ -1,0 +1,52 @@
+/* Custom styles for the Timeline */
+
+div.timeline-frame {
+  border-color: #103E9C;
+}
+
+div.timeline-axis {
+  border-color: #103E9C;
+
+  background-color: #EEEFF1; 
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F9F9F9', endColorstr='#EEEFF1'); /* for IE */
+  background: -webkit-gradient(linear, left top, left bottom, from(#F9F9F9), to(#EEEFF1)); /* for webkit browsers */
+  background: -moz-linear-gradient(top,  #F9F9F9,  #EEEFF1); /* for firefox 3.6+ */ 
+}    
+
+div.timeline-axis-text {
+  font: bold 12px arial ;
+  color: #103E9C;          
+}
+
+div.timeline-event {
+  border: none;
+  background: white;
+}
+div.timeline-event-selected {
+  background-color: #C0D8E1;
+}
+div.timeline-event-content {
+  margin: 0px;
+}
+
+div.timeline-groups-axis {
+  border-color: #103E9C;
+}
+div.timeline-groups-text {
+  font: bold 12px arial ;
+  color: #103E9C;
+}
+
+div.order {
+  border: 1px solid #FB3738; 
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+
+  font: bold 12px arial ;
+  color: #103E9C;
+
+  padding: 2px; 
+  margin:1px;
+  overflow: hidden; 
+}    
+    

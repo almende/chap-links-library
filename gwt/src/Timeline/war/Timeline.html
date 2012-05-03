@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link type="text/css" rel="stylesheet" href="Timeline.css">
+
+    <title>Timeline</title>
+    
+    <script type="text/javascript" language="javascript" 
+           src="timeline/timeline.nocache.js"></script>
+  </head>
+
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
+            style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="color: red;">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+
+
+    <h1>Timeline Test</h1>
+    <p>
+    
+    This Timeline Entry Point is for test purposes.
+
+		To run the test program,
+		you have to open the file <b>Timeline.gwt.xml</b>, and uncomment the line 
+    </p>
+    <blockquote>
+		<code>
+		  &lt;entry-point class='com.chap.links.client.TimelineEntryPoint'/&gt;
+		</code>
+		</blockquote>
+		<p>
+		such that the entry point is defined. 
+    </p>
+    <p>
+    If you want to create a stand-alone module for the timeline, you have to 
+    comment the line with the entry point again, and then create a jar containing
+    the java and javascript files and images (Timeline.java and *Hander.java), 
+    Timeline.gwt.xml, and the files in the folder public and public/img. 
+    This can be done by executing timeline_export.jardesc.
+    </p>
+    <hr>
+    <br><br>
+
+    <p>
+        Startdate: <span id="txtStartDate"></span> 
+        Enddate: <span id="txtEndDate"></span> 
+        <span id="btnSetRange"></span>
+    </p>
+    <p>
+        Custom time: <span id="lblCustomTime"></span>
+    </p>
+    <p>
+        <span id="chkConfirmChange"></span>
+    </p>
+    <div id="btnRedraw"></div>
+    <div id="btnAddData"></div>
+    
+    <div style="margin-left: 200px;" id="mytimeline"></div>    
+    <br>
+    
+    <div id="lblInfo"></div>
+    
+  </body>
+</html> 

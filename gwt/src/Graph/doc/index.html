@@ -1,0 +1,84 @@
+<html>
+
+<head>
+  <title>Graph GWT documentation</title>
+  <link rel='stylesheet' href='default.css' type='text/css'>
+
+  <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="prettify/prettify.js"></script>
+</head>
+
+<body onload="prettyPrint();">
+
+  <h1>Graph GWT documentation</h1>
+
+  <p>
+  There is a GWT wrapper available to use the Graph inside Google Web
+  Toolkit (GWT).
+  This documentation assumes you have Eclipse installed, and have GWT 
+  installed in Eclipse.
+  </p>
+
+  <h2>Short guide</h2>
+  <p>
+  To use the GWT version of the Graph, create a GWT project. Put a copy of the 
+  modules <b><a href="http://sourceforge.net/projects/links/files/gwt">gwt-links-graph.jar</a></b> and
+  <b><a href="http://code.google.com/p/gwt-google-apis/downloads/" target="_blank">gwt-visualization.jar</a></b>
+  in a subfolder of your project (for example lib), 
+  and add both jar-modules to your project via "Build path", "Configure Build Path...", "Add JARs...". 
+  Then, add the following lines to the module file YourProject.gwt.xml:
+  </p>
+  <pre class="prettyprint lang-html">&lt;!-- Other module inherits                                      --&gt;
+&lt;inherits name='com.google.gwt.visualization.Visualization'/&gt; 
+&lt;inherits name='com.chap.links.Graph'/&gt;
+
+&lt;!-- External stylesheets                                       --&gt;
+&lt;!-- Include at least one stylesheet, else the stylesheets in   --&gt;
+&lt;!-- external modules like gwt-links-graph.jar are not loaded...--&gt;
+&lt;stylesheet src=""&gt;&lt;/stylesheet&gt;  
+</pre>
+  <p>
+  Thats all, now you can use the Graph.
+  </p>
+  
+  <h2>Custom stylesheet</h2>
+  <p>
+  The style of the Graph can be changed by applying a customized stylesheet.
+  
+  This stylesheet cannot be referenced in the main HTML page of your project,
+  because the stylesheet must be loaded <i>after</i> the graph is loaded.
+  Therefore, the stylesheet must be placed in a folder <code>public</code>,
+   which must be located in the same folder as the module file 
+  YourProject.gwt.xml and the folders client, server, and shared.
+  To let GWT load the stylesheet, add a reference to the stylesheet in
+  the module file YourProject.gwt.xml:
+
+  <pre class="prettyprint lang-html">
+&lt;!-- Other module inherits                                      --&gt;
+&lt;inherits name='com.google.gwt.visualization.Visualization'/&gt; 
+&lt;inherits name='com.chap.links.Graph'/&gt;
+
+&lt;!-- Customized stylesheet for the Graph                        --&gt;
+&lt;stylesheet src="myCustomStylesheet.css"&gt;&lt;/stylesheet&gt;    
+</pre>
+
+  </p>
+  
+  
+  <h2>Documentation</h2>
+  <p>
+  At the moment there is no documentation available for the GWT version of the Graph.
+  Please use the javascript documentation, which describes the
+  available methods, data format, options, events, and styles.
+  </p>
+  <p>
+  <a href="http://links.sourceforge.net/graph/js/doc">Javascript documentation</a>
+  </p>
+  
+  <h2>Reference sites</h2>
+  
+  <p><a href="http://code.google.com/p/gwt-google-apis/wiki/VisualizationGettingStarted" target="_blank">http://code.google.com/p/gwt-google-apis/wiki/VisualizationGettingStarted</a></p>
+  
+  <div style="height:50px;"></div>
+</body>
+</html>

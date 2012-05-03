@@ -1,0 +1,16 @@
+/*
+All css options can be found in the documentation, or in the file
+graph.css inside the library gwt-links-graph.jar
+*/
+
+div.graph-canvas {
+  background-color: #F1F1F1;
+}
+
+div.graph-axis-grid-minor {
+  border-color: lightgrey;
+}
+
+div.graph-axis-grid-major {
+  border-color: gray;
+}

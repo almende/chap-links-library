@@ -1,0 +1,48 @@
+CHAP Links Graph
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+The Graph is an interactive visualization chart to draw (measurement) data in 
+time. You can freely move and zoom in the graph by dragging and scrolling in 
+the window. The time scale on the axis is adjusted automatically, and supports 
+scales ranging from milliseconds to years.
+
+The Graph visualization is designed to display large amouts of data in your 
+browser. Modern browsers can render up to 100.000 datapoints without problems. 
+However, to keep rendering smooth on older browsers too, it is better to keep 
+the number of datapoints below 10.000. Note that rendering is faster when a 
+smaller part of the data is visible, i.e. when zooming in.
+
+The Graph is developed as a Google Visualization Chart in javascript. There is 
+a GWT wrapper available to use the Graph in GWT (Google Web Toolkit). It runs 
+in all browsers without additional requirements. Graph is tested on Firefox 3.6, 
+Safari 5.0, Chrome 6.0, Opera 10.6, Internet Explorer 6 to 9.
+
+
+USAGE
+
+To use the GWT version of the Graph, create a GWT project. Put a copy of the 
+modules gwt-links-graph.jar and gwt-visualization.jar in a subfolder of your 
+project (for example lib), and add both jar-modules to your project via 
+"Build path", "Configure Build Path...", "Add JARs...". Then, add the following 
+lines to the module file YourProject.gwt.xml:
+
+    <!-- Other module inherits                                      -->
+    <inherits name='com.google.gwt.visualization.Visualization'/> 
+    <inherits name='com.chap.links.Graph'/>
+
+    <!-- External stylesheets                                       -->
+    <!-- Include at least one stylesheet, else the stylesheets in   -->
+    <!-- external modules like gwt-links-graph.jar are not loaded...-->
+    <stylesheet src=""></stylesheet>  
+
+Thats all, now you can use the Graph.
+
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+

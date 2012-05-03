@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link type="text/css" rel="stylesheet" href="TreeGrid.css">
+
+    <title>TreeGrid</title>
+    
+    <script type="text/javascript" language="javascript" 
+           src="treegrid/treegrid.nocache.js"></script>
+  </head>
+
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
+            style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="color: red;">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+
+
+    <h1>TreeGrid Test</h1>
+    <p>
+    
+    This TreeGrid Entry Point is for test purposes.
+
+		To run the test program,
+		you have to open the file <b>TreeGrid.gwt.xml</b>, and uncomment the line 
+    </p>
+    <blockquote>
+		<code>
+		  &lt;entry-point class='com.chap.links.client.TreeGridEntryPoint'/&gt;
+		</code>
+		</blockquote>
+		<p>
+		such that the entry point is defined. 
+    </p>
+    <p>
+    If you want to create a stand-alone module for the treegrid, you have to 
+    comment the line with the entry point again, and then create a jar containing
+    the java and javascript files and images (TreeGrid.java and *Hander.java), 
+    TreeGrid.gwt.xml, and the files in the folder public and public/img. 
+    This can be done by executing treegrid_export.jardesc.
+    </p>
+    <hr>
+    <br><br>
+    
+    <div id="addTruck"></div>
+    
+    <div id="mytreegrid"></div>    
+    <br>
+    
+    <div id="lblInfo"></div>
+    
+  </body>
+</html> 

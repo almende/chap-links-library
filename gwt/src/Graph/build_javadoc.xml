@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE PROJECT>
+<project name="javadoc-builder" default="generate_javadoc" basedir=".">
+  <target name="generate_javadoc" description="Generate javadoc from the project">
+    <!-- generate javadoc -->
+    <javadoc sourcepath="src" destdir="doc/javadoc" />
+  </target>
+</project>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='timelinedemo3'>
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+
+  <!-- Inherit the default GWT style sheet.  You can change       -->
+  <!-- the theme of your GWT application by uncommenting          -->
+  <!-- any one of the following lines.                            -->
+  <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+
+  <!-- Other module inherits                                      -->
+  <inherits name='com.google.gwt.visualization.Visualization'/>
+  <inherits name='com.chap.links.Timeline'/>
+
+  <!-- External stylesheets                                       -->
+  <!-- Include at least one stylesheet, else the stylesheets in   -->
+  <!-- external modules like Timeline.jar are not loaded...(bug?) -->
+  <stylesheet src="timelinestyle.css"></stylesheet>
+
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class='com.chap.links.client.TimelineDemo3'/>
+
+  <!-- Specify the paths for translatable code                    -->
+  <source path='client'/>
+  <source path='shared'/>
+
+</module>

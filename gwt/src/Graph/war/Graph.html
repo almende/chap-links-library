@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link type="text/css" rel="stylesheet" href="Graph.css">
+
+    <title>Links Graph</title>
+    
+    <script type="text/javascript" language="javascript" 
+           src="graph/graph.nocache.js"></script>
+  </head>
+
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
+            style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="color: red;">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+
+
+    <h1>Links Graph</h1>
+    <p>
+    
+    This Graph Entry Point is for test purposes.
+
+        To run the test program,
+        you have to open the file <b>Graph.gwt.xml</b>, and uncomment the line 
+    </p>
+    <blockquote>
+        <code>
+          &lt;entry-point class='com.chap.links.client.GraphEntryPoint'/&gt;
+        </code>
+        </blockquote>
+        <p>
+        such that the entry point is defined. 
+    </p>
+    <p>
+    If you want to create a stand-alone module for the graph, you have to 
+    comment the line with the entry point again, and then create a jar containing
+    only Graph.java, Graph.gwt.xml, graph.js, graph.css, and excanvas.js.
+    </p>
+    <hr>
+    <br><br>
+
+    <p>
+        Startdate: <span id="txtStartDate"></span> 
+        Enddate: <span id="txtEndDate"></span> 
+        <span id="btnSetRange"></span>
+    </p>
+    
+    <div style="margin-left: 0px;" id="mygraph"></div>    
+    <br>
+    <div id="btnAutoRange"></div>
+    
+    <div id="lblInfo"></div>
+    
+  </body>
+</html> 

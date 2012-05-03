@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE PROJECT>
+<project name="jar-builder" default="makejar" basedir=".">
+  <target name="makejar" description="Create a jar from the project">
+    <property name="bin" location="bin" />
+  	<property name="jar" value="gwt-links-graph.jar" />
+    
+    <mkdir dir="${bin}" />
+
+    <!-- remove old jar -->
+    <delete file="${bin}/${jar}" />
+
+    <!-- create jar -->
+    <jar destfile="${bin}/${jar}" >
+      <fileset dir="war/WEB-INF/classes/">
+       	<exclude name="**/*EntryPoint*" />
+        <exclude name="**/.gitignore" />
+        <exclude name="**/public/*" /> 
+        <exclude name="**/*.gwt.xml" /> 
+      </fileset>
+      <fileset dir="src/">
+        <exclude name="**/*EntryPoint*" />
+        <exclude name="**.gitignore" />
+  	  </fileset>        	
+    </jar>
+
+  </target>
+</project>

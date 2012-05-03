@@ -1,0 +1,15 @@
+body {
+  font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+  padding: 5px;
+}
+ 
+h1 {
+  font-size: 150%;
+  font-weight: bold;
+  padding: 0;
+  margin: 1em 0 0 .3em;
+}
+
+h2 { 
+    font-size: 110%; 
+}   

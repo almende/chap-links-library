@@ -1,0 +1,398 @@
+<html>
+
+<head>
+  <title>Timeline GWT documentation</title>
+  <link rel='stylesheet' href='default.css' type='text/css'>
+
+  <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="prettify/prettify.js"></script>
+</head>
+
+<body onload="prettyPrint();">
+
+  <h1>Timeline GWT documentation</h1>
+
+  <p>
+  There is a GWT wrapper available to use the Timeline inside Google Web
+  Toolkit (GWT).
+  This documentation assumes you have Eclipse installed, and have GWT 
+  installed in Eclipse.
+  </p>
+
+  <h2>Short guide</h2>
+  <p>
+  To use the GWT version of the Timeline, create a GWT project. Put a copy of the 
+  modules <b><a href="http://sourceforge.net/projects/links/files/gwt">gwt-links-timeline.jar</a></b> and
+  <b><a href="http://code.google.com/p/gwt-google-apis/downloads/" target="_blank">gwt-visualization.jar</a></b>
+  in a subfolder of your project (for example lib), 
+  and add both jar-modules to your project via "Build path", "Add external archives...". 
+  Then, add the following lines to the module file MyProject.gwt.xml:
+  <pre class="prettyprint lang-html">&lt;!-- Other module inherits                                      --&gt;
+&lt;inherits name='com.google.gwt.visualization.Visualization'/&gt; 
+&lt;inherits name='com.chap.links.Timeline'/&gt;
+
+&lt;!-- External stylesheets                                       --&gt;
+&lt;!-- Include at least one stylesheet, else the stylesheets in   --&gt;
+&lt;!-- external modules like Timeline.jar are not loaded...(bug?) --&gt;
+&lt;stylesheet src=""&gt;&lt;/stylesheet&gt;  
+</pre>
+  Thats all, now you can use the Timeline.
+  </p>
+
+  <h2>Getting started</h2>
+  <p>
+  </p>
+  
+  <h3>Step 1: Strip the default Web Application Project</h3>
+  <p>
+  First, we start create a new, default Web Application Project, and strip
+  off all unneeded code and files.
+  </p>
+  <ul>
+    <li>Open Eclipse</li>
+    <li>Go to menu File, New, Web Application Project. 
+    Give your project a name and package name (for example name "TimelineDemo1", 
+    and package "com.chap.links"), and click Finish. 
+    Now you have the default "Web Application Starter Project", 
+    which you can run directly.</li>
+    <li>Go to the folder src and expand all subfolders in here. 
+    Remove the files <b>GreetingService.java</b>, 
+    <b>GreetingServiceAsync.java</b>, <b>GreetingServiceImpl.java</b>, 
+    and <b>FieldVerifier.java</b>.</li>
+    <li>Now we have to remove the references to the just removed servlets. 
+    Go to the folder war/WEB-INF, and open the file <b>web.xml</b>.
+    remove all code under
+    <code>&lt;!-- Servlets --&gt;</code>
+    such that you have
+    the following contents remaining:
+      <pre class="prettyprint lang-html">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd"&gt;
+
+&lt;web-app&gt;
+  
+  &lt;!-- Servlets --&gt;
+
+  &lt;!-- Default page to serve --&gt;
+  &lt;welcome-file-list&gt;
+    &lt;welcome-file&gt;TimelineDemo1.html&lt;/welcome-file&gt;
+  &lt;/welcome-file-list&gt;
+
+&lt;/web-app&gt;</pre>
+    </li>
+    <li>Open the file <b>TimelineDemo1.java</b>. Replace the contents with the following
+    code:
+      <pre class="prettyprint lang-java">
+package com.chap.links.client;
+
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
+
+/**
+ * Entry point classes define onModuleLoad().
+ */
+public class TimelineDemo1 implements EntryPoint {
+  /**
+   * This is the entry point method.
+   */
+  public void onModuleLoad() {
+    final TextBox txtName = new TextBox();
+    final Button btnHelloWorld = new Button("Click me");
+    txtName.setText("user");
+  
+    // Add the button to the RootPanel
+    RootPanel.get("txtName").add(txtName);
+    RootPanel.get("btnHelloWorld").add(btnHelloWorld);
+    txtName.setFocus(true);
+    txtName.selectAll();
+
+    // Add a handler to close the DialogBox
+    btnHelloWorld.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        Window.alert("Hello " + txtName.getText() + "!");
+      }
+    });
+  }
+}</pre>
+    </li>
+    <li>Go to the folder web, and open the file <b>TimelineDemo1.html</b>.
+    Replace the contents with the following code:
+      <pre class="prettyprint lang-html">
+&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+
+    &lt;link type="text/css" rel="stylesheet" href="TimelineDemo1.css"&gt;
+
+    &lt;title&gt;Timeline Demo 1&lt;/title&gt;
+    
+    &lt;script type="text/javascript" language="javascript" 
+           src="timelinedemo1/timelinedemo1.nocache.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+
+    &lt;!-- OPTIONAL: include this if you want history support --&gt;
+    &lt;iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
+            style="position:absolute;width:0;height:0;border:0"&gt;&lt;/iframe&gt;
+    
+    &lt;!-- RECOMMENDED if your web app will not function without JavaScript enabled --&gt;
+    &lt;noscript&gt;
+      &lt;div style="color: red;"&gt;
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      &lt;/div&gt;
+    &lt;/noscript&gt;
+
+    &lt;h1&gt;Timeline Demo 1&lt;/h1&gt;
+
+    Enter your name: &lt;span id="txtName"&gt;&lt;/span&gt; &lt;span id="btnHelloWorld"&gt;&lt;/span&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt; </pre>
+    </li>
+    <li>Open the file <b>TimelineDemo1.css</b>, and replace the contents with:
+      <pre class="prettyprint lang-css">
+body {
+  font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+  width: 800px;
+}
+ 
+h1 {
+  font-size: 150%;
+  font-weight: bold;
+  padding: 0;
+  margin: 1em 0 0 .3em;
+}
+
+h2 { 
+    font-size: 110%; 
+}     </pre>
+    </li>
+  </ul>  
+
+  <p>
+  Run the application and check if it works. Enter your name, and press the button. 
+  See if you get a message window saying "Hello name!". 
+  If everything works correct, you are ready to implement a Timeline.
+  </p>
+
+  <h3>Step 2: Add GWT Visualization</h3>
+  <p>
+  Now we will add everything needed to use the Google Visualization Tools.
+  </p>
+    
+  <ul>
+    <li>
+    Download the Chart Tools API Library 
+    <a href="http://code.google.com/p/gwt-google-apis/downloads/" 
+       target="_blank">here</a>. 
+    Extract the file <b>gwt-visualization.jar</b>, and put it somewhere on your computer, 
+    for example the folder src/lib/ of your project. 
+    Inside Eclipse, right-click on the project and choose "Build path", 
+    "Add external archives...". 
+    Then select the file gwt-visualization.jar you have just extracted.</li>
+
+    <li>Open the file <b>TimelineDemo1.gwt.xml</b> inside the folder
+    src/com.chap.links. Under the Comment line "Other module inherits", 
+    add the following line. 
+      <pre class="prettyprint lang-html">
+&lt;!-- Other module inherits                                      --&gt;
+&lt;inherits name='com.google.gwt.visualization.Visualization'/&gt; </pre>
+    </li>
+  </ul>
+  <p>
+  Check if your program still compiles after you restart your application 
+  (nothing is yet changed in the interface though).
+  </p>
+
+  <h3>Step 3: Add the Timeline</h3>
+  <p>
+  
+  </p>
+    
+  <ul>
+    <li>Take a copy of the module <b>gwt-timeline.jar</b>, 
+    and put it somewhere on in your project, 
+    for example the folder src/lib/. Inside Eclipse, right-click on the project 
+    and choose "Build path", "Add external archives...".
+    Then select the file gwt-timeline.jar you have just copied.</li>
+    
+    <li>Open the file <b>TimelineDemo1.gwt.xml</b> inside the folder
+    src/com.chap.links. Under the Comment line "Other module inherits", 
+    add a line for the Timeline visualization, directly under the line
+    for the Google visualization that we already added. 
+      <pre class="prettyprint lang-html">
+&lt;!-- Other module inherits                                      --&gt;
+&lt;inherits name='com.google.gwt.visualization.Visualization'/&gt; 
+&lt;inherits name='com.chap.links.Timeline'/&gt; 
+
+&lt;!-- External stylesheets                                       --&gt;
+&lt;!-- Include at least one stylesheet, else the stylesheets in   --&gt;
+&lt;!-- external modules like Timeline.jar are not loaded...(bug?) --&gt;
+&lt;stylesheet src=""&gt;&lt;/stylesheet&gt;  
+</pre>
+    </li>
+
+    <li>Open the file <b>TimelineDemo1.html</b> in the folder war, 
+    and replace the contents with the following code.
+    <pre class="prettyprint lang-html">
+&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="content-type" content="text/html; charset=UTF-8"&gt;
+
+    &lt;link type="text/css" rel="stylesheet" href="TimelineDemo1.css"&gt;
+
+    &lt;title&gt;Timeline Demo 1&lt;/title&gt;
+    
+    &lt;script type="text/javascript" language="javascript" 
+           src="timelinedemo1/timelinedemo1.nocache.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" language="javascript" src="timeline.js"&gt;&lt;/script&gt;
+
+  &lt;/head&gt;
+
+  &lt;body&gt;
+
+    &lt;!-- OPTIONAL: include this if you want history support --&gt;
+    &lt;iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
+            style="position:absolute;width:0;height:0;border:0"&gt;&lt;/iframe&gt;
+    
+    &lt;!-- RECOMMENDED if your web app will not function without JavaScript enabled --&gt;
+    &lt;noscript&gt;
+      &lt;div style="color: red;"&gt;
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      &lt;/div&gt;
+    &lt;/noscript&gt;
+
+    &lt;h1&gt;Timeline Demo 1&lt;/h1&gt;
+    
+    &lt;div id="mytimeline"&gt;&lt;/div&gt;   
+ 
+  &lt;/body&gt;
+&lt;/html&gt; 
+    </pre>
+    </li>
+    <li>Open the file <b>TimelineDemo1.java</b>, and replace the contents
+    with the following code.
+    <pre class="prettyprint lang-java">
+package com.chap.links.client;
+
+import com.chap.links.client.Timeline;
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.VisualizationUtils;
+
+/**
+ * Entry point classes define <code>onModuleLoad()</code>.
+ */
+public class TimelineDemo1 implements EntryPoint {
+  Timeline timeline = null;
+
+  /**
+   * This is the entry point method.
+   */
+  public void onModuleLoad() {;
+    // Create a callback to be called when the visualization API
+    // has been loaded.
+    Runnable onLoadCallback = new Runnable() {
+      public void run() {
+    	// create a data table
+	    DataTable data = DataTable.create();
+	    data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
+	    data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
+	    data.addColumn(DataTable.ColumnType.STRING, "content");
+
+        DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd");
+
+        // fill the table with some data
+        data.addRow();
+        data.setValue(0, 0, dtf.parse("2010-08-23"));
+        data.setValue(0, 1, dtf.parse("2010-08-30"));
+        data.setValue(0, 2, "Project A");
+        data.addRow();
+        data.setValue(1, 0, dtf.parse("2010-08-28"));
+        data.setValue(1, 2, "Meeting");
+        data.addRow();
+        data.setValue(2, 0, dtf.parse("2010-09-02"));
+        data.setValue(2, 2, "Phone Call");
+        data.addRow();
+        data.setValue(3, 0, dtf.parse("2010-09-03"));
+        data.setValue(3, 2, "Finished");
+        
+        // create options
+        Timeline.Options options = Timeline.Options.create();
+        options.setWidth("100%");
+        options.setHeight("200px");
+        options.setStyle(Timeline.Options.STYLE.BOX);
+        options.setEditable(true);
+
+        // create the timeline, with data and options
+        timeline = new Timeline(data, options);
+
+        RootPanel.get("mytimeline").add(timeline);
+      }
+    };
+
+    // Load the visualization api, passing the onLoadCallback to be called
+    // when loading is done.
+    VisualizationUtils.loadVisualizationApi(onLoadCallback);    
+  }
+}    </pre>
+    </li>
+
+  </ul>
+  Start the application. You have your first Timeline working now.
+
+
+  <h2>Custom stylesheet</h2>
+  <p>
+  The style of the Timeline can be changed by applying a customized stylesheet.
+  
+  This stylesheet cannot be referenced in the main HTML page of your project,
+  because the stylesheet must be loaded <i>after</i> the timeline is loaded.
+  Therefore, the stylesheet must be placed in a folder <code>public</code>, which must be 
+  located in the same folder as the module file MyProject.gwt.xml and the 
+  folders client, server, and shared.
+  To let GWT load the stylesheet, add a reference to the stylesheet in
+  the module file MyProject.gwt.xml:
+
+  <pre class="prettyprint lang-html">
+&lt;!-- Other module inherits                                      --&gt;
+&lt;inherits name='com.google.gwt.visualization.Visualization'/&gt; 
+&lt;inherits name='com.chap.links.Timeline'/&gt;
+
+&lt;!-- Customized stylesheet for the Timeline                     --&gt;
+&lt;stylesheet src="myCustomStylesheet.css"&gt;&lt;/stylesheet&gt;    
+</pre>
+
+  </p>
+
+  <h2>Documentation</h2>
+  <p> 
+  At the moment there is no documentation available for the GWT version of the Timeline.
+  Please use the javascript documentation, which describes the
+  available methods, data format, options, events, and styles.
+  </p> 
+  <p> 
+  <a href="http://links.sourceforge.net/timeline/js/doc">Javascript documentation</a> 
+  </p>
+
+  <h2>Reference sites</h2>
+  
+  <p><a href="http://code.google.com/p/gwt-google-apis/wiki/VisualizationGettingStarted" target="_blank">http://code.google.com/p/gwt-google-apis/wiki/VisualizationGettingStarted</a></p>
+  
+  <div style="height:50px;"></div>
+</body>
+</html>
