@@ -31,9 +31,8 @@
  *
  * @author 	Jos de Jong, <jos@almende.org>
  * @date    2012-05-02
- * @version 2.0
+ * @version 2.0.1
  */
-
 
 /*
  * TODO
@@ -48,7 +47,6 @@
  * Bug: Pinching on ipad does not work very well, sometimes the page will zoom when pinching vertically
  * Bug: cannot set max width for an item, like div.timeline-event-content {white-space: normal; max-width: 100px;}
  * Bug on IE in Quirks mode. When you have groups, and delete an item, the groups become invisible
- * 
  */ 
 
 /**
@@ -1830,9 +1828,9 @@ links.Timeline.prototype.redrawDragAreas = function () {
   var dragLeft = dom.items.dragLeft;
   if (!dragLeft) {
     dragLeft = document.createElement("DIV");
+    dragLeft.className="timeline-event-range-drag-left";
     dragLeft.style.width = options.dragAreaWidth + "px";
     dragLeft.style.position = "absolute";
-    dragLeft.style.cursor = "w-resize";
 
     frame.appendChild(dragLeft);
     dom.items.dragLeft = dragLeft;
@@ -1842,9 +1840,9 @@ links.Timeline.prototype.redrawDragAreas = function () {
   var dragRight = dom.items.dragRight;
   if (!dragRight) {
     dragRight = document.createElement("DIV");
+    dragRight.className="timeline-event-range-drag-right";
     dragRight.style.width = options.dragAreaWidth + "px";
     dragRight.style.position = "absolute";
-    dragRight.style.cursor = "e-resize";
 
     frame.appendChild(dragRight);
     dom.items.dragRight = dragRight;

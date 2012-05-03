@@ -69,6 +69,17 @@ div.timeline-event-range {
   -moz-border-radius: 2px;  /* For Firefox 3.6 and older */
 }
 
+div.timeline-event-range-drag-left {
+  cursor: w-resize;
+  z-index: 1000;
+}
+
+div.timeline-event-range-drag-right {
+  cursor: e-resize;
+  z-index: 1000;
+}
+
+
 div.timeline-event-line {
   border-left-width: 1px;
   border-left-style: solid;
