@@ -71,10 +71,12 @@ div.timeline-event-range {
 
 div.timeline-event-range-drag-left {
   cursor: w-resize;
+  z-index: 1000;
 }
 
 div.timeline-event-range-drag-right {
   cursor: e-resize;
+  z-index: 1000;
 }
 
 

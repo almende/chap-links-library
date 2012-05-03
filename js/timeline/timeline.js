@@ -34,7 +34,6 @@
  * @version 2.0.1
  */
 
-
 /*
  * TODO
  *
@@ -48,7 +47,6 @@
  * Bug: Pinching on ipad does not work very well, sometimes the page will zoom when pinching vertically
  * Bug: cannot set max width for an item, like div.timeline-event-content {white-space: normal; max-width: 100px;}
  * Bug on IE in Quirks mode. When you have groups, and delete an item, the groups become invisible
- * 
  */ 
 
 /**

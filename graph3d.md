@@ -13,7 +13,7 @@ Graph3d also supports animation of a graph.
 
 ### Javascript {#javascript}
 
-- [Download](downloads.html#graph3d)
+- [Download](downloads.html#javascript)
 - [Playground](js/graph3d/playground)
 - [Examples](js/graph3d/examples)
 - [Documentation](js/graph3d/doc)

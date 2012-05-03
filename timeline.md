@@ -15,15 +15,15 @@ The time scale on the axis is adjusted automatically, and supports scales rangin
 
 ### Javascript {#javascript}
 
-- [Download](downloads.html#network)
+- [Download](downloads.html#javascript)
 - [Examples](js/timeline/examples)
 - [Documentation](js/timeline/doc)
 - [JsDoc](js/timeline/doc/jsdoc)
 
 ### Google Web Toolkit {#gwt}
 
-- [Download](downloads.html#network)
+- [Download](downloads.html#gwt)
 - [Examples](examples.html)
-- [Documentation](gwt/timeline/doc)
-- [JavaDoc](gwt/timeline/doc/javadoc)
+- [Documentation](gwt/gwt-links-timeline/doc)
+- [JavaDoc](gwt/gwt-links-timeline/doc/javadoc)
 

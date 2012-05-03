@@ -15,14 +15,14 @@ of historical data. The visualization supports custom styles, colors, sizes, ima
 
 ### Javascript {#javascript}
 
-- [Download](downloads.html#network)
+- [Download](downloads.html#javascript)
 - [Examples](js/network/examples)
 - [Documentation](js/network/doc)
 - [JsDoc](js/network/doc/jsdoc)
 
 ### Google Web Toolkit {#gwt}
 
-- [Download](downloads.html#network)
+- [Download](downloads.html#gwt)
 - [Examples](examples.html)
-- [Documentation](gwt/network/doc)
-- [JavaDoc](gwt/network/doc/javadoc)
+- [Documentation](gwt/gwt-links-network/doc)
+- [JavaDoc](gwt/gwt-links-network/doc/javadoc)

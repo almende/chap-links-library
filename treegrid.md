@@ -15,7 +15,7 @@ the right.
 
 ### Javascript {#javascript}
 
-- [Download](downloads.html#treegrid)
+- [Download](downloads.html#javascript)
 - [Examples](js/treegrid/examples)
 - [Documentation TreeGrid](js/treegrid/doc)
 - [Documentation Dataconnector](js/treegrid/doc/dataconnector.html)
@@ -23,7 +23,7 @@ the right.
 
 ### Google Web Toolkit {#gwt}
 
-- [Download](downloads.html#treegrid)
+- [Download](downloads.html#gwt)
 - [Examples](examples.html)
 
 (docs coming soon)

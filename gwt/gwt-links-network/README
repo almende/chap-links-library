@@ -1,0 +1,42 @@
+CHAP Links Network
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+Links Network is an interactive chart to visualize networks.
+It allows creating nodes, links between the nodes, and interactive packages
+moving between nodes. 
+The visualization supports custom styles, colors, sizes, images, and more. 
+
+The network visualization works smooth on any modern browser for up to a 
+few hundred nodes and connections.
+
+Network is developed as a Google Visualization Chart in javascript. 
+There is a GWT wrapper available to use the Network in GWT (Google Web Toolkit).
+
+It runs on all modern browsers without additional requirements. 
+Network is tested on Firefox 3.6+, Safari 5.0+, Chrome 6.0+, Opera 10.6+, 
+Internet Explorer 9+.
+
+
+USAGE
+
+To use the GWT version of the Network, create a GWT project. Put a copy of the 
+modules gwt-links-network.jar and gwt-visualization.jar in a subfolder of your 
+project (for example lib), and add both jar-modules to your project via 
+"Build path", "Configure Build Path...", "Add JARs...". Then, add the following 
+lines to the module file YourProject.gwt.xml:
+
+    <!-- Other module inherits                                      -->
+    <inherits name='com.google.gwt.visualization.Visualization'/> 
+    <inherits name='com.chap.links.Network'/>
+
+Thats all, now you can use the Network visualization.
+
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+

@@ -15,14 +15,15 @@ The Graph is specially designed for handling large amounts of data.
 
 ### Javascript {#javascript}
 
-- [Download](downloads.html#graph)
+- [Download](downloads.html#javascript)
 - [Examples](js/graph/examples)
 - [Documentation](js/graph/doc)
 - [JsDoc](js/graph/doc/jsdoc)
 
+
 ### Google Web Toolkit {#gwt}
 
-- [Download](downloads.html#graph)
+- [Download](downloads.html#gwt)
 - [Examples](examples.html)
-- [Documentation](graph/gwt/doc)
-- [JavaDoc](graph/gwt/doc/javadoc)
+- [Documentation](gwt/gwt-links-graph/doc)
+- [JavaDoc](gwt/gwt-links-graph/doc/javadoc)

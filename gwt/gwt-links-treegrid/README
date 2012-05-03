@@ -1,0 +1,42 @@
+CHAP Links TreeGrid
+
+http://www.almende.com
+http://links.sourceforge.net
+
+DESCRIPTION
+
+The TreeGrid displays expandable data in a grid. Individual items can be 
+expanded to display nested data. Items can have customizable action buttons on 
+the right. 
+
+The TreeGrid is designed to work with large amounts of data. Data is loaded via
+a dataconnector, and only the part of the data which is currently visible is
+requested from the dataconnector (lazy loading). Each of the items can contain
+a pointer to a new dataconnector to load a grid with data nested under this 
+item.
+
+
+USAGE
+
+To use the GWT version of the TreeGrid, create a GWT project. Put a copy of the 
+modules gwt-links-treegrid.jar and gwt-visualization.jar in a subfolder of your 
+project (for example lib), and add both jar-modules to your project via 
+"Build path", "Add external archives...". Then, add the following lines to the 
+module file MyProject.gwt.xml:
+
+    <!-- Other module inherits                                      -->
+    <inherits name='com.google.gwt.visualization.Visualization'/> 
+    <inherits name='com.chap.links.TreeGrid'/>
+
+    <!-- External stylesheets                                       -->
+    <!-- Include at least one stylesheet, else the stylesheets in   -->
+    <!-- external modules like Timeline.jar are not loaded          -->
+    <stylesheet src=""></stylesheet>  
+
+Thats all, now you can use the TreeGrid.
+
+
+DOCUMENTATION
+
+Documentation can be found in the directory doc
+
