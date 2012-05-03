@@ -10,18 +10,17 @@ path=`pwd`
 name=`basename $path`
 files="*"
 exclude_files="*.sh tests"
-bin="../../../bin"
-tools="../../../tools"
+bin="${path}/../../bin"
+tools="${path}/../../tools"
 
 source="${name}.js"
 source_min="${name}-min.js"
-version=`sh getversion.sh $source`
+version=`sh $tools/getversion.sh $path/$source`
 package="${name}-${version}.zip"
-path_dest="${bin}/js"
-path_dest_prev="${path_dest}/previous"
-path_package="${path_dest}/${package}"
+bin_prev="${bin}/previous"
+path_package="${bin}/${package}"
 jsdoc_toolkit="${tools}/jsdoc-toolkit"
-jsdoc_dest="doc/jsdoc"
+jsdoc_dest="${path}/doc/jsdoc"
 
 
 # update the javascript documentation
@@ -35,11 +34,11 @@ java -jar $tools/compiler.jar --js $name.js --js_output_file $source_min
 
 # move current package to the folder with previous packages
 echo "move previous version of the package..."
-mkdir -p $path_dest
-mkdir -p $path_dest_prev
-mv $path_dest/$name* $path_dest_prev
+mkdir -p $bin
+mkdir -p $bin_prev
+mv $bin/$name-* $bin_prev
 
 # create package
 echo "create package ${package}..."
 zip -q -r $path_package $files -x $exclude_files
-cp $path_package $path_dest_prev
+cp $path_package $bin_prev

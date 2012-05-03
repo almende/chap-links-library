@@ -1,4 +1,4 @@
-chap-links-library
+CHAP Links Library
 ==================
 
 CHAP Links Library is a web based visualization library. 
