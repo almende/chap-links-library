@@ -5,30 +5,38 @@ title: Downloads
 
 # Downloads
 
-### Javascript {#javascript}
+## Javascript {#javascript}
+
+### Libraries
+
+<div>
+<div id="js_files">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^.*\.zip$");
+  list_files('js/files', pattern, 'js_files');
+</script>
+</div>
+
+## Google Web Toolkit {#gwt}
+
+### Libraries
+
+<div>
+<div id="gwt_files">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^.*\.zip$");
+  list_files('gwt/files', pattern, 'gwt_files');
+</script>
+</div>
 
 
-<ul>
-<li><a href='js/files/treegrid-1.0.zip'>treegrid-1.0.zip</a></li>
-
-<li><a href='js/files/graph3d-1.0.zip'>graph3d-1.0.zip</a></li>
-
-<li><a href='js/files/timeline-2.0.1.zip'>timeline-2.0.1.zip</a></li>
-
-<li><a href='js/files/graph-1.0.zip'>graph-1.0.zip</a></li>
-
-<li><a href='js/files/network-1.0.zip'>network-1.0.zip</a></li>
-</ul>
+### Examples
 
 
-### Google Web Toolkit {#gwt}
-
-<ul>
-<li><a href='gwt/files/gwt-links-treegrid.zip'>gwt-links-treegrid.zip</a></li>
-
-<li><a href='gwt/files/gwt-links-graph.zip'>gwt-links-graph.zip</a></li>
-
-<li><a href='gwt/files/gwt-links-timeline.zip'>gwt-links-timeline.zip</a></li>
-
-<li><a href='gwt/files/gwt-links-network.zip'>gwt-links-network.zip</a></li>
-</ul>
+<div>
+<div id="gwt_examples">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^.*\.zip$");
+  list_files('gwt/files/examples', pattern, 'gwt_examples');
+</script>
+</div>

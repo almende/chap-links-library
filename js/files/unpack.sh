@@ -2,6 +2,7 @@
 
 unpack_path=".."
 
+# unzip all zip files
 for file in *.zip
 do
   parts=$(echo $file | tr '-' ' ')
@@ -21,3 +22,4 @@ do
     fi
   done
 done
+

@@ -13,19 +13,65 @@ the right.
 
 ![treegrid](js/treegrid/doc/treegrid.png)
 
-### Javascript {#javascript}
 
-- [Download](downloads.html#javascript)
-- [Examples](js/treegrid/examples)
-- [Documentation TreeGrid](js/treegrid/doc)
-- [Documentation Dataconnector](js/treegrid/doc/dataconnector.html)
-- [JsDoc](js/treegrid/doc/jsdoc)
+## Javascript {#javascript}
 
-### Google Web Toolkit {#gwt}
+### Downloads
 
-- [Download](downloads.html#gwt)
-- [Examples](examples.html)
+<div>
+<div id="js_downloads">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^treegrid-.*\.zip$");
+  list_files('js/files', pattern, 'js_downloads');
+</script>
+</div>
 
-(docs coming soon)
-<!-- - [Documentation](timeline/gwt/doc)   -->
-<!-- - [JavaDoc](timeline/gwt/doc/javadoc) -->
+### Examples
+
+<div>
+<div id="js_examples">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^example.*\.html$");
+  list_files('js/treegrid/examples', pattern, 'js_examples');
+</script>
+</div>
+
+### Documentation
+
+- [Overview](js/treegrid/doc)
+- [API](js/treegrid/doc/jsdoc)
+
+
+
+
+## Google Web Toolkit {#gwt}
+
+### Downloads
+
+<div>
+<div id="gwt_downloads">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^gwt-links-treegrid.*\.zip$");
+  list_files('gwt/files', pattern, 'gwt_downloads');
+</script>
+</div>
+
+### Examples
+
+
+<div>
+<div id="gwt_examples">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^TreeGrid.*\.zip$");
+  list_files('gwt/files/examples', pattern, 'gwt_examples');
+</script>
+</div>
+
+### Documentation
+
+<div>
+<!--
+- [Overview](gwt/gwt-links-treegrid/doc)
+-->
+</div>
+- [API](gwt/gwt-links-treegrid/doc/javadoc)

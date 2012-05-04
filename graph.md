@@ -13,17 +13,60 @@ The Graph is specially designed for handling large amounts of data.
 
 ![graph](js/graph/doc/graph.png)
 
-### Javascript {#javascript}
+## Javascript {#javascript}
 
-- [Download](downloads.html#javascript)
-- [Examples](js/graph/examples)
-- [Documentation](js/graph/doc)
-- [JsDoc](js/graph/doc/jsdoc)
+### Downloads
+
+<div>
+<div id="js_downloads">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^graph-.*\.zip$");
+  list_files('js/files', pattern, 'js_downloads');
+</script>
+</div>
+
+### Examples
+
+<div>
+<div id="js_examples">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^example.*\.html$");
+  list_files('js/graph/examples', pattern, 'js_examples');
+</script>
+</div>
+
+### Documentation
+
+- [Overview](js/graph/doc)
+- [API](js/graph/doc/jsdoc)
 
 
-### Google Web Toolkit {#gwt}
 
-- [Download](downloads.html#gwt)
-- [Examples](examples.html)
-- [Documentation](gwt/gwt-links-graph/doc)
-- [JavaDoc](gwt/gwt-links-graph/doc/javadoc)
+
+## Google Web Toolkit {#gwt}
+
+### Downloads
+
+<div>
+<div id="gwt_downloads">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^gwt-links-graph.*\.zip$");
+  list_files('gwt/files', pattern, 'gwt_downloads');
+</script>
+</div>
+
+### Examples
+
+
+<div>
+<div id="gwt_examples">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^Graph.*\.zip$");
+  list_files('gwt/files/examples', pattern, 'gwt_examples');
+</script>
+</div>
+
+### Documentation
+
+- [Overview](gwt/gwt-links-graph/doc)
+- [API](gwt/gwt-links-graph/doc/javadoc)
