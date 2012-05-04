@@ -9,7 +9,7 @@
 path=`pwd`
 name=`basename $path`
 files="*"
-exclude_files="*.sh tests"
+exclude_files="*.sh tests *.gitignore"
 bin="${path}/../../bin"
 tools="${path}/../../tools"
 
@@ -21,7 +21,6 @@ bin_prev="${bin}/previous"
 path_package="${bin}/${package}"
 jsdoc_toolkit="${tools}/jsdoc-toolkit"
 jsdoc_dest="${path}/doc/jsdoc"
-
 
 # update the javascript documentation
 echo "generate jsdoc..."
