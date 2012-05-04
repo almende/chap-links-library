@@ -45,7 +45,7 @@ function getAllFiles(callback, errback) {
   }
   
   $.ajax({
-    'url': '/files.json',
+    'url': 'files.json',
     'success': function (response) {
       files = JSON.parse(response);
       if (callback) {
