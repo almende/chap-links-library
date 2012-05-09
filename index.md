@@ -12,11 +12,43 @@ The tools are developed as
 for Javascript and GWT. 
 Links Library is part of [CHAP](http://chap.almende.com), the Common Hybrid Agent Platform.
 
-
+## Components
 The library contains the following components:
 
-- [Graph](graph.html)
-- [Graph3d](graph3d.html)
-- [Network](network.html)
-- [Graph](timeline.html)
-- [TreeGrid](treegrid.html)
+<table width="100%">
+  <tr>
+    <th>
+      <a href="graph.html">
+        Graph<br>
+        <img src="js/graph/doc/graph120x60.png" class="thumb">
+      </a>
+    </th>
+    <th>
+      <a href="graph3d.html">
+        Graph3d<br>
+        <img src="js/graph3d/doc/graph3d120x60.png" class="thumb">
+      </a>
+    </th>
+    <th>
+      <a href="network.html">
+        Network<br>
+        <img src="js/network/doc/network120x60.png" class="thumb">
+      </a>
+    </th>
+    <th>
+      <a href="timeline.html">
+        Timeline<br>
+        <img src="js/timeline/doc/timeline120x60.png" class="thumb">
+      </a>
+    </th>
+    <th>
+      <a href="treegrid.html">
+        TreeGrid<br>
+        <img src="js/treegrid/doc/treegrid120x60.png" class="thumb">
+      </a>
+    </th>
+  </tr>
+</table>
+
+<div style="height: 200px;"><br></div>
+

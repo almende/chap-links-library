@@ -63,7 +63,7 @@ a {
   text-decoration: none;
 }
 a:hover {
-  color: #a0c0f0;
+  color: #2E60A4;
   text-decoration: underline;
 }
 
@@ -180,4 +180,14 @@ div.lastupdate {
   
   border-top: 1px solid #a0c0f0;
   color: #2B7CE9;  
+}
+
+img.thumb {
+  border: 1px solid #a0c0f0;
+  width: 120px;
+  height: 60px;
+}
+
+img.thumb:hover {
+  border-color: #2E60A4;
 }
