@@ -25,6 +25,11 @@ The Graph is specially designed for handling large amounts of data.
 </script>
 </div>
 
+### Documentation
+
+- [Overview](js/graph/doc)
+- [API](js/graph/doc/jsdoc)
+
 ### Examples
 
 <div>
@@ -34,12 +39,6 @@ The Graph is specially designed for handling large amounts of data.
   list_files('js/graph/examples', pattern, 'js_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](js/graph/doc)
-- [API](js/graph/doc/jsdoc)
-
 
 
 
@@ -55,8 +54,12 @@ The Graph is specially designed for handling large amounts of data.
 </script>
 </div>
 
-### Examples
+### Documentation
 
+- [Overview](gwt/gwt-links-graph/doc)
+- [API](gwt/gwt-links-graph/doc/javadoc)
+
+### Examples
 
 <div>
 <div id="gwt_examples">loading...</div>
@@ -65,8 +68,3 @@ The Graph is specially designed for handling large amounts of data.
   list_files('gwt/files/examples', pattern, 'gwt_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](gwt/gwt-links-graph/doc)
-- [API](gwt/gwt-links-graph/doc/javadoc)

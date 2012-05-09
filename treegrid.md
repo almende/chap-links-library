@@ -26,6 +26,12 @@ the right.
 </script>
 </div>
 
+### Documentation
+
+- [Treegrid](js/treegrid/doc/index.html)
+- [DataConnector](js/treegrid/doc/dataconnector.html)
+- [API](js/treegrid/doc/jsdoc)
+
 ### Examples
 
 <div>
@@ -35,12 +41,6 @@ the right.
   list_files('js/treegrid/examples', pattern, 'js_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](js/treegrid/doc)
-- [API](js/treegrid/doc/jsdoc)
-
 
 
 
@@ -56,17 +56,6 @@ the right.
 </script>
 </div>
 
-### Examples
-
-
-<div>
-<div id="gwt_examples">loading...</div>
-<script type="text/javascript">
-  var pattern = new RegExp("^TreeGrid.*\.zip$");
-  list_files('gwt/files/examples', pattern, 'gwt_examples');
-</script>
-</div>
-
 ### Documentation
 
 <div>
@@ -75,3 +64,13 @@ the right.
 -->
 </div>
 - [API](gwt/gwt-links-treegrid/doc/javadoc)
+
+### Examples
+
+<div>
+<div id="gwt_examples">loading...</div>
+<script type="text/javascript">
+  var pattern = new RegExp("^TreeGrid.*\.zip$");
+  list_files('gwt/files/examples', pattern, 'gwt_examples');
+</script>
+</div>

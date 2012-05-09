@@ -24,6 +24,11 @@ Graph3d also supports animation of a graph.
 </script>
 </div>
 
+### Documentation
+
+- [Overview](js/graph3d/doc)
+- [API](js/graph3d/doc/jsdoc)
+
 ### Playground
 
 - [Playground](js/graph3d/playground)
@@ -37,8 +42,3 @@ Graph3d also supports animation of a graph.
   list_files('js/graph3d/examples', pattern, 'js_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](js/graph3d/doc)
-- [API](js/graph3d/doc/jsdoc)

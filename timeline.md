@@ -26,6 +26,11 @@ The time scale on the axis is adjusted automatically, and supports scales rangin
 </script>
 </div>
 
+### Documentation
+
+- [Overview](js/timeline/doc)
+- [API](js/timeline/doc/jsdoc)
+
 ### Examples
 
 <div>
@@ -35,12 +40,6 @@ The time scale on the axis is adjusted automatically, and supports scales rangin
   list_files('js/timeline/examples', pattern, 'js_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](js/timeline/doc)
-- [API](js/timeline/doc/jsdoc)
-
 
 
 
@@ -56,8 +55,12 @@ The time scale on the axis is adjusted automatically, and supports scales rangin
 </script>
 </div>
 
-### Examples
+### Documentation
 
+- [Overview](gwt/gwt-links-timeline/doc)
+- [API](gwt/gwt-links-timeline/doc/javadoc)
+
+### Examples
 
 <div>
 <div id="gwt_examples">loading...</div>
@@ -66,8 +69,3 @@ The time scale on the axis is adjusted automatically, and supports scales rangin
   list_files('gwt/files/examples', pattern, 'gwt_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](gwt/gwt-links-timeline/doc)
-- [API](gwt/gwt-links-timeline/doc/javadoc)

@@ -26,6 +26,11 @@ of historical data. The visualization supports custom styles, colors, sizes, ima
 </script>
 </div>
 
+### Documentation
+
+- [Overview](js/network/doc)
+- [API](js/network/doc/jsdoc)
+
 ### Examples
 
 <div>
@@ -35,11 +40,6 @@ of historical data. The visualization supports custom styles, colors, sizes, ima
   list_files('js/network/examples', pattern, 'js_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](js/network/doc)
-- [API](js/network/doc/jsdoc)
 
 
 
@@ -56,8 +56,12 @@ of historical data. The visualization supports custom styles, colors, sizes, ima
 </script>
 </div>
 
-### Examples
+### Documentation
 
+- [Overview](gwt/gwt-links-network/doc)
+- [API](gwt/gwt-links-network/doc/javadoc)
+
+### Examples
 
 <div>
 <div id="gwt_examples">loading...</div>
@@ -66,8 +70,3 @@ of historical data. The visualization supports custom styles, colors, sizes, ima
   list_files('gwt/files/examples', pattern, 'gwt_examples');
 </script>
 </div>
-
-### Documentation
-
-- [Overview](gwt/gwt-links-network/doc)
-- [API](gwt/gwt-links-network/doc/javadoc)
