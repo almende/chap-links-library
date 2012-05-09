@@ -10,7 +10,8 @@ networks, and timelines.
 The tools are developed as 
 [Google Visualization Charts](https://developers.google.com/chart/interactive/docs/gallery) 
 for Javascript and GWT. 
-Links Library is part of [CHAP](http://chap.almende.com), the Common Hybrid Agent Platform.
+CHAP Links Library is developed by [Almende](http://almende.com) as part of 
+[CHAP](http://chap.almende.com), the Common Hybrid Agent Platform.
 
 The library contains the following components:
 
