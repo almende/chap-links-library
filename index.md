@@ -12,7 +12,6 @@ The tools are developed as
 for Javascript and GWT. 
 Links Library is part of [CHAP](http://chap.almende.com), the Common Hybrid Agent Platform.
 
-## Components
 The library contains the following components:
 
 <table width="100%">
