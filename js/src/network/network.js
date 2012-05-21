@@ -34,8 +34,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-05-02
- * @version 1.0
+ * @date    2012-05-21
+ * @version 1.1
  */
 
 /*
@@ -742,13 +742,13 @@ links.Network.prototype._checkShowPopup = function (x, y) {
   if (this.popupNode == undefined) {
     // search the nodes for overlap, select the top one in case of multiple nodes
     var nodes = this.nodes;
-    for (var i = nodes.length - 1; i > 0; i--) {
+    for (var i = nodes.length - 1; i >= 0; i--) {
       var node = nodes[i];
       if (node.getTitle() != undefined && node.isOverlappingWith(obj)) {
         this.popupNode = node;
         break;
       }
-    }    
+    }
   }
   
   if (this.popupNode == undefined) {
