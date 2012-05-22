@@ -53,9 +53,9 @@ The library contains the following components:
 This site contains documentation, downloads and live examples of the CHAP Links Library.
 The Google Group [CHAP Links Library](https://groups.google.com/d/forum/chap-links-library)
 can be used to ask questions and share ideas.
-Sourcecode can be found at the github project 
+Sourcecode can be found at the Github project 
 [chap-links-library](https://github.com/almende/chap-links-library).
-Issues and feature requests can be submitted on this Github project too.
+Issues and feature requests can be submitted via the Github project too.
 
 
 <div style="height: 200px;"><br></div>
