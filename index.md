@@ -14,10 +14,10 @@ CHAP Links Library is developed by [Almende](http://almende.com) as part of
 [CHAP](http://chap.almende.com), the Common Hybrid Agent Platform.
 
 This site contains documentation, downloads and live examples of the CHAP Links Library.
-The Google Group [CHAP Links Library](https://groups.google.com/d/forum/chap-links-library)
+The [Google Group CHAP Links Library](https://groups.google.com/d/forum/chap-links-library)
 can be used to ask questions and share ideas.
-Sourcecode can be found at the Github project 
-[chap-links-library](https://github.com/almende/chap-links-library).
+Sourcecode can be found at the 
+[Github project chap-links-library](https://github.com/almende/chap-links-library).
 Issues and feature requests can be submitted via the Github project too.
 
 The library contains the following components:
