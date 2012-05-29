@@ -1,5 +1,5 @@
 /**
- * @file network.js
+ * network.js
  * 
  * @brief 
  * Links Network is an interactive chart to visualize networks. 
@@ -34,8 +34,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-05-21
- * @version 1.1
+ * @date    2012-05-29
+ * @version 1.2
  */
 
 /*
@@ -74,7 +74,7 @@ if (typeof google === 'undefined') {
 
 
 /**
- * @class
+ * @constructor links.Network
  * 
  * <p>
  * Links Network is an interactive chart to visualize networks. 
@@ -113,8 +113,8 @@ if (typeof google === 'undefined') {
  *   network.draw(nodesTable, linksTable, packagesTable, options);
  * </pre></code>
  * <br>
- * 
- * @param {dom_element} container   The DOM element in which the Network will
+ *
+ * @param {Element} container   The DOM element in which the Network will
  *                                  be created. Normally a div element.
  */
 links.Network = function(container) {
@@ -180,11 +180,12 @@ links.Network = function(container) {
   this.hasMovingNodes = false;    // True if any of the nodes have an undefined position
   this.hasMovingPackages = false; // True if there are one or more packages
 
+  this.selection = [];
   this.timer = undefined; 
 
   // create a frame and canvas
   this._create();
-}
+};
 
 /** 
  * Main drawing logic. This is the function that needs to be called 
@@ -192,13 +193,10 @@ links.Network = function(container) {
  * Note that Object DataTable is defined in google.visualization.DataTable
  * 
  * A data table with the events must be provided, and an options table. 
- * @param {DataTable or Array}      nodes     The data containing the nodes. 
- *                                            Optional.
- * @param {DataTable or Array}      links     The data containing the links.
- *                                            Optional
- * @param {DataTable or Array}      packages  The data containing the packages 
- *                                            Optional.
- * @param {name/value map} options  A name/value map containing settings
+ * @param {google.visualization.DataTable | Array} [nodes]     The data containing the nodes.
+ * @param {google.visualization.DataTable | Array} [links]     The data containing the links.
+ * @param {google.visualization.DataTable | Array} [packages]  The data containing the packages
+ * @param {Object} options                                     A name/value map containing settings
  */
 links.Network.prototype.draw = function(nodes, links, packages, options) {
   // correctly read the parameters. links and packages are optional.
@@ -228,14 +226,14 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
 
   if (options != undefined) {
     // retrieve parameter values
-    if (options.width != undefined)           this.width = options.width; 
-    if (options.height != undefined)          this.height = options.height; 
-    if (options.stabilize != undefined)       this.stabilize = options.stabilize; 
-    if (options.selectable != undefined)      this.selectable = options.selectable; 
+    if (options.width != undefined)           {this.width = options.width;}
+    if (options.height != undefined)          {this.height = options.height;}
+    if (options.stabilize != undefined)       {this.stabilize = options.stabilize;}
+    if (options.selectable != undefined)      {this.selectable = options.selectable;}
     
     // TODO: work out these options and document them
     if (options.links) {
-      for (prop in options.links) {
+      for (var prop in options.links) {
         if (options.links.hasOwnProperty(prop)) {
           this.constants.links[prop] = options.links[prop];
         }
@@ -303,12 +301,12 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
   var network = this;
   var callback = function () {
     network._redraw();
-  }
+  };
   this.images.setOnloadCallback(callback);
 
   // fire the ready event
   this.trigger('ready');    
-}
+};
 
 /**
  * fire an event
@@ -401,7 +399,7 @@ links.Network.prototype._setBackgroundColor = function(backgroundColor) {
   this.frame.style.borderColor = stroke;
   this.frame.style.borderWidth = strokeWidth + "px";
   this.frame.style.borderStyle = "solid";
-}
+};
 
 
 /**
@@ -410,8 +408,9 @@ links.Network.prototype._setBackgroundColor = function(backgroundColor) {
 links.Network.prototype._onMouseDown = function (event) {
   event = event || window.event;
   
-  if (!this.selectable)
+  if (!this.selectable) {
     return;
+  }
   
   // check if mouse is still down (may be up when focus is lost for example
   // in an iframe)
@@ -488,7 +487,7 @@ links.Network.prototype._onMouseDown = function (event) {
     // start moving the graph
     this.moved = false;
   }
-}
+};
 
 /**
  * handle on mouse move event
@@ -496,8 +495,9 @@ links.Network.prototype._onMouseDown = function (event) {
 links.Network.prototype._onMouseMove = function (event) {
   event = event || window.event;
     
-  if (!this.selectable)
+  if (!this.selectable) {
     return;
+  }
 
   var mouseX = event.clientX || (event.targetTouches && event.targetTouches[0].clientX) || 0;
   var mouseY = event.clientY || (event.targetTouches && event.targetTouches[0].clientY) || 0;
@@ -553,7 +553,7 @@ links.Network.prototype._onMouseMove = function (event) {
   }
 
   links.Network.preventDefault(event);  
-}
+};
 
 /**
  * handle on mouse up event
@@ -610,7 +610,7 @@ links.Network.prototype._onMouseUp = function (event) {
   
   this.leftButtonDown = false;
   this.ctrlKeyDown = false;
-}
+};
 
 
 /** 
@@ -672,7 +672,7 @@ links.Network.prototype._onMouseWheel = function(event) {
   // That might be ugly, but we handle scrolls somehow
   // anyway, so don't bother here...
   links.Network.preventDefault(event);
-}
+};
 
 
 /**
@@ -700,7 +700,7 @@ links.Network.prototype._onMouseMoveTitle = function (event) {
   var me = this;
   var checkShow = function() {
     me._checkShowPopup(x, y);
-  }
+  };
   if (this.popupTimer) {
     clearInterval(this.popupTimer); // stop any running timer
   }
@@ -784,7 +784,7 @@ links.Network.prototype._checkShowPopup = function (x, y) {
       this.popup.hide();
     }
   }  
-}
+};
 
 /**
  * Check if the popup must be hided, which is the case when the mouse is no
@@ -806,8 +806,7 @@ links.Network.prototype._checkHidePopup = function (x, y) {
       this.popup.hide();
     }
   }
-
-}
+};
 
 /**
  * Event handler for touchstart event on mobile devices 
@@ -847,11 +846,11 @@ links.Network.prototype._onTouchEnd = function(event) {
 /**
  * Unselect selected nodes. If no selection array is provided, all nodes 
  * are unselected
- * @param {Array with object}  Array with selection objects, each selection
- *                             object has a parameter row. Optional
+ * @param {Object[]}               Array with selection objects, each selection
+ *                                 object has a parameter row. Optional
  * @param {Boolean} triggerSelect  If true (default), the select event 
  *                                 is triggered when nodes are unselected
- * @param {Boolean} changed        True if the selection is changed
+ * @return {Boolean} changed       True if the selection is changed
  */ 
 links.Network.prototype._unselectNodes = function(selection, triggerSelect) {
   var changed = false;
@@ -874,7 +873,7 @@ links.Network.prototype._unselectNodes = function(selection, triggerSelect) {
       }
     }
   }
-  else if (this.selection) {
+  else if (this.selection && this.selection.length) {
     // remove all selections
     for (var i = 0, iMax = this.selection.length; i < iMax; i++) {
       var row = this.selection[i].row;
@@ -890,7 +889,7 @@ links.Network.prototype._unselectNodes = function(selection, triggerSelect) {
   }
 
   return changed;
-}
+};
 
 /**
  * select all nodes on given location x, y
@@ -952,13 +951,13 @@ links.Network.prototype._selectNodes = function(selection, append) {
   }
   
   return changed;
-}
+};
 
 /**
  * retrieve all nodes overlapping with given object
- * @param {Object} obj           An object with parameters left, top, right, bottom
- * @return {Array with objects}  An array with selection objects containing
- *                               the parameter row.
+ * @param {Object} obj  An object with parameters left, top, right, bottom
+ * @return {Object[]}   An array with selection objects containing
+ *                      the parameter row.
  */ 
 links.Network.prototype._getNodesOverlappingWith = function (obj) {
   var overlappingNodes = [];
@@ -971,7 +970,7 @@ links.Network.prototype._getNodesOverlappingWith = function (obj) {
   }
 
   return overlappingNodes;
-}
+};
 
 /**
  * retrieve the currently selected nodes
@@ -987,7 +986,7 @@ links.Network.prototype.getSelection = function() {
   }
 
   return selection;
-}
+};
 
 /**
  * select zero or more nodes
@@ -1020,7 +1019,7 @@ links.Network.prototype.setSelection = function(selection) {
   }
   
   this.redraw();
-}
+};
 
 
 /**
@@ -1323,7 +1322,39 @@ links.Network.prototype._createNode = function(properties) {
 
     if (index !== undefined) {
       // replace node
+      var oldNode = this.nodes[index];
       this.nodes[index] = newNode;
+      
+      // remove selection of old node
+      if (oldNode.selected) {
+        this._unselectNodes([{'row': index}], false);
+      }
+      
+      /* TODO: implement this? -> will give performance issues, searching all links and node...
+      // update links linking to this node
+      var linksTable = this.links;
+      for (var i = 0, iMax = linksTable.length; i < iMax; i++) {
+        var link = linksTable[i];
+        if (link.from == oldNode) {
+          link.from = newNode;
+        }
+        if (link.to == oldNode) {
+          link.to = newNode;
+        }
+      }
+      
+      // update packages linking to this node
+      var packagesTable = this.packages;
+      for (var i = 0, iMax = packagesTable.length; i < iMax; i++) {
+        var package = packagesTable[i];
+        if (package.from == oldNode) {
+          package.from = newNode;
+        }
+        if (package.to == oldNode) {
+          package.to = newNode;
+        }
+      }
+      */
     }
     else {
       // add new node
@@ -1369,7 +1400,12 @@ links.Network.prototype._createNode = function(properties) {
 
     var index = this._findNode(id);
     if (index !== undefined) {
-      this.nodes.splice(index, 1);
+      var oldNode = this.nodes.splice(index, 1);
+      
+      // remove selection of old node
+      if (oldNode.selected) {
+        this._unselectNodes([{'row': index}], false);
+      }
     }
     else {
       throw "Node with id " + id + " not found";      
@@ -1397,6 +1433,15 @@ links.Network.prototype._findNode = function (id) {
   return undefined;
 }
 
+/**
+ * Find a node by its rowNumber
+ * @param {Number} row                   Row number of the node
+ * @return {links.Network.Node} node     The node with the given row number, or 
+ *                                       undefined when not found.
+ */ 
+links.Network.prototype._findNodeByRow = function (row) {
+  return this.nodes[row];
+}
 
 /**
  * Load links by reading the data table
@@ -1668,6 +1713,14 @@ links.Network.prototype._findLink = function (id) {
   return undefined;
 }
 
+/**
+ * Find a link by its row
+ * @param {Number} row          Row of the link
+ * @return {links.Network.Link} the found link, or undefined when not found
+ */ 
+links.Network.prototype._findLinkByRow = function (row) {
+  return this.links[row];
+}
 
 /**
  * Append packages 
@@ -1848,7 +1901,7 @@ links.Network.prototype._filterPackages = function(timestamp) {
   }
   
   this.start();
-}
+};
 
 /**
  * Create a package with the given properties
@@ -1856,7 +1909,7 @@ links.Network.prototype._filterPackages = function(timestamp) {
  * package will be overwritten.
  * The properties can contain a property "action", which can have values 
  * "create", "update", or "delete"
- * @param {Object}   An object with properties
+ * @param {Object} properties   An object with properties
  */ 
 links.Network.prototype._createPackage = function(properties) {
   var action = properties.action ? properties.action : "create";
@@ -1919,7 +1972,7 @@ links.Network.prototype._createPackage = function(properties) {
   else {
     throw "Unknown action " + action + ". Choose 'create', 'update', or 'delete'.";
   }  
-}
+};
 
 /**
  * Find a package by its id.
@@ -1936,6 +1989,15 @@ links.Network.prototype._findPackage = function (id) {
   }
 
   return undefined;
+};
+
+/**
+ * Find a package by its row
+ * @param {Number} row          Row of the package
+ * @return {links.Network.Package} the found package, or undefined when not found
+ */ 
+links.Network.prototype._findPackageByRow = function (row) {
+  return this.package[row];
 }
 
 /**
@@ -1954,7 +2016,7 @@ links.Network.prototype._getColumnNames = function (table) {
     cols[label] = col;
   }
   return cols;
-}
+};
 
 
 /**
@@ -1984,7 +2046,7 @@ links.Network.prototype._updateValueRange = function(array) {
       array[i].setValueRange(valueMin, valueMax);
     }      
   }
-}
+};
 
 
 /**
@@ -1996,7 +2058,7 @@ links.Network.prototype.setTimestamp = function(timestamp) {
   this._filterNodes(timestamp);
   this._filterLinks(timestamp);
   this._filterPackages(timestamp);
-}
+};
 
 
 /**
@@ -2798,22 +2860,21 @@ links.Network.Node.prototype.setProperties = function(properties, constants) {
     return;
   }
 
-  if (properties.id != undefined) {this.id = properties.id;}
-  if (properties.style != undefined) {this.style = properties.style;}
-  if (properties.text != undefined)  {this.text = properties.text;}
-  if (properties.title != undefined) {this.title = properties.title;}
-  if (properties.image != undefined) {this.image = properties.image;}
-  if (properties.group != undefined) {this.group = properties.group;}
-  if (properties.x != undefined)     {this.x = properties.x;}
-  if (properties.y != undefined)     {this.y = properties.y;}
-  if (properties.radius != undefined){this.radius = properties.radius;}
-  if (properties.value != undefined) {this.value = properties.value;}
+  // basic properties
+  if (properties.id != undefined)        {this.id = properties.id;}
+  if (properties.text != undefined)      {this.text = properties.text;}
+  if (properties.title != undefined)     {this.title = properties.title;}
+  if (properties.group != undefined)     {this.group = properties.group;}
+  if (properties.x != undefined)         {this.x = properties.x;}
+  if (properties.y != undefined)         {this.y = properties.y;}
+  if (properties.value != undefined)     {this.value = properties.value;}
   if (properties.timestamp != undefined) {this.timestamp = properties.timestamp;}
 
   if (this.id === undefined) {
     throw "Node must have an id";
   }
 
+  // copy group properties
   if (this.group) {
     var groupObj = this.grouplist.get(this.group);
     for (var prop in groupObj) {
@@ -2822,6 +2883,18 @@ links.Network.Node.prototype.setProperties = function(properties, constants) {
       }
     }
   }
+
+  // individual style properties
+  if (properties.style != undefined)          {this.style = properties.style;}
+  if (properties.image != undefined)          {this.image = properties.image;}
+  if (properties.radius != undefined)         {this.radius = properties.radius;}
+  if (properties.borderColor != undefined)    {this.borderColor = properties.borderColor;}
+  if (properties.backgroundColor != undefined){this.backgroundColor = properties.backgroundColor;}
+  if (properties.highlightColor != undefined) {this.highlightColor = properties.highlightColor;}
+  if (properties.fontColor != undefined)      {this.fontColor = properties.fontColor;}
+  if (properties.fontSize != undefined)       {this.fontSize = properties.fontSize;}
+  if (properties.fontFace != undefined)       {this.fontFace = properties.fontFace;}
+
 
   if (this.image != undefined) {
     if (this.imagelist) {
@@ -4703,18 +4776,18 @@ links.events = links.events || {
 CanvasRenderingContext2D.prototype.circle = function(x, y, r) {
   this.beginPath();
   this.arc(x, y, r, 0, 2*Math.PI, false);
-}
+};
 
 /**
  * Draw a square shape
  * @param {Number} x horizontal center 
  * @param {Number} y vertical center 
- * @param {Number} size   size, width and height of the square
+ * @param {Number} r   size, width and height of the square
  */ 
 CanvasRenderingContext2D.prototype.square = function(x, y, r) {
   this.beginPath();
   this.rect(x - r, y - r, r * 2, r * 2);
-}
+};
 
 /**
  * Draw a triangle shape
@@ -4736,7 +4809,7 @@ CanvasRenderingContext2D.prototype.triangle = function(x, y, r) {
   this.lineTo(x - s2, y + ir);
   this.lineTo(x, y - (h - ir));
   this.closePath();
-}
+};
 
 /**
  * Draw a triangle shape in downward orientation
@@ -4758,7 +4831,7 @@ CanvasRenderingContext2D.prototype.triangleDown = function(x, y, r) {
   this.lineTo(x - s2, y - ir);
   this.lineTo(x, y + (h - ir));
   this.closePath();
-}
+};
 
 /**
  * Draw a star shape, a star with 5 points
@@ -4779,7 +4852,7 @@ CanvasRenderingContext2D.prototype.star = function(x, y, r) {
   }
 
   this.closePath();
-}
+};
 
 /**
  * http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
@@ -4793,12 +4866,12 @@ CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
   this.lineTo(x+w-r,y);
   this.arc(x+w-r,y+r,r,r2d*270,r2d*360,false);
   this.lineTo(x+w,y+h-r);
-  this.arc(x+w-r,y+h-r,r,r2d*0,r2d*90,false);
+  this.arc(x+w-r,y+h-r,r,0,r2d*90,false);
   this.lineTo(x+r,y+h);
   this.arc(x+r,y+h-r,r,r2d*90,r2d*180,false);
   this.lineTo(x,y+r);
   this.arc(x+r,y+r,r,r2d*180,r2d*270,false);
-}
+};
 
 /**
  * http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
@@ -4818,7 +4891,7 @@ CanvasRenderingContext2D.prototype.ellipse = function(x, y, w, h) {
   this.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
   this.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
   this.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
-}
+};
 
 
 
@@ -4855,7 +4928,7 @@ CanvasRenderingContext2D.prototype.database = function(x, y, w, h) {
   this.bezierCurveTo(xm - ox, yeb, x, ymb + oy, x, ymb);
 
   this.lineTo(x, ym); 
-}
+};
 
 
 /**
@@ -4889,6 +4962,6 @@ CanvasRenderingContext2D.prototype.arrow = function(x, y, angle, length) {
   this.lineTo(xi, yi);
   this.lineTo(xr, yr);
   this.closePath();
-}
+};
 
 

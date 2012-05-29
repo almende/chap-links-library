@@ -29,19 +29,20 @@
         nodesTable.addColumn('number', 'id');
         nodesTable.addColumn('string', 'text');
         nodesTable.addColumn('string', 'group');
+        nodesTable.addColumn('string', 'backgroundColor');  // overwrite backgroundColor for individual nodes
         
-        nodesTable.addRow([1, 'black node', 'black']);
-        nodesTable.addRow([2, 'black node', 'black']);
-        nodesTable.addRow([3, 'black node', 'black']);
-        nodesTable.addRow([4, 'black node', 'black']);
-        nodesTable.addRow([5, 'gray node', 'gray']);
-        nodesTable.addRow([6, 'gray node', 'gray']);
-        nodesTable.addRow([7, 'gray node', 'gray']);
-        nodesTable.addRow([8, 'gray node', 'gray']);
-        nodesTable.addRow([9, 'image node', 'white']);
-        nodesTable.addRow([10, 'image node', 'white']);
-        nodesTable.addRow([11, 'default node', undefined]);
-        nodesTable.addRow([12, 'default node', undefined]);        
+        nodesTable.addRow([1, 'black node', 'black', undefined]);
+        nodesTable.addRow([2, 'black node', 'black', undefined]);
+        nodesTable.addRow([3, 'black node', 'black', undefined]);
+        nodesTable.addRow([4, 'red node', 'black', 'red']);
+        nodesTable.addRow([5, 'gray node', 'gray', undefined]);
+        nodesTable.addRow([6, 'gray node', 'gray', undefined]);
+        nodesTable.addRow([7, 'gray node', 'gray', undefined]);
+        nodesTable.addRow([8, 'gray node', 'gray', undefined]);
+        nodesTable.addRow([9, 'image node', 'white', undefined]);
+        nodesTable.addRow([10, 'image node', 'white', undefined]);
+        nodesTable.addRow([11, 'default node', undefined, undefined]);
+        nodesTable.addRow([12, 'default node', undefined, undefined]);        
         
         linksTable = new google.visualization.DataTable();
         linksTable.addColumn('number', 'from');
