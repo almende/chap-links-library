@@ -19,7 +19,7 @@ Homepage: <a href="http://www.almende.com" target="_blank">http://www.almende.co
 License: <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>
 </p>
 
-<h2><a name="Contents" id="Contents"></a>Contents</h2>
+<h2><a name="Contents"></a>Contents</h2>
 <ul>
   <li><a href="#Overview">Overview</a></li> 
   <li><a href="#Example">Example</a></li> 
@@ -31,7 +31,7 @@ License: <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Ap
   <li><a href="#Data_Policy">Data Policy</a></li> 
 </ul>
 
-<h2><a name="Overview" id="Overview"></a>Overview</h2>
+<h2><a name="Overview"></a>Overview</h2>
 <p>
 Links Network is an interactive chart to visualize networks.
 It allows creating nodes, links between the nodes, and interactive packages
@@ -63,16 +63,16 @@ and unzip the contents in a subfolder network on your site.
 Examples can be found in the 
 <a href="../examples" target="_blank">examples</a> directory. 
 
-<h2><a name="Example" id="Example"></a>Example</h2>
+<h2><a name="Example"></a>Example</h2>
 <p>
 Here a basic network example. 
 More examples can be found in the 
 <a href="../examples" target="_blank">examples directory</a>.
 </p>
 
-<p style="width:100%; text-align:center;">
+<div style="text-align:center;">
 <iframe src="example.html" style="border:none; width:420px; height:520px;"></iframe>
-</p>
+</div>
 <pre class="prettyprint lang-html">&lt;!DOCTYPE HTML PUBLIC 
     "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
 &lt;html&gt;
@@ -149,7 +149,7 @@ More examples can be found in the
 </pre> 
 
 
-<h2><a name="Loading" id="Loading"></a>Loading</h2>
+<h2><a name="Loading"></a>Loading</h2>
 
 <p>
 The Network can be used with or without using Google Javascript libraries. The 
@@ -195,7 +195,7 @@ JSON format. Both <code>links</code> and <code>packages</code> are optional.
 
 
 
-<h2><a name="Data_Format" id="Data_Format"></a>Data Format</h2>
+<h2><a name="Data_Format"></a>Data Format</h2>
 <p>
 Network requires two tables with three data tables:
 </p>
@@ -715,7 +715,7 @@ The data columns are defined as:
 </table>
 
 
-<h2><a name="Configuration_Options" id="Configuration_Options"></a>Configuration Options</h2>
+<h2><a name="Configuration_Options"></a>Configuration Options</h2>
 
 <p>
 Options can be used to customize the network. Options are defined as a JSON object.
@@ -999,7 +999,7 @@ The following options are available.
 
 <br>
 
-<h3><a name="Groups" id="Groups"></a>Groups</h3>
+<h3><a name="Groups"></a>Groups</h3>
 
 <p>It is possible to specify custom styles for groups of nodes. 
   Each node having assigned to this group gets the specified style.
@@ -1114,7 +1114,7 @@ nodesTable.addRow([2, 'Node 2', 'mygroup']); // will get the style from 'mygroup
 </table>
   
 
-<h2><a name="Methods" id="Methods"></a>Methods</h2>
+<h2><a name="Methods"></a>Methods</h2>
 <p>
 Network supports the following methods.
 </p>
@@ -1234,7 +1234,7 @@ Network supports the following methods.
 
 </table>
 
-<h2><a name="Events" id="Events"></a>Events</h2>
+<h2><a name="Events"></a>Events</h2>
 <p>
 Network fires events after one or multiple nodes are selected. 
 The event can be catched by creating a listener.
@@ -1302,7 +1302,7 @@ The following events are available.
   </tr>
 </table>
 
-<h2><a name="Data_Policy" id="Data_Policy"></a>Data Policy</h2>
+<h2><a name="Data_Policy"></a>Data Policy</h2>
 <p>
 All code and data are processed and rendered in the browser. No data is sent to any server.
 </p>

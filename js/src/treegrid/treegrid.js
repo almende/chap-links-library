@@ -79,17 +79,17 @@ if (typeof google === 'undefined') {
 
 
 /**
- * @class TreeGrid
+ * @constructor links.TreeGrid
  * The TreeGrid is a visualization to represent data in a  hierarchical list view.
  * 
  * TreeGrid is developed in javascript as a Google Visualization Chart.
  * 
- * @param {dom_element} container   The DOM element in which the TreeGrid will
- *                                  be created. Normally a div element.
+ * @param {Element} container   The DOM element in which the TreeGrid will
+ *                              be created. Normally a div element.
  * @param {Object} options
  */
 links.TreeGrid = function(container, options) {
-  // Internet Explorer does not support Array.indexof, 
+  // Internet Explorer does not support Array.indexOf,
   // so we define it here in that case
   // http://soledadpenades.com/2007/05/17/arrayindexof-in-internet-explorer/
   if(!Array.prototype.indexOf) {
@@ -102,7 +102,7 @@ links.TreeGrid = function(container, options) {
       return -1;
     }
   }
-  http://links.sourceforge.net/treegrid/js/examples/example04_search_youtube.html
+
   this.options = {
     'width': '100%',
     'height': '100%',
@@ -172,9 +172,9 @@ links.TreeGrid.extend = function(obj, newProps) {
  * 
  * A data table with the events must be provided, and an options table. 
  * 
- * @param {links.DataConnector} data      A DataConnector 
- * @param {name/value map} options  A name/value map containing settings
- *                                  for the TreeGrid. Optional.
+ * @param {links.DataConnector} data A DataConnector
+ * @param {Object} options           A name/value map containing settings
+ *                                   for the TreeGrid. Optional.
  */
 links.TreeGrid.prototype.draw = function(data, options) {
   // TODO: support multiple input types: DataConnector, Google DataTable, JSON table, ...
