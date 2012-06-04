@@ -62,8 +62,11 @@ a {
   color: #2B7CE9;
   text-decoration: none;
 }
+a:visited {
+    color: #2E60A4;
+}
 a:hover {
-  color: #2E60A4;
+  color: red;
   text-decoration: underline;
 }
 

@@ -197,13 +197,7 @@ ul.inheritsList
 	
 	<li><a href="../symbols/links.Graph3d.Camera.html">links.Graph3d.Camera</a></li>
 	
-	<li><a href="../symbols/links.Point2d.html">links.Point2d</a></li>
-	
-	<li><a href="../symbols/links.Point3d.html">links.Point3d</a></li>
-	
 	<li><a href="../symbols/links.Slider.html">links.Slider</a></li>
-	
-	<li><a href="../symbols/links.StepNumber.html">links.StepNumber</a></li>
 	
 </ul>
 <hr />
@@ -290,7 +284,7 @@ position and orientation of the camera arm</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Graph3d.Camera.html#getArmLength">getArmLength</a></b>(length)
+								<div class="fixedFont"><b><a href="../symbols/links.Graph3d.Camera.html#getArmLength">getArmLength</a></b>()
 								</div>
 								<div class="description">Retrieve the arm length</div>
 							</td>
@@ -308,7 +302,7 @@ position and orientation of the camera arm</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Graph3d.Camera.html#getCameraLocation">getCameraLocation</a></b>(cameraLocation)
+								<div class="fixedFont"><b><a href="../symbols/links.Graph3d.Camera.html#getCameraLocation">getCameraLocation</a></b>()
 								</div>
 								<div class="description">Retrieve the camera location</div>
 							</td>
@@ -317,7 +311,7 @@ position and orientation of the camera arm</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Graph3d.Camera.html#getCameraRotation">getCameraRotation</a></b>(cameraRotation)
+								<div class="fixedFont"><b><a href="../symbols/links.Graph3d.Camera.html#getCameraRotation">getCameraRotation</a></b>()
 								</div>
 								<div class="description">Retrieve the camera rotation</div>
 							</td>
@@ -427,8 +421,8 @@ position and orientation of the camera arm
 					<a name="getArmLength"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>getArmLength</b>(length)
+					<span class="light">{number}</span>
+					<b>getArmLength</b>()
 					
 					</div>
 					<div class="description">
@@ -440,20 +434,16 @@ position and orientation of the camera arm
 					
 					
 						
+						
+						
+						
+						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{number}</span> <b>length</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{number}</span> length</dd>
 							
 							</dl>
-						
-						
-						
-						
 						
 						
 						
@@ -495,8 +485,8 @@ position and orientation of the camera arm
 					<a name="getCameraLocation"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>getCameraLocation</b>(cameraLocation)
+					<span class="light">{<a href="../symbols/links.html#.Point3d">links.Point3d</a>}</span>
+					<b>getCameraLocation</b>()
 					
 					</div>
 					<div class="description">
@@ -508,20 +498,16 @@ position and orientation of the camera arm
 					
 					
 						
+						
+						
+						
+						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{<a href="../symbols/links.Point3d.html">links.Point3d</a>}</span> <b>cameraLocation</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{<a href="../symbols/links.html#.Point3d">links.Point3d</a>}</span> cameraLocation</dd>
 							
 							</dl>
-						
-						
-						
-						
 						
 						
 						
@@ -531,8 +517,8 @@ position and orientation of the camera arm
 					<a name="getCameraRotation"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>getCameraRotation</b>(cameraRotation)
+					<span class="light">{<a href="../symbols/links.html#.Point3d">links.Point3d</a>}</span>
+					<b>getCameraRotation</b>()
 					
 					</div>
 					<div class="description">
@@ -544,20 +530,16 @@ position and orientation of the camera arm
 					
 					
 						
+						
+						
+						
+						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{<a href="../symbols/links.Point3d.html">links.Point3d</a>}</span> <b>cameraRotation</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{<a href="../symbols/links.html#.Point3d">links.Point3d</a>}</span> cameraRotation</dd>
 							
 							</dl>
-						
-						
-						
-						
 						
 						
 						
@@ -679,7 +661,7 @@ position and orientation of the camera arm
 									
 								</dt>
 								<dd>The vertical rotation, between 0 and 0.5*PI
-                             if vertical=0.5*PI, the graph is shown from the 
+                             if vertical=0.5*PI, the graph is shown from the
                              top. Optional, can be left undefined.</dd>
 							
 							</dl>
@@ -705,7 +687,7 @@ position and orientation of the camera arm
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Thu May 03 2012 16:42:47 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Jun 04 2012 16:48:47 GMT+0200 (CEST)
 		</div>
 	</body>
 </html>

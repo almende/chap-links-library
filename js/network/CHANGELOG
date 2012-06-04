@@ -1,6 +1,18 @@
 CHAP Links Library - Network
 
 
+2012-06-04, version 1.2
+
+- nodes can now have individual styling (colors, fonts, shape).
+- updated documentation on animation and changesets.
+- cleaned up code.
+
+
+2012-05-21, version 1.1
+
+- fixed a bug not showing title of first node
+
+
 2012-05-02, version 1.0
 
-- initial upload to github (formerly located at sourceforge)
+- initial upload to Github (formerly located at sourceforge)

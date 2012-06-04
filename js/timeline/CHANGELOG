@@ -1,5 +1,11 @@
 CHAP Links Library - Timeline
 
+2012-06-04, version 2.1
+
+- Documentation has a new layout
+- Source code cleaned up
+
+
 2012-05-02, version 2.0.1
 
 - bug fix: areas on the left and right end of a range (for changing start/end)

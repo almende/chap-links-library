@@ -222,43 +222,7 @@ ul.inheritsList
 				
 				
 			
-				<p>
-Links Network is an interactive chart to visualize networks. 
-It allows creating nodes, links between the nodes, and interactive packages 
-moving between nodes. The visualization supports custom styles, colors, 
-sizes, images, and more.
-</p>
-<p>
-The network visualization works smooth on any modern browser for up to a 
-few hundred nodes and connections.
-</p>
-<p>Network is developed as a Google Visualization Chart in javascript. 
-There is a GWT wrapper available to use the Network in GWT (Google Web 
-Toolkit). It runs on all modern browsers without additional requirements. 
-Network is tested on Firefox 3.6+, Safari 5.0+, Chrome 6.0+, Opera 10.6+, 
-Internet Explorer 9+.
-</p>
-
-Usage:
-<code><pre>
-  var nodesTable = new google.visualization.DataTable();
-  nodesTable.addColumn('number', 'id');
-  nodesTable.addColumn('string', 'text');
-  nodesTable.addRow([1, "Node 1"]);
-  nodesTable.addRow([2, "Node 2"]);
-  // ...
-
-  var linksTable = new google.visualization.DataTable();
-  linksTable.addColumn('number', 'from');
-  linksTable.addColumn('number', 'to');
-  linksTable.addRow([1, 2]);   
-
-  var packageTable = undefined; 
-
-  var network = new links.Network(document.getElementById('network'));
-  network.draw(nodesTable, linksTable, packagesTable, options);
-</pre></code>
-<br>
+				
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/network.js.html">network.js</a>.
@@ -330,7 +294,7 @@ Note that Object DataTable is defined in google.visualization.DataTable</div>
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Network.html#addNodes">addNodes</a></b>(nodesTable)
 								</div>
-								<div class="description">Append nodes 
+								<div class="description">Append nodes
 Nodes with a duplicate id will be replaced</div>
 							</td>
 						</tr>
@@ -340,7 +304,7 @@ Nodes with a duplicate id will be replaced</div>
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Network.html#addPackages">addPackages</a></b>(packagesTable)
 								</div>
-								<div class="description">Append packages 
+								<div class="description">Append packages
 Packages with a duplicate id will be replaced
 Note that Object DataTable is defined in google.visualization.DataTable</div>
 							</td>
@@ -535,7 +499,7 @@ Note that Object DataTable is defined in google.visualization.DataTable</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setSelection">setSelection</a></b>(an)
+								<div class="fixedFont"><b><a href="../symbols/links.Network.html#setSelection">setSelection</a></b>(selection)
 								</div>
 								<div class="description">select zero or more nodes</div>
 							</td>
@@ -628,7 +592,7 @@ Note that Object DataTable is defined in google.visualization.DataTable</div>
 						<dt class="heading">Parameters:</dt>
 						
 							<dt>
-								<span class="light fixedFont">{dom_element}</span>  <b>container</b>
+								<span class="light fixedFont">{Element}</span>  <b>container</b>
 								
 							</dt>
 								<dd>The DOM element in which the Network will
@@ -675,16 +639,16 @@ Note that Object DataTable is defined in google.visualization.DataTable</div>
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DOM Element}</span> <b>element</b>
+									<span class="light fixedFont">{Element}</span> <b>element</b>
 									
 								</dt>
 								<dd>An html element</dd>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>action</b>
+									<span class="light fixedFont">{String}</span> <b>action</b>
 									
 								</dt>
-								<dd>The action, for example "click", 
+								<dd>The action, for example "click",
                                 without the prefix "on"</dd>
 							
 								<dt>
@@ -731,7 +695,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>linksTable</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>linksTable</b>
 									
 								</dt>
 								<dd>The data containing the links.</dd>
@@ -755,7 +719,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 					
 					</div>
 					<div class="description">
-						Append nodes 
+						Append nodes
 Nodes with a duplicate id will be replaced
 						
 						
@@ -768,7 +732,7 @@ Nodes with a duplicate id will be replaced
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>nodesTable</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>nodesTable</b>
 									
 								</dt>
 								<dd>The data containing the nodes.</dd>
@@ -792,7 +756,7 @@ Nodes with a duplicate id will be replaced
 					
 					</div>
 					<div class="description">
-						Append packages 
+						Append packages
 Packages with a duplicate id will be replaced
 Note that Object DataTable is defined in google.visualization.DataTable
 						
@@ -806,7 +770,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>packagesTable</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>packagesTable</b>
 									
 								</dt>
 								<dd>The data containing the packages.</dd>
@@ -830,7 +794,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 					
 					</div>
 					<div class="description">
-						Start animation. 
+						Start animation.
 Only applicable when packages with a timestamp are available
 						
 						
@@ -856,7 +820,7 @@ Only applicable when packages with a timestamp are available
 					
 					</div>
 					<div class="description">
-						Start animation. 
+						Start animation.
 Only applicable when packages with a timestamp are available
 						
 						
@@ -882,7 +846,7 @@ Only applicable when packages with a timestamp are available
 					
 					</div>
 					<div class="description">
-						Main drawing logic. This is the function that needs to be called 
+						Main drawing logic. This is the function that needs to be called
 in the html page, to draw the Network.
 Note that Object DataTable is defined in google.visualization.DataTable
 
@@ -898,28 +862,25 @@ A data table with the events must be provided, and an options table.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DataTable or Array}</span> <b>nodes</b>
-									
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>nodes</b>
+									<i>Optional</i>
 								</dt>
-								<dd>The data containing the nodes. 
-                                           Optional.</dd>
+								<dd>The data containing the nodes.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{DataTable or Array}</span> <b>links</b>
-									
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>links</b>
+									<i>Optional</i>
 								</dt>
-								<dd>The data containing the links.
-                                           Optional</dd>
+								<dd>The data containing the links.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{DataTable or Array}</span> <b>packages</b>
-									
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>packages</b>
+									<i>Optional</i>
 								</dt>
-								<dd>The data containing the packages 
-                                           Optional.</dd>
+								<dd>The data containing the packages</dd>
 							
 								<dt>
-									<span class="light fixedFont">{name/value map}</span> <b>options</b>
+									<span class="light fixedFont">{Object}</span> <b>options</b>
 									
 								</dt>
 								<dd>A name/value map containing settings</dd>
@@ -938,7 +899,7 @@ A data table with the events must be provided, and an options table.
 					<a name="getSelection"> </a>
 					<div class="fixedFont">
 					
-					<span class="light">{Array with objects}</span>
+					<span class="light">{Object[]}</span>
 					<b>getSelection</b>()
 					
 					</div>
@@ -958,7 +919,7 @@ A data table with the events must be provided, and an options table.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Array with objects}</span> an array with zero or more objects. Each object
+								<dd><span class="light fixedFont">{Object[]}</span> an array with zero or more objects. Each object
                              contains the parameter row</dd>
 							
 							</dl>
@@ -988,7 +949,7 @@ A data table with the events must be provided, and an options table.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{any type}</span> <b>obj</b>
+									<span class="light fixedFont">{*}</span> <b>obj</b>
 									
 								</dt>
 								<dd></dd>
@@ -1218,7 +1179,7 @@ A data table with the events must be provided, and an options table.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DOM element}</span> <b>container</b>
+									<span class="light fixedFont">{Element}</span> <b>container</b>
 									
 								</dt>
 								<dd>The container object.</dd>
@@ -1334,7 +1295,7 @@ chart will be resized too.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DOM element}</span> <b>element</b>
+									<span class="light fixedFont">{Element}</span> <b>element</b>
 									
 								</dt>
 								<dd>An html dom element</dd>
@@ -1376,7 +1337,7 @@ chart will be resized too.
 					
 					</div>
 					<div class="description">
-						Set the time acceleration for playing the history. 
+						Set the time acceleration for playing the history.
 Only applicable when packages with a timestamp are available
 						
 						
@@ -1452,7 +1413,7 @@ Only applicable when packages with a timestamp are available
 					
 					</div>
 					<div class="description">
-						Set framerate for the animation. 
+						Set framerate for the animation.
 Only applicable when packages with a timestamp are available
 						
 						
@@ -1502,7 +1463,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>linksTable</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>linksTable</b>
 									
 								</dt>
 								<dd>The data containing the links.</dd>
@@ -1539,7 +1500,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>nodesTable</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>nodesTable</b>
 									
 								</dt>
 								<dd>The data containing the nodes.</dd>
@@ -1577,7 +1538,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable or Array}</span> <b>packagesTable</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>packagesTable</b>
 									
 								</dt>
 								<dd>The data containing the packages.</dd>
@@ -1597,7 +1558,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 					<div class="fixedFont">
 					
 					
-					<b>setSelection</b>(an)
+					<b>setSelection</b>(selection)
 					
 					</div>
 					<div class="description">
@@ -1613,10 +1574,10 @@ Note that Object DataTable is defined in google.visualization.DataTable
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Array with objects}</span> <b>an</b>
+									<span class="light fixedFont">{object[]}</span> <b>selection</b>
 									
 								</dt>
-								<dd>array with zero or more objects. Each object
+								<dd>an array with zero or more objects. Each object
                              contains the parameter row</dd>
 							
 							</dl>
@@ -1638,7 +1599,7 @@ Note that Object DataTable is defined in google.visualization.DataTable
 					
 					</div>
 					<div class="description">
-						Set the current timestamp. All packages with a timestamp smaller or equal 
+						Set the current timestamp. All packages with a timestamp smaller or equal
 than the given timestamp will be drawn.
 						
 						
@@ -1651,7 +1612,7 @@ than the given timestamp will be drawn.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Date or number}</span> <b>timestamp</b>
+									<span class="light fixedFont">{Date | Number}</span> <b>timestamp</b>
 									
 								</dt>
 								<dd></dd>
@@ -1850,7 +1811,7 @@ than the given timestamp will be drawn.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Thu May 03 2012 16:43:12 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Jun 04 2012 16:13:30 GMT+0200 (CEST)
 		</div>
 	</body>
 </html>

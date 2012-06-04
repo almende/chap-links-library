@@ -214,10 +214,7 @@ ul.inheritsList
 				
 				
 			
-				Graph
-The Graph is a visualization Graphs on a time line 
-
-Graph is developed in javascript as a Google Visualization Chart.
+				
 				
 				
 					<br /><i>Defined in: </i> <a href="../symbols/src/graph.js.html">graph.js</a>.
@@ -394,7 +391,7 @@ Graph is developed in javascript as a Google Visualization Chart.
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Graph.html#setScale">setScale</a></b>(newScale, newStep)
+								<div class="fixedFont"><b><a href="../symbols/links.Graph.html#setScale">setScale</a></b>(scale, step)
 								</div>
 								<div class="description">Set a custom scale.</div>
 							</td>
@@ -450,7 +447,7 @@ Graph is developed in javascript as a Google Visualization Chart.
 							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Graph.html#setVisibleChartRangeNow">setVisibleChartRangeNow</a></b>()
 								</div>
-								<div class="description">Adjust the visible range such that the current time is located in the center 
+								<div class="description">Adjust the visible range such that the current time is located in the center
 of the timeline</div>
 							</td>
 						</tr>
@@ -470,7 +467,7 @@ of the timeline</div>
 								<div class="fixedFont"><b><a href="../symbols/links.Graph.html#timeToScreen">timeToScreen</a></b>(time)
 								</div>
 								<div class="description">Convert a datetime (Date object) into a position on the screen
-Before this method can be used, the method calcConversionFactor must be 
+Before this method can be used, the method calcConversionFactor must be
 executed once.</div>
 							</td>
 						</tr>
@@ -526,7 +523,7 @@ executed once.</div>
 						<dt class="heading">Parameters:</dt>
 						
 							<dt>
-								<span class="light fixedFont">{dom_element}</span>  <b>container</b>
+								<span class="light fixedFont">{Element}</span>  <b>container</b>
 								
 							</dt>
 								<dd>The DOM element in which the Graph will
@@ -573,7 +570,7 @@ executed once.</div>
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DOM Element}</span> <b>element</b>
+									<span class="light fixedFont">{Element}</span> <b>element</b>
 									
 								</dt>
 								<dd>An html element</dd>
@@ -582,7 +579,7 @@ executed once.</div>
 									<span class="light fixedFont">{string}</span> <b>action</b>
 									
 								</dt>
-								<dd>The action, for example "click", 
+								<dd>The action, for example "click",
                                 without the prefix "on"</dd>
 							
 								<dt>
@@ -616,17 +613,17 @@ executed once.</div>
 					
 					</div>
 					<div class="description">
-						Main drawing logic. This is the function that needs to be called 
+						Main drawing logic. This is the function that needs to be called
 in the html page, to draw the Graph.
 
-A data table with the events must be provided, and an options table. 
+A data table with the events must be provided, and an options table.
 Available options:
  - width        Width for the Graph in pixels or percentage.
  - height       Height for the Graph in pixels or percentage.
  - start        A Date object with the start date of the visible range
  - end          A Date object with the end date of the visible range
 TODO: describe all options
-  
+
  All options are optional.
 						
 						
@@ -639,19 +636,19 @@ TODO: describe all options
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DataTable or Array}</span> <b>data</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>data</b>
 									
 								</dt>
 								<dd>The data containing the events for the Graph.
-                                  Object DataTable is defined in 
-                                  google.visualization.DataTable.</dd>
+                                 Object DataTable is defined in
+                                 google.visualization.DataTable.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{name/value map}</span> <b>options</b>
+									<span class="light fixedFont">{Object}</span> <b>options</b>
 									
 								</dt>
 								<dd>A name/value map containing settings for the
-                                Graph.</dd>
+                                 Graph.</dd>
 							
 							</dl>
 						
@@ -990,7 +987,7 @@ end time are changed, or when data is added or removed dynamically.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{DOM element}</span> <b>element</b>
+									<span class="light fixedFont">{Element}</span> <b>element</b>
 									
 								</dt>
 								<dd>An html dom element</dd>
@@ -1083,7 +1080,7 @@ end time are changed, or when data is added or removed dynamically.
 									<span class="light fixedFont">{boolean}</span> <b>enable</b>
 									
 								</dt>
-								<dd>If true or not defined, autoscaling is enabled. 
+								<dd>If true or not defined, autoscaling is enabled.
                          If false, autoscaling is disabled.</dd>
 							
 							</dl>
@@ -1101,7 +1098,7 @@ end time are changed, or when data is added or removed dynamically.
 					<div class="fixedFont">
 					
 					
-					<b>setScale</b>(newScale, newStep)
+					<b>setScale</b>(scale, step)
 					
 					</div>
 					<div class="description">
@@ -1119,7 +1116,7 @@ in minor steps of 5 minutes, and major steps of an hour.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Step.SCALE}</span> <b>newScale</b>
+									<span class="light fixedFont">{links.Graph.StepDate.SCALE}</span> <b>scale</b>
 									
 								</dt>
 								<dd>A scale. Choose from SCALE.MILLISECOND,
@@ -1127,7 +1124,7 @@ in minor steps of 5 minutes, and major steps of an hour.
                               SCALE.DAY, SCALE.MONTH, SCALE.YEAR.</dd>
 							
 								<dt>
-									<span class="light fixedFont">{int}</span> <b>newStep</b>
+									<span class="light fixedFont">{int}</span> <b>step</b>
 									
 								</dt>
 								<dd>A step size, by default 1. Choose for
@@ -1225,7 +1222,7 @@ in minor steps of 5 minutes, and major steps of an hour.
 									<span class="light fixedFont">{Boolean}</span> <b>redrawNow</b>
 									
 								</dt>
-								<dd>Optional. If true (default) the graph is 
+								<dd>Optional. If true (default) the graph is
                              redrawn after the range has been changed</dd>
 							
 							</dl>
@@ -1275,7 +1272,7 @@ in minor steps of 5 minutes, and major steps of an hour.
 						Set a new value for the visible range int the Graph.
 Set start to null to include everything from the earliest date to end.
 Set end to null to include everything from start to the last date.
-Example usage: 
+Example usage:
    myGraph.setVisibleChartRange(new Date("2010-08-22"),
                                 new Date("2010-09-13"));
 						
@@ -1351,7 +1348,7 @@ Example usage:
 					
 					</div>
 					<div class="description">
-						Adjust the visible range such that the current time is located in the center 
+						Adjust the visible range such that the current time is located in the center
 of the timeline
 						
 						
@@ -1414,7 +1411,7 @@ of the timeline
 					</div>
 					<div class="description">
 						Convert a datetime (Date object) into a position on the screen
-Before this method can be used, the method calcConversionFactor must be 
+Before this method can be used, the method calcConversionFactor must be
 executed once.
 						
 						
@@ -1541,7 +1538,7 @@ executed once.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Thu May 03 2012 16:41:51 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Jun 04 2012 17:00:00 GMT+0200 (CEST)
 		</div>
 	</body>
 </html>
