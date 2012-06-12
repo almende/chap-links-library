@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - _global_</title>
+		<title>JsDoc Reference - links.CouchConnector</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -218,7 +218,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Built-In Namespace _global_
+				Class links.CouchConnector
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -229,47 +229,42 @@ ul.inheritsList
 				
 				
 				
+					<br /><i>Defined in: </i> <a href="../symbols/src/treegrid.js.html">treegrid.js</a>.
+				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
 			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class links.CouchConnector.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/links.CouchConnector.html#constructor">links.CouchConnector</a></b>(url)
+							</div>
+							<div class="description"></div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
 
 <!-- ============================== properties summary ===================== -->
-			
-				
-				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class _global_.">
-					<caption>Field Summary</caption>
-					<thead>
-						<tr>
-							<th scope="col">Field Attributes</th>
-							<th scope="col">Field Name and Description</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/_global_.html#listeners">listeners</a></b>
-								</div>
-								<div class="description">Remove all registered event listeners</div>
-							</td>
-						</tr>
-					
-					</tbody>
-				</table>
-				
-				
-				
 			
 
 <!-- ============================== methods summary ======================== -->
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class _global_.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class links.CouchConnector.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
@@ -282,7 +277,7 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/_global_.html#mouseMove">mouseMove</a></b>(event)
+								<div class="fixedFont"><b><a href="../symbols/links.CouchConnector.html#getChanges">getChanges</a></b>(index, num, items, callback, errback)
 								</div>
 								<div class="description"></div>
 							</td>
@@ -291,9 +286,18 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/_global_.html#mouseUp">mouseUp</a></b>(event)
+								<div class="fixedFont"><b><a href="../symbols/links.CouchConnector.html#getItems">getItems</a></b>(index, num, callback, errback)
 								</div>
 								<div class="description"></div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.CouchConnector.html#setFilters">setFilters</a></b>(filters)
+								</div>
+								<div class="description">Set a filter for this DataTable</div>
 							</td>
 						</tr>
 					
@@ -308,38 +312,46 @@ ul.inheritsList
 
 <!-- ============================== constructor details ==================== -->		
 			
-
-<!-- ============================== field details ========================== -->		
-			
+			<div class="details"><a name="constructor"> </a>
 				<div class="sectionTitle">
-					Field Detail
+					Class Detail
 				</div>
 				
-					<a name="listeners"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>listeners</b>
-					
-					</div>
-					<div class="description">
-						Remove all registered event listeners
-						
-							<br />
-							<i>Defined in: </i> <a href="../symbols/src/treegrid.js.html">treegrid.js</a>.
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					
+				<div class="fixedFont">
+						<b>links.CouchConnector</b>(url)
+				</div>
 				
+				<div class="description">
+					
+					
+				</div>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{String}</span>  <b>url</b>
+								
+							</dt>
+								<dd>Url can point to a database or to a view</dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
+			
+
+<!-- ============================== field details ========================== -->		
 			
 
 <!-- ============================== method details ========================= -->		
@@ -348,18 +360,15 @@ ul.inheritsList
 					Method Detail
 				</div>
 				
-					<a name="mouseMove"> </a>
+					<a name="getChanges"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>mouseMove</b>(event)
+					<b>getChanges</b>(index, num, items, callback, errback)
 					
 					</div>
 					<div class="description">
 						
-						
-							<br />
-							<i>Defined in: </i> <a href="../symbols/src/treegrid.js.html">treegrid.js</a>.
 						
 						
 					</div>
@@ -371,7 +380,31 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>event</b>
+									<b>index</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>num</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>items</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>callback</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>errback</b>
 									
 								</dt>
 								<dd></dd>
@@ -387,18 +420,15 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="mouseUp"> </a>
+					<a name="getItems"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>mouseUp</b>(event)
+					<b>getItems</b>(index, num, callback, errback)
 					
 					</div>
 					<div class="description">
 						
-						
-							<br />
-							<i>Defined in: </i> <a href="../symbols/src/treegrid.js.html">treegrid.js</a>.
 						
 						
 					</div>
@@ -410,10 +440,66 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>event</b>
+									<b>index</b>
 									
 								</dt>
 								<dd></dd>
+							
+								<dt>
+									<b>num</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>callback</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<b>errback</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setFilters"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setFilters</b>(filters)
+					
+					</div>
+					<div class="description">
+						Set a filter for this DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object[]}</span> <b>filters</b>
+									
+								</dt>
+								<dd>An array containing filter objects.
+                                    a filter object contains parameters
+                                    field, value, startValue, endValue, order</dd>
 							
 							</dl>
 						

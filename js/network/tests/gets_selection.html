@@ -1,0 +1,38 @@
+<html>
+    <head>
+ <title></title>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ <script type="text/javascript" src="../network.js"></script>
+ <script type="text/javascript">
+ var scope = this;
+ scope.network = null;
+ scope.nodesTable = [{"id":(new Date()).getTime(), "text":"Account","value":null, "style":"star", "borderColor": "#2B7CE9", "backgroundColor": "#97C2FC", "highlightColor": "#D2E5FF"}];
+ scope.linksTable = [];
+ scope.drawNetworkVisualization = function() {
+        
+        // specify options
+        var options = {
+   'width': '600px',
+   'height': '474px',
+          'stabilize': false,
+        };
+ 
+ function onselect(event) {
+  console.log('select!', event);
+ }
+ 
+        // Instantiate our graph object. 
+       scope.network = new links.Network(document.getElementById('mynetwork'));
+
+ links.events.addListener(scope.network, 'select', onselect);
+
+ 
+        // Draw our graph with the created data and options 
+        scope.network.draw(scope.nodesTable, scope.linksTable, options);
+    };</script>
+    </head>
+    <body>
+ <div id="mynetwork"></div>
+ <script>drawNetworkVisualization();</script>
+    </body>
+</html>
