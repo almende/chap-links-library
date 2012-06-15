@@ -3723,7 +3723,7 @@ links.DataConnector.prototype.removeItems = function (items, callback, errback) 
 
 /**
  * Asynchronously link a source item to a target item.
- * The callback returns the removed items.
+ * The callback returns the linked items.
  * @param {Object} sourceItem
  * @param {Object} targetItem
  * @param {function} callback Callback method called on success. Called with one
