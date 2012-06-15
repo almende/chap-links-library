@@ -9,7 +9,7 @@
 path=`pwd`
 name=`basename $path`
 files="*"
-exclude_files="*.sh tests *.gitignore"
+# exclude_files="tests\* *.sh *.gitignore"  # TODO: get excluding tests working here. some escaping issue
 bin="${path}/../../bin"
 tools="${path}/../../tools"
 
@@ -39,5 +39,5 @@ mv $bin/$name-* $bin_prev
 
 # create package
 echo "create package ${package}..."
-zip -q -r $path_package $files -x $exclude_files
+zip -q -r $path_package $files -x tests\* *.sh *.gitignore
 cp $path_package $bin_prev
