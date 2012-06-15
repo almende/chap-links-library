@@ -62,6 +62,7 @@
           editable: true,   // enable dragging and editing events
           enableKeys: true,
           axisOnTop: false,
+          stackEvents: false,
           showNavigation: true,
           style: "box" 
         };
@@ -163,12 +164,12 @@
       // Format given date as "yyyy-mm-dd hh:ii:ss"
       // @param datetime   A Date object.
       function dateFormat(date) {
-        datetime =   date.getFullYear() + "-" + 
-                   ((date.getMonth()   <  9) ? "0" : "") + (date.getMonth() + 1) + "-" +
-                   ((date.getDate()    < 10) ? "0" : "") +  date.getDate() + " " +
-                   ((date.getHours()   < 10) ? "0" : "") +  date.getHours() + ":" + 
-                   ((date.getMinutes() < 10) ? "0" : "") +  date.getMinutes() + ":" + 
-                   ((date.getSeconds() < 10) ? "0" : "") +  date.getSeconds()
+        var datetime =   date.getFullYear() + "-" +
+                       ((date.getMonth()   <  9) ? "0" : "") + (date.getMonth() + 1) + "-" +
+                       ((date.getDate()    < 10) ? "0" : "") +  date.getDate() + " " +
+                       ((date.getHours()   < 10) ? "0" : "") +  date.getHours() + ":" +
+                       ((date.getMinutes() < 10) ? "0" : "") +  date.getMinutes() + ":" +
+                       ((date.getSeconds() < 10) ? "0" : "") +  date.getSeconds();
         return datetime;
       }      
    </script>

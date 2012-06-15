@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-06-04
- * @version 2.1
+ * @date    2012-06-15
+ * @version 2.1.1
  */
 
 /*
@@ -3841,7 +3841,7 @@ links.Timeline.prototype.unselectItem = function() {
  *                              their new position animated
  */
 links.Timeline.prototype.stackEvents = function(animate) {
-    if (this.options.stackEvents == false || this.groups.length > 0) {
+    if (this.groups.length > 0) {
         // under this conditions we refuse to stack the events
         return;
     }
@@ -3971,27 +3971,29 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
         };
     }
 
-    // calculate new, non-overlapping positions
-    //var items = sortedItems;
-    for (var i = 0, iMax = finalItems.length; i < iMax; i++) {
-        //for (var i = finalItems.length - 1; i >= 0; i--) {
-        var finalItem = finalItems[i];
-        var collidingItem = null;
-        do {
-            // TODO: optimize checking for overlap. when there is a gap without items, 
-            //  you only need to check for items from the next item on, not from zero
-            collidingItem = this.stackEventsCheckOverlap(finalItems, i, 0, i-1);
-            if (collidingItem != null) {
-                // There is a collision. Reposition the event above the colliding element
-                if (axisOnTop) {
-                    finalItem.top = collidingItem.top + collidingItem.height + eventMargin;
+    if (this.options.stackEvents) {
+        // calculate new, non-overlapping positions
+        //var items = sortedItems;
+        for (var i = 0, iMax = finalItems.length; i < iMax; i++) {
+            //for (var i = finalItems.length - 1; i >= 0; i--) {
+            var finalItem = finalItems[i];
+            var collidingItem = null;
+            do {
+                // TODO: optimize checking for overlap. when there is a gap without items,
+                //  you only need to check for items from the next item on, not from zero
+                collidingItem = this.stackEventsCheckOverlap(finalItems, i, 0, i-1);
+                if (collidingItem != null) {
+                    // There is a collision. Reposition the event above the colliding element
+                    if (axisOnTop) {
+                        finalItem.top = collidingItem.top + collidingItem.height + eventMargin;
+                    }
+                    else {
+                        finalItem.top = collidingItem.top - finalItem.height - eventMargin;
+                    }
+                    finalItem.bottom = finalItem.top + finalItem.height;
                 }
-                else {
-                    finalItem.top = collidingItem.top - finalItem.height - eventMargin;
-                }
-                finalItem.bottom = finalItem.top + finalItem.height;
-            }
-        } while (collidingItem);
+            } while (collidingItem);
+        }
     }
 
     return finalItems;
