@@ -3640,12 +3640,12 @@ links.Timeline.prototype.addGroup = function (groupName) {
         // sort the groups
         if (this.options.axisOnTop) {
             groups.sort(function (a, b) {
-                return a.content > b.content;
+                return a.content - b.content;
             });
         }
         else {
             groups.sort(function (a, b) {
-                return a.content < b.content;
+                return a.content - b.content;
             });
         }
 
