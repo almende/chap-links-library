@@ -1,7 +1,7 @@
 CHAP Links Library - Treegrid
 
 
-<not yet released>, version 1.1.1
+2012-06-15, version 1.1.1
 
 - fixed a bug in calculating the height of the TreeGrid. The bug occurred
   when option items.defaultHeight < items.minHeight, and when initially giving
