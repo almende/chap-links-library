@@ -1,5 +1,11 @@
 CHAP Links Library - Timeline
 
+2012-06-15, version 2.1.1
+
+- fixed issue #3: broken option stackEvents=false
+- fixed issue #4: sorting groups not working correctly
+
+
 2012-06-04, version 2.1
 
 - Documentation has a new layout
@@ -10,6 +16,7 @@ CHAP Links Library - Timeline
 
 - bug fix: areas on the left and right end of a range (for changing start/end)
   where displayed below the range instead of on top of it.
+
 
 2012-05-02, version 2.0
 

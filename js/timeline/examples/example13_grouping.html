@@ -78,9 +78,9 @@
         data.addColumn('datetime', 'end');
         data.addColumn('string', 'content');
         data.addColumn('string', 'group');
-	
+
         var order = 1;
-        for (truck = 11; truck < 15; truck++) {
+        for (var truck = 11; truck < 15; truck++) {
           var date = new Date(2010, 12, 14, 8, 0, 0);
           for (var i = 0; i < 10; i++) {
             date.setHours(date.getHours() +  1 * 4 * (Math.random() < 0.2));
@@ -94,7 +94,7 @@
               orderText = "<img src='img/product-icon.png' style='width:32px; height:32px; vertical-align: middle'> " + orderText;
             orderText = "<div title='Order " + order + "' class='order'>" + orderText + "</div>";
             
-            truckText = "<img src='img/truck-icon.png' style='width:24px; height:24px; vertical-align: middle'> " + 
+            var truckText = "<img src='img/truck-icon.png' style='width:24px; height:24px; vertical-align: middle'> " +
               "Truck " + truck;
             data.addRow([start, end, orderText, truckText]);
             order++;
@@ -102,7 +102,7 @@
         }
 
         // specify options
-        options = {
+        var options = {
           width:  "100%", 
           //height: "300px",
           height: "auto",

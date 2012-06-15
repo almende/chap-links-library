@@ -37,8 +37,8 @@
 <span class='line'> 30</span>  * Copyright (c) 2011-2012 Almende B.V. &lt;http://links.sourceforge.net>
 <span class='line'> 31</span>  *
 <span class='line'> 32</span>  * @author   Jos de Jong, &lt;jos@almende.org>
-<span class='line'> 33</span>  * @date    2012-06-04
-<span class='line'> 34</span>  * @version 1.1
+<span class='line'> 33</span>  * @date    2012-06-15
+<span class='line'> 34</span>  * @version 1.1.1
 <span class='line'> 35</span>  */</span><span class="WHIT">
 <span class='line'> 36</span> 
 <span class='line'> 37</span> </span><span class="COMM">/*
@@ -116,8 +116,8 @@
 <span class='line'>109</span> </span><span class="WHIT">        </span><span class="STRN">'padding'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">4</span><span class="PUNC">,</span><span class="WHIT">               </span><span class="COMM">// px // TODO: padding is not yet used</span><span class="WHIT">
 <span class='line'>110</span> </span><span class="WHIT">        </span><span class="STRN">'indentationWidth'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">20</span><span class="PUNC">,</span><span class="WHIT">     </span><span class="COMM">// px</span><span class="WHIT">
 <span class='line'>111</span> </span><span class="WHIT">        </span><span class="STRN">'items'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='line'>112</span> </span><span class="WHIT">            </span><span class="STRN">'defaultHeight'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">22</span><span class="PUNC">,</span><span class="WHIT">      </span><span class="COMM">// px</span><span class="WHIT">
-<span class='line'>113</span> </span><span class="WHIT">            </span><span class="STRN">'minHeight'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">24</span><span class="WHIT">           </span><span class="COMM">// px </span><span class="WHIT">
+<span class='line'>112</span> </span><span class="WHIT">            </span><span class="STRN">'defaultHeight'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">24</span><span class="PUNC">,</span><span class="WHIT">      </span><span class="COMM">// px</span><span class="WHIT">
+<span class='line'>113</span> </span><span class="WHIT">            </span><span class="STRN">'minHeight'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">24</span><span class="WHIT">           </span><span class="COMM">// px</span><span class="WHIT">
 <span class='line'>114</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT">
 <span class='line'>115</span> </span><span class="WHIT">        </span><span class="COMM">//'dropAreaHeight': 10      // px // TODO: dropAreas</span><span class="WHIT">
 <span class='line'>116</span> </span><span class="WHIT">        </span><span class="STRN">'dropAreaHeight'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="WHIT">         </span><span class="COMM">// px</span><span class="WHIT">
@@ -2186,7 +2186,7 @@
 <span class='line'>2179</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
 <span class='line'>2180</span> 
 <span class='line'>2181</span> </span><span class="WHIT">    </span><span class="COMM">// objects</span><span class="WHIT">
-<span class='line'>2182</span> </span><span class="WHIT">    </span><span class="NAME">this.height</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Math.max</span><span class="PUNC">(</span><span class="NAME">this.options.items.defaultHeight</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this.options.items.minHeight</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>2182</span> </span><span class="WHIT">    </span><span class="NAME">this.height</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.options.items.defaultHeight</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>2183</span> </span><span class="WHIT">    </span><span class="NAME">this.data</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">undefined</span><span class="PUNC">;</span><span class="WHIT">    </span><span class="COMM">// link to the original data of this item</span><span class="WHIT">
 <span class='line'>2184</span> </span><span class="WHIT">    </span><span class="NAME">this.fields</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">undefined</span><span class="PUNC">;</span><span class="WHIT">  </span><span class="COMM">// array with the fields</span><span class="WHIT">
 <span class='line'>2185</span> </span><span class="WHIT">    </span><span class="NAME">this.fieldsHeight</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
@@ -3730,7 +3730,7 @@
 <span class='line'>3723</span> 
 <span class='line'>3724</span> </span><span class="COMM">/**
 <span class='line'>3725</span>  * Asynchronously link a source item to a target item.
-<span class='line'>3726</span>  * The callback returns the removed items.
+<span class='line'>3726</span>  * The callback returns the linked items.
 <span class='line'>3727</span>  * @param {Object} sourceItem
 <span class='line'>3728</span>  * @param {Object} targetItem
 <span class='line'>3729</span>  * @param {function} callback Callback method called on success. Called with one

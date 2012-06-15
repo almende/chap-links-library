@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V. <http://links.sourceforge.net>
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2012-06-04
- * @version 1.1
+ * @date    2012-06-15
+ * @version 1.1.1
  */
 
 /*
@@ -109,8 +109,8 @@ links.TreeGrid = function(container, options) {
         'padding': 4,               // px // TODO: padding is not yet used
         'indentationWidth': 20,     // px
         'items': {
-            'defaultHeight': 22,      // px
-            'minHeight': 24           // px 
+            'defaultHeight': 24,      // px
+            'minHeight': 24           // px
         },
         //'dropAreaHeight': 10      // px // TODO: dropAreas
         'dropAreaHeight': 0         // px
@@ -2179,7 +2179,7 @@ links.TreeGrid.Item = function (params) {
     }
 
     // objects
-    this.height = Math.max(this.options.items.defaultHeight, this.options.items.minHeight);
+    this.height = this.options.items.defaultHeight;
     this.data = undefined;    // link to the original data of this item
     this.fields = undefined;  // array with the fields
     this.fieldsHeight = 0;
@@ -3723,7 +3723,7 @@ links.DataConnector.prototype.removeItems = function (items, callback, errback) 
 
 /**
  * Asynchronously link a source item to a target item.
- * The callback returns the removed items.
+ * The callback returns the linked items.
  * @param {Object} sourceItem
  * @param {Object} targetItem
  * @param {function} callback Callback method called on success. Called with one
