@@ -1,5 +1,10 @@
 CHAP Links Library - Timeline
 
+2012-06-18, version 2.1.2
+
+- fixed issue #4 again: sorting groups still not working correctly
+
+
 2012-06-15, version 2.1.1
 
 - fixed issue #3: broken option stackEvents=false

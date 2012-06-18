@@ -31,7 +31,7 @@
  *
  * @author 	Jos de Jong, <jos@almende.org>
  * @date    2012-06-15
- * @version 2.1.1
+ * @version 2.1.2
  */
 
 /*
@@ -3636,18 +3636,16 @@ links.Timeline.prototype.addGroup = function (groupName) {
             //       such as height and width of the group         
         };
         groups.push(groupObj);
-
         // sort the groups
-        if (this.options.axisOnTop) {
-            groups.sort(function (a, b) {
-                return a.content - b.content;
-            });
-        }
-        else {
-            groups.sort(function (a, b) {
-                return a.content - b.content;
-            });
-        }
+        groups = groups.sort(function (a, b) {
+            if (a.content > b.content) {
+                return 1;
+            }
+            if (a.content < b.content) {
+                return -1;
+            }
+            return 0;
+        });
 
         // rebuilt the groupIndexes
         for (var i = 0, iMax = groups.length; i < iMax; i++) {
