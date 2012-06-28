@@ -1,6 +1,12 @@
 CHAP Links Library - Graph
 
 
+2012-06-28, version 1.1.1
+
+- Fix: Graph can now handle dates and values which are undefined (not only null).
+- Example example15_multicolor_graph.html added
+
+
 2012-06-04, version 1.1
 
 - Documentation has a new layout
