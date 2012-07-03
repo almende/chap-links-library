@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V. <http://links.sourceforge.net>
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2012-06-15
- * @version 1.1.1
+ * @date    2012-07-03
+ * @version 1.2.0
  */
 
 /*
@@ -2553,6 +2553,23 @@ links.TreeGrid.Item.prototype.onDrop = function(event) {
         }
         this.dataConnector.appendItems(itemsData, callback, errback);
     }
+    else if (this.parent && this.parent.dataConnector &&
+            event.dataTransfer.dropEffect == 'link') {
+        var targetItemData = this.data;
+        var callback = function (resp) {
+            // TODO: redraw on callback?
+        };
+        var errback = function (err) {
+            console.log(err);
+        };
+
+        var sourceItemsData = [];
+        for (var i = 0; i < items.length; i++) {
+            sourceItemsData.push(items[i].data);
+        }
+        this.parent.dataConnector.linkItems(sourceItemsData, targetItemData,
+            callback, errback);
+    }
     else {
         console.log('dropped but do nothing', event.dataTransfer.dropEffect); // TODO
     }
@@ -2906,6 +2923,29 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
             var dataTransfer = this.dataConnector ? this.dataConnector.getOptions().dataTransfer : undefined;
             if (dataTransfer) {
                 if (dataTransfer.dropEffect != undefined && dataTransfer.dropEffect != 'none') {
+                    this.dataTransfer.dropEffect = dataTransfer.dropEffect;
+
+                    links.dnd.makeDroppable(domFrame, {
+                        'dropEffect':dataTransfer.dropEffect,
+                        'drop':function (event) {
+                            item.onDrop(event);
+                        },
+                        'dragEnter':function (event) {
+                            item.onDragEnter(event);
+                        },
+                        'dragOver':function (event) {
+                            item.onDragOver(event);
+                        },
+                        'dragLeave':function (event) {
+                            item.onDragLeave(event);
+                        }
+                    });
+                }
+            }
+            else if (this.parent && this.parent.dataConnector) {
+                // Check if the items parent has a dataconnector with dropEffect 'link'
+                var dataTransfer = this.parent.dataConnector.getOptions().dataTransfer;
+                if (dataTransfer && dataTransfer.dropEffect == 'link') {
                     this.dataTransfer.dropEffect = dataTransfer.dropEffect;
 
                     links.dnd.makeDroppable(domFrame, {
@@ -3660,7 +3700,7 @@ links.DataConnector.prototype.updateItems = function (items, callback, errback) 
 /**
  * Asynchronously append a number of items.
  * The callback returns the appended items, which may be newly instantiated objects .
- * @param {Object} items      A list with items to be added
+ * @param {Object[]} items    A list with items to be added
  * @param {function} callback Callback method called on success. Called with one
  *                            object as parameter, containing fields:
  *                              {Number} totalItems
@@ -3691,7 +3731,7 @@ links.DataConnector.prototype.insertItemsBefore = function (items, beforeItem, c
 /**
  * Asynchronously move a number of items.
  * The callback returns the moved items, which may be newly instantiated objects .
- * @param {Object} items      A list with items to be moved
+ * @param {Object[]} items    A list with items to be moved
  * @param {Object} beforeItem The items will be inserted before this item.
  *                            When beforeItem is undefined, the items will be
  *                            moved to the end of the data.
@@ -3709,7 +3749,7 @@ links.DataConnector.prototype.moveItems = function (items, beforeItem, callback,
 /**
  * Asynchronously remove a number of items.
  * The callback returns the removed items.
- * @param {Object} items      A list with items to be removed
+ * @param {Object[]} items    A list with items to be removed
  * @param {function} callback Callback method called on success. Called with one
  *                            object as parameter, containing fields:
  *                              {Number} totalItems
@@ -3724,16 +3764,16 @@ links.DataConnector.prototype.removeItems = function (items, callback, errback) 
 /**
  * Asynchronously link a source item to a target item.
  * The callback returns the linked items.
- * @param {Object} sourceItem
+ * @param {Object[]} sourceItems
  * @param {Object} targetItem
- * @param {function} callback Callback method called on success. Called with one
- *                            object as parameter, containing fields:
+ * @param {function} callback   Callback method called on success. Called with
+ *                              one object as parameter, containing fields:
  *                              {Number} totalItems
  *                              {Array with Objects} items    The removed items
  * @param {function} errback  Callback method called on failure. Called with
  *                            an error message as parameter.
  */
-links.DataConnector.prototype.linkItems = function (sourceItem, targetItem, callback, errback) {
+links.DataConnector.prototype.linkItems = function (sourceItems, targetItem, callback, errback) {
     errback('Error: method linkItems is not implemented');
 };
 
