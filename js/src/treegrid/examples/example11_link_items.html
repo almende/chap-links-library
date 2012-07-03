@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>TreeGrid demo</title>
+
+    <style>
+        body {
+            font-family: arial;
+            font-size: 10pt;
+        }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+
+    <script type="text/javascript">
+        var treegrid1, dataTable1;
+        var treegrid2, dataTable2;
+
+        // Called when the page is loaded
+        function drawTreeGrids () {
+            drawTreeGrid1();
+            drawTreeGrid2();
+        }
+
+        function drawTreeGrid1() {
+            var data1 = [];
+            for (var i = 0; i < 100; i++) {
+                data1.push({
+                    'name': 'Item ' + i,
+                    'size': 50 + Math.round(100 * Math.random())
+                });
+            }
+            var dataOptions1 = {
+                'dataTransfer': {
+                    'allowedEffect': 'link'
+                }
+            };
+            dataTable1 = new links.DataTable(data1, dataOptions1);
+
+            // instantiate treegrid 1
+            var treegridOptions1 = {
+                'width': '200px',
+                'height': '400px'
+            };
+            var container1 = document.getElementById('treegrid1');
+            treegrid1 = new links.TreeGrid(container1, treegridOptions1);
+            treegrid1.draw(dataTable1);
+        }
+
+        function drawTreeGrid2() {
+            var data2 = [];
+            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (var i = 0; i < 10; i++) {
+                data2.push({
+                    'name': 'Item ' + letters[i],
+                    'size': 50 + Math.round(100 * Math.random())
+                });
+            }
+            var dataOptions2 = {
+                'dataTransfer': {
+                    'dropEffect': 'link'
+                },
+                'columns': [
+                    {'name': 'name'},
+                    {'name': 'size'},
+                    {'name': 'links', 'text': 'linked items'}
+                ]
+            };
+            dataTable2 = new links.DataTable(data2, dataOptions2);
+
+            // let's implement a simple link method
+            dataTable2.linkItems = function(sourceItems, targetItem, callback, errback) {
+                var index = this.data.indexOf(targetItem);
+                if (index == -1) {
+                    errback('Error: targetItem not found in data');
+                    return;
+                }
+
+                // DO something with the data
+                // We replace the original targetItem in the data, else this
+                // item will not be marked as changed by the DataTable
+                var names = [];
+                for (var i = 0; i < sourceItems.length; i++) {
+                    names.push(sourceItems[i].name);
+                }
+                this.data[index] = {
+                    'name': targetItem.name,
+                    'size': targetItem.size,
+                    'links': names.join(', '),
+                    '_actions': [{'event': 'remove', 'text': 'remove links'}]
+                };
+
+                // send callback
+                callback({
+                    'items': [targetItem],
+                    'totalItems': this.data.length
+                });
+
+                // send an update trigger
+                this.update();
+            };
+
+            // implement a method to remove a link from an item
+            dataTable2.removeLink = function (item) {
+                // find the item in the data
+                var index = this.data.indexOf(item);
+                if (index == -1) {
+                    throw Error('item not found in data');
+                }
+
+                // replace the item in the dataTable, else this
+                // item will not be marked as changed by the DataTable
+                this.data[index] = {
+                    'name': item.name,
+                    'size': item.size
+                };
+
+                // send an update trigger
+                this.update();
+            };
+
+            // create an event listener for the remove event
+            function onRemove(event) {
+                var items = event.items;
+                for (var i = 0; i < items.length; i++) {
+                    dataTable2.removeLink(items[i]);
+                }
+            }
+            links.events.addListener(dataTable2, 'remove', onRemove);
+
+
+            // instantiate treegrid 1
+            var treegridOptions2 = {
+                'width': '400px',
+                'height': '400px'
+            };
+            var container2 = document.getElementById('treegrid2');
+            treegrid2 = new links.TreeGrid(container2, treegridOptions2);
+            treegrid2.draw(dataTable2);
+
+        }
+    </script>
+</head>
+
+<body onload="drawTreeGrids();">
+<h1>TreeGrid Demo - link items</h1>
+<p>
+    This demo shows how to link items. Drag items from the left to the right TreeGrid.
+</p>
+
+<table>
+    <tr>
+        <td>
+            <div id="treegrid1"></div>
+        </td>
+        <td>
+            <div id="treegrid2"></div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,277 @@
+
+<html>
+<head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../treegrid.css">
+<script type="text/javascript" src="../treegrid.js"></script>
+<script>
+
+var host = 'http://10.200.200.101:8888/ns_tymon';
+var global_sessionID = "";
+
+
+
+////////////////////////////////////////
+
+
+/**
+ * Contacts DataConnector
+ * This is an example on how to implement a DataConnector
+ */
+var Contacts = function (uid) {
+    // set the url for the RESTful web service
+    this.uid = uid;
+
+    // store the cached contacts in an array
+    this.items = [];
+    this.maxItems = 1;
+
+    // optionally define the order and visibility of columns
+    this.setOptions({
+        'columns': [
+            {'name': 'uid'},
+            {'name': 'name'},
+            {'name': 'node_type'}
+        ]
+    });
+}
+
+// set the links.DataConnector as prototype
+Contacts.prototype = new links.DataConnector();
+
+Contacts.prototype.getCount = function () {
+    // set the count in such a way that we can always scroll down to get more
+    // items, but cannot jump in a large set of data (which is an expensive
+    // operation for key/value databases)
+    return this.maxItems;
+};
+
+Contacts.prototype.getChanges = function (index, num, items, callback, errback) {
+    // mark items as changed when the item is replaced by an other object
+    // note that the change of a field inside an item will not be observed this way,
+    // only the replacement of an item
+    var changedItems = [];
+    /* TODO
+    for (var i = 0; i < num; i++)
+    {
+        var item = items[i];
+        if (item != this.items[index + i]) {
+            changedItems.push(item);
+        }
+    }
+    */
+
+    callback({
+        'totalItems': this.getCount(),
+        'items': changedItems
+    });
+};
+
+Contacts.prototype.getItems = function (index, num, callback, errback) {
+    var items = this.items;
+
+    // method to built a response containing the requested subset of the data
+    var me = this;
+    var createResponse = function () {
+        var requestedItems = [];
+        for (var i = 0; i < num; i++) {
+            requestedItems[i] = items[index + i];
+        }
+        return {
+            'totalItems': me.getCount(),
+            'items': requestedItems
+        };
+    };
+
+    // check if there are uncached items
+    var hasUncachedItems = false;
+    for (var i = index, iMax = index+num; i < iMax; i++) {
+        if (!items[i])  {
+            hasUncachedItems = true;
+            break;
+        }
+    }
+
+    // if all items are cached, we can directly return them
+    if (!hasUncachedItems) {
+        callback(createResponse());
+        return;
+    }
+
+
+    /* retrieve items from the server
+     var url = this.url + '&index=' + index + '&limit=' + num;
+     $.ajax({
+     'url': url,
+     'success': function (retrievedItems) {
+     // read the entries
+     for (var i = 0, i < retrievedItems.length; i++) {
+     items[index + i] = retrievedItems[i];
+     }
+     callback(createResponse());
+     },
+     'error': function (err) {
+     errback('Could not retrieve results');
+     }
+     });
+     */
+
+/*
+    if( me.uid == 'uid_tymon' )
+    {
+        me.maxItems = 2;
+        items[0] = {"uid":"36a122c6-d440-102f-aed6-005056bc7e66","name":"contactGroups"};
+        items[0].children = new Contacts( '36a122c6-d440-102f-aed6-005056bc7e66' );
+        items[1] = {"uid":"uid.1338292857.B70F0B90","name":"john5","node_type":"group"};
+        callback(createResponse());
+        return;
+    }
+    if( me.uid == '36a122c6-d440-102f-aed6-005056bc7e66' )
+    {
+        me.maxItems = 1;
+        items[0] = {"uid":"uid.1334311946.B6926B90","name":"hockey","node_type":"group"};
+        callback(createResponse());
+        return ;
+    }
+    console.log("dont go here");
+*/
+    me.maxItems = 2;
+    items[0] = {"uid":"36a122c6-d440-102f-aed6-005056bc7e66","name":"contactGroups"};
+    items[0].children = new Contacts( '36a122c6-d440-102f-aed6-005056bc7e66' );
+    items[1] = {"uid":"uid.1338292857.B70F0B90","name":"john5","node_type":"group"};
+    callback(createResponse());
+
+
+    var uid = me.uid;
+
+    //limit loop somewhere
+    if( !NOF_AJAX_CALLS[uid] )NOF_AJAX_CALLS[uid]=0;
+    if( ++NOF_AJAX_CALLS[uid] > 50 ){console.log("LIMIT", uid );return;}
+
+    /* retrieve items from tymon install */
+    /*
+    var noCookie = { "X-SESSION_ID": global_sessionID };
+    document.cookie= 'X-SESSION_ID='+global_sessionID+'; path=/';    //does not work cross domain..
+    var url = host + '/rev1/node/'+uid+'/member';
+    var json = '{"resource":["name","node_type"],"unused":"_index'+index+'_num'+num+'_" }';
+    $.ajax({
+        'url': url,
+        xhrFields: {   withCredentials: true   },
+        headers: noCookie,
+        data: json,
+        'success': function (jdata) {
+
+            if( jdata.directMembers )
+                var data = jdata;
+            else
+                var data = JSON.parse(jdata);
+
+            me.maxItems = data.directMembers.length;	//asap
+
+            // read the entries
+            for(var i in data.directMembers )
+            {
+                i = parseInt(i);	//what?
+                //do pages in js for now
+                if( i >= index && i < index+num )
+                {
+                    items[index + i] = data.directMembers[i] ;
+                    if( !data.directMembers[i].node_type || data.directMembers[i].node_type != 'user' )
+                        items[index + i].children = new Contacts( data.directMembers[i].uid );	//more constructing
+                }
+            }
+
+
+            callback(createResponse());
+        },
+        'error': function (err) {
+            errback('Could not retrieve results');
+        }
+    });
+    */
+
+};
+
+
+var NOF_AJAX_CALLS= [];
+
+//////////////////////////////////
+
+function draw()
+{
+
+    function callback (resp) {
+//          var itemCount = resp.totalItems;
+//        var items = resp.items;
+//          document.getElementById('data').innerHTML = JSON.stringify(items, null, 2);
+    }
+
+    function errback(err) {
+//          document.getElementById('data').innerHTML = 'Error: ' + err;
+    }
+
+    var options = {
+        // options go here...
+        "width":"600px",
+        "height":"400px"
+    };
+
+    var container = document.getElementById('mytreegrid');
+    treegrid = new links.TreeGrid(container, options);
+
+    var data = new Contacts('uid_tymon');
+    treegrid.draw( data );
+
+    // retrieve 4 items, starting at index 0
+    // data.getItems( 0,4, callback, errback);
+}
+
+
+
+
+///////////////////////////////////////
+
+/*
+function init_getSession()
+{
+    //step 1 aquire session
+    var user = 'uid_tymon';
+    var pass = '81dc9bdb52d04dc20036dbd8313ed055'; // 'md5(1234)';
+
+    var xhr = $.ajax({
+        url: host + '/login?uuid=' + user + '&pass=' + pass,
+        xhrFields: { withCredentials: true },
+        success: function (jsonData, status, xhr)
+        {
+            // is data already parsed?
+            if( jsonData['X-SESSION_ID'] )
+            {
+                init_setSession( jsonData['X-SESSION_ID'] );
+            }
+            else
+            {
+                var data = JSON.parse(jsonData);
+                init_setSession( data['X-SESSION_ID'] );
+            }
+        }
+    });
+}
+
+function init_setSession( sessionID )
+{
+    global_sessionID = sessionID;
+
+    draw();
+}*/
+
+</script>
+</head>
+<body onLoad='draw();' >
+
+
+<div id="data"></div>
+<div id="mytreegrid"></div>
+
+</body>
+</html>
+

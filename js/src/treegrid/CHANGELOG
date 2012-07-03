@@ -1,4 +1,11 @@
-CHAP Links Library - Treegrid
+CHAP Links Library - TREEGRID
+http://almende.github.com/chap-links-library/
+
+
+2012-07-03, version 1.2.0
+
+- implemented method linkItems. Items can be linked to each other via drag and,
+  drop when this is implemented by the used DataConnector.
 
 
 2012-06-15, version 1.1.1
