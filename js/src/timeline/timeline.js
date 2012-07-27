@@ -2665,6 +2665,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
         var item = this.items[params.itemIndex];
         params.itemStart = item.start;
         params.itemEnd = item.end;
+        params.itemGroup = item.group;
         params.itemType = item.type;
         if (params.itemType == 'range') {
             params.itemLeft = this.timeToScreen(item.start);
@@ -2945,6 +2946,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
 
                     item.start = params.itemStart;
                     item.end = params.itemEnd;
+                    item.group = params.itemGroup;
                     // TODO: original group hould be restored too
                     this.repositionItem(item, params.itemLeft, params.itemRight);
                 }
@@ -3247,7 +3249,8 @@ links.Timeline.prototype.repositionItem = function (item, left, right) {
             break;
     }
 
-    if (this.groups.length > 0) {
+    if (item.group) {
+        item.top = item.group.top;
         domItem.style.top = item.top + 'px';
     }
 };
