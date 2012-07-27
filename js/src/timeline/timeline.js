@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-06-15
- * @version 2.1.2
+ * @date    2012-07-27
+ * @version 2.2.0
  */
 
 /*
@@ -506,11 +506,11 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
     // limit to the allowed range (dont let this do by applyRange,
     // because that method will try to maintain the interval (end-start)
     var min = this.options.min ? this.options.min.valueOf() : undefined;
-    if (min && start.valueOf() < min) {
+    if (min != undefined && start.valueOf() < min) {
         start = new Date(min);
     }
     var max = this.options.max ? this.options.max.valueOf() : undefined;
-    if (max && end.valueOf() > max) {
+    if (max != undefined && end.valueOf() > max) {
         end = new Date(max);
     }
 
@@ -541,13 +541,13 @@ links.Timeline.prototype.setVisibleChartRangeAuto = function() {
             start = item.start ? item.start.valueOf() : undefined,
             end = item.end ? item.end.valueOf() : start;
 
-        if (startMin !== undefined && start !== undefined) {
+        if (startMin != undefined && start != undefined) {
             startMin = Math.min(startMin, start);
         }
         else {
             startMin = start;
         }
-        if (endMax !== undefined && end !== undefined) {
+        if (endMax != undefined && end != undefined) {
             endMax = Math.max(endMax, end);
         }
         else {
@@ -555,7 +555,7 @@ links.Timeline.prototype.setVisibleChartRangeAuto = function() {
         }
     }
 
-    if (startMin !== undefined && endMax !== undefined) {
+    if (startMin != undefined && endMax != undefined) {
         // zoom out 5% such that you have a little white space on the left and right
         var center = (endMax + startMin) / 2,
             diff = (endMax - startMin);
@@ -2291,8 +2291,8 @@ links.Timeline.prototype.recalcSize = function() {
             var finalItems = this.animation.finalItems,
                 finalItem = finalItems[0];
             if (finalItem && finalItem.top) {
-                min = finalItem.top,
-                    max = finalItem.top + finalItem.height;
+                min = finalItem.top;
+                max = finalItem.top + finalItem.height;
             }
             for (var i = 1, iMax = finalItems.length; i < iMax; i++) {
                 finalItem = finalItems[i];
@@ -2303,8 +2303,8 @@ links.Timeline.prototype.recalcSize = function() {
         else {
             var item = items[0];
             if (item && item.top) {
-                min = item.top,
-                    max = item.top + item.height;
+                min = item.top;
+                max = item.top + item.height;
             }
             for (var i = 1, iMax = items.length; i < iMax; i++) {
                 var item = items[i];
@@ -3286,7 +3286,7 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     // determine min and max date value
     var min = options.min ? options.min.valueOf() : undefined;
     var max = options.max ? options.max.valueOf() : undefined;
-    if (min && max) {
+    if (min != undefined && max != undefined) {
         if (min >= max) {
             // empty range
             var day = 1000 * 60 * 60 * 24;
@@ -3323,7 +3323,7 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     }
 
     // prevent to small start date
-    if (min) {
+    if (min != undefined) {
         var diff = (startValue - min);
         if (diff < 0) {
             startValue -= diff;
@@ -3332,7 +3332,7 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     }
 
     // prevent to large end date
-    if (max) {
+    if (max != undefined) {
         var diff = (max - endValue);
         if (diff < 0) {
             startValue += diff;

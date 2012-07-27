@@ -6,6 +6,7 @@ version 2.2.0
   showMajorLabels, true, the axis will not be visible.
 - fixed issue #12: the group of an item was not restored after canceling a
   change.
+- fixed issue #8: start, end, min, max not working correctly around Date(0).
 
 
 2012-06-18, version 2.1.2
