@@ -151,6 +151,7 @@ links.Timeline = function(container) {
         'showCurrentTime': true, // show a red bar displaying the current time
         'showCustomTime': false, // show a blue, draggable bar displaying a custom time    
         'showMajorLabels': true,
+        'showMinorLabels': true,
         'showNavigation': false,
         'showButtonAdd': true,
         'groupsOnRight': false,
@@ -752,7 +753,9 @@ links.Timeline.prototype.redrawAxis = function() {
             x = this.timeToScreen(cur),
             isMajor = step.isMajor();
 
-        this.redrawAxisMinorText(x, step.getLabelMinor());
+        if (options.showMinorLabels) {
+            this.redrawAxisMinorText(x, step.getLabelMinor());
+        }
 
         if (isMajor && options.showMajorLabels) {
             if (x > 0) {
@@ -890,41 +893,64 @@ links.Timeline.prototype.redrawAxisEndOverwriting = function () {
  */
 links.Timeline.prototype.redrawAxisHorizontal = function() {
     var axis = this.dom.axis,
-        size = this.size;
+        size = this.size,
+        options = this.options;
 
-    if (!axis.backgroundLine) {
-        // create the axis line background (for a background color or so)
-        var backgroundLine = document.createElement("DIV");
-        backgroundLine.className = "timeline-axis";
-        backgroundLine.style.position = "absolute";
-        backgroundLine.style.left = "0px";
-        backgroundLine.style.width = "100%";
-        backgroundLine.style.border = "none";
-        axis.frame.insertBefore(backgroundLine, axis.frame.firstChild);
+    // line behind all axis elements (possibly having a background color)
+    var hasAxis = (options.showMinorLabels || options.showMajorLabels);
+    if (hasAxis) {
+        if (!axis.backgroundLine) {
+            // create the axis line background (for a background color or so)
+            var backgroundLine = document.createElement("DIV");
+            backgroundLine.className = "timeline-axis";
+            backgroundLine.style.position = "absolute";
+            backgroundLine.style.left = "0px";
+            backgroundLine.style.width = "100%";
+            backgroundLine.style.border = "none";
+            axis.frame.insertBefore(backgroundLine, axis.frame.firstChild);
 
-        axis.backgroundLine = backgroundLine;
-    }
-    axis.backgroundLine.style.top = size.axis.top + "px";
-    axis.backgroundLine.style.height = size.axis.height + "px";
+            axis.backgroundLine = backgroundLine;
+        }
 
-    if (axis.line) {
-        // put this line at the end of all childs
-        var line = axis.frame.removeChild(axis.line);
-        axis.frame.appendChild(line);
+        if (axis.backgroundLine) {
+            axis.backgroundLine.style.top = size.axis.top + "px";
+            axis.backgroundLine.style.height = size.axis.height + "px";
+        }
     }
     else {
-        // make the axis line
-        var line = document.createElement("DIV");
-        line.className = "timeline-axis";
-        line.style.position = "absolute";
-        line.style.left = "0px";
-        line.style.width = "100%";
-        line.style.height = "0px";
-        axis.frame.appendChild(line);
-
-        axis.line = line;
+        if (axis.backgroundLine) {
+            axis.frame.removeChild(axis.backgroundLine);
+            delete axis.backgroundLine;
+        }
     }
-    axis.line.style.top = size.axis.line + "px";
+
+    // line before all axis elements
+    if (hasAxis) {
+        if (axis.line) {
+            // put this line at the end of all childs
+            var line = axis.frame.removeChild(axis.line);
+            axis.frame.appendChild(line);
+        }
+        else {
+            // make the axis line
+            var line = document.createElement("DIV");
+            line.className = "timeline-axis";
+            line.style.position = "absolute";
+            line.style.left = "0px";
+            line.style.width = "100%";
+            line.style.height = "0px";
+            axis.frame.appendChild(line);
+
+            axis.line = line;
+        }
+        axis.line.style.top = size.axis.line + "px";
+    }
+    else {
+        if (axis.line && axis.line.parentElement) {
+            axis.frame.removeChild(axis.line);
+            delete axis.line;
+        }
+    }
 };
 
 /**
@@ -2166,7 +2192,8 @@ links.Timeline.prototype.recalcSize = function() {
         characterMinorHeight = axis.characterMinor ? axis.characterMinor.clientHeight : 0,
         characterMajorWidth  = axis.characterMajor ? axis.characterMajor.clientWidth : 0,
         characterMajorHeight = axis.characterMajor ? axis.characterMajor.clientHeight : 0,
-        axisHeight = characterMinorHeight + (options.showMajorLabels ? characterMajorHeight : 0),
+        axisHeight = (options.showMinorLabels ? characterMinorHeight : 0) +
+            (options.showMajorLabels ? characterMajorHeight : 0),
         actualHeight = size.actualHeight || axisHeight;
 
     // TODO: move checking for loaded items when creating the dom
@@ -2386,7 +2413,8 @@ links.Timeline.prototype.recalcSize = function() {
     size.axis.top = axisTop;
     size.axis.line = axisLine;
     size.axis.height = axisHeight;
-    size.axis.labelMajorTop = options.axisOnTop ? 0 : axisLine + characterMinorHeight;
+    size.axis.labelMajorTop = options.axisOnTop ? 0 : axisLine +
+        (options.showMinorLabels ? characterMinorHeight : 0);
     size.axis.labelMinorTop = options.axisOnTop ?
         (options.showMajorLabels ? characterMajorHeight : 0) :
         axisLine;
@@ -2917,6 +2945,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
 
                     item.start = params.itemStart;
                     item.end = params.itemEnd;
+                    // TODO: original group hould be restored too
                     this.repositionItem(item, params.itemLeft, params.itemRight);
                 }
             }
