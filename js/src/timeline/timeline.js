@@ -2894,10 +2894,12 @@ links.Timeline.prototype.onMouseMove = function (event) {
         var previousOffset = params.previousOffset || 0;
         var frameOffset = previousOffset + (currentLeft - previousLeft);
         var frameLeft = -diffMillisecs / interval * size.contentWidth + frameOffset;
-        params.previousOffset = frameOffset;
-        params.previousLeft = frameLeft;
 
         dom.items.frame.style.left = (frameLeft) + "px";
+
+        // read the left again from DOM (IE8- rounds the value)
+        params.previousOffset = frameOffset;
+        params.previousLeft = parseFloat(dom.items.frame.style.left) || frameLeft;
 
         this.redrawCurrentTime();
         this.redrawCustomTime();

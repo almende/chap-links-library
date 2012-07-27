@@ -1,14 +1,17 @@
 CHAP Links Library - Timeline
 
-version 2.2.0
+<not yet released>, version 2.2.0
 
 - added an option showMinorLabels. By setting both showMinorLabels and
   showMajorLabels, true, the axis will not be visible.
+- fixed issue #6: items and axis did not move with the speed when moving
+  the Timeline under IE8 and older.
 - fixed issue #8: start, end, min, max not working correctly around Date(0).
 - fixed issue #9. It is now possible to specify only start or end in the
   options, instead of having to specify both.
 - fixed issue #12: the group of an item was not restored after canceling a
   change.
+
 
 2012-06-18, version 2.1.2
 
