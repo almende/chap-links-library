@@ -4,10 +4,11 @@ version 2.2.0
 
 - added an option showMinorLabels. By setting both showMinorLabels and
   showMajorLabels, true, the axis will not be visible.
+- fixed issue #8: start, end, min, max not working correctly around Date(0).
+- fixed issue #9. It is now possible to specify only start or end in the
+  options, instead of having to specify both.
 - fixed issue #12: the group of an item was not restored after canceling a
   change.
-- fixed issue #8: start, end, min, max not working correctly around Date(0).
-
 
 2012-06-18, version 2.1.2
 

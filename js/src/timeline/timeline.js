@@ -223,7 +223,7 @@ links.Timeline.prototype.draw = function(data, options) {
     this.setData(data);
 
     // set timer range. this will also redraw the timeline
-    if (options && options.start && options.end) {
+    if (options && (options.start || options.end)) {
         this.setVisibleChartRange(options.start, options.end);
     }
     else if (this.firstDraw) {
@@ -474,8 +474,8 @@ links.Timeline.prototype.setSize = function(width, height) {
 
 /**
  * Set a new value for the visible range int the timeline.
- * Set start to null to include everything from the earliest date to end.
- * Set end to null to include everything from start to the last date.
+ * Set start undefined to include everything from the earliest date to end.
+ * Set end undefined to include everything from start to the last date.
  * Example usage:
  *    myTimeline.setVisibleChartRange(new Date("2010-08-22"),
  *                                    new Date("2010-09-13"));
@@ -485,16 +485,41 @@ links.Timeline.prototype.setSize = function(width, height) {
  *                           directly redrawn
  */
 links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
-    if (start == undefined) {
-        // default of 3 days ago
-        start = new Date();
-        start.setDate(start.getDate() - 3);
+    var range = {};
+    if (!start || !end) {
+        // retrieve the date range of the items
+        range = this.getDataRange(true);
     }
 
-    if (end == undefined) {
-        // default of 4 days ahead
-        end = new Date();
-        end.setDate(start.getDate() + 4);
+    if (!start) {
+        if (end) {
+            if (range.min && range.min.valueOf() < end.valueOf()) {
+                // start of the data
+                start = range.min;
+            }
+            else {
+                // 7 days before the end
+                start = new Date(end);
+                start.setDate(start.getDate() - 7);
+            }
+        }
+        else {
+            // default of 3 days ago
+            start = new Date();
+            start.setDate(start.getDate() - 3);
+        }
+    }
+
+    if (!end) {
+        if (range.max) {
+            // end of the data
+            end = range.max;
+        }
+        else {
+            // 7 days after start
+            end = new Date(start);
+            end.setDate(end.getDate() + 7);
+        }
     }
 
     // prevent start Date <= end Date
@@ -503,7 +528,7 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
         end.setDate(end.getDate() + 7);
     }
 
-    // limit to the allowed range (dont let this do by applyRange,
+    // limit to the allowed range (don't let this do by applyRange,
     // because that method will try to maintain the interval (end-start)
     var min = this.options.min ? this.options.min.valueOf() : undefined;
     if (min != undefined && start.valueOf() < min) {
@@ -531,43 +556,10 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
  * Change the visible chart range such that all items become visible
  */
 links.Timeline.prototype.setVisibleChartRangeAuto = function() {
-    var items = this.items,
-        startMin = undefined, // long value of a data
-        endMax = undefined;   // long value of a data
-
-    // find earliest start date from the data
-    for (var i = 0, iMax = items.length; i < iMax; i++) {
-        var item = items[i],
-            start = item.start ? item.start.valueOf() : undefined,
-            end = item.end ? item.end.valueOf() : start;
-
-        if (startMin != undefined && start != undefined) {
-            startMin = Math.min(startMin, start);
-        }
-        else {
-            startMin = start;
-        }
-        if (endMax != undefined && end != undefined) {
-            endMax = Math.max(endMax, end);
-        }
-        else {
-            endMax = end;
-        }
-    }
-
-    if (startMin != undefined && endMax != undefined) {
-        // zoom out 5% such that you have a little white space on the left and right
-        var center = (endMax + startMin) / 2,
-            diff = (endMax - startMin);
-        startMin = startMin - diff * 0.05;
-        endMax = endMax + diff * 0.05;
-
-        // adjust the start and end date
-        this.setVisibleChartRange(new Date(startMin), new Date(endMax));
-    }
-    else {
-        this.setVisibleChartRange(undefined, undefined);
-    }
+    var range = this.getDataRange(true),
+        start = undefined,
+        end = undefined;
+    this.setVisibleChartRange(range.min, range.max);
 };
 
 /**
@@ -597,6 +589,55 @@ links.Timeline.prototype.getVisibleChartRange = function() {
     return range;
 };
 
+/**
+ * Get the date range of the items.
+ * @param {boolean} [withMargin]  If true, 5% of whitespace is added to the
+ *                                left and right of the range. Default is false.
+ * @return {Object} range    An object with parameters min and max.
+ *                           - {Date} min is the lowest start date of the items
+ *                           - {Date} max is the highest start or end date of the items
+ *                           If no data is available, the values of min and max
+ *                           will be undefined
+ */
+links.Timeline.prototype.getDataRange = function (withMargin) {
+    var items = this.items,
+        min = undefined,
+        max = undefined;
+
+    if (items) {
+        for (var i = 0, iMax = items.length; i < iMax; i++) {
+            var item = items[i],
+                start = item.start ? item.start.valueOf() : undefined,
+                end = item.end ? item.end.valueOf() : start;
+
+            if (min != undefined && start != undefined) {
+                min = Math.min(min, start);
+            }
+            else {
+                min = start;
+            }
+
+            if (max != undefined && end != undefined) {
+                max = Math.max(max, end);
+            }
+            else {
+                max = end;
+            }
+        }
+    }
+
+    if (min && max && withMargin) {
+        // zoom out 5% such that you have a little white space on the left and right
+        var diff = (max.valueOf() - min.valueOf());
+        min = new Date(min.valueOf() - diff * 0.05);
+        max = new Date(max.valueOf() + diff * 0.05);
+    }
+
+    return {
+        'min': min ? new Date(min) : undefined,
+        'max': max ? new Date(max) : undefined
+    };
+}
 
 /**
  * Redraw the timeline. This needs to be executed after the start and/or
