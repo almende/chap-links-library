@@ -185,6 +185,10 @@ div.lastupdate {
   color: #2B7CE9;  
 }
 
+img {
+    border: none;
+}
+
 img.thumb {
   border: 1px solid #a0c0f0;
   width: 120px;

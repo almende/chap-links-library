@@ -386,7 +386,7 @@ var options = {
     <td>end</td>
     <td>Date</td>
     <td>none</td>
-    <td>The initial start date for the axis of the timeline.
+    <td>The initial end date for the axis of the timeline.
         If not provided, the latest date present in the events is taken as end date.</td>
 </tr>
 
@@ -581,10 +581,23 @@ var options = {
     <td>showMajorLabels</td>
     <td>boolean</td>
     <td>true</td>
-    <td>By default, the timeline shows both minor and major labels.
+    <td>By default, the timeline shows both minor and major date labels on the
+        horizontal axis.
         For example the minor labels show minutes and the major labels show hours.
-        When <code>showMajorLabels</code> is <code>false</code>, only the minor
-        labels are shown.</td>
+        When <code>showMajorLabels</code> is <code>false</code>, no major labels
+        are shown.</td>
+</tr>
+<tr>
+    <td>showMinorLabels</td>
+    <td>boolean</td>
+    <td>true</td>
+    <td>By default, the timeline shows both minor and major date labels on the
+        horizontal axis.
+        For example the minor labels show minutes and the major labels show hours.
+        When <code>showMinorLabels</code> is <code>false</code>, no minor labels
+        are shown. When both <code>showMajorLabels</code> and
+        <code>showMinorLabels</code> are false, no horizontal axis will be
+        visible.</td>
 </tr>
 
 <tr>
