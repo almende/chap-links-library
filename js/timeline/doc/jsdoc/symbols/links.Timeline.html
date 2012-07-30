@@ -274,15 +274,6 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addGroup">addGroup</a></b>(groupName)
-								</div>
-								<div class="description">Add a group.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addItem">addItem</a></b>(itemData)
 								</div>
 								<div class="description">Add a new item.</div>
@@ -461,15 +452,6 @@ HTML element</div>
 						</tr>
 					
 						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#findGroup">findGroup</a></b>(group)
-								</div>
-								<div class="description">Find a group by its name.</div>
-							</td>
-						</tr>
-					
-						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
 								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.getAbsoluteLeft">getAbsoluteLeft</a></b>(elem)
@@ -526,9 +508,27 @@ HTML element</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroup">getGroup</a></b>(groupName)
+								</div>
+								<div class="description">Get a group by the group name.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroupFromHeight">getGroupFromHeight</a></b>(height, )
 								</div>
 								<div class="description">Find the group from a given height in the timeline</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroupName">getGroupName</a></b>(groupObject)
+								</div>
+								<div class="description">Get the group name from a group object.</div>
 							</td>
 						</tr>
 					
@@ -957,15 +957,6 @@ executed once.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#setGroups">setGroups</a></b>(data)
-								</div>
-								<div class="description">Set the groups available in the given dataset</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#setOptions">setOptions</a></b>(options)
 								</div>
 								<div class="description">Set options for the timeline.</div>
@@ -1248,50 +1239,6 @@ executed once.</div>
 						
 						
 						
-						
-						
-						
-
-					<hr />
-				
-					<a name="addGroup"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{Object}</span>
-					<b>addGroup</b>(groupName)
-					
-					</div>
-					<div class="description">
-						Add a group. When the group already exists, no new group is created
-but the existing group is returned.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{String}</span> <b>groupName</b>
-									
-								</dt>
-								<dd>the name of the group</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Object}</span> groupObject</dd>
-							
-							</dl>
 						
 						
 						
@@ -2012,49 +1959,6 @@ HTML element
 
 					<hr />
 				
-					<a name="findGroup"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{Object}</span>
-					<b>findGroup</b>(group)
-					
-					</div>
-					<div class="description">
-						Find a group by its name.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{String}</span> <b>group</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Object}</span> a group object or undefined when group is not found</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
 					<a name=".getAbsoluteLeft"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -2288,6 +2192,50 @@ the current time has been changed via the method setCurrentTime.
 
 					<hr />
 				
+					<a name="getGroup"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Object}</span>
+					<b>getGroup</b>(groupName)
+					
+					</div>
+					<div class="description">
+						Get a group by the group name. When the group does not exist,
+it will be created.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>groupName</b>
+									
+								</dt>
+								<dd>the name of the group</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Object}</span> groupObject</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name="getGroupFromHeight"> </a>
 					<div class="fixedFont">
 					
@@ -2329,6 +2277,50 @@ the current time has been changed via the method setCurrentTime.
 							<dt class="heading">Returns:</dt>
 							
 								<dd><span class="light fixedFont">{Object}</span> group   The group object, or undefined if out of range</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="getGroupName"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{String}</span>
+					<b>getGroupName</b>(groupObject)
+					
+					</div>
+					<div class="description">
+						Get the group name from a group object.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>groupObject</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{String}</span> groupName   the name of the group, or undefined when group
+                             was not provided</dd>
 							
 							</dl>
 						
@@ -3903,43 +3895,7 @@ The custom time bar can be used to display events in past or future.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable | array}</span> <b>data</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="setGroups"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>setGroups</b>(data)
-					
-					</div>
-					<div class="description">
-						Set the groups available in the given dataset
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable | array}</span> <b>data</b>
+									<span class="light fixedFont">{google.visualization.DataTable | Array}</span> <b>data</b>
 									
 								</dt>
 								<dd></dd>
@@ -4760,7 +4716,7 @@ For example, try zoomfactor = 0.1 or -0.1
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Fri Jul 27 2012 19:31:49 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Jul 30 2012 10:44:04 GMT+0200 (CEST)
 		</div>
 	</body>
 </html>

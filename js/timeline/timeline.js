@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-07-27
- * @version 2.2.0
+ * @date    2012-07-30
+ * @version 2.2.1
  */
 
 /*
@@ -256,7 +256,7 @@ links.Timeline.prototype.setOptions = function(options) {
 
 /**
  * Set data for the timeline
- * @param {google.visualization.DataTable | array} data
+ * @param {google.visualization.DataTable | Array} data
  */
 links.Timeline.prototype.setData = function(data) {
     // unselect any previously selected item
@@ -266,13 +266,12 @@ links.Timeline.prototype.setData = function(data) {
         data = [];
     }
 
+    // clear all data
     this.items = [];
     this.data = data;
     var items = this.items;
     var options = this.options;
-
-    // create groups from the data
-    this.setGroups(data);
+    this.deleteGroups();
 
     if (google && google.visualization &&
         data instanceof google.visualization.DataTable) {
@@ -290,7 +289,7 @@ links.Timeline.prototype.setData = function(data) {
     else if (links.Timeline.isArray(data)) {
         // read JSON array
         for (var row = 0, rows = data.length; row < rows; row++) {
-            var itemData = data[row]
+            var itemData = data[row];
             var item = this.createItem(itemData);
             items.push(item);
         }
@@ -308,42 +307,6 @@ links.Timeline.prototype.setData = function(data) {
     this.redrawFrame();      // redraw the items on the final positions
     this.size.dataChanged = false;
 };
-
-/**
- * Set the groups available in the given dataset
- * @param {google.visualization.DataTable | array} data
- */
-links.Timeline.prototype.setGroups = function (data) {
-    this.deleteGroups();
-    var groups = this.groups;
-    var groupIndexes = this.groupIndexes;
-
-    if (google && google.visualization &&
-        data instanceof google.visualization.DataTable) {
-        // get groups from DataTable
-        var hasGroups = (data.getNumberOfColumns() > 3);
-        if (hasGroups) {
-            var groupNames = data.getDistinctValues(3);
-            for (var i = 0, iMax = groupNames.length; i < iMax; i++) {
-                this.addGroup(groupNames[i]);
-            }
-        }
-    }
-    else if (links.Timeline.isArray(data)){
-        // get groups from JSON Array
-        for (var i = 0, iMax = data.length; i < iMax; i++) {
-            var row = data[i],
-                group = row.group;
-            if (group) {
-                this.addGroup(group);
-            }
-        }
-    }
-    else {
-        throw 'Unknown data type. DataTable or Array expected.';
-    }
-};
-
 
 /**
  * Return the original data table.
@@ -1602,7 +1565,7 @@ links.Timeline.prototype.redrawGroups = function() {
         for (var i = 0, iMax = Math.min(current, needed); i < iMax; i++) {
             var group = groups[i];
             var label = labels[i];
-            label.innerHTML = group.content;
+            label.innerHTML = this.getGroupName(group);
             label.style.display = '';
         }
 
@@ -1617,7 +1580,7 @@ links.Timeline.prototype.redrawGroups = function() {
             if (options.groupsWidth === undefined) {
                 label.style.whiteSpace = "nowrap";
             }
-            label.innerHTML = group.content;
+            label.innerHTML = this.getGroupName(group);
             frame.appendChild(label);
             labels[i] = label;
 
@@ -2694,7 +2657,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
             'start': xstart,
             'end': xend,
             'content': content,
-            'group': group.content
+            'group': this.getGroupName(group)
         });
         params.itemIndex = (this.items.length - 1);
         this.selectItem(params.itemIndex);
@@ -2858,7 +2821,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
 
                     //item.group = group;
                     var index = this.items.indexOf(item);
-                    this.changeItem(index, {'group': group.content});
+                    this.changeItem(index, {'group': this.getGroupName(group)});
 
                     item.top = group.top;
                     this.repositionItem(item);
@@ -2964,7 +2927,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
                         'start': item.start,
                         'end': item.end,
                         'content': item.content,
-                        'group': item.group ? item.group.content : undefined
+                        'group': this.getGroupName(item.group)
                     });
                 }
                 else {
@@ -3029,6 +2992,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     this.unselectItem();
                     this.redrawDeleteButton();
                     this.redrawDragAreas();
+                    this.trigger('select');
                 }
             }
         }
@@ -3082,7 +3046,7 @@ links.Timeline.prototype.onDblClick = function (event) {
             'start': xstart,
             'end': xend,
             'content': content,
-            'group': group.content
+            'group': this.getGroupName(group)
         });
         params.itemIndex = (this.items.length - 1);
         this.selectItem(params.itemIndex);
@@ -3547,7 +3511,7 @@ links.Timeline.prototype.getItem = function (index) {
     }
     properties.content = item.content;
     if (item.group) {
-        properties.group = item.group.content;
+        properties.group = this.getGroupName(item.group);
     }
 
     return properties;
@@ -3586,8 +3550,6 @@ links.Timeline.prototype.addItems = function (items) {
     for (var i = 0, iMax = newItems.length; i < iMax; i++) {
         var itemData = items[i];
 
-        this.addGroup(itemData.group);
-
         curItems.push(this.createItem(itemData));
 
         var index = curItems.length - 1;
@@ -3615,7 +3577,7 @@ links.Timeline.prototype.createItem = function(itemData) {
         'end': itemData.end,
         'content': itemData.content,
         'type': itemData.end ? 'range' : this.options.style,
-        'group': this.findGroup(itemData.group),
+        'group': this.getGroup(itemData.group),
         'top': 0,
         'left': 0,
         'width': 0,
@@ -3637,28 +3599,21 @@ links.Timeline.prototype.createItem = function(itemData) {
  *                              {String} group (optional)
  */
 links.Timeline.prototype.changeItem = function (index, itemData) {
-    if (index >= this.items.length) {
+    var item = this.items[index];
+    if (!item) {
         throw "Cannot change item, index out of range";
     }
 
-    var style = this.options.style;
-    var item = this.items[index];
+    // create new item
+    var newItem = {
+        'start': itemData.hasOwnProperty('start') ? itemData.start : item.start,
+        'end': itemData.hasOwnProperty('end') ? itemData.end : item.end,
+        'content': itemData.hasOwnProperty('content') ? itemData.content : item.content,
+        'group': itemData.hasOwnProperty('group') ? itemData.group : this.getGroupName(item.group)
+    };
+    this.items[index] = this.createItem(newItem);
 
-    // edit the item
-    if (itemData.start) {
-        item.start = itemData.start;
-    }
-    if (itemData.end) {
-        item.end = itemData.end;
-    }
-    if (itemData.content) {
-        item.content = itemData.content;
-    }
-    if (itemData.group) {
-        item.group = this.addGroup(itemData.group);
-    }
-
-    // update the original data table
+        // update the original data table
     this.updateData(index, itemData);
 
     // redraw timeline
@@ -3668,17 +3623,6 @@ links.Timeline.prototype.changeItem = function (index, itemData) {
     this.stackEvents(false);
     this.redrawFrame();
     this.size.dataChanged = false;
-};
-
-
-/**
- * Find a group by its name.
- * @param {String} group
- * @return {Object} a group object or undefined when group is not found
- */
-links.Timeline.prototype.findGroup = function (group) {
-    var index = this.groupIndexes[group];
-    return (index != undefined) ? this.groups[index] : undefined;
 };
 
 /**
@@ -3691,12 +3635,12 @@ links.Timeline.prototype.deleteGroups = function () {
 
 
 /**
- * Add a group. When the group already exists, no new group is created
- * but the existing group is returned.
+ * Get a group by the group name. When the group does not exist,
+ * it will be created.
  * @param {String} groupName   the name of the group
  * @return {Object} groupObject
  */
-links.Timeline.prototype.addGroup = function (groupName) {
+links.Timeline.prototype.getGroup = function (groupName) {
     var groups = this.groups,
         groupIndexes = this.groupIndexes,
         groupObj = undefined;
@@ -3733,6 +3677,16 @@ links.Timeline.prototype.addGroup = function (groupName) {
 
     return groupObj;
 };
+
+/**
+ * Get the group name from a group object.
+ * @param {Object} groupObject
+ * @return {String} groupName   the name of the group, or undefined when group
+ *                              was not provided
+ */
+links.Timeline.prototype.getGroupName = function (groupObj) {
+    return groupObj ? groupObj.content : undefined;
+}
 
 /**
  * Cancel a change item

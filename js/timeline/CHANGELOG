@@ -1,6 +1,13 @@
 CHAP Links Library - Timeline
 
 
+2012-07-30, version 2.2.1
+
+- fixed the 'select' event not being fired when an item gets unselected.
+- fixed method changeItem not dealing with changing the type of the item
+  from box to range or vice versa.
+
+
 2012-07-27, version 2.2.0
 
 - added an option showMinorLabels. By setting both showMinorLabels and
