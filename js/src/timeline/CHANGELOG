@@ -1,6 +1,11 @@
 CHAP Links Library - Timeline
 
 
+<not yet released>, version 2.2.1
+
+- fixed the 'select' event not being fired when an item gets unselected.
+
+
 2012-07-27, version 2.2.0
 
 - added an option showMinorLabels. By setting both showMinorLabels and

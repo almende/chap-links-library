@@ -3029,6 +3029,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     this.unselectItem();
                     this.redrawDeleteButton();
                     this.redrawDragAreas();
+                    this.trigger('select');
                 }
             }
         }

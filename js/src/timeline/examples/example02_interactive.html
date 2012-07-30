@@ -59,7 +59,7 @@
                 width:  "100%",
                 height: "300px",
                 //height: "auto",
-                editable: true,   // enable dragging and editing events
+                editable: true,   // enable dragging and editing items
                 enableKeys: true,
                 axisOnTop: false,
                 showNavigation: true,
@@ -83,31 +83,36 @@
             onrangechange();
         }
 
-        // Make a callback function for the select event
+        // Make a callback function for the select item
         var onselect = function (event) {
             var row = getSelectedRow();
 
-            document.getElementById("info").innerHTML += "event " + row + " selected<br>";
-            // Note: you can retrieve the contents of the selected row with
-            //       data.getValue(row, 2);
+            if (row != undefined) {
+                document.getElementById("info").innerHTML += "item " + row + " selected<br>";
+                // Note: you can retrieve the contents of the selected row with
+                //       data.getValue(row, 2);
+            }
+            else {
+                document.getElementById("info").innerHTML += "no item selected<br>";
+            }
         };
 
-        // callback function for the change event
+        // callback function for the change item
         var onchange = function () {
             var row = getSelectedRow();
-            document.getElementById("info").innerHTML += "event " + row + " changed<br>";
+            document.getElementById("info").innerHTML += "item " + row + " changed<br>";
         };
 
-        // callback function for the delete event
+        // callback function for the delete item
         var ondelete = function () {
             var row = getSelectedRow();
-            document.getElementById("info").innerHTML += "event " + row + " deleted<br>";
+            document.getElementById("info").innerHTML += "item " + row + " deleted<br>";
         };
 
-        // callback function for the edit event
+        // callback function for the edit item
         var onedit = function () {
             var row = getSelectedRow();
-            document.getElementById("info").innerHTML += "event " + row + " edit<br>";
+            document.getElementById("info").innerHTML += "item " + row + " edit<br>";
             var content = data.getValue(row, 2);
             var newContent = prompt("Enter content", content);
             if (newContent != undefined) {
@@ -116,10 +121,10 @@
             timeline.redraw();
         };
 
-        // callback function for the add event
+        // callback function for the add item
         var onadd = function () {
             var row = getSelectedRow();
-            document.getElementById("info").innerHTML += "event " + row + " created<br>";
+            document.getElementById("info").innerHTML += "item " + row + " created<br>";
             var content = data.getValue(row, 2);
             var newContent = prompt("Enter content", content);
             if (newContent != undefined) {
@@ -127,7 +132,7 @@
                 timeline.redraw();
             }
             else {
-                // cancel adding the event
+                // cancel adding the item
                 timeline.cancelAdd();
             }
         };
@@ -180,8 +185,8 @@
 <p>
 <ul>
     <li>Click and drag on the time axis to move the timeline, scroll to zoom the timeline</li>
-    <li>Click and drag an event to change its date, double-click to change its text</li>
-    <li>Click or drag on an empty spot in the timeline to create a new event</li>
+    <li>Click and drag an item to change its date, double-click to change its text</li>
+    <li>Click or drag on an empty spot in the timeline to create a new item</li>
 </ul>
 </p>
 <p>
