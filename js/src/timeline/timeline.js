@@ -256,7 +256,7 @@ links.Timeline.prototype.setOptions = function(options) {
 
 /**
  * Set data for the timeline
- * @param {google.visualization.DataTable | array} data
+ * @param {google.visualization.DataTable | Array} data
  */
 links.Timeline.prototype.setData = function(data) {
     // unselect any previously selected item
@@ -290,7 +290,7 @@ links.Timeline.prototype.setData = function(data) {
     else if (links.Timeline.isArray(data)) {
         // read JSON array
         for (var row = 0, rows = data.length; row < rows; row++) {
-            var itemData = data[row]
+            var itemData = data[row];
             var item = this.createItem(itemData);
             items.push(item);
         }
@@ -3638,28 +3638,27 @@ links.Timeline.prototype.createItem = function(itemData) {
  *                              {String} group (optional)
  */
 links.Timeline.prototype.changeItem = function (index, itemData) {
-    if (index >= this.items.length) {
+    var item = this.items[index];
+    if (!item) {
         throw "Cannot change item, index out of range";
     }
 
-    var style = this.options.style;
-    var item = this.items[index];
-
     // edit the item
-    if (itemData.start) {
+    if (itemData.hasOwnProperty('start')) {
         item.start = itemData.start;
     }
-    if (itemData.end) {
+    if (itemData.hasOwnProperty('end')) {
         item.end = itemData.end;
     }
-    if (itemData.content) {
+    if (itemData.hasOwnProperty('content')) {
         item.content = itemData.content;
     }
     if (itemData.group) {
         item.group = this.addGroup(itemData.group);
     }
+    item.type = item.end ? 'range' : this.options.style;
 
-    // update the original data table
+        // update the original data table
     this.updateData(index, itemData);
 
     // redraw timeline
