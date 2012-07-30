@@ -1,7 +1,7 @@
 CHAP Links Library - Timeline
 
 
-<not yet released>, version 2.2.1
+2012-07-30, version 2.2.1
 
 - fixed the 'select' event not being fired when an item gets unselected.
 - fixed method changeItem not dealing with changing the type of the item
