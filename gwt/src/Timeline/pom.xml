@@ -8,7 +8,7 @@
 		<version>2.2.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>timeline</artifactId>
+	<artifactId>gwt-links-timeline</artifactId>
 	<name>${project.artifactId}</name>
 
 	<dependencies>
