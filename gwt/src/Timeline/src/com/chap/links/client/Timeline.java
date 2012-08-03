@@ -1,21 +1,21 @@
 /**
  * @file Graph.java
- * 
- * @brief 
+ *
+ * @brief
  * TODO: brief
  *
  * Timeline is part of the CHAP Links library.
- * 
+ *
  * Timeline is tested on Firefox 3.6, Safari 5.0, Chrome 6.0, Opera 10.6, and
  * Internet Explorer 6-9.
  *
  * @license
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy 
+ * use this file except in compliance with the License. You may obtain a copy
  * of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -45,6 +45,7 @@ import com.chap.links.client.events.TimeChangedHandler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.visualization.client.AbstractDataTable;
 import com.google.gwt.visualization.client.AbstractDrawOptions;
 import com.google.gwt.visualization.client.Selectable;
@@ -53,13 +54,13 @@ import com.google.gwt.visualization.client.visualizations.Visualization;
 
 
 /**
- * The timeline is a visualization chart to visualize events in time. 
- * 
+ * The timeline is a visualization chart to visualize events in time.
+ *
  * The timeline is developed in javascript as a Google Visualization Chart.
  * This Timeline class is a GWT wrapper for the javascript code.
- */ 
+ */
 public class Timeline extends Visualization<Timeline.Options>
-implements Selectable {
+implements Selectable, RequiresResize {
 	JavaScriptObject data = null;
 	Options options = null;
 
@@ -91,7 +92,7 @@ implements Selectable {
 		 */
 		public final native void setWidth(int width) /*-{
 			this.width = width + "px";
-		}-*/;		
+		}-*/;
 
 		/**
 		 * Set the width for the timeline in pixels or percentages.
@@ -99,7 +100,7 @@ implements Selectable {
 		 */
 		public final native void setWidth(String width) /*-{
 			this.width = width;
-		}-*/;		
+		}-*/;
 
 		/**
 		 * Set the height for the timeline in pixels.
@@ -136,7 +137,7 @@ implements Selectable {
 		 */
 		public final native void setGroupsWidth(int width) /*-{
 			this.groupsWidth = width + "px";
-		}-*/;		
+		}-*/;
 
 		/**
 		 * Set the width for the groups legend in pixels or percentages.
@@ -144,12 +145,12 @@ implements Selectable {
 		 */
 		public final native void setGroupsWidth(String width) /*-{
 			this.groupsWidth = width;
-		}-*/;	
+		}-*/;
 
 		/**
-		 * If true (default), items can be moved from one group to another. 
+		 * If true (default), items can be moved from one group to another.
 		 * Only applicable when groups are used. Default value is true.
-		 * @param groupsChangeable	
+		 * @param groupsChangeable
 		 */
 		public final native void setGroupsChangeable(boolean groupsChangeable) /*-{
 			this.groupsChangeable = groupsChangeable;
@@ -180,7 +181,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set a minimum Date for the visible range. 
+		 * Set a minimum Date for the visible range.
 		 * It will not be possible to move beyond this minimum.
 		 * @param min    Minimum date
 		 */
@@ -193,7 +194,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set a maximum Date for the visible range. 
+		 * Set a maximum Date for the visible range.
 		 * It will not be possible to move beyond this maximum.
 		 * @param max	Maximum date
 		 */
@@ -206,7 +207,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set a minimum interval for the visible range in milliseconds. 
+		 * Set a minimum interval for the visible range in milliseconds.
 		 * It will not be possible to zoom in further than this minimum.
 		 * @param intervalMin	Minimum interval in milliseconds (default is 10)
 		 */
@@ -219,7 +220,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set a maximum interval for the visible range in milliseconds. 
+		 * Set a maximum interval for the visible range in milliseconds.
 		 * It will not be possible to zoom out further than this maximum.
 		 * Default value equals about 10000 years.
 		 * @param intervalMax	Maximum interval in milliseconds
@@ -235,12 +236,12 @@ implements Selectable {
 		public enum SCALE {MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR};
 
 		/**
-		 * Set a custom scale. 
-		 * Automatic scaling will be disabled. For example scale=SCALE.MINUTES and 
-		 * step=5 will result in minor steps of 5 minutes, and major steps of an hour. 
-		 * Available scales: MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR. 
+		 * Set a custom scale.
+		 * Automatic scaling will be disabled. For example scale=SCALE.MINUTES and
+		 * step=5 will result in minor steps of 5 minutes, and major steps of an hour.
+		 * Available scales: MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR.
 		 * As step size, choose for example 1, 2, 5, or 10.
-		 * 
+		 *
 		 * @param scale
 		 * @param step
 		 */
@@ -248,37 +249,37 @@ implements Selectable {
 
 			// TODO: weird error with GWT JSNI and enums
 //			switch (scale) {
-//				case @com.chap.links.client.Timeline.Options.SCALE::MILLISECOND: 
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.MILLISECOND; break;	
-//				case @com.chap.links.client.Timeline.Options.SCALE::SECOND:			
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.SECOND; break;	
-//				case @com.chap.links.client.Timeline.Options.SCALE::MINUTE:			
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.MINUTE; break;	
-//				case @com.chap.links.client.Timeline.Options.SCALE::HOUR:				
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.HOUR; break;	
+//				case @com.chap.links.client.Timeline.Options.SCALE::MILLISECOND:
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.MILLISECOND; break;
+//				case @com.chap.links.client.Timeline.Options.SCALE::SECOND:
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.SECOND; break;
+//				case @com.chap.links.client.Timeline.Options.SCALE::MINUTE:
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.MINUTE; break;
+//				case @com.chap.links.client.Timeline.Options.SCALE::HOUR:
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.HOUR; break;
 //				case @com.chap.links.client.Timeline.Options.SCALE::DAY:
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;	
-//				case @com.chap.links.client.Timeline.Options.SCALE::MONTH:			 
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.MONTH; break;	
-//				case @com.chap.links.client.Timeline.Options.SCALE::YEAR:				
-//					this.scale = $wnd.links.Timeline.StepDate.SCALE.YEAR; break;	
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;
+//				case @com.chap.links.client.Timeline.Options.SCALE::MONTH:
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.MONTH; break;
+//				case @com.chap.links.client.Timeline.Options.SCALE::YEAR:
+//					this.scale = $wnd.links.Timeline.StepDate.SCALE.YEAR; break;
 //			}
 
 			switch (scale.toString()) {
-				case "MILLISECOND": 
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.MILLISECOND; break;	
-				case "SECOND":			
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.SECOND; break;	
-				case "MINUTE":			
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.MINUTE; break;	
-				case "HOUR":				
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.HOUR; break;	
+				case "MILLISECOND":
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.MILLISECOND; break;
+				case "SECOND":
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.SECOND; break;
+				case "MINUTE":
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.MINUTE; break;
+				case "HOUR":
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.HOUR; break;
 				case "DAY":
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;	
-				case "MONTH":			 
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.MONTH; break;	
-				case "YEAR":				
-					this.scale = $wnd.links.Timeline.StepDate.SCALE.YEAR; break;	
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;
+				case "MONTH":
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.MONTH; break;
+				case "YEAR":
+					this.scale = $wnd.links.Timeline.StepDate.SCALE.YEAR; break;
 			}
 
 			this.step = step;
@@ -301,8 +302,8 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set animate to true (default) or false. When true, events are moved 
-		 * animated when resizing or moving them. This is very pleasing for the eye, 
+		 * Set animate to true (default) or false. When true, events are moved
+		 * animated when resizing or moving them. This is very pleasing for the eye,
 		 * but does require more computational power.
 		 * @param animate
 		 */
@@ -313,7 +314,7 @@ implements Selectable {
 		/**
 		 * Set alignment for items with style "box". Choose from "center"
 		 * (default), "left", or "right".
-		 * @param alignment 
+		 * @param alignment
 		 */
 		public final native void setBoxAlign(String alignment) /*-{
 			var box = this.box;
@@ -325,8 +326,8 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set animating when zooming to true (default) or false. 
-		 * When true, events are moved animated when zooming the Timeline. This 
+		 * Set animating when zooming to true (default) or false.
+		 * When true, events are moved animated when zooming the Timeline. This
 		 * looks cool, but does require more computational power.
 		 * @param animateZoom
 		 */
@@ -335,7 +336,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * If true (default), the start and end of an event will be snapped nice	
+		 * If true (default), the start and end of an event will be snapped nice
 		 * integer values when moving or resizing the event.
 		 * @param snapEvents
 		 */
@@ -354,7 +355,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set the minimal distance between the events and the axis. 
+		 * Set the minimal distance between the events and the axis.
 		 * @param margin	 The minimum margin between events, in pixels. Default
 		 *								 is 10 pixels.
 		 */
@@ -363,9 +364,9 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * Set the width of the drag areas in pixels. When an event range is 
-		 * selected, it has a drag area on the left and right side, with which the 
-		 * start or end time of the even can be manipulated. 
+		 * Set the width of the drag areas in pixels. When an event range is
+		 * selected, it has a drag area on the left and right side, with which the
+		 * start or end time of the even can be manipulated.
 		 * @param dragAreaWidth	width of the drag areas pixels.
 		 */
 		public final native void setDragAreaWidth(int dragAreaWidth) /*-{
@@ -373,7 +374,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * If set to true, the events are stacked above each other to prevent	
+		 * If set to true, the events are stacked above each other to prevent
 		 * overlapping events.
 		 * @param stackEvents
 		 */
@@ -383,12 +384,12 @@ implements Selectable {
 
 		/**
 		 * If set to true (default), the major labels are shown. For example
-		 * if the minor scale is hours, the major scale is days. 
+		 * if the minor scale is hours, the major scale is days.
 		 * @param showMajorLabels
 		 */
 		public final native void setShowMajorLabels(boolean showMajorLabels) /*-{
 			this.showMajorLabels = showMajorLabels;
-		}-*/;				
+		}-*/;
 
 		/**
 		 * If set to true (default), a vertical line is shown at the current time
@@ -417,12 +418,12 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * If set to true, the custom time bar is shown. This vertical line can 
-		 * be dragged byIf true, the timeline shows a blue vertical line displaying 
-		 * a custom time. This line can be dragged by the user. The custom time can 
-		 * be utilized to show a state in the past or in the future. When the 
-		 * custom time bar is dragged by the user, an event is triggered, on which 
-		 * the contents of the timeline can be changed in to the state at that 
+		 * If set to true, the custom time bar is shown. This vertical line can
+		 * be dragged byIf true, the timeline shows a blue vertical line displaying
+		 * a custom time. This line can be dragged by the user. The custom time can
+		 * be utilized to show a state in the past or in the future. When the
+		 * custom time bar is dragged by the user, an event is triggered, on which
+		 * the contents of the timeline can be changed in to the state at that
 		 * moment in time.
 		 * Default is false
 		 * @param show
@@ -433,7 +434,7 @@ implements Selectable {
 
 		/**
 		 * If set to true, the axis is shown on top. If false (default), the axis
-		 * is shown at the bottom	
+		 * is shown at the bottom
 		 * @param axisOnTop
 		 */
 		public final native void setAxisOnTop(boolean axisOnTop) /*-{
@@ -441,7 +442,7 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * If set to true, the groups legend is shown at the right. 
+		 * If set to true, the groups legend is shown at the right.
 		 * If false (default), the groups are shown at the left.
 		 * @param groupsOnRight
 		 */
@@ -477,15 +478,15 @@ implements Selectable {
 		}-*/;
 
 		/**
-		 * If true (default), the events can be edited, created, deleted. 
-		 * Events can only be editable when the option selectable is true (default). 
+		 * If true (default), the events can be edited, created, deleted.
+		 * Events can only be editable when the option selectable is true (default).
 		 * When the Timeline is editable, it can fire events change, edit, add,
 		 * and delete.
 		 * @param editable
 		 */
 		public final native void setEditable(boolean editable) /*-{
 			this.editable = editable;
-		}-*/;			
+		}-*/;
 	}
 
 	/**
@@ -526,7 +527,7 @@ implements Selectable {
 	/**
 	 * Constructor
 	 * @param data		A google visualisation datatable containing the events.
-	 *								The table has three columns: 
+	 *								The table has three columns:
 	 *									start (type DATETIME),
 	 *									end (type DATETIME),
 	 *									content (type STRING)
@@ -543,7 +544,7 @@ implements Selectable {
 	/**
 	 * Constructor
 	 * @param data		A google visualisation datatable containing the events.
-	 *								The table has three columns: 
+	 *								The table has three columns:
 	 *									start (type DATETIME),
 	 *									end (type DATETIME),
 	 *									content (type STRING)
@@ -579,7 +580,7 @@ implements Selectable {
 	/**
 	 * Draw a new set of data in the timeline
 	 * @param jso The javascriptobject pointing to the js instance of the timeline
-	 * @param data 
+	 * @param data
 	 */
 	private native void nativeSetData(JavaScriptObject jso, JavaScriptObject data) /*-{
 		jso.draw(data);
@@ -597,7 +598,7 @@ implements Selectable {
 	/**
 	 * Get the current data table from the Timeline
 	 * @param jso The javascriptobject pointing to the js instance of the timeline
-	 * @return data 
+	 * @return data
 	 */
 	private native JavaScriptObject nativeGetData(JavaScriptObject jso) /*-{
 		return jso.getData();
@@ -637,7 +638,7 @@ implements Selectable {
 	 * @param index
 	 * @param item
 	 */
-	private native void nativeAddItem(JavaScriptObject jso, int index, 
+	private native void nativeAddItem(JavaScriptObject jso, int index,
 			JavaScriptObject item) /*-{
 		jso.addItem(index, item);
 	}-*/;
@@ -657,7 +658,7 @@ implements Selectable {
 	 * @param index
 	 * @param item
 	 */
-	private native void nativeChangeItem(JavaScriptObject jso, int index, 
+	private native void nativeChangeItem(JavaScriptObject jso, int index,
 			JavaScriptObject item) /*-{
 		jso.changeItem(index, item);
 	}-*/;
@@ -694,7 +695,7 @@ implements Selectable {
 		jso.deleteAllItems();
 	}-*/;
 
-	
+
 	/**
 	 * Reload data and redraw the timeline
 	 * Remark: you can only use this function after the timeline is drawn once
@@ -730,7 +731,7 @@ implements Selectable {
 
 	/**
 	 * Add a select handler.
-	 * When the user clicks on an event on the timeline, the corresponding row in 
+	 * When the user clicks on an event on the timeline, the corresponding row in
 	 * the data table is selected. The visualization then fires the select event.
 	 * @param handler		A select handler
 	 */
@@ -740,7 +741,7 @@ implements Selectable {
 
 	/**
 	 * Add a select handler.
-	 * When the user clicks on an event on the timeline, the corresponding row in 
+	 * When the user clicks on an event on the timeline, the corresponding row in
 	 * the data table is selected. The visualization then fires the select event.
 	 * @param handler		A select handler
 	 */
@@ -750,9 +751,9 @@ implements Selectable {
 
 	/**
 	 * Add a changerange handler.
-	 * The changerange event is fired repeatedly when the the visible range 
-	 * is being changed by user interaction (moving or zooming), but not after a 
-	 * call to the setVisibleChartRange method. The new range can be retrieved by 
+	 * The changerange event is fired repeatedly when the the visible range
+	 * is being changed by user interaction (moving or zooming), but not after a
+	 * call to the setVisibleChartRange method. The new range can be retrieved by
 	 * calling getVisibleChartRange method.
 	 * @param handler		A select handler
 	 */
@@ -762,9 +763,9 @@ implements Selectable {
 
 	/**
 	 * Add a changerange handler.
-	 * The changerange event is fired repeatedly when the the visible range 
-	 * is being changed by user interaction (moving or zooming), but not after a 
-	 * call to the setVisibleChartRange method. The new range can be retrieved by 
+	 * The changerange event is fired repeatedly when the the visible range
+	 * is being changed by user interaction (moving or zooming), but not after a
+	 * call to the setVisibleChartRange method. The new range can be retrieved by
 	 * calling getVisibleChartRange method.
 	 * @param handler		A select handler
 	 */
@@ -774,9 +775,9 @@ implements Selectable {
 
 	/**
 	 * Add a changeranged handler.
-	 * The changeranged event is fired once after the visible range has been 
-	 * changed by user interaction (moving or zooming), but not after a call to	
-	 * the setVisibleChartRange method. The new range can be retrieved by calling 
+	 * The changeranged event is fired once after the visible range has been
+	 * changed by user interaction (moving or zooming), but not after a call to
+	 * the setVisibleChartRange method. The new range can be retrieved by calling
 	 * getVisibleChartRange method.
 	 * @param handler		A select handler
 	 */
@@ -786,11 +787,11 @@ implements Selectable {
 
 	/**
 	 * Add an add handler.
-	 * An event is about to be added. Fired after the user has clicked the button 
-	 * "Add event" and created a new event by clicking or moving an event into	
-	 * the Timeline. 
-	 * The Add event can only occur when the Timeline is made editable (width 
-	 * option.setEditable(true)). 
+	 * An event is about to be added. Fired after the user has clicked the button
+	 * "Add event" and created a new event by clicking or moving an event into
+	 * the Timeline.
+	 * The Add event can only occur when the Timeline is made editable (width
+	 * option.setEditable(true)).
 	 * The AddHandler is defined inside the class Timeline.
 	 * @param handler		An add handler
 	 */
@@ -800,7 +801,7 @@ implements Selectable {
 
 	/**
 	 * Add a change handler.
-	 * The change event is fired after the position of an event is changed 
+	 * The change event is fired after the position of an event is changed
 	 * by dragging it in the Timeline. The Change event can only occur when
 	 * the Timeline is made editable (width option.setEditable(true)).
 	 * The ChangeHandler is defined inside the class Timeline.
@@ -812,10 +813,10 @@ implements Selectable {
 
 	/**
 	 * Add an delete handler.
-	 * An event is about to be deleted. Fired after the user has clicked the	
-	 * button "Delete event". 
-	 * The Delete event can only occur when the Timeline is made editable (width 
-	 * option.setEditable(true)). 
+	 * An event is about to be deleted. Fired after the user has clicked the
+	 * button "Delete event".
+	 * The Delete event can only occur when the Timeline is made editable (width
+	 * option.setEditable(true)).
 	 * The DeleteHandler is defined inside the class Timeline.
 	 * @param handler		A delete handler
 	 */
@@ -826,8 +827,8 @@ implements Selectable {
 	/**
 	 * Add an edit handler.
 	 * An edit event is fired when the user double clicks an event.
-	 * The Timeline just fires the event, and a corresponding action should be 
-	 * implemented by 
+	 * The Timeline just fires the event, and a corresponding action should be
+	 * implemented by
 	 * The EditHandler is defined inside the class Timeline.
 	 * @param handler		An edit handler
 	 */
@@ -837,8 +838,8 @@ implements Selectable {
 
 	/**
 	 * Add a timechange handler.
-	 * The timechange event is fired repeatedly when the position of the 
-	 * custom-time bar is changed by dragging it in the Timeline. The timechange	
+	 * The timechange event is fired repeatedly when the position of the
+	 * custom-time bar is changed by dragging it in the Timeline. The timechange
 	 * event can only occur when the option showCustomTime is true
 	 * The TimeChangeHandler is defined inside the class Timeline.
 	 * @param handler		A change handler
@@ -849,8 +850,8 @@ implements Selectable {
 
 	/**
 	 * Add a timechanged handler.
-	 * The timechanged event is fired once when the position of the custom-time 
-	 * bar has been changed by dragging it in the Timeline. The timechanged event	
+	 * The timechanged event is fired once when the position of the custom-time
+	 * bar has been changed by dragging it in the Timeline. The timechanged event
 	 * can only occur when the option showCustomTime is true
 	 * The TimeChangedHandler is defined inside the class Timeline.
 	 * @param handler		A change handler
@@ -861,74 +862,74 @@ implements Selectable {
 
 	/**
 	 * Add a ready handler.
-	 * The ready event is fired when the Timeline is ready for external method 
+	 * The ready event is fired when the Timeline is ready for external method
 	 * calls.
 	 * @param handler		A ready handler
 	 */
 	public final void addReadyHandler(com.google.gwt.visualization.client.events.ReadyHandler handler) {
 		com.google.gwt.visualization.client.events.ReadyHandler.addHandler(this, "ready", handler);
-	}	
+	}
 
 	/**
 	 * Add a ready handler.
-	 * The ready event is fired when the Timeline is ready for external method 
+	 * The ready event is fired when the Timeline is ready for external method
 	 * calls.
 	 * @param handler		A ready handler
 	 */
 	public final void addReadyHandler(ReadyHandler handler) {
 		ReadyHandler.addHandler(this, "ready", handler);
-	}	
+	}
 
 	/**
-	 * Cancel a change event. 
-	 * This method can be called inside an event listener which catches the 
-	 * "change" event. The changed dates of the event will be undone. 
-	 */ 
+	 * Cancel a change event.
+	 * This method can be called inside an event listener which catches the
+	 * "change" event. The changed dates of the event will be undone.
+	 */
 	public void cancelChange () {
 		nativeCancelChange(getJso());
 	}
 
 	/**
-	 * Cancel a change event. 
-	 * This method can be called inside an event listener which catches the 
-	 * "change" event. The changed dates of the event will be undone. 
-	 */ 
+	 * Cancel a change event.
+	 * This method can be called inside an event listener which catches the
+	 * "change" event. The changed dates of the event will be undone.
+	 */
 	private native void nativeCancelChange(JavaScriptObject jso) /*-{
 	jso.cancelChange();
 	}-*/;
 
 	/**
-	 * Cancel adding an event. 
-	 * This method can be called inside an event listener which catches the 
-	 * "add" event. 
-	 */ 
+	 * Cancel adding an event.
+	 * This method can be called inside an event listener which catches the
+	 * "add" event.
+	 */
 	public void cancelAdd () {
 		nativeCancelAdd(getJso());
 	}
 
 	/**
-	 * Cancel adding an event. 
-	 * This method can be called inside an event listener which catches the 
-	 * "add" event. 
-	 */ 
+	 * Cancel adding an event.
+	 * This method can be called inside an event listener which catches the
+	 * "add" event.
+	 */
 	private native void nativeCancelAdd(JavaScriptObject jso) /*-{
 	jso.cancelAdd();
 	}-*/;
 
 	/**
-	 * Cancel deleting an event. 
-	 * This method can be called inside an event listener which catches the 
-	 * "delete" event. 
-	 */ 
+	 * Cancel deleting an event.
+	 * This method can be called inside an event listener which catches the
+	 * "delete" event.
+	 */
 	public void cancelDelete () {
 		nativeCancelDelete(getJso());
 	}
 
 	/**
-	 * Cancel deleting an event. 
-	 * This method can be called inside an event listener which catches the 
-	 * "delete" event. 
-	 */ 
+	 * Cancel deleting an event.
+	 * This method can be called inside an event listener which catches the
+	 * "delete" event.
+	 */
 	private native void nativeCancelDelete(JavaScriptObject jso) /*-{
 	jso.cancelDelete();
 	}-*/;
@@ -943,8 +944,8 @@ implements Selectable {
 
 	/**
 	 * Set a new selection
-	 * @param sel	 A Selection array containing one selection. The timeline 
-	 *							accepts only one selection element, which must have the 
+	 * @param sel	 A Selection array containing one selection. The timeline
+	 *							accepts only one selection element, which must have the
 	 *							property row.
 	 */
 	public final void setSelections(JsArray<Selection> sel) {
@@ -952,30 +953,30 @@ implements Selectable {
 	}
 
 	/**
-	 * Set a new start and end date 
+	 * Set a new start and end date
 	 * Use the function redraw() to redraw after changing the time
 	 * @param start		 A Date object containing the start date.
 	 * @param end			 A Date object containing the end date.
-	 */	
+	 */
 	public void setVisibleChartRange(Date start, Date end) {
 		nativeSetVisibleChartRange(getJso(), start.getTime(), end.getTime());
 	}
 
 	/**
-	 * Set a new value for the startDate. 
-	 * @param jso			 The javascriptobject pointing to the js instance of 
+	 * Set a new value for the startDate.
+	 * @param jso			 The javascriptobject pointing to the js instance of
 	 *									the timeline
 	 * @param start		 the timevalue of the start date.
 	 * @param end			 the timevalue of the end date.
-	 */	
-	private native void nativeSetVisibleChartRange(JavaScriptObject jso, 
+	 */
+	private native void nativeSetVisibleChartRange(JavaScriptObject jso,
 			double start, double end) /*-{
 		jso.setVisibleChartRange(new $wnd.Date(start), new $wnd.Date(end));
 	}-*/;
 
 	/**
 	 * Set the current time in the timeline.
-	 * This can for example be changed to match the time of a server or a 
+	 * This can for example be changed to match the time of a server or a
 	 * time offset of another time zone.
 	 * @param time
 	 */
@@ -985,16 +986,16 @@ implements Selectable {
 
 	/**
 	 * Set the current time in the timeline.
-	 * This can for example be changed to match the time of a server or a 
+	 * This can for example be changed to match the time of a server or a
 	 * time offset of another time zone.
 	 * @param time
 	 */
 	private native void nativeSetCurrentTime(JavaScriptObject jso, double time) /*-{
 		jso.setCurrentTime(new $wnd.Date(time));
-	}-*/;				
+	}-*/;
 
 	/**
-	 * Adjust the custom time in the timeline. Only applicable when the option 
+	 * Adjust the custom time in the timeline. Only applicable when the option
 	 * showCustomTime is true.
 	 * @param time
 	 */
@@ -1003,16 +1004,16 @@ implements Selectable {
 	}
 
 	/**
-	 * Adjust the custom time in the timeline. Only applicable when the option 
+	 * Adjust the custom time in the timeline. Only applicable when the option
 	 * showCustomTime is true.
 	 * @param time
 	 */
 	private native void nativeSetCustomTime(JavaScriptObject jso, double time) /*-{
 		jso.setCustomTime(new $wnd.Date(time));
-	}-*/;				
+	}-*/;
 
 	/**
-	 * Retrieve the custom time. Only applicable when the option showCustomTime 
+	 * Retrieve the custom time. Only applicable when the option showCustomTime
 	 * is true. time is a Date object.
 	 * @return time
 	 */
@@ -1021,30 +1022,30 @@ implements Selectable {
 	}
 
 	/**
-	 * Retrieve the custom time. Only applicable when the option showCustomTime 
+	 * Retrieve the custom time. Only applicable when the option showCustomTime
 	 * is true. time is a Date object.
 	 * @return time
 	 */
 	private native double nativeGetCustomTime(JavaScriptObject jso) /*-{
 		return jso.getCustomTime().getTime();
-	}-*/;				
+	}-*/;
 
 	/**
-	 * Move the visible range such that the current time is located in the center 
+	 * Move the visible range such that the current time is located in the center
 	 * of the timeline. This method does not trigger a rangechange event.
 	 * @param start		 A Date object containing the start date.
 	 * @param end			 A Date object containing the end date.
-	 */	
+	 */
 	public void setVisibleChartRangeNow() {
 		nativeSetVisibleChartRangeNow(getJso());
 	}
 
 	/**
-	 * Move the visible range such that the current time is located in the center 
+	 * Move the visible range such that the current time is located in the center
 	 * of the timeline. This method does not trigger a rangechange event.
-	 * @param jso			 The javascriptobject pointing to the js instance of 
+	 * @param jso			 The javascriptobject pointing to the js instance of
 	 *									the timeline
-	 */	
+	 */
 	private native void nativeSetVisibleChartRangeNow(JavaScriptObject jso) /*-{
 		jso.setVisibleChartRangeNow();
 	}-*/;
@@ -1054,7 +1055,7 @@ implements Selectable {
 	 * range. This method does not trigger a rangechange event.
 	 * @param start		 A Date object containing the start date.
 	 * @param end			 A Date object containing the end date.
-	 */	
+	 */
 	public void setVisibleChartRangeAuto() {
 		nativeSetVisibleChartRangeAuto(getJso());
 	}
@@ -1062,9 +1063,9 @@ implements Selectable {
 	/**
 	 * Move the visible range such that all loaded events are within the visible
 	 * range. This method does not trigger a rangechange event.
-	 * @param jso			 The javascriptobject pointing to the js instance of 
+	 * @param jso			 The javascriptobject pointing to the js instance of
 	 *									the timeline
-	 */	
+	 */
 	private native void nativeSetVisibleChartRangeAuto(JavaScriptObject jso) /*-{
 		jso.setVisibleChartRangeAuto();
 	}-*/;
@@ -1073,7 +1074,7 @@ implements Selectable {
 	/**
 	 * returns the current value of the start Date
 	 * @return {Date}	start				A Date object
-	 */ 
+	 */
 	public DateRange getVisibleChartRange() {
 		JavaScriptObject jso = getJso();
 		Date start = new Date((long)nativeGetStart(jso));
@@ -1083,52 +1084,52 @@ implements Selectable {
 
 	/**
 	 * returns the current value of the startDate
-	 * @param jso					 The javascriptobject pointing to the js instance of 
+	 * @param jso					 The javascriptobject pointing to the js instance of
 	 *											the timeline
 	 * @return start				The timevalue of the start Date
-	 */ 
+	 */
 	private native double nativeGetStart(JavaScriptObject jso) /*-{
 		return jso.start.getTime();
 	}-*/;
 
 	/**
 	 * returns the current value of the endDate
-	 * @param jso					 The javascriptobject pointing to the js instance of 
+	 * @param jso					 The javascriptobject pointing to the js instance of
 	 *											the timeline
 	 * @return end				 The timevalue of the send Date
-	 */ 
+	 */
 	private native double nativeGetEnd(JavaScriptObject jso) /*-{
 		return jso.end.getTime();
 	}-*/;
 
 
 	/**
-	 * Enable or disable autoscaling. If enable true or not defined, autoscaling 
+	 * Enable or disable autoscaling. If enable true or not defined, autoscaling
 	 * is enabled. If false, autoscaling is disabled.
-	 * @param enable		
-	 */ 
+	 * @param enable
+	 */
 	public void setAutoScale(boolean enable) {
 		nativeSetAutoScale(getJso(), enable);
 	}
 
 	/**
-	 * Enable or disable autoscaling. If enable true or not defined, autoscaling 
+	 * Enable or disable autoscaling. If enable true or not defined, autoscaling
 	 * is enabled. If false, autoscaling is disabled.
-	 * @param jso				The javascriptobject pointing to the js instance of 
+	 * @param jso				The javascriptobject pointing to the js instance of
 	 *									 the Graph
-	 * @param enable		
-	 */ 
+	 * @param enable
+	 */
 	private native void nativeSetAutoScale(JavaScriptObject jso, boolean enable) /*-{
 		jso.setAutoScale(enable);
 	}-*/;
 
 	/**
-	 * Set a custom scale. 
-	 * Automatic scaling will be disabled. For example scale=SCALE.MINUTES and 
-	 * step=5 will result in minor steps of 5 minutes, and major steps of an hour. 
-	 * Available scales: MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR. 
+	 * Set a custom scale.
+	 * Automatic scaling will be disabled. For example scale=SCALE.MINUTES and
+	 * step=5 will result in minor steps of 5 minutes, and major steps of an hour.
+	 * Available scales: MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR.
 	 * As step size, choose for example 1, 2, 5, or 10.
-	 * 
+	 *
 	 * @param scale
 	 * @param step
 	 */
@@ -1137,50 +1138,50 @@ implements Selectable {
 	}
 
 	/**
-	 * Set a custom scale. 
-	 * Automatic scaling will be disabled. For example scale=SCALE.MINUTES and 
-	 * step=5 will result in minor steps of 5 minutes, and major steps of an hour. 
-	 * Available scales: MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR. 
+	 * Set a custom scale.
+	 * Automatic scaling will be disabled. For example scale=SCALE.MINUTES and
+	 * step=5 will result in minor steps of 5 minutes, and major steps of an hour.
+	 * Available scales: MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR.
 	 * As step size, choose for example 1, 2, 5, or 10.
-	 * 
+	 *
 	 * @param jso		The javascript object pointing to the js instance of the Graph
 	 * @param scale
 	 * @param step
 	 */
-	private native void nativeSetScale(JavaScriptObject jso, 
+	private native void nativeSetScale(JavaScriptObject jso,
 			Options.SCALE scale, double step) /*-{
 		var jsScale;
 		switch (scale) {
-			case @com.chap.links.client.Timeline.Options.SCALE::MILLISECOND: 
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.MILLISECOND; break;	
-			case @com.chap.links.client.Timeline.Options.SCALE::SECOND:			
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.SECOND; break;	
-			case @com.chap.links.client.Timeline.Options.SCALE::MINUTE:			
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.MINUTE; break;	
-			case @com.chap.links.client.Timeline.Options.SCALE::HOUR:				
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.HOUR; break;	
-			case @com.chap.links.client.Timeline.Options.SCALE::DAY:				 
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;	
-			case @com.chap.links.client.Timeline.Options.SCALE::MONTH:			 
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.MONTH; break;	
-			case @com.chap.links.client.Timeline.Options.SCALE::YEAR:				
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.YEAR; break;	
-			default: 
-				jsScale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;	
+			case @com.chap.links.client.Timeline.Options.SCALE::MILLISECOND:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.MILLISECOND; break;
+			case @com.chap.links.client.Timeline.Options.SCALE::SECOND:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.SECOND; break;
+			case @com.chap.links.client.Timeline.Options.SCALE::MINUTE:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.MINUTE; break;
+			case @com.chap.links.client.Timeline.Options.SCALE::HOUR:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.HOUR; break;
+			case @com.chap.links.client.Timeline.Options.SCALE::DAY:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;
+			case @com.chap.links.client.Timeline.Options.SCALE::MONTH:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.MONTH; break;
+			case @com.chap.links.client.Timeline.Options.SCALE::YEAR:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.YEAR; break;
+			default:
+				jsScale = $wnd.links.Timeline.StepDate.SCALE.DAY; break;
 		}
 
-		jso.setScale(jsScale, step);		
+		jso.setScale(jsScale, step);
 	}-*/;
 
 	@Override
 	protected native JavaScriptObject createJso(Element parent) /*-{
 			var jso = new $wnd.links.Timeline(parent);
 			return jso;
-	}-*/;	
+	}-*/;
 
 	/**
 	 * Draws the visualization.
-	 * 
+	 *
 	 * @param data
 	 *						The DataTable with the items
 	 * @param options
@@ -1192,13 +1193,13 @@ implements Selectable {
 
 	/**
 	 * Draws the visualization.
-	 * 
+	 *
 	 * @param data
 	 *						The DataTable with the items
 	 * @param options
 	 *						The options for drawing this visualization.
 	 */
-	private native void nativeDraw(JavaScriptObject jso, 
+	private native void nativeDraw(JavaScriptObject jso,
 			JavaScriptObject data, Options options) /*-{
 		jso.draw(data, options);
 	}-*/;
@@ -1211,4 +1212,73 @@ implements Selectable {
 			options = null;
 		}
 	}
+
+	@Override
+	public void onResize() {
+		checkResize();
+		redraw();
+	}
+
+	/**
+	 * Unselect the currently selected event (if any)
+	 */
+	public void unselectItem() {
+		nativeUnselectItem(getJso());
+	}
+
+	private native void nativeUnselectItem(JavaScriptObject jso) /*-{
+		jso.unselectItem();
+	}-*/;
+
+	/**
+	 * Zoom the timeline the given zoomfactor in or out. Start and end date will
+	 * be adjusted, and the timeline will be redrawn. You can optionally give a
+	 * date around which to zoom. For example, try zoomfactor = 0.1 or -0.1
+	 *
+	 * @param zoomFactor
+	 *            Zooming amount. Positive value will zoom in, negative value
+	 *            will zoom out
+	 * @param zoomAroundDate
+	 *            Date around which will be zoomed. Optional
+	 */
+	public void zoom(final double zoomFactor, final Date zoomAroundDate) {
+		nativeZoom(getJso(), zoomFactor, zoomAroundDate);
+	}
+
+	/**
+	 * Zoom the timeline the given zoomfactor in or out. Start and end date will
+	 * be adjusted, and the timeline will be redrawn. For example, try
+	 * zoomfactor = 0.1 or -0.1
+	 *
+	 * @param zoomFactor
+	 *            Zooming amount. Positive value will zoom in, negative value
+	 *            will zoom out
+	 */
+	public void zoom(final double zoomFactor) {
+		zoom(zoomFactor, null);
+	}
+
+	private native void nativeZoom(JavaScriptObject jso, double zoomFactor,
+			Date zoomAroundDate) /*-{
+		jso.zoom(zoomFactor, zoomAroundDate);
+	}-*/;
+
+	/**
+	 * Move the timeline the given movefactor to the left or right. Start and
+	 * end date will be adjusted, and the timeline will be redrawn. For example,
+	 * try moveFactor = 0.1 or -0.1
+	 *
+	 * @param moveFactor
+	 *            Moving amount. Positive value will move right, negative value
+	 *            will move left
+	 */
+	public void move(final double moveFactor) {
+		nativeMove(getJso(), moveFactor);
+	}
+
+	private native void nativeMove(JavaScriptObject jso, double moveFactor) /*-{
+		jso.move(moveFactor);
+	}-*/;
+
+
 }
