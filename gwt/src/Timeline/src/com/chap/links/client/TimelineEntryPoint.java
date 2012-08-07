@@ -140,6 +140,7 @@ public class TimelineEntryPoint implements EntryPoint {
 		options.setShowNavigation(true);
 		// options.setAxisOnTop(true);
 		// options.setShowMajorLabels(false);
+		// options.setShowMinorLabels(false);
 		// options.setScale(SCALE.DAY, 1);
 		
 		options.setMin(dtf.parse("2012-01-01"));         // lower limit of visible range

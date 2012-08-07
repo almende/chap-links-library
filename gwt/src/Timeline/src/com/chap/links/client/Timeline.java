@@ -383,12 +383,26 @@ implements Selectable, RequiresResize {
 		}-*/;
 
 		/**
-		 * If set to true (default), the major labels are shown. For example
-		 * if the minor scale is hours, the major scale is days.
+		 * By default, the timeline shows both minor and major date labels on 
+		 * the horizontal axis. For example the minor labels show minutes and 
+		 * the major labels show hours. When showMajorLabels is false, 
+		 * no major labels are shown.
 		 * @param showMajorLabels
 		 */
 		public final native void setShowMajorLabels(boolean showMajorLabels) /*-{
 			this.showMajorLabels = showMajorLabels;
+		}-*/;
+
+		/**
+		 * By default, the timeline shows both minor and major date labels on 
+		 * the horizontal axis. For example the minor labels show minutes and 
+		 * the major labels show hours. When showMinorLabels is false, no minor 
+		 * labels are shown. When both showMajorLabels and showMinorLabels are 
+		 * false, no horizontal axis will be visible.
+		 * @param showMinorLabels
+		 */
+		public final native void setShowMinorLabels(boolean showMinorLabels) /*-{
+			this.showMinorLabels = showMinorLabels;
 		}-*/;
 
 		/**
