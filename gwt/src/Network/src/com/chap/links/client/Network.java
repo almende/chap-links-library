@@ -158,6 +158,45 @@ public class Network extends Visualization<Network.Options>
 			  this.links = {};
 			}
 			this.links.length = length;
+		}-*/;	
+		
+		/**
+		 * Set the default length of the links dashes
+		 * @author David Jordan
+		 * @date 2012-08-08
+		 * @param length		Length in pixels
+		 */
+		public final native void setLinksDashLength(int dashlength) /*-{
+			if (this.links == undefined) {
+			  this.links = {};
+			}
+			this.links.dashlength = dashlength;
+		}-*/;				
+		
+		/**
+		 * Set the default gap of the links dashes
+		 * @author David Jordan
+		 * @date 2012-08-08
+		 * @param gap		Gap in pixels
+		 */
+		public final native void setLinksDashGap(int dashgap) /*-{
+			if (this.links == undefined) {
+			  this.links = {};
+			}
+			this.links.dashgap = dashgap;
+		}-*/;	
+		
+		/**
+		 * Set the default length of the links alternate dashes
+		 * @author David Jordan
+		 * @date 2012-08-08
+		 * @param length		Length in pixels
+		 */
+		public final native void setLinksAltDashLength(int altdashlength) /*-{
+			if (this.links == undefined) {
+			  this.links = {};
+			}
+			this.links.altdashlength = altdashlength;
 		}-*/;		
 		
 		/**
@@ -174,7 +213,7 @@ public class Network extends Visualization<Network.Options>
 		/**
 		 * Set the default style for the links. 
 		 * @param style		Style name. Choose from "line" (default), "arrow", 
-         *                  or "moving-arrows"
+         *                  "moving-dot", "moving-arrows" or "dash-line"
 		 */
 		public final native void setLinksStyle(String style) /*-{
 			if (this.links == undefined) {
