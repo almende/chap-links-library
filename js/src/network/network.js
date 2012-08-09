@@ -152,7 +152,9 @@ links.Network = function(container) {
             "width": 1,
             "style": "line",
             "color": "#2B7CE9",
-            "length": 100   // px
+            "length": 100,
+            "dashlength": 10,
+            "dashgap": 5 
         },
         "packages": {
             "radius": 5,
@@ -200,7 +202,6 @@ links.Network = function(container) {
  */
 links.Network.prototype.draw = function(nodes, links, packages, options) {
     var nodesTable, linksTable, packagesTable;
-
     // correctly read the parameters. links and packages are optional.
     if (options != undefined) {
         nodesTable = nodes;
@@ -232,7 +233,7 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
         if (options.height != undefined)          {this.height = options.height;}
         if (options.stabilize != undefined)       {this.stabilize = options.stabilize;}
         if (options.selectable != undefined)      {this.selectable = options.selectable;}
-
+        
         // TODO: work out these options and document them
         if (options.links) {
             for (var prop in options.links) {
@@ -244,6 +245,18 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
             if (options.links.length != undefined && options.links.distance == undefined) {
                 this.constants.links.length   = options.links.length;
                 this.constants.nodes.distance = options.links.length * 1.25;
+            }
+            // Added to support dashed lines
+            // David Jordan
+            // 2012-08-08
+            if (options.links.dashlength != undefined) {
+                this.constants.links.dashlength   = options.links.dashlength;
+            }
+            if (options.links.dashgap != undefined) {
+                this.constants.links.dashgap   = options.links.dashgap;
+            }
+            if (options.links.altdashlength != undefined) {
+                this.constants.links.altdashlength   = options.links.altdashlength;
             }
         }
         if (options.nodes) {
@@ -3338,6 +3351,14 @@ links.Network.Link = function (properties, network, constants) {
     this.width  = constants.links.width;
     this.value  = undefined;
     this.length = constants.links.length;
+    
+    // Added to support dashed lines
+    // David Jordan
+    // 2012-08-08
+    this.dashlength = constants.links.dashlength;
+    this.dashgap = constants.links.dashgap;
+    this.altdashlength  = constants.links.altdashlength;
+    
     this.stiffness = undefined; // depends on the length of the link
     this.color  = constants.links.color;
     this.timestamp  = undefined;
@@ -3365,6 +3386,13 @@ links.Network.Link.prototype.setProperties = function(properties) {
     if (properties.width != undefined) {this.width = properties.width;}
     if (properties.value != undefined) {this.value = properties.value;}
     if (properties.length != undefined) {this.length = properties.length;}
+    // Added to support dashed lines
+    // David Jordan
+    // 2012-08-08
+    if (properties.dashlength != undefined) {this.dashlength = properties.dashlength;}
+    if (properties.dashgap != undefined) {this.dashgap = properties.dashgap;}
+    if (properties.altdashlength != undefined) {this.altdashlength = properties.altdashlength;}
+    
     if (properties.color != undefined) {this.color = properties.color;}
     if (properties.timestamp != undefined) {this.timestamp = properties.timestamp;}
 
@@ -3407,6 +3435,7 @@ links.Network.Link.prototype.setProperties = function(properties) {
         case 'arrow':         this.draw = this._drawArrow; break;
         case 'moving-arrows': this.draw = this._drawMovingArrows; break;
         case 'moving-dot':    this.draw = this._drawMovingDot; break;
+        case 'dash-line':     this.draw = this._drawDashLine; break;
         default:              this.draw = this._drawLine; break;
     }
 };
@@ -3483,6 +3512,67 @@ links.Network.Link.prototype.setLength = function(length) {
     }
 };
 
+/**
+ * Retrieve the length of the links dashes. Can be undefined
+ * @author David Jordan
+ * @date 2012-08-08
+ * @return {Number} dashlength
+ */
+links.Network.Link.prototype.getDashLength = function() {
+    return this.dashlength;
+};
+
+/**
+ * Adjust the length of the links dashes. 
+ * @author David Jordan
+ * @date 2012-08-08
+ * @param {Number} dashlength
+ */
+links.Network.Link.prototype.setDashLength = function(dashlength) {
+    this.dashlength = dashlength;
+};
+
+/**
+ * Retrieve the length of the links dashes gaps. Can be undefined
+ * @author David Jordan
+ * @date 2012-08-08
+ * @return {Number} dashgap
+ */
+links.Network.Link.prototype.getDashGap = function() {
+    return this.dashgap;
+};
+
+/**
+ * Adjust the length of the links dashes gaps. 
+ * @author David Jordan
+ * @date 2012-08-08
+ * @param {Number} dashgap
+ */
+links.Network.Link.prototype.setDashGap = function(dashgap) {
+    this.dashgap = dashgap;
+};
+
+/**
+ * Retrieve the length of the links alternate dashes. Can be undefined
+ * @author David Jordan
+ * @date 2012-08-08
+ * @return {Number} altdashlength
+ */
+links.Network.Link.prototype.getAltDashLength = function() {
+    return this.altdashlength;
+};
+
+/**
+ * Adjust the length of the links alternate dashes.
+ * @author David Jordan
+ * @date 2012-08-08
+ * @param {Number} altdashlength
+ */
+links.Network.Link.prototype.setAltDashLength = function(altdashlength) {
+    this.altdashlength = altdashlength;
+};
+
+
 
 /**
  * Redraw a link
@@ -3554,7 +3644,6 @@ links.Network._dist = function (x1,y1, x2,y2, x3,y3) { // x3,y3 is the point
     return Math.sqrt(dx*dx + dy*dy);
 };
 
-
 /**
  * Redraw a link as a line
  * Draw this link in the given canvas
@@ -3569,6 +3658,69 @@ links.Network.Link.prototype._drawLine = function(ctx) {
     ctx.beginPath();
     ctx.moveTo(this.from.x, this.from.y);
     ctx.lineTo(this.to.x, this.to.y);
+    ctx.stroke();
+};
+
+/**
+ * Sets up the dashedLine functionality for drawing
+ * Original code came from http://stackoverflow.com/questions/4576724/dotted-stroke-in-canvas
+ * @author David Jordan
+ * @date 2012-08-08
+ */
+var CP = window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
+if (CP && CP.lineTo){
+  CP.dashedLine = function(x,y,x2,y2,dashArray){
+    if (!dashArray) dashArray=[10,5];
+    if (dashLength==0) dashLength = 0.001; // Hack for Safari
+    var dashCount = dashArray.length;
+    this.moveTo(x, y);
+    var dx = (x2-x), dy = (y2-y);
+    var slope = dy/dx;
+    var distRemaining = Math.sqrt( dx*dx + dy*dy );
+    var dashIndex=0, draw=true;
+    while (distRemaining>=0.1){
+      var dashLength = dashArray[dashIndex++%dashCount];
+      if (dashLength > distRemaining) dashLength = distRemaining;
+      var xStep = Math.sqrt( dashLength*dashLength / (1 + slope*slope) );
+      if (dx<0) xStep = -xStep;
+      x += xStep
+      y += slope*xStep;
+      this[draw ? 'lineTo' : 'moveTo'](x,y);
+      distRemaining -= dashLength;
+      draw = !draw;
+    }
+  }
+}
+
+/**
+ * Redraw a link as a dashed line
+ * Draw this link in the given canvas
+ * @author David Jordan
+ * @date 2012-08-08
+ * The 2d context of a HTML canvas can be retrieved by canvas.getContext("2d");
+ * @param {CanvasRenderingContext2D}   ctx
+ */
+links.Network.Link.prototype._drawDashLine = function(ctx) {
+    // set style
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.width;
+
+    ctx.beginPath();
+    ctx.lineCap = 'round';
+    
+	if (this.altdashlength != undefined) //If an alt dash value has been set add to the array this value
+    {
+    	ctx.dashedLine(this.from.x,this.from.y,this.to.x,this.to.y,[this.dashlength,this.dashgap,this.altdashlength,this.dashgap]);
+    }
+    else if (this.dashlength != undefined && this.dashgap != undefined) //If a dash and gap value has been set add to the array this value
+    {
+    	ctx.dashedLine(this.from.x,this.from.y,this.to.x,this.to.y,[this.dashlength,this.dashgap]);
+    }
+    else //If all else fails draw a line
+	{
+    	ctx.moveTo(this.from.x, this.from.y);
+        ctx.lineTo(this.to.x, this.to.y);
+	}
     ctx.stroke();
 };
 
@@ -3782,6 +3934,9 @@ links.Network.Package.prototype.setProperties = function(properties, constants) 
     if (properties.value != undefined) {this.value = properties.value;}
     if (properties.image != undefined) {this.image = properties.image;}
     if (properties.color != undefined) {this.color = properties.color;}
+    if (properties.dashlength != undefined) {this.dashlength = properties.dashlength;}
+    if (properties.dashgap != undefined) {this.dashgap = properties.dashgap;}
+    if (properties.altdashlength != undefined) {this.altdashlength = properties.altdashlength;}
     if (properties.progress != undefined) {this.progress = properties.progress;}
     if (properties.timestamp != undefined) {this.timestamp = properties.timestamp;}
     if (properties.duration != undefined) {this.duration = properties.duration;}
