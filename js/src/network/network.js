@@ -152,7 +152,8 @@ links.Network = function(container) {
             "width": 1,
             "style": "line",
             "color": "#2B7CE9",
-            "length": 100   // px
+            "length": 50,   // px
+            "distance": 100 //px
         },
         "packages": {
             "radius": 5,
@@ -2537,6 +2538,27 @@ links.Network.prototype._calculateForces = function(nodeId) {
             this.nodes[n]._addForce(-fx, -fy);
             this.nodes[n2]._addForce(fx, fy);
         }
+        for (var l = 0; l < links.length; l++) {
+        	var lx = links[l].from.x+(links[l].to.x - links[l].from.x)/2,
+        	    ly = links[l].from.y+(links[l].to.y - links[l].from.y)/2,
+        	    
+                // calculate normally distributed force
+                dx = nodes[n].x - lx,
+                dy = nodes[n].y - ly,
+                distance = Math.sqrt(dx * dx + dy * dy),
+                angle = Math.atan2(dy, dx),
+ 
+
+            // TODO: correct factor for repulsing force
+            //var repulsingforce = 2 * Math.exp(-5 * (distance * distance) / (dmin * dmin) ); // TODO: customize the repulsing force
+            //repulsingforce = Math.exp(-1 * (distance * distance) / (dmin * dmin) ), // TODO: customize the repulsing force
+                repulsingforce = 1 / (1 + Math.exp((distance / (minimumDistance / 2) - 1) * steepness)), // TODO: customize the repulsing force
+                fx = Math.cos(angle) * repulsingforce,
+                fy = Math.sin(angle) * repulsingforce;
+            nodes[n]._addForce(fx, fy);
+            links[l].from._addForce(-fx/2,-fy/2);
+            links[l].to._addForce(-fx/2,-fy/2);            
+        }
     }
 
     // forces caused by the links, modelled as springs
@@ -2560,6 +2582,42 @@ links.Network.prototype._calculateForces = function(nodeId) {
         link.from._addForce(-fx, -fy);
         link.to._addForce(fx, fy);
     }
+    
+   // repulsing forces between links
+    var minimumDistance = this.constants.links.distance,
+        steepness = 10; // higher value gives steeper slope of the force around the given minimumDistance
+    for (var l = 0; l < links.length; l++) {
+    	//Keep distance from other link centers
+    	for (var l2 = l + 1; l2 < this.links.length; l2++) {
+        	//var dmin = (nodes[n].width + nodes[n].height + nodes[n2].width + nodes[n2].height) / 1 || minimumDistance, // TODO: dmin
+            //var dmin = (nodes[n].width + nodes[n2].width)/2  || minimumDistance, // TODO: dmin
+            //dmin = 40 + ((nodes[n].width/2 + nodes[n2].width/2) || 0),
+        	var lx = links[l].from.x+(links[l].to.x - links[l].from.x)/2,
+        		ly = links[l].from.y+(links[l].to.y - links[l].from.y)/2,
+        		l2x = links[l2].from.x+(links[l2].to.x - links[l2].from.x)/2,
+        		l2y = links[l2].from.y+(links[l2].to.y - links[l2].from.y)/2,
+                         	
+            // calculate normally distributed force
+            dx = l2x - lx,
+            dy = l2y - ly,
+            distance = Math.sqrt(dx * dx + dy * dy),
+            angle = Math.atan2(dy, dx),
+ 
+
+            // TODO: correct factor for repulsing force
+            //var repulsingforce = 2 * Math.exp(-5 * (distance * distance) / (dmin * dmin) ); // TODO: customize the repulsing force
+            //repulsingforce = Math.exp(-1 * (distance * distance) / (dmin * dmin) ), // TODO: customize the repulsing force
+            repulsingforce = 1 / (1 + Math.exp((distance / minimumDistance - 1) * steepness)), // TODO: customize the repulsing force
+            fx = Math.cos(angle) * repulsingforce,
+            fy = Math.sin(angle) * repulsingforce;
+        		
+        	links[l].from._addForce(-fx, -fy);
+        	links[l].to._addForce(-fx, -fy);
+        	links[l2].from._addForce(fx, fy);
+        	links[l2].to._addForce(fx, fy);            
+        }
+    }
+
 };
 
 
