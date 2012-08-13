@@ -152,14 +152,10 @@ links.Network = function(container) {
             "width": 1,
             "style": "line",
             "color": "#2B7CE9",
-<<<<<<< HEAD
+            "distance": 100, //px
             "length": 50,   // px
-            "distance": 100 //px
-=======
-            "length": 100,
             "dashlength": 10,
-            "dashgap": 5 
->>>>>>> 340472dd1de6400379d4f441012e9522416e6b9c
+            "dashgap": 5
         },
         "packages": {
             "radius": 5,
