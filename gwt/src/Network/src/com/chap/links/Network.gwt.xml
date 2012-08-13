@@ -24,6 +24,6 @@
   <!-- include the javascript source of the network               -->
   <!-- these files should be located in the subfolder             -->
   <!--   com/chap/links/public                                    -->
-  <script src="network.js"></script>
+  <script src="network-min.js"></script>
 
 </module>
