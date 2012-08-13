@@ -34,8 +34,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-06-04
- * @version 1.2
+ * @date    2012-08-13
+ * @version 1.3
  */
 
 /*
