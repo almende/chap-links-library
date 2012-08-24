@@ -168,7 +168,8 @@ links.Network = function(container) {
             "widthMax": 64, // px
             "duration": 1.0   // seconds
         },
-        "minVelocity": 0.01,   // px/s
+        "minForce": 0.02,
+        "minVelocity": 0.05,   // px/s
         "maxIterations": 1000  // maximum number of iteration to stabilize
     };
 
@@ -2928,6 +2929,7 @@ links.Network.Node = function (properties, imagelist, grouplist, constants) {
     this.fy = 0.0;  // external force y
     this.vx = 0.0;  // velocity x
     this.vy = 0.0;  // velocity y
+    this.minForce = constants.minForce;
     this.damping = 0.5; // damping factor   TODO: choose better damping factor?
 };
 
@@ -3107,9 +3109,8 @@ links.Network.Node.prototype.isFixed = function() {
  */
 // TODO: replace this method with calculating the kinetic energy
 links.Network.Node.prototype.isMoving = function(vmin) {
-    var fmin = 0.005; // TODO
-    return (this.vx > vmin || this.vx < -vmin ||
-        this.vy > vmin || this.vy < -vmin ||
+    var fmin = this.minForce; // TODO
+    return (Math.abs(this.vx) > vmin || Math.abs(this.vy) > vmin ||
         (!this.xFixed && Math.abs(this.fx) > fmin) ||
         (!this.yFixed && Math.abs(this.fy) > fmin));
 };
