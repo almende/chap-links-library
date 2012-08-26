@@ -252,7 +252,7 @@ public class TreeGrid extends Visualization<TreeGrid.Options> {
    *
    * @param onSelectCallback
    */
-  public void addSelectEventHandler(SimpleCallback<JavaScriptObject> onSelectCallback) {
+  public void addSelectEventHandler(AsyncCallback<JavaScriptObject> onSelectCallback) {
     onSelectCallback_ = onSelectCallback;
     selectEventHandler_ = createSelectEventHandler();
     addSelectEventHandler(getJso(), selectEventHandler_);
