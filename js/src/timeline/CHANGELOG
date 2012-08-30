@@ -1,6 +1,12 @@
 CHAP Links Library - Timeline
 
 
+2012-08-30, version 2.2.2
+
+- fixed issue #26: pinching on Ipad did throw an error "ReferenceError: Can't
+  find variable: timeline".
+
+
 2012-07-30, version 2.2.1
 
 - fixed the 'select' event not being fired when an item gets unselected.

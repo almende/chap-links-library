@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-07-30
- * @version 2.2.1
+ * @date    2012-08-30
+ * @version 2.2.2
  */
 
 /*
@@ -2551,7 +2551,7 @@ links.Timeline.prototype.onTouchMove = function(event) {
             // TODO: determine zoom-around-date from touch positions?
 
             this.setVisibleChartRange(start, end);
-            timeline.trigger("rangechange");
+            this.trigger("rangechange");
 
             links.Timeline.preventDefault(event);
         }
@@ -2566,7 +2566,7 @@ links.Timeline.prototype.onTouchEnd = function(event) {
     params.touchDown = false;
 
     if (params.zoomed) {
-        timeline.trigger("rangechanged");
+        this.trigger("rangechanged");
     }
 
     if (params.onTouchMove) {
