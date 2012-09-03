@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-06-28
- * @version 1.1.1
+ * @date    2012-09-03
+ * @version 1.1.2
  */
 
 
@@ -113,8 +113,8 @@ links.Graph = function(container) {
     this.start = null;
     this.end = null;
     this.autoDataStep = true;
-    this._moveable = true;
-    this._zoomable = true;
+    this.moveable = true;
+    this.zoomable = true;
 
     this.redrawWhileMoving = true;
 
@@ -195,8 +195,8 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.step != undefined)          this.step = options.step;
         if (options.autoDataStep != undefined)  this.autoDataStep = options.autoDataStep;
 
-        if (options._moveable != undefined)     this._moveable = options._moveable;
-        if (options._zoomable != undefined)     this._zoomable = options._zoomable;
+        if (options.moveable != undefined)      this.moveable = options.moveable;
+        if (options.zoomable != undefined)      this.zoomable = options.zoomable;
 
         if (options.line != undefined)          this.line = options.line;
         if (options.lines != undefined)         this.lines = options.lines;
@@ -1306,7 +1306,6 @@ links.Graph.prototype._applyRange = function (start, end, zoomAroundDate) {
  * @param {Date}   zoomAroundValue Value around which will be zoomed. Optional
  */
 links.Graph.prototype._zoomVertical = function(zoomFactor, zoomAroundValue) {
-
     if (zoomAroundValue == undefined)
         zoomAroundValue = (this.vStart + this.vEnd) / 2;
 
@@ -2404,7 +2403,7 @@ links.Graph.prototype._checkSize = function() {
 links.Graph.prototype._onMouseDown = function(event) {
     event = event || window.event;
 
-    if (!this._moveable)
+    if (!this.moveable)
         return;
 
     // check if mouse is still down (may be up when focus is lost for example
@@ -2604,7 +2603,7 @@ links.Graph.prototype._onTouchEnd = function(event) {
 links.Graph.prototype._onWheel = function(event) {
     event = event || window.event;
 
-    if (!this._zoomable)
+    if (!this.zoomable)
         return;
 
     // retrieve delta
