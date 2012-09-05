@@ -3,6 +3,8 @@ CHAP Links Library - Graph
 2012-09-03, version 1.1.2
 
 - Fix: the options moveable and zoomable did not work at all.
+- Fix: html layout in example 04 and 12 (divs where aligned horizontally
+  instead of vertically on Firefox).
 
 
 2012-06-28, version 1.1.1
