@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-08-30
- * @version 2.2.2
+ * @date    2012-09-05
+ * @version 2.3.0
  */
 
 /*
@@ -255,6 +255,23 @@ links.Timeline.prototype.setOptions = function(options) {
 };
 
 /**
+ * Find a column by its label in a Google DataTable
+ * @param {google.visualization.DataTable} dataTable
+ * @param {String} label          label name of the column to be found
+ * @return {Number} columnId      returns the column id of the column if found,
+ *                                or undefined when not found.
+ */
+links.Timeline.findColumnId = function (dataTable, label) {
+    for (var i = 0, iMax = dataTable.getNumberOfColumns(); i < iMax; i++) {
+        if (dataTable.getColumnLabel(i) == label) {
+            return i;
+        }
+    }
+
+    return undefined;
+};
+
+/**
  * Set data for the timeline
  * @param {google.visualization.DataTable | Array} data
  */
@@ -270,19 +287,21 @@ links.Timeline.prototype.setData = function(data) {
     this.items = [];
     this.data = data;
     var items = this.items;
-    var options = this.options;
     this.deleteGroups();
 
     if (google && google.visualization &&
         data instanceof google.visualization.DataTable) {
         // read DataTable
-        var hasGroups = (data.getNumberOfColumns() > 3);
+        var groupCol = links.Timeline.findColumnId(data, 'group');
+        var classNameCol = links.Timeline.findColumnId(data, 'className');
+
         for (var row = 0, rows = data.getNumberOfRows(); row < rows; row++) {
             items.push(this.createItem({
                 'start': data.getValue(row, 0),
                 'end': data.getValue(row, 1),
                 'content': data.getValue(row, 2),
-                'group': (hasGroups ? data.getValue(row, 3) : undefined)
+                'group': ((groupCol != undefined) ? data.getValue(row, groupCol) : undefined),
+                'className': ((classNameCol != undefined) ? data.getValue(row, classNameCol) : undefined)
             }));
         }
     }
@@ -347,9 +366,16 @@ links.Timeline.prototype.updateData = function  (index, values) {
         if (values.content) {
             data.setValue(index, 2, values.content);
         }
-        if (values.group && data.getNumberOfColumns() > 3) {
+
+        var groupCol = links.Timeline.findColumnId(data, 'group');
+        if (values.group && groupCol != undefined) {
             // TODO: append a column when needed?
-            data.setValue(index, 3, values.group);
+            data.setValue(index, groupCol, values.group);
+        }
+
+        var classNameCol = links.Timeline.findColumnId(data, 'className');
+        if (values.className && classNameCol != undefined) {
+            data.setValue(index, classNameCol, values.className);
         }
     }
     else if (links.Timeline.isArray(data)) {
@@ -371,6 +397,9 @@ links.Timeline.prototype.updateData = function  (index, values) {
         }
         if (values.group) {
             row.group = values.group;
+        }
+        if (values.className) {
+            row.className = values.className;
         }
     }
     else {
@@ -1173,27 +1202,27 @@ links.Timeline.prototype.redrawItems = function() {
                     }
                     else {
                         // create a new range
-                        var domItem = this.createEventRange(item.content);
+                        var domItem = this.createEventRange(item);
                         ranges[rangesUsed] = domItem;
                         frame.appendChild(domItem);
                         item.dom = domItem;
                         rangesUsed++;
                         rangesCreated++;
                     }
+                    this.updateEventRange(item);
                     break;
 
                 case 'box':
                     if (boxesUsed < boxesCreated) {
                         // reuse existing box
                         var domItem = boxes[boxesUsed];
-                        domItem.firstChild.innerHTML = item.content;
                         domItem.style.display = '';
                         item.dom = domItem;
                         boxesUsed++;
                     }
                     else {
                         // create a new box
-                        var domItem = this.createEventBox(item.content);
+                        var domItem = this.createEventBox(item);
                         boxes[boxesUsed] = domItem;
                         frame.appendChild(domItem);
                         frame.insertBefore(domItem.line, frame.firstChild);
@@ -1204,6 +1233,7 @@ links.Timeline.prototype.redrawItems = function() {
                         boxesUsed++;
                         boxesCreated++;
                     }
+                    this.updateEventBox(item);
                     break;
 
                 case 'dot':
@@ -1217,13 +1247,14 @@ links.Timeline.prototype.redrawItems = function() {
                     }
                     else {
                         // create a new box
-                        var domItem = this.createEventDot(item.content);
+                        var domItem = this.createEventDot(item);
                         dots[dotsUsed] = domItem;
                         frame.appendChild(domItem);
                         item.dom = domItem;
                         dotsUsed++;
                         dotsCreated++;
                     }
+                    this.updateEventDot(item);
                     break;
 
                 default:
@@ -1411,28 +1442,26 @@ links.Timeline.prototype.redrawItems = function() {
 /**
  * Create an event in the timeline, with (optional) formatting: inside a box
  * with rounded corners, and a vertical line+dot to the axis.
- * @param {string} content    The content for the event. This can be plain text
- *                            or HTML code.
+ * @param {Object} item         Item containing optional field className
+ * @return {Element} dom        HTML Element containing box
  */
-links.Timeline.prototype.createEventBox = function(content) {
+links.Timeline.prototype.createEventBox = function(item) {
     // background box
     var divBox = document.createElement("DIV");
     divBox.style.position = "absolute";
     divBox.style.left  = "0px";
     divBox.style.top = "0px";
-    divBox.className  = "timeline-event timeline-event-box";
 
     // contents box (inside the background box). used for making margins
     var divContent = document.createElement("DIV");
     divContent.className = "timeline-event-content";
-    divContent.innerHTML = content;
+    divContent.innerHTML = item.content;
     divBox.appendChild(divContent);
 
     // line to axis
     var divLine = document.createElement("DIV");
     divLine.style.position = "absolute";
     divLine.style.width = "0px";
-    divLine.className = "timeline-event timeline-event-line";
     // important: the vertical line is added at the front of the list of elements,
     // so it will be drawn behind all boxes and ranges
     divBox.line = divLine;
@@ -1442,19 +1471,46 @@ links.Timeline.prototype.createEventBox = function(content) {
     divDot.style.position = "absolute";
     divDot.style.width  = "0px";
     divDot.style.height = "0px";
-    divDot.className  = "timeline-event timeline-event-dot";
     divBox.dot = divDot;
 
     return divBox;
 };
 
+/**
+ * Update the dom of the item: apply content, and apply styles
+ * @param {Object} item
+ */
+links.Timeline.prototype.updateEventBox = function(item) {
+    if (item.dom) {
+        var divBox = item.dom;
+        var divLine = divBox.line;
+        var divDot = divBox.dot;
+
+        // update contents
+        divBox.firstChild.innerHTML = item.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-box";
+        divLine.className = "timeline-event timeline-event-line";
+        divDot.className  = "timeline-event timeline-event-dot";
+
+        // add item specific class name when provided
+        if (item.className) {
+            links.Timeline.addClassName(divBox, item.className);
+            links.Timeline.addClassName(divLine, item.className);
+            links.Timeline.addClassName(divDot, item.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
 
 /**
  * Create an event in the timeline: a dot, followed by the content.
- * @param {string} content    The content for the event. This can be plain text
- *                            or HTML code.
+ * @param {Object} item         Item containing optional field className
+ * @return {Element} dom        HTML dom element
  */
-links.Timeline.prototype.createEventDot = function(content) {
+links.Timeline.prototype.createEventDot = function(item) {
     // background box
     var divBox = document.createElement("DIV");
     divBox.style.position = "absolute";
@@ -1462,13 +1518,11 @@ links.Timeline.prototype.createEventDot = function(content) {
     // contents box, right from the dot
     var divContent = document.createElement("DIV");
     divContent.className = "timeline-event-content";
-    divContent.innerHTML = content;
     divBox.appendChild(divContent);
 
     // dot at start
     var divDot = document.createElement("DIV");
     divDot.style.position = "absolute";
-    divDot.className = "timeline-event timeline-event-dot";
     divDot.style.width = "0px";
     divDot.style.height = "0px";
     divBox.appendChild(divDot);
@@ -1479,25 +1533,70 @@ links.Timeline.prototype.createEventDot = function(content) {
     return divBox;
 };
 
+/**
+ * Update the dom of the item: apply content, and apply styles
+ * @param {Object} item
+ */
+links.Timeline.prototype.updateEventDot = function(item) {
+    if (item.dom) {
+        var divBox = item.dom;
+        var divDot = divBox.dot;
+
+        // update contents
+        divBox.firstChild.innerHTML = item.content;
+
+        // update class
+        divDot.className  = "timeline-event timeline-event-dot";
+
+        // add item specific class name when provided
+        if (item.className) {
+            links.Timeline.addClassName(divBox, item.className);
+            links.Timeline.addClassName(divDot, item.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
 
 /**
  * Create an event range as a beam in the timeline.
- * @param {string}  content    The content for the event. This can be plain text
- *                             or HTML code.
+ * @param {Object} item         Item containing optional field className
+ * @return {Element} dom        HTML dom element
  */
-links.Timeline.prototype.createEventRange = function(content) {
+links.Timeline.prototype.createEventRange = function(item) {
     // background box
     var divBox = document.createElement("DIV");
     divBox.style.position = "absolute";
-    divBox.className = "timeline-event timeline-event-range";
 
     // contents box
     var divContent = document.createElement("DIV");
     divContent.className = "timeline-event-content";
-    divContent.innerHTML = content;
     divBox.appendChild(divContent);
 
     return divBox;
+};
+
+/**
+ * Update the dom of the item: apply content, and apply styles
+ * @param {Object} item
+ */
+links.Timeline.prototype.updateEventRange = function(item) {
+    if (item.dom) {
+        var divBox = item.dom;
+
+        // update contents
+        divBox.firstChild.innerHTML = item.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-range";
+
+        // add item specific class name when provided
+        if (item.className) {
+            links.Timeline.addClassName(divBox, item.className);
+        }
+
+        // TODO: apply selected className?
+    }
 };
 
 /**
@@ -3578,6 +3677,7 @@ links.Timeline.prototype.createItem = function(itemData) {
         'content': itemData.content,
         'type': itemData.end ? 'range' : this.options.style,
         'group': this.getGroup(itemData.group),
+        'className': itemData.className,
         'top': 0,
         'left': 0,
         'width': 0,
@@ -3797,16 +3897,16 @@ links.Timeline.prototype.selectItem = function(index) {
         }
         switch (item.type) {
             case 'range':
-                domItem.className = "timeline-event timeline-event-selected timeline-event-range";
+                links.Timeline.addClassName(domItem, 'timeline-event-selected');
                 break;
             case 'box':
-                domItem.className = "timeline-event timeline-event-selected timeline-event-box";
-                domItem.line.className = "timeline-event timeline-event-selected timeline-event-line";
-                domItem.dot.className = "timeline-event timeline-event-selected timeline-event-dot";
+                links.Timeline.addClassName(domItem, 'timeline-event-selected');
+                links.Timeline.addClassName(domItem.line, 'timeline-event-selected');
+                links.Timeline.addClassName(domItem.dot, 'timeline-event-selected');
                 break;
             case 'dot':
-                domItem.className = "timeline-event timeline-event-selected";
-                domItem.dot.className = "timeline-event timeline-event-selected timeline-event-dot";
+                links.Timeline.addClassName(domItem, 'timeline-event-selected');
+                links.Timeline.addClassName(domItem.dot, 'timeline-event-selected');
                 break;
         }
 
@@ -3842,16 +3942,16 @@ links.Timeline.prototype.unselectItem = function() {
             domItem.style.cursor = '';
             switch (item.type) {
                 case 'range':
-                    domItem.className = "timeline-event timeline-event-range";
+                    links.Timeline.removeClassName(domItem, 'timeline-event-selected');
                     break;
                 case 'box':
-                    domItem.className = "timeline-event timeline-event-box";
-                    domItem.line.className = "timeline-event timeline-event-line";
-                    domItem.dot.className = "timeline-event timeline-event-dot";
+                    links.Timeline.removeClassName(domItem, 'timeline-event-selected');
+                    links.Timeline.removeClassName(domItem.line, 'timeline-event-selected');
+                    links.Timeline.removeClassName(domItem.dot, 'timeline-event-selected');
                     break;
                 case 'dot':
-                    domItem.className = "";
-                    domItem.dot.className = "timeline-event timeline-event-dot";
+                    links.Timeline.removeClassName(domItem, 'timeline-event-selected');
+                    links.Timeline.removeClassName(domItem.dot, 'timeline-event-selected');
                     break;
             }
         }
@@ -5039,6 +5139,33 @@ links.Timeline.getAbsoluteTop = function(elem) {
         top -= window.pageYOffset;
     }
     return top;
+};
+
+/**
+ * add a className to the given elements style
+ * @param {Element} elem
+ * @param {String} className
+ */
+links.Timeline.addClassName = function(elem, className) {
+    var classes = elem.className.split(' ');
+    if (classes.indexOf(className) == -1) {
+        classes.push(className); // add the class to the array
+        elem.className = classes.join(' ');
+    }
+};
+
+/**
+ * add a className to the given elements style
+ * @param {Element} elem
+ * @param {String} className
+ */
+links.Timeline.removeClassName = function(elem, className) {
+    var classes = elem.className.split(' ');
+    var index = classes.indexOf(className);
+    if (index != -1) {
+        classes.splice(index, 1); // remove the class from the array
+        elem.className = classes.join(' ');
+    }
 };
 
 /**

@@ -155,7 +155,7 @@
 
 <p>
     To load the Timeline, download the file
-    <a href="http://sourceforge.net/projects/links/files/javascript/timeline.zip"><code>timeline.zip</code></a>
+    <a href="http://almende.github.com/chap-links-library/downloads.html"><code>timeline.zip</code></a>
     and unzip it in a sub directory timeline on your html page.
     Include the two downloaded files (timeline.js and timeline.css) in the head of your html code.
     When you use a Google DataTable for providing the data,
@@ -212,7 +212,8 @@ provided with data and options.
 <p>
     The Timeline supports a JSON Array as data format. The Array must contain
     JSON Objects with fields <code>start</code>, <code>end</code> (optional),
-    <code>content</code>, and <code>group</code> (optional).
+    <code>content</code>, <code>group</code> (optional), and
+    <code>className</code> (optional).
     When JSON is used as data format (instead of Google DataTable), the
     Timeline can be used offline.
 </p>
@@ -228,7 +229,8 @@ data.push({
   'start': new Date(2010, 7, 15),
   'end': new Date(2010, 8, 2),  // end is optional
   'content': 'Trajectory A'
-  // Optional: a fourth parameter 'group'
+  // Optional: a parameter 'group'
+  // Optional: a parameter 'className'
 });
 </pre>
 
@@ -251,7 +253,8 @@ var data = new google.visualization.DataTable();
 data.addColumn('datetime', 'start');
 data.addColumn('datetime', 'end');
 data.addColumn('string', 'content');
-// Optional: a fourth column 'group'
+// Optional: a column 'group'
+// Optional: a column 'className'
 
 data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
 // ...
@@ -267,16 +270,19 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
     <tr>
         <th>Name</th>
         <th>Type</th>
+        <th>Required</th>
         <th>Description</th>
     </tr>
     <tr>
         <td>start</td>
         <td>Date</td>
+        <td>yes</td>
         <td>The start date of the event, for example <code>new Date(2010,09,23)</code>.</td>
     </tr>
     <tr>
         <td>end</td>
         <td>Date</td>
+        <td>no</td>
         <td>The end date of the event. The end date is optional, and can be left <code>null</code>.
             If end date is provided, the event is displayed as a range.
             If not, the event is displayed as a box.</td>
@@ -284,11 +290,13 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
     <tr>
         <td>content</td>
         <td>String</td>
+        <td>yes</td>
         <td>The contents of the event. This can be plain text or html code.</td>
     </tr>
     <tr>
         <td>group</td>
         <td>any type</td>
+        <td>no</td>
         <td>This column is optional. When the group column is provided,
             all events with the same group are placed on one line.
             A vertical axis is displayed showing the groups.
@@ -298,6 +306,26 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
             If none of the events has a group,
             the events will be drawn on top of the horizontal axis.
             When events overlap each other, the will be stacked automatically.
+        </td>
+    </tr>
+    <tr>
+        <td>className</td>
+        <td>String</td>
+        <td>no</td>
+        <td>This column is optional. A className can be used to give events
+            and individual css style. For example, when an event has className
+            'red', one can define a css style
+            <code>
+                .red {
+                    background-color: red;
+                    border-color: dark-red;
+                }
+            </code>.
+            Depending on how you apply your css styles, it may be needed to
+            (re)define the style for selected events
+            (class <code>timeline-event-selected</code>).
+            More details on how to style events can be found in the section
+            <a href="#Styles">Styles</a>.
         </td>
     </tr>
 </table>
@@ -1068,6 +1096,24 @@ div.timeline-event {
 &lt;/style&gt;
 </pre>
 
+
+<h3>Structure</h3>
+
+<p>
+    The events of type <code>box</code>, <code>range</code>, and <code>dot</code>
+    have the following structure.
+</p>
+
+<h4>Box</h4>
+<img alt="Box structure" src="img/structure_box.png" class="structure">
+<h4>Range</h4>
+<img alt="Range structure" src="img/structure_range.png" class="structure">
+<h4>Dot</h4>
+<img alt="Dot structure" src="img/structure_dot.png" class="structure">
+
+
+
+<h3>Definitions</h3>
 
 <table>
 <col width="25%">

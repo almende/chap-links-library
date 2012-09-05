@@ -1,8 +1,10 @@
 CHAP Links Library - Timeline
 
 
-2012-08-30, version 2.2.2
+<not yet released>, version 2.3.0
 
+- new: items can now have an individual class name which allows styling of
+  individual items.
 - fixed issue #26: pinching on Ipad did throw an error "ReferenceError: Can't
   find variable: timeline".
 

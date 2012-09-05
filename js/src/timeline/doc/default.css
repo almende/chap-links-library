@@ -85,3 +85,8 @@ td {
     padding: 5px;
     vertical-align: top;
 }
+
+img.structure {
+    border: 1px solid gray;
+    background-color: #f5f5f5;
+}
