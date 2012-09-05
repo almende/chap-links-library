@@ -1,6 +1,16 @@
 CHAP Links Library - Timeline
 
 
+2012-09-05, version 2.3.0
+
+- new: items can now have an individual class name which allows styling of
+  individual items. This gives a lot of extra flexibility.
+- fixed issue #26: pinching on Ipad did throw an error "ReferenceError: Can't
+  find variable: timeline".
+- fixed issue #28: in some cases, clicking an item would not select the item
+  but move the timeline slightly (less than 1px).
+
+
 2012-07-30, version 2.2.1
 
 - fixed the 'select' event not being fired when an item gets unselected.

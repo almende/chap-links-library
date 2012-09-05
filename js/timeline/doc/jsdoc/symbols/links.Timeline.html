@@ -265,6 +265,15 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.addClassName">addClassName</a></b>(elem, className)
+								</div>
+								<div class="description">add a className to the given elements style</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.addEventListener">addEventListener</a></b>(element, action, listener, useCapture)
 								</div>
 								<div class="description">Add and event listener.</div>
@@ -371,7 +380,7 @@ The items must have parameters left, right, top, and bottom.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventBox">createEventBox</a></b>(content)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventBox">createEventBox</a></b>(item)
 								</div>
 								<div class="description">Create an event in the timeline, with (optional) formatting: inside a box
 with rounded corners, and a vertical line+dot to the axis.</div>
@@ -381,7 +390,7 @@ with rounded corners, and a vertical line+dot to the axis.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventDot">createEventDot</a></b>(content)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventDot">createEventDot</a></b>(item)
 								</div>
 								<div class="description">Create an event in the timeline: a dot, followed by the content.</div>
 							</td>
@@ -390,7 +399,7 @@ with rounded corners, and a vertical line+dot to the axis.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventRange">createEventRange</a></b>(content)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventRange">createEventRange</a></b>(item)
 								</div>
 								<div class="description">Create an event range as a beam in the timeline.</div>
 							</td>
@@ -448,6 +457,15 @@ with rounded corners, and a vertical line+dot to the axis.</div>
 								</div>
 								<div class="description">Recursively retrieve all image urls from the images located inside a given
 HTML element</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.findColumnId">findColumnId</a></b>(dataTable, label)
+								</div>
+								<div class="description">Find a column by its label in a Google DataTable</div>
 							</td>
 						</tr>
 					
@@ -883,6 +901,15 @@ if there is no item selected, the button is hidden.</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.removeClassName">removeClassName</a></b>(elem, className)
+								</div>
+								<div class="description">add a className to the given elements style</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.removeEventListener">removeEventListener</a></b>(element, action, listener, useCapture)
 								</div>
 								<div class="description">Remove an event listener from an element</div>
@@ -1124,6 +1151,33 @@ executed once.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateEventBox">updateEventBox</a></b>(item)
+								</div>
+								<div class="description">Update the dom of the item: apply content, and apply styles</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateEventDot">updateEventDot</a></b>(item)
+								</div>
+								<div class="description">Update the dom of the item: apply content, and apply styles</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateEventRange">updateEventRange</a></b>(item)
+								</div>
+								<div class="description">Update the dom of the item: apply content, and apply styles</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#zoom">zoom</a></b>(zoomFactor, zoomAroundDate)
 								</div>
 								<div class="description">Zoom the timeline the given zoomfactor in or out.</div>
@@ -1189,6 +1243,48 @@ executed once.</div>
 				<div class="sectionTitle">
 					Method Detail
 				</div>
+				
+					<a name=".addClassName"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Timeline.</span><b>addClassName</b>(elem, className)
+					
+					</div>
+					<div class="description">
+						add a className to the given elements style
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Element}</span> <b>elem</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>className</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
 				
 					<a name=".addEventListener"> </a>
 					<div class="fixedFont">&lt;static&gt; 
@@ -1629,8 +1725,8 @@ triggered event 'delete'.
 					<a name="createEventBox"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>createEventBox</b>(content)
+					<span class="light">{Element}</span>
+					<b>createEventBox</b>(item)
 					
 					</div>
 					<div class="description">
@@ -1647,17 +1743,23 @@ with rounded corners, and a vertical line+dot to the axis.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>content</b>
+									<span class="light fixedFont">{Object}</span> <b>item</b>
 									
 								</dt>
-								<dd>The content for the event. This can be plain text
-                           or HTML code.</dd>
+								<dd>Item containing optional field className</dd>
 							
 							</dl>
 						
 						
 						
 						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Element}</span> dom        HTML Element containing box</dd>
+							
+							</dl>
 						
 						
 						
@@ -1667,8 +1769,8 @@ with rounded corners, and a vertical line+dot to the axis.
 					<a name="createEventDot"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>createEventDot</b>(content)
+					<span class="light">{Element}</span>
+					<b>createEventDot</b>(item)
 					
 					</div>
 					<div class="description">
@@ -1684,17 +1786,23 @@ with rounded corners, and a vertical line+dot to the axis.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>content</b>
+									<span class="light fixedFont">{Object}</span> <b>item</b>
 									
 								</dt>
-								<dd>The content for the event. This can be plain text
-                           or HTML code.</dd>
+								<dd>Item containing optional field className</dd>
 							
 							</dl>
 						
 						
 						
 						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Element}</span> dom        HTML dom element</dd>
+							
+							</dl>
 						
 						
 						
@@ -1704,8 +1812,8 @@ with rounded corners, and a vertical line+dot to the axis.
 					<a name="createEventRange"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>createEventRange</b>(content)
+					<span class="light">{Element}</span>
+					<b>createEventRange</b>(item)
 					
 					</div>
 					<div class="description">
@@ -1721,17 +1829,23 @@ with rounded corners, and a vertical line+dot to the axis.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{string}</span> <b>content</b>
+									<span class="light fixedFont">{Object}</span> <b>item</b>
 									
 								</dt>
-								<dd>The content for the event. This can be plain text
-                            or HTML code.</dd>
+								<dd>Item containing optional field className</dd>
 							
 							</dl>
 						
 						
 						
 						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Element}</span> dom        HTML dom element</dd>
+							
+							</dl>
 						
 						
 						
@@ -1953,6 +2067,56 @@ HTML element
 						
 						
 						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".findColumnId"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{Number}</span>
+					<span class="light">links.Timeline.</span><b>findColumnId</b>(dataTable, label)
+					
+					</div>
+					<div class="description">
+						Find a column by its label in a Google DataTable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable}</span> <b>dataTable</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>label</b>
+									
+								</dt>
+								<dd>label name of the column to be found</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Number}</span> columnId      returns the column id of the column if found,
+                               or undefined when not found.</dd>
+							
+							</dl>
 						
 						
 						
@@ -3581,6 +3745,48 @@ end time are changed, or when data is added or removed dynamically.
 
 					<hr />
 				
+					<a name=".removeClassName"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">links.Timeline.</span><b>removeClassName</b>(elem, className)
+					
+					</div>
+					<div class="description">
+						add a className to the given elements style
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Element}</span> <b>elem</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>className</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name=".removeEventListener"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -4658,6 +4864,114 @@ executed once.
 
 					<hr />
 				
+					<a name="updateEventBox"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>updateEventBox</b>(item)
+					
+					</div>
+					<div class="description">
+						Update the dom of the item: apply content, and apply styles
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>item</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="updateEventDot"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>updateEventDot</b>(item)
+					
+					</div>
+					<div class="description">
+						Update the dom of the item: apply content, and apply styles
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>item</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="updateEventRange"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>updateEventRange</b>(item)
+					
+					</div>
+					<div class="description">
+						Update the dom of the item: apply content, and apply styles
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>item</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name="zoom"> </a>
 					<div class="fixedFont">
 					
@@ -4716,7 +5030,7 @@ For example, try zoomfactor = 0.1 or -0.1
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Jul 30 2012 10:44:04 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Wed Sep 05 2012 15:30:11 GMT+0200 (CEST)
 		</div>
 	</body>
 </html>
