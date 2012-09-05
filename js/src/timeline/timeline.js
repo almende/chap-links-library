@@ -2836,7 +2836,10 @@ links.Timeline.prototype.onMouseMove = function (event) {
     var diffX = parseFloat(mouseX) - params.mouseX;
     var diffY = parseFloat(mouseY) - params.mouseY;
 
-    params.moved = true;
+    // if mouse movement is big enough, register it as a "moved" event
+    if (Math.abs(diffX) >= 1) {
+        params.moved = true;
+    }
 
     if (params.customTime) {
         var x = this.timeToScreen(params.customTime);
