@@ -1451,6 +1451,8 @@ links.Graph3d.prototype._redrawAxis = function() {
  * @param {number} V   Value, a value between 0 and 1
  */
 links.Graph3d.prototype._hsv2rgb = function(H, S, V) {
+    var R, G, B, C, Hi, X;
+
     C = V * S;
     Hi = Math.floor(H/60);  // hi = 0,1,2,3,4,5
     X = C * (1 - Math.abs(((H/60) % 2) - 1));

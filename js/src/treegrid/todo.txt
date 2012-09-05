@@ -1,6 +1,10 @@
 
-- adjust HTML DOM to a table, such that drag&drop works fine
-- adjust the dataconnector as andries and I discussed
-- treegrid must handle changed dataconnectors correctly
-
-- GWT version doesn't work in Firefox
+- rewrite the rendering part, use tables instead of absolutely positioned divs
+  -> this will enable custom css per table, and per row
+- allow event listeners (for keys, mouse, etc)
+- add sorting and filtering options.
+- make the action buttons more generic, customizable style and functionality
+- make rows selectable via a checkbox on the right?
+- improve drag and drop. Disable drag and drop when fields are not draggable
+- treegrid should not need a fixed container, must be able to just have an
+  container that expands instead of getting a vertical scrollbar.

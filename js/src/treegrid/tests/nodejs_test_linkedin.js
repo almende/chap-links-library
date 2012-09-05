@@ -25,7 +25,7 @@ var verifiers = {}; // verifier for token
 var qs = require('querystring'), 
   oauth =
     { 
-      callback: 'http://links.sourceforge.net/',
+      callback: 'http://almende.github.com/chap-links-library/',
       consumer_key: CONSUMER_KEY,
       consumer_secret: CONSUMER_SECRET
     },

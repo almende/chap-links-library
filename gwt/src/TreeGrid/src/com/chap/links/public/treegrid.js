@@ -27,7 +27,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (c) 2011-2012 Almende B.V. <http://links.sourceforge.net>
+ * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
  * @date    2012-04-24
@@ -101,7 +101,7 @@ links.TreeGrid = function(container, options) {
       return -1;
     }
   }
-  http://links.sourceforge.net/treegrid/js/examples/example04_search_youtube.html
+
   this.options = {
     'width': '100%',
     'height': '100%',
