@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Timeline demo</title>
+
+    <style>
+        body {font: 10pt verdana;}
+    </style>
+
+    <script type="text/javascript" src="../timeline.js"></script>
+    <link rel="stylesheet" type="text/css" href="../timeline.css">
+
+    <script type="text/javascript">
+        var timeline;
+        var data;
+
+        // Called when the Visualization API is loaded.
+        function draw() {
+            // Create and populate a data table.
+            // Create and populate a data table.
+            var data = [];
+
+            data.push({
+                'start': new Date(2010, 7, 15),
+                'end': new Date(2010, 8, 2),
+                'content': 'Trajectory A',
+                'group': 'Camera_4'
+            });
+            data.push({
+                'start': new Date(2011, 7, 15),
+                'end': new Date(2011, 8, 2),
+                'content': 'Trajectory B',
+                'group': 'Camera_1'
+            });
+            data.push({
+                'start': new Date(2011, 7, 15),
+                'end': new Date(2011, 8, 2),
+                'content': 'Trajectory B',
+                'group': 'Camera_2'
+            });
+            data.push({
+                'start': new Date(2011, 7, 15),
+                'end': new Date(2011, 8, 2),
+                'content': 'Trajectory B',
+                'group': 'Camera_1'
+            });
+
+            // specify options
+            var options = {width:  "100%",
+                //height: "300px",
+                height: "auto",
+                editable: true,   // enable dragging and editing events
+                enableKeys: true,
+                axisOnTop: true,
+                showNavigation: true,
+                layout: "box"
+            };
+
+            // Instantiate our timeline object.
+            timeline = new links.Timeline(document.getElementById('mytimeline'));
+
+            // Draw our timeline with the created data and options
+            timeline.draw(data, options);
+        }
+
+    </script>
+
+</head>
+
+<body onload="draw()">
+
+<div id="mytimeline"></div>
+
+</body>
+</html>
