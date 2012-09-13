@@ -3,6 +3,8 @@ CHAP Links Library - Timeline
 2012-09-13, version 2.3.1
 
 - added: double tap events on mobile devices will now fire the edit/new event.
+- fixed/updated example 09, 15, 17, and 18.
+- created example 21.
 
 
 2012-09-05, version 2.3.0
