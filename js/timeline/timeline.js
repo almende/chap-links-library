@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-09-05
- * @version 2.3.0
+ * @date    2012-09-13
+ * @version 2.3.1
  */
 
 /*
@@ -2597,7 +2597,6 @@ links.Timeline.prototype.timeToScreen = function(time) {
  */
 links.Timeline.prototype.onTouchStart = function(event) {
     var params = this.eventParams,
-        dom = this.dom,
         me = this;
 
     if (params.touchDown) {
@@ -2618,6 +2617,33 @@ links.Timeline.prototype.onTouchStart = function(event) {
         params.onTouchEnd  = function (event) {me.onTouchEnd(event);};
         links.Timeline.addEventListener(document, "touchend",  params.onTouchEnd);
     }
+
+    /* TODO
+    // check for double tap event
+    var delta = 500; // ms
+    var doubleTapStart = (new Date()).getTime();
+    var target = links.Timeline.getTarget(event);
+    var doubleTapItem = this.getItemIndex(target);
+    if (params.doubleTapStart &&
+            (doubleTapStart - params.doubleTapStart) < delta &&
+            doubleTapItem == params.doubleTapItem) {
+        delete params.doubleTapStart;
+        delete params.doubleTapItem;
+        me.onDblClick(event);
+        params.touchDown = false;
+    }
+    params.doubleTapStart = doubleTapStart;
+    params.doubleTapItem = doubleTapItem;
+    */
+    // store timing for double taps
+    var target = links.Timeline.getTarget(event);
+    var item = this.getItemIndex(target);
+    params.doubleTapStartPrev = params.doubleTapStart;
+    params.doubleTapStart = (new Date()).getTime();
+    params.doubleTapItemPrev = params.doubleTapItem;
+    params.doubleTapItem = item;
+
+    links.Timeline.preventDefault(event);
 };
 
 /**
@@ -2651,10 +2677,10 @@ links.Timeline.prototype.onTouchMove = function(event) {
 
             this.setVisibleChartRange(start, end);
             this.trigger("rangechange");
-
-            links.Timeline.preventDefault(event);
         }
     }
+
+    links.Timeline.preventDefault(event);
 };
 
 /**
@@ -2662,6 +2688,7 @@ links.Timeline.prototype.onTouchMove = function(event) {
  */
 links.Timeline.prototype.onTouchEnd = function(event) {
     var params = this.eventParams;
+    var me = this;
     params.touchDown = false;
 
     if (params.zoomed) {
@@ -2679,6 +2706,21 @@ links.Timeline.prototype.onTouchEnd = function(event) {
     }
 
     this.onMouseUp(event);
+
+    // check for double tap event
+    var delta = 500; // ms
+    var doubleTapEnd = (new Date()).getTime();
+    var target = links.Timeline.getTarget(event);
+    var doubleTapItem = this.getItemIndex(target);
+    if (params.doubleTapStartPrev &&
+        (doubleTapEnd - params.doubleTapStartPrev) < delta &&
+        params.doubleTapItem == params.doubleTapItemPrev) {
+        params.touchDown = true;
+        me.onDblClick(event);
+        params.touchDown = false;
+    }
+
+    links.Timeline.preventDefault(event);
 };
 
 
@@ -3130,9 +3172,17 @@ links.Timeline.prototype.onDblClick = function (event) {
         this.trigger('edit');
     }
     else {
-        // create a new item    
-        var x = event.clientX - links.Timeline.getAbsoluteLeft(dom.content);
-        var y = event.clientY - links.Timeline.getAbsoluteTop(dom.content);
+        // create a new item
+
+        // get mouse position
+        if (!params.touchDown) {
+            params.mouseX = event.clientX;
+            params.mouseY = event.clientY;
+        }
+        if (params.mouseX === undefined) {params.mouseX = 0;}
+        if (params.mouseY === undefined) {params.mouseY = 0;}
+        var x = params.mouseX - links.Timeline.getAbsoluteLeft(dom.content);
+        var y = params.mouseY - links.Timeline.getAbsoluteTop(dom.content);
 
         // create a new event at the current mouse position
         var xstart = this.screenToTime(x);
