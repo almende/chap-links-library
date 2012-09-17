@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-09-13
- * @version 2.3.1
+ * @date    2012-09-17
+ * @version 2.3.2
  */
 
 /*
@@ -1154,9 +1154,8 @@ links.Timeline.prototype.redrawItems = function() {
     }
 
     frame.style.left = "0px";
-    //frame.style.width = "0px";
     frame.style.top = size.items.top + "px";
-    frame.style.height = (size.frameHeight - size.axis.height) + "px";
+    frame.style.height = "0px";
 
     // initialize arrarys for storing the items
     var ranges = dom.items.ranges;
