@@ -1,7 +1,7 @@
 CHAP Links Library - Timeline
 
 
-<not yet released>, version 2.3.2
+2012-09-18, version 2.3.2
 
 - fixed mouseover/dragging of the vertical lines with current time and custom
   time, which did only work in the axis area but not in the contents area.
