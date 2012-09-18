@@ -1,5 +1,12 @@
 CHAP Links Library - Timeline
 
+
+2012-09-18, version 2.3.2
+
+- fixed mouseover/dragging of the vertical lines with current time and custom
+  time, which did only work in the axis area but not in the contents area.
+
+
 2012-09-13, version 2.3.1
 
 - added: double tap events on mobile devices will now fire the edit/new event.
