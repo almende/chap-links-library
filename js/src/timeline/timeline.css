@@ -34,10 +34,7 @@ div.timeline-event {
     color: #1A1A1A;
     border-color: #97B0F8;
     background-color: #D5DDF6;
-
-
     display: inline-block;
-
 }
 
 div.timeline-event-selected {
@@ -46,6 +43,11 @@ div.timeline-event-selected {
     z-index: 999;
 }
 
+
+div.timeline-event-cluster {
+    color: #109618;
+    background-color: #8AC28B;
+}
 
 div.timeline-event-box {
     text-align: center;
