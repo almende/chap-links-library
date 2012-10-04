@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-09-18
- * @version 2.3.2
+ * @date    2012-10-04
+ * @version 2.4.0
  */
 
 /*
@@ -70,6 +70,33 @@ if (typeof google === 'undefined') {
 }
 
 
+
+// Internet Explorer 8 and older does not support Array.indexOf,
+// so we define it here in that case
+// http://soledadpenades.com/2007/05/17/arrayindexof-in-internet-explorer/
+if(!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function(obj){
+        for(var i = 0; i < this.length; i++){
+            if(this[i] == obj){
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+// Internet Explorer 8 and older does not support Array.forEach,
+// so we define it here in that case
+// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/forEach
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(fn, scope) {
+        for(var i = 0, len = this.length; i < len; ++i) {
+            fn.call(scope || this, this[i], i, this);
+        }
+    }
+}
+
+
 /**
  * @constructor links.Timeline
  * The timeline is a visualization chart to visualize events in time.
@@ -88,6 +115,8 @@ links.Timeline = function(container) {
     this.groupIndexes = {};
     this.items = [];
     this.visibleItems = [];
+    this.clusters = [];
+    this.points = [];
     this.selection = undefined; // stores index and item which is currently selected
 
     this.listeners = {}; // event listener callbacks
@@ -115,7 +144,6 @@ links.Timeline = function(container) {
         'contentHeight': 0,
         'contentLeft': 0,
         'contentWidth': 0,
-        'dataChanged': false,
         'frameHeight': 0,
         'frameWidth': 0,
         'groupsLeft': 0,
@@ -154,7 +182,7 @@ links.Timeline = function(container) {
         'showMajorLabels': true,
         'showMinorLabels': true,
         'showNavigation': false,
-        'showButtonAdd': true,
+        'showButtonNew': false,
         'groupsOnRight': false,
         'axisOnTop': false,
         'stackEvents': true,
@@ -183,22 +211,8 @@ links.Timeline = function(container) {
     // date interval must be initialized 
     this.setVisibleChartRange(undefined, undefined, false);
 
-    // create all DOM elements
-    this.redrawFrame();
-
-    // Internet Explorer does not support Array.indexof, 
-    // so we define it here in that case
-    // http://soledadpenades.com/2007/05/17/arrayindexof-in-internet-explorer/
-    if(!Array.prototype.indexOf) {
-        Array.prototype.indexOf = function(obj){
-            for(var i = 0; i < this.length; i++){
-                if(this[i] == obj){
-                    return i;
-                }
-            }
-            return -1;
-        }
-    }
+    // render for the first time
+    this.render();
 
     // fire the ready event
     this.trigger('ready');
@@ -250,6 +264,16 @@ links.Timeline.prototype.setOptions = function(options) {
                 this.options[i] = options[i];
             }
         }
+
+        // check for deprecated options
+        if (options.showButtonAdd != undefined) {
+            this.options.showButtonNew = options.showButtonAdd;
+            console.log('WARNING: Option showButtonAdd is deprecated. Use showButtonNew instead');
+        }
+
+        if (options.scale && options.step) {
+            this.step.setScale(options.scale, options.step);
+        }
     }
 
     // validate options
@@ -259,9 +283,10 @@ links.Timeline.prototype.setOptions = function(options) {
 /**
  * Find a column by its label in a Google DataTable
  * @param {google.visualization.DataTable} dataTable
- * @param {String} label          label name of the column to be found
- * @return {Number} columnId      returns the column id of the column if found,
- *                                or undefined when not found.
+ * @param {String} label                    label name of the column to be found
+ * @return {Number | undefined} columnId    returns the column id of the column
+ *                                          if found, or undefined when not
+ *                                          found.
  */
 links.Timeline.findColumnId = function (dataTable, label) {
     for (var i = 0, iMax = dataTable.getNumberOfColumns(); i < iMax; i++) {
@@ -286,7 +311,8 @@ links.Timeline.prototype.setData = function(data) {
     }
 
     // clear all data
-    this.items = [];
+    this.stackCancelAnimation();
+    this.clearItems();
     this.data = data;
     var items = this.items;
     this.deleteGroups();
@@ -324,16 +350,9 @@ links.Timeline.prototype.setData = function(data) {
         this.filterItemTypes();
     }
 
-    // set a flag to force the recalcSize method to recalculate the 
-    // heights and widths of the events
-    this.size.dataChanged = true;
-    this.redrawFrame();      // create the items for the new data
-    this.recalcSize();       // position the items
-    this.clusterEvents();
-    this.filterEvents();
-    this.stackEvents(false);
-    this.redrawFrame();      // redraw the items on the final positions
-    this.size.dataChanged = false;
+    this.render({
+        animate: false
+    });
 };
 
 /**
@@ -420,20 +439,21 @@ links.Timeline.prototype.updateData = function  (index, values) {
  * Find the item index from a given HTML element
  * If no item index is found, undefined is returned
  * @param {Element} element
- * @return {Number} index
+ * @return {Number | undefined} index
  */
 links.Timeline.prototype.getItemIndex = function(element) {
     var e = element,
         dom = this.dom,
+        frame = dom.items.frame,
         items = this.items,
         index = undefined;
 
     // try to find the frame where the items are located in
-    while (e.parentNode && e.parentNode !== dom.items.frame) {
+    while (e.parentNode && e.parentNode !== frame) {
         e = e.parentNode;
     }
 
-    if (e.parentNode === dom.items.frame) {
+    if (e.parentNode === frame) {
         // yes! we have found the parent element of all items
         // retrieve its id from the array with items
         for (var i = 0, iMax = items.length; i < iMax; i++) {
@@ -467,11 +487,9 @@ links.Timeline.prototype.setSize = function(width, height) {
         }
     }
 
-    this.recalcSize();
-    this.clusterEvents();
-    this.filterEvents();
-    this.stackEvents(false);
-    this.redrawFrame();
+    this.render({
+        animate: false
+    });
 };
 
 
@@ -545,11 +563,9 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
     this.applyRange(start, end);
 
     if (redraw == undefined || redraw == true) {
-        this.recalcSize();
-        this.clusterEvents();
-        this.filterEvents();
-        this.stackEvents(false);
-        this.redrawFrame();
+        this.render({
+            animate: false
+        });  // TODO: optimize, no reflow needed
     }
     else {
         this.recalcConversion();
@@ -587,11 +603,10 @@ links.Timeline.prototype.setVisibleChartRangeNow = function() {
  * @return {Object} An object with start and end properties
  */
 links.Timeline.prototype.getVisibleChartRange = function() {
-    var range = {
+    return {
         'start': new Date(this.start),
         'end': new Date(this.end)
     };
-    return range;
 };
 
 /**
@@ -642,53 +657,131 @@ links.Timeline.prototype.getDataRange = function (withMargin) {
         'min': min ? new Date(min) : undefined,
         'max': max ? new Date(max) : undefined
     };
-}
+};
 
 /**
- * Redraw the timeline. This needs to be executed after the start and/or
- * end time are changed, or when data is added or removed dynamically.
+ * Re-render (reflow and repaint) all components of the Timeline: frame, axis,
+ * items, ...
+ * @param {Object} [options]  Available options:
+ *                            {boolean} renderTimesLeft   Number of times the
+ *                                                        render may be repeated
+ *                                                        5 times by default.
+ *                            {boolean} animate           takes options.animate
+ *                                                        as default value
  */
-links.Timeline.prototype.redrawFrame = function() {
+links.Timeline.prototype.render = function(options) {
+    var frameResized = this.reflowFrame();
+    var axisResized = this.reflowAxis();
+    var groupsResized = this.reflowGroups();
+    var itemsResized = this.reflowItems();
+    var resized = (frameResized || axisResized || groupsResized || itemsResized);
+
+    // TODO: only stackEvents/filterItems when resized or changed. (gives a bootstrap issue).
+    // if (resized) {
+    var animate = this.options.animate;
+    if (options && options.animate != undefined) {
+        animate = options.animate;
+    }
+
+    this.recalcConversion();
+    this.clusterItems();
+    this.filterItems();
+    this.stackItems(animate);
+
+    this.recalcItems();
+    // }
+
+    // TODO: only repaint when resized or when filterItems or stackItems gave a change?
+    var needsReflow = this.repaint();
+
+    // re-render once when needed (prevent endless re-render loop)
+    if (needsReflow) {
+        var renderTimesLeft = options ? options.renderTimesLeft : undefined;
+        if (renderTimesLeft == undefined) {
+            renderTimesLeft = 5;
+        }
+        if (renderTimesLeft > 0) {
+            this.render({
+                'animate': options ? options.animate: undefined,
+                'renderTimesLeft': (renderTimesLeft - 1)
+            });
+        }
+    }
+};
+
+/**
+ * Repaint all components of the Timeline
+ * @return {boolean} needsReflow   Returns true if the DOM is changed such that
+ *                                 a reflow is needed.
+ */
+links.Timeline.prototype.repaint = function() {
+    var frameNeedsReflow = this.repaintFrame();
+    var axisNeedsReflow  = this.repaintAxis();
+    var groupsNeedsReflow  = this.repaintGroups();
+    var itemsNeedsReflow = this.repaintItems();
+    this.repaintCurrentTime();
+    this.repaintCustomTime();
+
+    return (frameNeedsReflow || axisNeedsReflow || groupsNeedsReflow || itemsNeedsReflow);
+};
+
+/**
+ * Reflow the timeline frame
+ * @return {boolean} resized    Returns true if any of the frame elements
+ *                              have been resized.
+ */
+links.Timeline.prototype.reflowFrame = function() {
     var dom = this.dom,
+        options = this.options,
+        size = this.size,
+        resized = false;
+
+    // Note: IE7 has issues with giving frame.clientWidth, therefore I use offsetWidth instead
+    var frameWidth  = dom.frame ? dom.frame.offsetWidth : 0,
+        frameHeight = dom.frame ? dom.frame.clientHeight : 0;
+
+    resized = resized || (size.frameWidth !== frameWidth);
+    resized = resized || (size.frameHeight !== frameHeight);
+    size.frameWidth = frameWidth;
+    size.frameHeight = frameHeight;
+
+    return resized;
+};
+
+/**
+ * repaint the Timeline frame
+ * @return {boolean} needsReflow   Returns true if the DOM is changed such that
+ *                                 a reflow is needed.
+ */
+links.Timeline.prototype.repaintFrame = function() {
+    var needsReflow = false,
+        dom = this.dom,
         options = this.options,
         size = this.size;
 
+    // main frame
     if (!dom.frame) {
-        // the surrounding main frame
         dom.frame = document.createElement("DIV");
         dom.frame.className = "timeline-frame";
         dom.frame.style.position = "relative";
         dom.frame.style.overflow = "hidden";
         dom.container.appendChild(dom.frame);
+        needsReflow = true;
     }
 
-    if (options.autoHeight) {
-        dom.frame.style.height = size.frameHeight + "px";
-    }
-    else {
-        dom.frame.style.height = options.height || "100%";
-    }
-    dom.frame.style.width = options.width  || "100%";
+    var height = options.autoHeight ?
+            (size.actualHeight + "px") :
+            (options.height || "100%");
+    var width  = options.width || "100%";
+    needsReflow = needsReflow || (dom.frame.style.height != height);
+    needsReflow = needsReflow || (dom.frame.style.width != width);
+    dom.frame.style.height = height;
+    dom.frame.style.width = width;
 
-    this.redrawContent();
-    this.redrawGroups();
-    this.redrawCurrentTime();
-    this.redrawCustomTime();
-    this.redrawNavigation();
-};
-
-
-/**
- * Redraw the content of the timeline: the axis and the items
- */
-links.Timeline.prototype.redrawContent = function() {
-    var dom = this.dom,
-        size = this.size;
-
+    // contents
     if (!dom.content) {
-        // create content box where the axis and canvas will 
+        // create content box where the axis and items will be created
         dom.content = document.createElement("DIV");
-        //this.frame.className = "timeline-frame";
         dom.content.style.position = "relative";
         dom.content.style.overflow = "hidden";
         dom.frame.appendChild(dom.content);
@@ -720,23 +813,93 @@ links.Timeline.prototype.redrawContent = function() {
             params.onDblClick = function (event) {me.onDblClick(event);};
             links.Timeline.addEventListener(dom.content, "dblclick", params.onDblClick);
         }
+
+        needsReflow = true;
     }
     dom.content.style.left = size.contentLeft + "px";
     dom.content.style.top = "0px";
     dom.content.style.width = size.contentWidth + "px";
     dom.content.style.height = size.frameHeight + "px";
 
-    this.redrawAxis();
-    this.redrawItems();
-    this.redrawDeleteButton();
-    this.redrawDragAreas();
+    this.repaintNavigation();
+
+    return needsReflow;
+};
+
+/**
+ * Reflow the timeline axis. Calculate its height, width, positioning, etc...
+ * @return {boolean} resized    returns true if the axis is resized
+ */
+links.Timeline.prototype.reflowAxis = function() {
+    var resized = false,
+        dom = this.dom,
+        options = this.options,
+        size = this.size,
+        axisDom = dom.axis;
+
+    var characterMinorWidth  = (axisDom && axisDom.characterMinor) ? axisDom.characterMinor.clientWidth : 0,
+        characterMinorHeight = (axisDom && axisDom.characterMinor) ? axisDom.characterMinor.clientHeight : 0,
+        characterMajorWidth  = (axisDom && axisDom.characterMajor) ? axisDom.characterMajor.clientWidth : 0,
+        characterMajorHeight = (axisDom && axisDom.characterMajor) ? axisDom.characterMajor.clientHeight : 0,
+        axisHeight = (options.showMinorLabels ? characterMinorHeight : 0) +
+            (options.showMajorLabels ? characterMajorHeight : 0);
+
+    var axisTop  = options.axisOnTop ? 0 : size.frameHeight - axisHeight,
+        axisLine = options.axisOnTop ? axisHeight : axisTop;
+
+    resized = resized || (size.axis.top !== axisTop);
+    resized = resized || (size.axis.line !== axisLine);
+    resized = resized || (size.axis.height !== axisHeight);
+    size.axis.top = axisTop;
+    size.axis.line = axisLine;
+    size.axis.height = axisHeight;
+    size.axis.labelMajorTop = options.axisOnTop ? 0 : axisLine +
+        (options.showMinorLabels ? characterMinorHeight : 0);
+    size.axis.labelMinorTop = options.axisOnTop ?
+        (options.showMajorLabels ? characterMajorHeight : 0) :
+        axisLine;
+    size.axis.lineMinorTop = options.axisOnTop ? size.axis.labelMinorTop : 0;
+    size.axis.lineMinorHeight = options.showMajorLabels ?
+        size.frameHeight - characterMajorHeight:
+        size.frameHeight;
+    if (axisDom && axisDom.minorLines && axisDom.minorLines.length) {
+        size.axis.lineMinorWidth = axisDom.minorLines[0].offsetWidth;
+    }
+    else {
+        size.axis.lineMinorWidth = 1;
+    }
+    if (axisDom && axisDom.majorLines && axisDom.majorLines.length) {
+        size.axis.lineMajorWidth = axisDom.majorLines[0].offsetWidth;
+    }
+    else {
+        size.axis.lineMajorWidth = 1;
+    }
+
+    resized = resized || (size.axis.characterMinorWidth  !== characterMinorWidth);
+    resized = resized || (size.axis.characterMinorHeight !== characterMinorHeight);
+    resized = resized || (size.axis.characterMajorWidth  !== characterMajorWidth);
+    resized = resized || (size.axis.characterMajorHeight !== characterMajorHeight);
+    size.axis.characterMinorWidth  = characterMinorWidth;
+    size.axis.characterMinorHeight = characterMinorHeight;
+    size.axis.characterMajorWidth  = characterMajorWidth;
+    size.axis.characterMajorHeight = characterMajorHeight;
+
+    var contentHeight = Math.max(size.frameHeight - axisHeight, 0);
+    size.contentLeft = options.groupsOnRight ? 0 : size.groupsWidth;
+    size.contentWidth = Math.max(size.frameWidth - size.groupsWidth, 0);
+    size.contentHeight = contentHeight;
+
+    return resized;
 };
 
 /**
  * Redraw the timeline axis with minor and major labels
+ * @return {boolean} needsReflow     Returns true if the DOM is changed such
+ *                                   that a reflow is needed.
  */
-links.Timeline.prototype.redrawAxis = function() {
-    var dom = this.dom,
+links.Timeline.prototype.repaintAxis = function() {
+    var needsReflow = false,
+        dom = this.dom,
         options = this.options,
         size = this.size,
         step = this.step;
@@ -746,19 +909,19 @@ links.Timeline.prototype.redrawAxis = function() {
         axis = {};
         dom.axis = axis;
     }
-    if (size.axis.properties === undefined) {
+    if (!size.axis.properties) {
         size.axis.properties = {};
     }
-    if (axis.minorTexts === undefined) {
+    if (!axis.minorTexts) {
         axis.minorTexts = [];
     }
-    if (axis.minorLines === undefined) {
+    if (!axis.minorLines) {
         axis.minorLines = [];
     }
-    if (axis.majorTexts === undefined) {
+    if (!axis.majorTexts) {
         axis.majorTexts = [];
     }
-    if (axis.majorLines === undefined) {
+    if (!axis.majorLines) {
         axis.majorLines = [];
     }
 
@@ -780,27 +943,36 @@ links.Timeline.prototype.redrawAxis = function() {
     // the axis can be dragged without having to redraw it each time again.
     var start = this.screenToTime(0);
     var end = this.screenToTime(size.contentWidth);
-    var width = size.contentWidth;
 
     // calculate minimum step (in milliseconds) based on character size
-    this.minimumStep = this.screenToTime(size.axis.characterMinorWidth * 6).valueOf() -
-        this.screenToTime(0).valueOf();
+    if (size.axis.characterMinorWidth) {
+        this.minimumStep =
+            this.screenToTime(size.axis.characterMinorWidth * 6).valueOf() -
+            this.screenToTime(0).valueOf();
 
-    step.setRange(start, end, this.minimumStep);
+        step.setRange(start, end, this.minimumStep);
+    }
 
-    this.redrawAxisCharacters();
+    var charsNeedsReflow = this.repaintAxisCharacters();
+    needsReflow = needsReflow || charsNeedsReflow;
 
-    this.redrawAxisStartOverwriting();
+    // The current labels on the axis will be re-used (much better performance),
+    // therefore, the repaintAxis method uses the mechanism with
+    // repaintAxisStartOverwriting, repaintAxisEndOverwriting, and
+    // this.size.axis.properties is used.
+    this.repaintAxisStartOverwriting();
 
     step.start();
     var xFirstMajorLabel = undefined;
-    while (!step.end()) {
+    var max = 0;
+    while (!step.end() && max < 1000) {
+        max++;
         var cur = step.getCurrent(),
             x = this.timeToScreen(cur),
             isMajor = step.isMajor();
 
         if (options.showMinorLabels) {
-            this.redrawAxisMinorText(x, step.getLabelMinor());
+            this.repaintAxisMinorText(x, step.getLabelMinor());
         }
 
         if (isMajor && options.showMajorLabels) {
@@ -808,12 +980,12 @@ links.Timeline.prototype.redrawAxis = function() {
                 if (xFirstMajorLabel === undefined) {
                     xFirstMajorLabel = x;
                 }
-                this.redrawAxisMajorText(x, step.getLabelMajor());
+                this.repaintAxisMajorText(x, step.getLabelMajor());
             }
-            this.redrawAxisMajorLine(x);
+            this.repaintAxisMajorLine(x);
         }
         else {
-            this.redrawAxisMinorLine(x);
+            this.repaintAxisMinorLine(x);
         }
 
         step.next();
@@ -823,34 +995,40 @@ links.Timeline.prototype.redrawAxis = function() {
     if (options.showMajorLabels) {
         var leftTime = this.screenToTime(0),
             leftText = this.step.getLabelMajor(leftTime),
-            width = leftText.length * size.axis.characterMajorWidth + 10;// estimation
+            width = leftText.length * size.axis.characterMajorWidth + 10; // upper bound estimation
 
         if (xFirstMajorLabel === undefined || width < xFirstMajorLabel) {
-            this.redrawAxisMajorText(0, leftText, leftTime);
+            this.repaintAxisMajorText(0, leftText, leftTime);
         }
     }
 
-    this.redrawAxisHorizontal();
-
     // cleanup left over labels
-    this.redrawAxisEndOverwriting();
+    this.repaintAxisEndOverwriting();
+
+    this.repaintAxisHorizontal();
 
     // put axis online
     dom.content.insertBefore(axis.frame, dom.content.firstChild);
+
+    return needsReflow;
 };
 
 /**
  * Create characters used to determine the size of text on the axis
+ * @return {boolean} needsReflow   Returns true if the DOM is changed such that
+ *                                 a reflow is needed.
  */
-links.Timeline.prototype.redrawAxisCharacters = function () {
+links.Timeline.prototype.repaintAxisCharacters = function () {
     // calculate the width and height of a single character
     // this is used to calculate the step size, and also the positioning of the
     // axis
-    var dom = this.dom,
-        axis = dom.axis;
+    var needsReflow = false,
+        dom = this.dom,
+        axis = dom.axis,
+        text;
 
     if (!axis.characterMinor) {
-        var text = document.createTextNode("0");
+        text = document.createTextNode("0");
         var characterMinor = document.createElement("DIV");
         characterMinor.className = "timeline-axis-text timeline-axis-text-minor";
         characterMinor.appendChild(text);
@@ -861,10 +1039,11 @@ links.Timeline.prototype.redrawAxisCharacters = function () {
         axis.frame.appendChild(characterMinor);
 
         axis.characterMinor = characterMinor;
+        needsReflow = true;
     }
 
     if (!axis.characterMajor) {
-        var text = document.createTextNode("0");
+        text = document.createTextNode("0");
         var characterMajor = document.createElement("DIV");
         characterMajor.className = "timeline-axis-text timeline-axis-text-major";
         characterMajor.appendChild(text);
@@ -875,14 +1054,17 @@ links.Timeline.prototype.redrawAxisCharacters = function () {
         axis.frame.appendChild(characterMajor);
 
         axis.characterMajor = characterMajor;
+        needsReflow = true;
     }
+
+    return needsReflow;
 };
 
 /**
  * Initialize redraw of the axis. All existing labels and lines will be
  * overwritten and reused.
  */
-links.Timeline.prototype.redrawAxisStartOverwriting = function () {
+links.Timeline.prototype.repaintAxisStartOverwriting = function () {
     var properties = this.size.axis.properties;
 
     properties.minorTextNum = 0;
@@ -895,38 +1077,39 @@ links.Timeline.prototype.redrawAxisStartOverwriting = function () {
  * End of overwriting HTML DOM elements of the axis.
  * remaining elements will be removed
  */
-links.Timeline.prototype.redrawAxisEndOverwriting = function () {
+links.Timeline.prototype.repaintAxisEndOverwriting = function () {
     var dom = this.dom,
         props = this.size.axis.properties,
-        frame = this.dom.axis.frame;
+        frame = this.dom.axis.frame,
+        num;
 
     // remove leftovers
-    var minorTexts = dom.axis.minorTexts,
-        num = props.minorTextNum;
+    var minorTexts = dom.axis.minorTexts;
+    num = props.minorTextNum;
     while (minorTexts.length > num) {
         var minorText = minorTexts[num];
         frame.removeChild(minorText);
         minorTexts.splice(num, 1);
     }
 
-    var minorLines = dom.axis.minorLines,
-        num = props.minorLineNum;
+    var minorLines = dom.axis.minorLines;
+    num = props.minorLineNum;
     while (minorLines.length > num) {
         var minorLine = minorLines[num];
         frame.removeChild(minorLine);
         minorLines.splice(num, 1);
     }
 
-    var majorTexts = dom.axis.majorTexts,
-        num = props.majorTextNum;
+    var majorTexts = dom.axis.majorTexts;
+    num = props.majorTextNum;
     while (majorTexts.length > num) {
         var majorText = majorTexts[num];
         frame.removeChild(majorText);
         majorTexts.splice(num, 1);
     }
 
-    var majorLines = dom.axis.majorLines,
-        num = props.majorLineNum;
+    var majorLines = dom.axis.majorLines;
+    num = props.majorLineNum;
     while (majorLines.length > num) {
         var majorLine = majorLines[num];
         frame.removeChild(majorLine);
@@ -935,9 +1118,9 @@ links.Timeline.prototype.redrawAxisEndOverwriting = function () {
 };
 
 /**
- * Redraw the horizontal line and background of the axis
+ * Repaint the horizontal line and background of the axis
  */
-links.Timeline.prototype.redrawAxisHorizontal = function() {
+links.Timeline.prototype.repaintAxisHorizontal = function() {
     var axis = this.dom.axis,
         size = this.size,
         options = this.options;
@@ -989,6 +1172,7 @@ links.Timeline.prototype.redrawAxisHorizontal = function() {
 
             axis.line = line;
         }
+
         axis.line.style.top = size.axis.line + "px";
     }
     else {
@@ -1004,7 +1188,7 @@ links.Timeline.prototype.redrawAxisHorizontal = function() {
  * @param {Number} x
  * @param {String} text
  */
-links.Timeline.prototype.redrawAxisMinorText = function (x, text) {
+links.Timeline.prototype.repaintAxisMinorText = function (x, text) {
     var size = this.size,
         dom = this.dom,
         props = size.axis.properties,
@@ -1018,8 +1202,8 @@ links.Timeline.prototype.redrawAxisMinorText = function (x, text) {
     }
     else {
         // create new label
-        var content = document.createTextNode(""),
-            label = document.createElement("DIV");
+        var content = document.createTextNode("");
+        label = document.createElement("DIV");
         label.appendChild(content);
         label.className = "timeline-axis-text timeline-axis-text-minor";
         label.style.position = "absolute";
@@ -1041,7 +1225,7 @@ links.Timeline.prototype.redrawAxisMinorText = function (x, text) {
  * Create a minor line for the axis at position x
  * @param {Number} x
  */
-links.Timeline.prototype.redrawAxisMinorLine = function (x) {
+links.Timeline.prototype.repaintAxisMinorLine = function (x) {
     var axis = this.size.axis,
         dom = this.dom,
         props = axis.properties,
@@ -1076,7 +1260,7 @@ links.Timeline.prototype.redrawAxisMinorLine = function (x) {
  * @param {Number} x
  * @param {String} text
  */
-links.Timeline.prototype.redrawAxisMajorText = function (x, text) {
+links.Timeline.prototype.repaintAxisMajorText = function (x, text) {
     var size = this.size,
         props = size.axis.properties,
         frame = this.dom.axis.frame,
@@ -1112,7 +1296,7 @@ links.Timeline.prototype.redrawAxisMajorText = function (x, text) {
  * Create a Major line for the axis at position x
  * @param {Number} x
  */
-links.Timeline.prototype.redrawAxisMajorLine = function (x) {
+links.Timeline.prototype.repaintAxisMajorLine = function (x) {
     var size = this.size,
         props = size.axis.properties,
         axis = this.size.axis,
@@ -1143,17 +1327,219 @@ links.Timeline.prototype.redrawAxisMajorLine = function (x) {
 };
 
 /**
- * Redraw all items
+ * Reflow all items, retrieve their actual size
+ * @return {boolean} resized    returns true if any of the items is resized
  */
-links.Timeline.prototype.redrawItems = function() {
-    var i, iMax, item, domItem, left, right;
+links.Timeline.prototype.reflowItems = function() {
+    var resized = false,
+        i,
+        iMax,
+        group,
+        dom = this.dom,
+        groups = this.groups,
+        visibleItems = this.visibleItems;
 
-    var dom = this.dom,
-        options = this.options,
-        boxAlign = (options.box && options.box.align) ? options.box.align : undefined,
+    if (groups) { // TODO: need to check if labels exists?
+        // loop through all groups to reset the items height
+        groups.forEach(function (group) {
+            group.itemsHeight = 0;
+        });
+    }
+
+    // loop through the width and height of all visible items
+    for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
+        var item = visibleItems[i],
+            domItem = item.dom;
+        group = item.group;
+
+        if (domItem) {
+            var width = domItem ? domItem.clientWidth : 0;
+            var height = domItem ? domItem.clientHeight : 0;
+            resized = resized || (item.width != width);
+            resized = resized || (item.height != height);
+            item.width = width;
+            item.height = height;
+            //item.borderWidth = (domItem.offsetWidth - domItem.clientWidth - 2) / 2; // TODO: borderWidth
+            item.reflow();
+        }
+
+        if (group) {
+            group.itemsHeight = group.itemsHeight ?
+                Math.max(group.itemsHeight, item.height) :
+                item.height;
+        }
+    }
+
+    return resized;
+};
+
+/**
+ * Recalculate item properties:
+ * - the height of each group.
+ * - the actualHeight, from the stacked items or the sum of the group heights
+ * @return {boolean} resized    returns true if any of the items properties is
+ *                              changed
+ */
+links.Timeline.prototype.recalcItems = function () {
+    var resized = false,
+        i,
+        iMax,
+        item,
+        finalItem,
+        finalItems,
+        group,
+        groups = this.groups,
         size = this.size,
-        contentWidth = size.contentWidth,
-        //items = this.visibleItems; // TODO
+        options = this.options,
+        visibleItems = this.visibleItems;
+
+    var actualHeight = 0;
+    if (groups.length == 0) {
+        // calculate actual height of the timeline when there are no groups
+        // but stacked items
+        if (options.autoHeight) {
+            var min = 0,
+                max = 0;
+
+            if (this.stack && this.stack.finalItems) {
+                // adjust the offset of all finalItems when the actualHeight has been changed
+                finalItems = this.stack.finalItems;
+                finalItem = finalItems[0];
+                if (finalItem && finalItem.top) {
+                    min = finalItem.top;
+                    max = finalItem.top + finalItem.height;
+                }
+                for (i = 1, iMax = finalItems.length; i < iMax; i++) {
+                    finalItem = finalItems[i];
+                    min = Math.min(min, finalItem.top);
+                    max = Math.max(max, finalItem.top + finalItem.height);
+                }
+            }
+            else {
+                item = visibleItems[0];
+                if (item && item.top) {
+                    min = item.top;
+                    max = item.top + item.height;
+                }
+                for (i = 1, iMax = visibleItems.length; i < iMax; i++) {
+                    item = visibleItems[i];
+                    if (item.top) {
+                        min = Math.min(min, item.top);
+                        max = Math.max(max, (item.top + item.height));
+                    }
+                }
+            }
+
+            actualHeight = (max - min) + 2 * options.eventMarginAxis + size.axis.height;
+            if (actualHeight < options.minHeight) {
+                actualHeight = options.minHeight;
+            }
+
+            if (size.actualHeight != actualHeight && options.autoHeight && !options.axisOnTop) {
+                // adjust the offset of all items when the actualHeight has been changed
+                var diff = actualHeight - size.actualHeight;
+                if (this.stack && this.stack.finalItems) {
+                    finalItems = this.stack.finalItems;
+                    for (i = 0, iMax = finalItems.length; i < iMax; i++) {
+                        finalItems[i].top += diff;
+                        finalItems[i].item.top += diff;
+                    }
+                }
+                else {
+                    for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
+                        visibleItems[i].top += diff;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        // loop through all groups to get the height of each group, and the
+        // total height
+        actualHeight = size.axis.height + 2 * options.eventMarginAxis;
+        for (i = 0, iMax = groups.length; i < iMax; i++) {
+            group = groups[i];
+
+            var groupHeight = Math.max(group.labelHeight || 0, group.itemsHeight || 0);
+            resized = resized || (groupHeight != group.height);
+            group.height = groupHeight;
+
+            actualHeight += groups[i].height + options.eventMargin;
+        }
+
+        // calculate top positions of the group labels and lines
+        var eventMargin = options.eventMargin,
+            top = options.axisOnTop ?
+                options.eventMarginAxis + eventMargin/2 :
+                size.contentHeight - options.eventMarginAxis + eventMargin/ 2,
+            axisHeight = size.axis.height;
+
+        for (i = 0, iMax = groups.length; i < iMax; i++) {
+            group = groups[i];
+            if (options.axisOnTop) {
+                group.top = top + axisHeight;
+                group.labelTop = top + axisHeight + (group.height - group.labelHeight) / 2;
+                group.lineTop = top + axisHeight + group.height + eventMargin/2;
+                top += group.height + eventMargin;
+            }
+            else {
+                top -= group.height + eventMargin;
+                group.top = top;
+                group.labelTop = top + (group.height - group.labelHeight) / 2;
+                group.lineTop = top - eventMargin/2;
+            }
+        }
+
+        // calculate top position of the visible items
+        for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
+            item = visibleItems[i];
+            group = item.group;
+
+            if (group) {
+                item.top = group.top;
+            }
+        }
+
+        resized = true;
+    }
+
+    if (actualHeight < options.minHeight) {
+        actualHeight = options.minHeight;
+    }
+    resized = resized || (actualHeight != size.actualHeight);
+    size.actualHeight = actualHeight;
+
+    return resized;
+};
+
+/**
+ * This method clears the (internal) array this.items in a safe way: neatly
+ * cleaning up the DOM, and accompanying arrays this.visibleItems and
+ * this.clusters.
+ */
+links.Timeline.prototype.clearItems = function() {
+    var visibleItems = this.visibleItems;
+    for (var i = 0, iMax = visibleItems.length; i < iMax; i++) {
+        this.visibleItems[i].visible = false;
+    }
+    this.repaintItems();
+
+    this.items = [];
+    this.visibleItems = [];
+    this.clusters = [];
+};
+
+/**
+ * Repaint all items
+ * @return {boolean} needsReflow   Returns true if the DOM is changed such that
+ *                                 a reflow is needed.
+ */
+links.Timeline.prototype.repaintItems = function() {
+    var i, iMax, item;
+
+    var needsReflow = false,
+        dom = this.dom,
+        size = this.size,
         items = this.items;
 
     //console.log('redrawItems visibleItems=', items);
@@ -1175,443 +1561,111 @@ links.Timeline.prototype.redrawItems = function() {
     frame.style.top = size.items.top + "px";
     frame.style.height = "0px";
 
-    // initialize arrays for storing the items
-    var ranges = dom.items.ranges;
-    if (!ranges) {
-        ranges = [];
-        dom.items.ranges = ranges;
-    }
-    var boxes = dom.items.boxes;
-    if (!boxes) {
-        boxes = [];
-        dom.items.boxes = boxes;
-    }
-    var dots = dom.items.dots;
-    if (!dots) {
-        dots = [];
-        dom.items.dots = dots;
-    }
-
     // Take frame offline (for faster manipulation of the DOM)
     dom.content.removeChild(frame);
 
-    if (size.dataChanged) {
-        // create the items
-        var rangesCreated = ranges.length,
-            boxesCreated = boxes.length,
-            dotsCreated = dots.length,
-            rangesUsed = 0,
-            boxesUsed = 0,
-            dotsUsed = 0;
-
-        for (i = 0, iMax = items.length; i < iMax; i++) {
-            item = items[i];
-            switch (item.type) {
-                case 'range':
-                    if (rangesUsed < rangesCreated) {
-                        // reuse existing range
-                        domItem = ranges[rangesUsed];
-                        domItem.firstChild.innerHTML = item.content;
-                        domItem.style.display = '';
-                        item.dom = domItem;
-                        rangesUsed++;
-                    }
-                    else {
-                        // create a new range
-                        domItem = this.createEventRange(item);
-                        ranges[rangesUsed] = domItem;
-                        frame.appendChild(domItem);
-                        item.dom = domItem;
-                        rangesUsed++;
-                        rangesCreated++;
-                    }
-                    this.updateEventRange(item);
-                    break;
-
-                case 'box':
-                    if (boxesUsed < boxesCreated) {
-                        // reuse existing box
-                        domItem = boxes[boxesUsed];
-                        domItem.style.display = '';
-                        item.dom = domItem;
-                        boxesUsed++;
-                    }
-                    else {
-                        // create a new box
-                        domItem = this.createEventBox(item);
-                        boxes[boxesUsed] = domItem;
-                        frame.appendChild(domItem);
-                        frame.insertBefore(domItem.line, frame.firstChild);
-                        // Note: line must be added in front of the items,
-                        //       such that it stays below all items
-                        frame.appendChild(domItem.dot);
-                        item.dom = domItem;
-                        boxesUsed++;
-                        boxesCreated++;
-                    }
-                    this.updateEventBox(item);
-                    break;
-
-                case 'dot':
-                    if (dotsUsed < dotsCreated) {
-                        // reuse existing box
-                        domItem = dots[dotsUsed];
-                        domItem.firstChild.innerHTML = item.content;
-                        domItem.style.display = '';
-                        item.dom = domItem;
-                        dotsUsed++;
-                    }
-                    else {
-                        // create a new box
-                        domItem = this.createEventDot(item);
-                        dots[dotsUsed] = domItem;
-                        frame.appendChild(domItem);
-                        item.dom = domItem;
-                        dotsUsed++;
-                        dotsCreated++;
-                    }
-                    this.updateEventDot(item);
-                    break;
-
-                default:
-                    // do nothing
-                    break;
-            }
-        }
-
-        // remove redundant items when needed
-        for (i = rangesUsed; i < rangesCreated; i++) {
-            frame.removeChild(ranges[i]);
-        }
-        ranges.splice(rangesUsed, rangesCreated - rangesUsed);
-        for (i = boxesUsed; i < boxesCreated; i++) {
-            var box = boxes[i];
-            frame.removeChild(box.line);
-            frame.removeChild(box.dot);
-            frame.removeChild(box);
-        }
-        boxes.splice(boxesUsed, boxesCreated - boxesUsed);
-        for (i = dotsUsed; i < dotsCreated; i++) {
-            frame.removeChild(dots[i]);
-        }
-        dots.splice(dotsUsed, dotsCreated - dotsUsed);
-    }
-
-    //console.log('redrawItems after creation visibleitems=', items)
-
-    // reposition all items
+    // create/update/hide the items DOM
+    var newImageUrls = [];
+    var itemNeedsReflow;
     for (i = 0, iMax = items.length; i < iMax; i++) {
         item = items[i];
-        domItem = item.dom;
-
-        switch (item.type) {
-            case 'range':
-                left = this.timeToScreen(item.start);
-                right = this.timeToScreen(item.end);
-
-                // limit the width of the item, as browsers cannot draw very wide divs
-                if (left < -contentWidth) {
-                    left = -contentWidth;
-                }
-                if (right > 2 * contentWidth) {
-                    right = 2 * contentWidth;
-                }
-
-                if (item.visible || size.dataChanged) {
-                    // when data is changed, all items must be kept visible, as their heights must be measured
-                    if (item.hidden) {
-                        item.hidden = false;
-                        domItem.style.display = '';
-                    }
-                    domItem.style.top = item.top + "px";
-                    domItem.style.left = left + "px";
-                    //domItem.style.width = Math.max(right - left - 2 * item.borderWidth, 1) + "px"; // TODO: borderWidth
-                    domItem.style.width = Math.max(right - left, 1) + "px";
-                }
-                else {
-                    // hide when outside of the current window
-                    if (!item.hidden) {
-                        domItem.style.display = 'none';
-                        item.hidden = true;
-                    }
-                }
-
-                break;
-
-            case 'box':
-                left = this.timeToScreen(item.start);
-
-                var axisOnTop = options.axisOnTop,
-                    axisTop = size.axis.top;
-                if (item.visible || size.dataChanged) {
-                    // when data is changed, all items must be kept visible, as their heights must be measured
-                    if (item.hidden) {
-                        item.hidden = false;
-                        domItem.style.display = '';
-                        domItem.line.style.display = '';
-                        domItem.dot.style.display = '';
-                    }
-                    domItem.style.top = item.top + "px";
-                    if (boxAlign == 'right') {
-                        domItem.style.left = (left - item.width) + "px";
-                    }
-                    else if (boxAlign == 'left') {
-                        domItem.style.left = (left) + "px";
-                    }
-                    else { // default or 'center'
-                        domItem.style.left = (left - item.width/2) + "px";
-                    }
-
-                    var line = domItem.line;
-                    line.style.left = (left - item.lineWidth/2) + "px";
-                    if (axisOnTop) {
-                        line.style.top = "0px";
-                        line.style.height = Math.max(item.top, 0) + "px";
-                    }
-                    else {
-                        line.style.top = (item.top + item.height) + "px";
-                        line.style.height = Math.max(axisTop - item.top - item.height, 0) + "px";
-                    }
-
-                    var dot = domItem.dot;
-                    dot.style.left = (left - item.dotWidth/2) + "px";
-                    dot.style.top = (axisTop - item.dotHeight/2) + "px";
-                }
-                else {
-                    // hide when outside of the current window
-                    if (!item.hidden) {
-                        domItem.style.display = 'none';
-                        domItem.line.style.display = 'none';
-                        domItem.dot.style.display = 'none';
-                        item.hidden = true;
-                    }
-                }
-                break;
-
-            case 'dot':
-                left = this.timeToScreen(item.start);
-                if (item.visible || size.dataChanged) {
-                    // when data is changed, all items must be kept visible, as their heights must be measured
-                    if (item.hidden) {
-                        item.hidden = false;
-                        domItem.style.display = '';
-                    }
-                    domItem.style.top = item.top + "px";
-                    domItem.style.left = (left - item.dotWidth / 2) + "px";
-
-                    domItem.content.style.marginLeft = (1.5 * item.dotWidth) + "px";
-                    //domItem.content.style.marginRight = (0.5 * item.dotWidth) + "px"; // TODO
-                    domItem.dot.style.top = ((item.height - item.dotHeight) / 2) + "px";
-                }
-                else {
-                    // hide when outside of the current window
-                    if (!item.hidden) {
-                        domItem.style.display = 'none';
-                        item.hidden = true;
-                    }
-                }
-                break;
-
-            default:
-                // do nothing
-                break;
+        itemNeedsReflow = item.repaint(frame);
+        needsReflow = needsReflow || itemNeedsReflow;
+        if (itemNeedsReflow) {
+            item.getImageUrls(newImageUrls);
         }
     }
 
-    // move selected item to the end, to ensure that it is always on top
-    if (this.selection) {
-        item = this.selection.item;
-        frame.removeChild(item);
-        frame.appendChild(item);
+    // create/update/hide the clusters DOM
+    var clusters = this.clusters;
+    for (i = 0, iMax = clusters.length; i < iMax; i++) {
+        item = clusters[i];
+        itemNeedsReflow = item.repaint(frame);
+        needsReflow = needsReflow || itemNeedsReflow;
+        if (itemNeedsReflow) {
+            item.getImageUrls(newImageUrls);
+        }
     }
+
+    //console.log('redrawItems after creation visibleitems=', items) // TODO: cleanup
+
+    // reposition all visible items
+    var visibleItems = this.visibleItems;
+    for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
+        item = visibleItems[i];
+        item.updatePosition(this);
+    }
+
+    // redraw the delete button and dragareas of the selected item (if any)
+    this.repaintDeleteButton();
+    this.repaintDragAreas();
 
     // put frame online again
     dom.content.appendChild(frame);
 
-    /* TODO
-     // retrieve all image sources from the items, and set a callback once 
-     // all images are retrieved
-     var urls = [];
-     var timeline = this;
-     links.Timeline.filterImageUrls(frame, urls);
-     if (urls.length) {
-     for (var i = 0; i < urls.length; i++) {
-     var url = urls[i];
-     var callback = function (url) {
-     timeline.redraw();
-     };
-     var sendCallbackWhenAlreadyLoaded = false;
-     links.imageloader.load(url, callback, sendCallbackWhenAlreadyLoaded);
-     }
-     }    
-     */
-};
-
-
-/**
- * Create an event in the timeline, with (optional) formatting: inside a box
- * with rounded corners, and a vertical line+dot to the axis.
- * @param {Object} item         Item containing optional field className
- * @return {Element} dom        HTML Element containing box
- */
-links.Timeline.prototype.createEventBox = function(item) {
-    // background box
-    var divBox = document.createElement("DIV");
-    divBox.style.position = "absolute";
-    divBox.style.left  = "0px";
-    divBox.style.top = "0px";
-
-    // contents box (inside the background box). used for making margins
-    var divContent = document.createElement("DIV");
-    divContent.className = "timeline-event-content";
-    divContent.innerHTML = item.content;
-    divBox.appendChild(divContent);
-
-    // line to axis
-    var divLine = document.createElement("DIV");
-    divLine.style.position = "absolute";
-    divLine.style.width = "0px";
-    // important: the vertical line is added at the front of the list of elements,
-    // so it will be drawn behind all boxes and ranges
-    divBox.line = divLine;
-
-    // dot on axis
-    var divDot = document.createElement("DIV");
-    divDot.style.position = "absolute";
-    divDot.style.width  = "0px";
-    divDot.style.height = "0px";
-    divBox.dot = divDot;
-
-    return divBox;
-};
-
-/**
- * Update the dom of the item: apply content, and apply styles
- * @param {Object} item
- */
-links.Timeline.prototype.updateEventBox = function(item) {
-    if (item.dom) {
-        var divBox = item.dom;
-        var divLine = divBox.line;
-        var divDot = divBox.dot;
-
-        // update contents
-        divBox.firstChild.innerHTML = item.content;
-
-        // update class
-        divBox.className = "timeline-event timeline-event-box";
-        divLine.className = "timeline-event timeline-event-line";
-        divDot.className  = "timeline-event timeline-event-dot";
-
-        // add item specific class name when provided
-        if (item.className) {
-            links.Timeline.addClassName(divBox, item.className);
-            links.Timeline.addClassName(divLine, item.className);
-            links.Timeline.addClassName(divDot, item.className);
-        }
-
-        // TODO: apply selected className?
+    if (newImageUrls.length) {
+        // retrieve all image sources from the items, and set a callback once
+        // all images are retrieved
+        var timeline = this;
+        var callback = function () {
+            timeline.render();
+        };
+        var sendCallbackWhenAlreadyLoaded = false;
+        links.imageloader.loadAll(newImageUrls, callback, sendCallbackWhenAlreadyLoaded);
     }
+
+    return needsReflow;
 };
 
 /**
- * Create an event in the timeline: a dot, followed by the content.
- * @param {Object} item         Item containing optional field className
- * @return {Element} dom        HTML dom element
+ * Reflow the size of the groups
+ * @return {boolean} resized    Returns true if any of the frame elements
+ *                              have been resized.
  */
-links.Timeline.prototype.createEventDot = function(item) {
-    // background box
-    var divBox = document.createElement("DIV");
-    divBox.style.position = "absolute";
+links.Timeline.prototype.reflowGroups = function() {
+    var resized = false,
+        options = this.options,
+        size = this.size,
+        dom = this.dom;
 
-    // contents box, right from the dot
-    var divContent = document.createElement("DIV");
-    divContent.className = "timeline-event-content";
-    divBox.appendChild(divContent);
+    // calculate the groups width and height
+    // TODO: only update when data is changed! -> use an updateSeq
+    var groupsWidth = 0;
 
-    // dot at start
-    var divDot = document.createElement("DIV");
-    divDot.style.position = "absolute";
-    divDot.style.width = "0px";
-    divDot.style.height = "0px";
-    divBox.appendChild(divDot);
+    // loop through all groups to get the labels width and height
+    var groups = this.groups;
+    var labels = this.dom.groups ? this.dom.groups.labels : [];
+    for (var i = 0, iMax = groups.length; i < iMax; i++) {
+        var group = groups[i];
+        var label = labels[i];
+        group.labelWidth  = label ? label.clientWidth : 0;
+        group.labelHeight = label ? label.clientHeight : 0;
+        group.width = group.labelWidth;  // TODO: group.width is redundant with labelWidth
 
-    divBox.content = divContent;
-    divBox.dot = divDot;
-
-    return divBox;
-};
-
-/**
- * Update the dom of the item: apply content, and apply styles
- * @param {Object} item
- */
-links.Timeline.prototype.updateEventDot = function(item) {
-    if (item.dom) {
-        var divBox = item.dom;
-        var divDot = divBox.dot;
-
-        // update contents
-        divBox.firstChild.innerHTML = item.content;
-
-        // update class
-        divDot.className  = "timeline-event timeline-event-dot";
-
-        // add item specific class name when provided
-        if (item.className) {
-            links.Timeline.addClassName(divBox, item.className);
-            links.Timeline.addClassName(divDot, item.className);
-        }
-
-        // TODO: apply selected className?
+        groupsWidth = Math.max(groupsWidth, group.width);
     }
-};
 
-/**
- * Create an event range as a beam in the timeline.
- * @param {Object} item         Item containing optional field className
- * @return {Element} dom        HTML dom element
- */
-links.Timeline.prototype.createEventRange = function(item) {
-    // background box
-    var divBox = document.createElement("DIV");
-    divBox.style.position = "absolute";
-
-    // contents box
-    var divContent = document.createElement("DIV");
-    divContent.className = "timeline-event-content";
-    divBox.appendChild(divContent);
-
-    return divBox;
-};
-
-/**
- * Update the dom of the item: apply content, and apply styles
- * @param {Object} item
- */
-links.Timeline.prototype.updateEventRange = function(item) {
-    if (item.dom) {
-        var divBox = item.dom;
-
-        // update contents
-        divBox.firstChild.innerHTML = item.content;
-
-        // update class
-        divBox.className = "timeline-event timeline-event-range";
-
-        // add item specific class name when provided
-        if (item.className) {
-            links.Timeline.addClassName(divBox, item.className);
-        }
-
-        // TODO: apply selected className?
+    // limit groupsWidth to the groups width in the options
+    if (options.groupsWidth !== undefined) {
+        groupsWidth = dom.groups.frame ? dom.groups.frame.clientWidth : 0;
     }
+
+    // compensate for the border width. TODO: calculate the real border width
+    groupsWidth += 1;
+
+    var groupsLeft = options.groupsOnRight ? size.frameWidth - groupsWidth : 0;
+    resized = resized || (size.groupsWidth !== groupsWidth);
+    resized = resized || (size.groupsLeft !== groupsLeft);
+    size.groupsWidth = groupsWidth;
+    size.groupsLeft = groupsLeft;
+
+    return resized;
 };
 
 /**
  * Redraw the group labels
  */
-links.Timeline.prototype.redrawGroups = function() {
+links.Timeline.prototype.repaintGroups = function() {
     var dom = this.dom,
         options = this.options,
         size = this.size,
@@ -1664,75 +1718,75 @@ links.Timeline.prototype.redrawGroups = function() {
         frame.style.display = '';
     }
 
-    if (size.dataChanged) {
-        // create the items
-        var current = labels.length,
-            needed = groups.length;
+    // TODO: only create/update groups when data is changed.
 
-        // overwrite existing items
-        for (var i = 0, iMax = Math.min(current, needed); i < iMax; i++) {
-            var group = groups[i];
-            var label = labels[i];
-            label.innerHTML = this.getGroupName(group);
-            label.style.display = '';
-        }
+    // create the items
+    var current = labels.length,
+        needed = groups.length;
 
-        // append new items when needed
-        for (var i = current; i < needed; i++) {
-            var group = groups[i];
-
-            // create text label
-            var label = document.createElement("DIV");
-            label.className = "timeline-groups-text";
-            label.style.position = "absolute";
-            if (options.groupsWidth === undefined) {
-                label.style.whiteSpace = "nowrap";
-            }
-            label.innerHTML = this.getGroupName(group);
-            frame.appendChild(label);
-            labels[i] = label;
-
-            // create the grid line between the group labels
-            var labelLine = document.createElement("DIV");
-            labelLine.className = "timeline-axis-grid timeline-axis-grid-minor";
-            labelLine.style.position = "absolute";
-            labelLine.style.left = "0px";
-            labelLine.style.width = "100%";
-            labelLine.style.height = "0px";
-            labelLine.style.borderTopStyle = "solid";
-            frame.appendChild(labelLine);
-            labelLines[i] = labelLine;
-
-            // create the grid line between the items
-            var itemLine = document.createElement("DIV");
-            itemLine.className = "timeline-axis-grid timeline-axis-grid-minor";
-            itemLine.style.position = "absolute";
-            itemLine.style.left = "0px";
-            itemLine.style.width = "100%";
-            itemLine.style.height = "0px";
-            itemLine.style.borderTopStyle = "solid";
-            dom.content.insertBefore(itemLine, dom.content.firstChild);
-            itemLines[i] = itemLine;
-        }
-
-        // remove redundant items from the DOM when needed
-        for (var i = needed; i < current; i++) {
-            var label = labels[i],
-                labelLine = labelLines[i],
-                itemLine = itemLines[i];
-
-            frame.removeChild(label);
-            frame.removeChild(labelLine);
-            dom.content.removeChild(itemLine);
-        }
-        labels.splice(needed, current - needed);
-        labelLines.splice(needed, current - needed);
-        itemLines.splice(needed, current - needed);
-
-        frame.style.borderStyle = options.groupsOnRight ?
-            "none none none solid" :
-            "none solid none none";
+    // overwrite existing group labels
+    for (var i = 0, iMax = Math.min(current, needed); i < iMax; i++) {
+        var group = groups[i];
+        var label = labels[i];
+        label.innerHTML = this.getGroupName(group);
+        label.style.display = '';
     }
+
+    // append new items when needed
+    for (var i = current; i < needed; i++) {
+        var group = groups[i];
+
+        // create text label
+        var label = document.createElement("DIV");
+        label.className = "timeline-groups-text";
+        label.style.position = "absolute";
+        if (options.groupsWidth === undefined) {
+            label.style.whiteSpace = "nowrap";
+        }
+        label.innerHTML = this.getGroupName(group);
+        frame.appendChild(label);
+        labels[i] = label;
+
+        // create the grid line between the group labels
+        var labelLine = document.createElement("DIV");
+        labelLine.className = "timeline-axis-grid timeline-axis-grid-minor";
+        labelLine.style.position = "absolute";
+        labelLine.style.left = "0px";
+        labelLine.style.width = "100%";
+        labelLine.style.height = "0px";
+        labelLine.style.borderTopStyle = "solid";
+        frame.appendChild(labelLine);
+        labelLines[i] = labelLine;
+
+        // create the grid line between the items
+        var itemLine = document.createElement("DIV");
+        itemLine.className = "timeline-axis-grid timeline-axis-grid-minor";
+        itemLine.style.position = "absolute";
+        itemLine.style.left = "0px";
+        itemLine.style.width = "100%";
+        itemLine.style.height = "0px";
+        itemLine.style.borderTopStyle = "solid";
+        dom.content.insertBefore(itemLine, dom.content.firstChild);
+        itemLines[i] = itemLine;
+    }
+
+    // remove redundant items from the DOM when needed
+    for (var i = needed; i < current; i++) {
+        var label = labels[i],
+            labelLine = labelLines[i],
+            itemLine = itemLines[i];
+
+        frame.removeChild(label);
+        frame.removeChild(labelLine);
+        dom.content.removeChild(itemLine);
+    }
+    labels.splice(needed, current - needed);
+    labelLines.splice(needed, current - needed);
+    itemLines.splice(needed, current - needed);
+
+    frame.style.borderStyle = options.groupsOnRight ?
+        "none none none solid" :
+        "none solid none none";
 
     // position the groups
     for (var i = 0, iMax = groups.length; i < iMax; i++) {
@@ -1775,13 +1829,29 @@ links.Timeline.prototype.redrawGroups = function() {
         dom.groups.line = line;
     }
     dom.groups.line.style.top = size.axis.line + 'px';
+
+    // create a callback when there are images which are not yet loaded
+    // TODO: more efficiently load images in the groups
+    if (dom.groups.frame && groups.length) {
+        var imageUrls = [];
+        links.imageloader.filterImageUrls(dom.groups.frame, imageUrls);
+        if (imageUrls.length) {
+            // retrieve all image sources from the items, and set a callback once
+            // all images are retrieved
+            var callback = function () {
+                timeline.render();
+            };
+            var sendCallbackWhenAlreadyLoaded = false;
+            links.imageloader.loadAll(imageUrls, callback, sendCallbackWhenAlreadyLoaded);
+        }
+    }
 };
 
 
 /**
  * Redraw the current time bar
  */
-links.Timeline.prototype.redrawCurrentTime = function() {
+links.Timeline.prototype.repaintCurrentTime = function() {
     var options = this.options,
         dom = this.dom,
         size = this.size;
@@ -1823,7 +1893,7 @@ links.Timeline.prototype.redrawCurrentTime = function() {
     }
     var timeline = this;
     var onTimeout = function() {
-        timeline.redrawCurrentTime();
+        timeline.repaintCurrentTime();
     };
     // the time equal to the width of one pixel, divided by 2 for more smoothness
     var interval = 1 / this.conversion.factor / 2;
@@ -1834,7 +1904,7 @@ links.Timeline.prototype.redrawCurrentTime = function() {
 /**
  * Redraw the custom time bar
  */
-links.Timeline.prototype.redrawCustomTime = function() {
+links.Timeline.prototype.repaintCustomTime = function() {
     var options = this.options,
         dom = this.dom,
         size = this.size;
@@ -1882,7 +1952,7 @@ links.Timeline.prototype.redrawCustomTime = function() {
  * Redraw the delete button, on the top right of the currently selected item
  * if there is no item selected, the button is hidden.
  */
-links.Timeline.prototype.redrawDeleteButton = function () {
+links.Timeline.prototype.repaintDeleteButton = function () {
     var timeline = this,
         options = this.options,
         dom = this.dom,
@@ -1907,24 +1977,8 @@ links.Timeline.prototype.redrawDeleteButton = function () {
     if (this.selection) {
         var index = this.selection.index,
             item = this.items[index],
-            domItem = this.selection.item,
-            right,
+            right = item.getRight(this),
             top = item.top;
-
-        switch (item.type) {
-            case 'range':
-                right = this.timeToScreen(item.end);
-                break;
-
-            case 'box':
-                //right = this.timeToScreen(item.start) + item.width / 2 + item.borderWidth; // TODO: borderWidth
-                right = this.timeToScreen(item.start) + item.width / 2;
-                break;
-
-            case 'dot':
-                right = this.timeToScreen(item.start) + item.width;
-                break;
-        }
 
         // limit the position
         if (right < -size.contentWidth) {
@@ -1950,7 +2004,7 @@ links.Timeline.prototype.redrawDeleteButton = function () {
  * Redraw the drag areas. When an item (ranges only) is selected,
  * it gets a drag area on the left and right side, to change its width
  */
-links.Timeline.prototype.redrawDragAreas = function () {
+links.Timeline.prototype.repaintDragAreas = function () {
     var timeline = this,
         options = this.options,
         dom = this.dom,
@@ -1990,7 +2044,7 @@ links.Timeline.prototype.redrawDragAreas = function () {
         var index = this.selection.index,
             item = this.items[index];
 
-        if (item.type == 'range') {
+        if (item instanceof links.Timeline.ItemRange) {
             var domItem = item.dom,
                 left = this.timeToScreen(item.start),
                 right = this.timeToScreen(item.end),
@@ -2023,7 +2077,7 @@ links.Timeline.prototype.redrawDragAreas = function () {
 /**
  * Create the navigation buttons for zooming and moving
  */
-links.Timeline.prototype.redrawNavigation = function () {
+links.Timeline.prototype.repaintNavigation = function () {
     var timeline = this,
         options = this.options,
         dom = this.dom,
@@ -2031,7 +2085,7 @@ links.Timeline.prototype.redrawNavigation = function () {
         navBar = dom.navBar;
 
     if (!navBar) {
-        if (options.editable || options.showNavigation) {
+        if (options.showNavigation || options.showButtonNew) {
             // create a navigation bar containing the navigation buttons
             navBar = document.createElement("DIV");
             navBar.style.position = "absolute";
@@ -2052,7 +2106,7 @@ links.Timeline.prototype.redrawNavigation = function () {
             frame.appendChild(navBar);
         }
 
-        if (options.editable && options.showButtonAdd) {
+        if (options.editable && options.showButtonNew) {
             // create a new in button
             navBar.addButton = document.createElement("DIV");
             navBar.addButton.className = "timeline-navigation-new";
@@ -2086,8 +2140,8 @@ links.Timeline.prototype.redrawNavigation = function () {
 
                 timeline.applyAdd = true;
 
-                // fire an add event. 
-                // Note that the change can be canceled from within an event listener if 
+                // fire an add event.
+                // Note that the change can be canceled from within an event listener if
                 // this listener calls the method cancelAdd().
                 timeline.trigger('add');
 
@@ -2095,14 +2149,12 @@ links.Timeline.prototype.redrawNavigation = function () {
                     // undo an add
                     timeline.deleteItem(index);
                 }
-                timeline.redrawDeleteButton();
-                timeline.redrawDragAreas();
             };
             links.Timeline.addEventListener(navBar.addButton, "mousedown", onAdd);
             navBar.appendChild(navBar.addButton);
         }
 
-        if (options.editable && options.showButtonAdd && options.showNavigation) {
+        if (options.editable && options.showButtonNew && options.showNavigation) {
             // create a separator line
             navBar.addButton.style.borderRightWidth = "1px";
             navBar.addButton.style.borderRightStyle = "solid";
@@ -2178,7 +2230,7 @@ links.Timeline.prototype.setCurrentTime = function(time) {
     var now = new Date();
     this.clientTimeOffset = time.getTime() - now.getTime();
 
-    this.redrawCurrentTime();
+    this.repaintCurrentTime();
 };
 
 /**
@@ -2199,7 +2251,7 @@ links.Timeline.prototype.getCurrentTime = function() {
  */
 links.Timeline.prototype.setCustomTime = function(time) {
     this.customTime = new Date(time);
-    this.redrawCustomTime();
+    this.repaintCustomTime();
 };
 
 /**
@@ -2224,7 +2276,7 @@ links.Timeline.prototype.getCustomTime = function() {
  */
 links.Timeline.prototype.setScale = function(scale, step) {
     this.step.setScale(scale, step);
-    this.redrawFrame();
+    this.render(); // TODO: optimize: only reflow/repaint axis
 };
 
 /**
@@ -2234,7 +2286,7 @@ links.Timeline.prototype.setScale = function(scale, step) {
  */
 links.Timeline.prototype.setAutoScale = function(enable) {
     this.step.setAutoScale(enable);
-    this.redrawFrame();
+    this.render(); // TODO: optimize: only reflow/repaint axis
 };
 
 /**
@@ -2252,314 +2304,9 @@ links.Timeline.prototype.redraw = function() {
  * Useful when the webpage is resized.
  */
 links.Timeline.prototype.checkResize = function() {
-    var resized = this.recalcSize();
-    if (resized) {
-        this.redrawFrame();
-    }
+    // TODO: re-implement the method checkResize, or better, make it redundant as this.render will be smarter
+    this.render();
 };
-
-/**
- * Recursively retrieve all image urls from the images located inside a given
- * HTML element
- * @param {HTMLElement} elem
- * @param {String[]} urls   Urls will be added here (no duplicates)
- */
-links.Timeline.filterImageUrls = function(elem, urls) {
-    var child = elem.firstChild;
-    while (child) {
-        if (child.tagName == 'IMG') {
-            var url = child.src;
-            if (urls.indexOf(url) == -1) {
-                urls.push(url);
-            }
-        }
-
-        links.Timeline.filterImageUrls(child, urls);
-
-        child = child.nextSibling;
-    }
-};
-
-/**
- * Recalculate the sizes of all frames, groups, items, axis
- * After recalcSize() is executed, the Timeline should be redrawn normally
- *
- * @return {boolean} resized   Returns true when the timeline has been resized
- */
-links.Timeline.prototype.recalcSize = function() {
-    var resized = false;
-
-    var timeline = this,
-        size = this.size,
-        options = this.options,
-        axisOnTop = options.axisOnTop,
-        dom = this.dom,
-        axis = dom.axis,
-        groups = this.groups,
-        labels = dom.groups.labels,
-        items = this.items;
-
-    var groupsWidth = size.groupsWidth,
-        characterMinorWidth  = axis.characterMinor ? axis.characterMinor.clientWidth : 0,
-        characterMinorHeight = axis.characterMinor ? axis.characterMinor.clientHeight : 0,
-        characterMajorWidth  = axis.characterMajor ? axis.characterMajor.clientWidth : 0,
-        characterMajorHeight = axis.characterMajor ? axis.characterMajor.clientHeight : 0,
-        axisHeight = (options.showMinorLabels ? characterMinorHeight : 0) +
-            (options.showMajorLabels ? characterMajorHeight : 0),
-        actualHeight = size.actualHeight || axisHeight;
-
-    // TODO: move checking for loaded items when creating the dom
-    if (size.dataChanged) {
-        // retrieve all image sources from the items, and set a callback once 
-        // all images are retrieved
-        var urls = [];
-        for (var i = 0, iMax = items.length; i < iMax; i++) {
-            var item = items[i],
-                domItem = item.dom;
-
-            if (domItem) {
-                links.Timeline.filterImageUrls(domItem, urls);
-            }
-        }
-        if (urls.length) {
-            for (var i = 0; i < urls.length; i++) {
-                var url = urls[i];
-                var callback = function (url) {
-                    timeline.redraw();
-                };
-                var sendCallbackWhenAlreadyLoaded = false;
-                links.imageloader.load(url, callback, sendCallbackWhenAlreadyLoaded);
-            }
-        }
-    }
-
-    // check sizes of the items and groups (width and height) when the data is changed
-    if (size.dataChanged) { // TODO: always calculate the size of an item?
-        //if (true) {
-        groupsWidth = 0;
-
-        // loop through all groups to get the maximum width and the heights
-        for (var i = 0, iMax = labels.length; i < iMax; i++) {
-            var group = groups[i];
-            group.width = labels[i].clientWidth;
-            group.height = labels[i].clientHeight;
-            group.labelHeight = group.height;
-
-            groupsWidth = Math.max(groupsWidth, group.width);
-        }
-
-        // loop through the width and height of all items
-        for (var i = 0, iMax = items.length; i < iMax; i++) {
-            var item = items[i],
-                domItem = item.dom,
-                group = item.group;
-
-            if (domItem) {
-                var width = domItem ? domItem.clientWidth : 0;
-                var height = domItem ? domItem.clientHeight : 0;
-                resized = resized || (item.width != width);
-                resized = resized || (item.height != height);
-                item.width = width;
-                item.height = height;
-                //item.borderWidth = (domItem.offsetWidth - domItem.clientWidth - 2) / 2; // TODO: borderWidth
-
-                switch (item.type) {
-                    case 'range':
-                        break;
-
-                    case 'box':
-                        item.dotHeight = domItem.dot.offsetHeight;
-                        item.dotWidth = domItem.dot.offsetWidth;
-                        item.lineWidth = domItem.line.offsetWidth;
-                        break;
-
-                    case 'dot':
-                        item.dotHeight = domItem.dot.offsetHeight;
-                        item.dotWidth = domItem.dot.offsetWidth;
-                        item.contentHeight = domItem.content.offsetHeight;
-                        break;
-                }
-            }
-
-            if (group) {
-                group.height = group.height ? Math.max(group.height, item.height) : item.height;
-            }
-        }
-
-        // calculate the actual height of the timeline (needed for auto sizing
-        // the timeline)
-        actualHeight = axisHeight + 2 * options.eventMarginAxis;
-        for (var i = 0, iMax = groups.length; i < iMax; i++) {
-            actualHeight += groups[i].height + options.eventMargin;
-        }
-    }
-
-    // calculate actual height of the timeline when there are no groups
-    // but stacked items
-    if (groups.length == 0 && options.autoHeight) {
-        var min = 0,
-            max = 0;
-
-        if (this.animation && this.animation.finalItems) {
-            // adjust the offset of all finalItems when the actualHeight has been changed
-            var finalItems = this.animation.finalItems,
-                finalItem = finalItems[0];
-            if (finalItem && finalItem.top) {
-                min = finalItem.top;
-                max = finalItem.top + finalItem.height;
-            }
-            for (var i = 1, iMax = finalItems.length; i < iMax; i++) {
-                finalItem = finalItems[i];
-                min = Math.min(min, finalItem.top);
-                max = Math.max(max, finalItem.top + finalItem.height);
-            }
-        }
-        else {
-            var item = items[0];
-            if (item && item.top) {
-                min = item.top;
-                max = item.top + item.height;
-            }
-            for (var i = 1, iMax = items.length; i < iMax; i++) {
-                var item = items[i];
-                if (item.top) {
-                    min = Math.min(min, item.top);
-                    max = Math.max(max, (item.top + item.height));
-                }
-            }
-        }
-
-        actualHeight = (max - min) + 2 * options.eventMarginAxis + axisHeight;
-
-        if (size.actualHeight != actualHeight && options.autoHeight && !options.axisOnTop) {
-            // adjust the offset of all items when the actualHeight has been changed
-            var diff = actualHeight - size.actualHeight;
-            if (this.animation && this.animation.finalItems) {
-                var finalItems = this.animation.finalItems;
-                for (var i = 0, iMax = finalItems.length; i < iMax; i++) {
-                    finalItems[i].top += diff;
-                    finalItems[i].item.top += diff;
-                }
-            }
-            else {
-                for (var i = 0, iMax = items.length; i < iMax; i++) {
-                    items[i].top += diff;
-                }
-            }
-        }
-    }
-
-    // now the heights of the elements are known, we can calculate the the 
-    // width and height of frame and axis and content 
-    // Note: IE7 has issues with giving frame.clientWidth, therefore I use offsetWidth instead
-    var frameWidth  = dom.frame ? dom.frame.offsetWidth : 0,
-        frameHeight = Math.max(options.autoHeight ?
-            actualHeight : (dom.frame ? dom.frame.clientHeight : 0),
-            options.minHeight),
-        axisTop  = axisOnTop ? 0 : frameHeight - axisHeight,
-        axisLine = axisOnTop ? axisHeight : axisTop,
-        itemsTop = axisOnTop ? axisHeight : 0,
-        contentHeight = Math.max(frameHeight - axisHeight, 0);
-
-    if (options.groupsWidth !== undefined) {
-        groupsWidth = dom.groups.frame ? dom.groups.frame.clientWidth : 0;
-    }
-    var groupsLeft = options.groupsOnRight ? frameWidth - groupsWidth : 0;
-
-    if (size.dataChanged) {
-        // calculate top positions of the group labels and lines
-        var eventMargin = options.eventMargin,
-            top = axisOnTop ?
-                options.eventMarginAxis + eventMargin/2 :
-                contentHeight - options.eventMarginAxis + eventMargin/2;
-
-        for (var i = 0, iMax = groups.length; i < iMax; i++) {
-            var group = groups[i];
-            if (axisOnTop) {
-                group.top = top;
-                group.labelTop = top + axisHeight + (group.height - group.labelHeight) / 2;
-                group.lineTop = top + axisHeight + group.height + eventMargin/2;
-                top += group.height + eventMargin;
-            }
-            else {
-                top -= group.height + eventMargin;
-                group.top = top;
-                group.labelTop = top + (group.height - group.labelHeight) / 2;
-                group.lineTop = top - eventMargin/2;
-            }
-        }
-
-        // calculate top position of the items
-        for (var i = 0, iMax = items.length; i < iMax; i++) {
-            var item = items[i],
-                group = item.group;
-
-            if (group) {
-                item.top = group.top;
-            }
-        }
-
-        resized = true;
-    }
-
-    resized = resized || (size.groupsWidth !== groupsWidth);
-    resized = resized || (size.groupsLeft !== groupsLeft);
-    resized = resized || (size.actualHeight !== actualHeight);
-    size.groupsWidth = groupsWidth;
-    size.groupsLeft = groupsLeft;
-    size.actualHeight = actualHeight;
-
-    resized = resized || (size.frameWidth !== frameWidth);
-    resized = resized || (size.frameHeight !== frameHeight);
-    size.frameWidth = frameWidth;
-    size.frameHeight = frameHeight;
-
-    resized = resized || (size.groupsWidth !== groupsWidth);
-    size.groupsWidth = groupsWidth;
-    size.contentLeft = options.groupsOnRight ? 0 : groupsWidth;
-    size.contentWidth = Math.max(frameWidth - groupsWidth, 0);
-    size.contentHeight = contentHeight;
-
-    resized = resized || (size.axis.top !== axisTop);
-    resized = resized || (size.axis.line !== axisLine);
-    resized = resized || (size.axis.height !== axisHeight);
-    resized = resized || (size.items.top !== itemsTop);
-    size.axis.top = axisTop;
-    size.axis.line = axisLine;
-    size.axis.height = axisHeight;
-    size.axis.labelMajorTop = options.axisOnTop ? 0 : axisLine +
-        (options.showMinorLabels ? characterMinorHeight : 0);
-    size.axis.labelMinorTop = options.axisOnTop ?
-        (options.showMajorLabels ? characterMajorHeight : 0) :
-        axisLine;
-    size.axis.lineMinorTop = options.axisOnTop ? size.axis.labelMinorTop : 0;
-    size.axis.lineMinorHeight = options.showMajorLabels ?
-        frameHeight - characterMajorHeight:
-        frameHeight;
-    size.axis.lineMinorWidth = dom.axis.minorLines.length ?
-        dom.axis.minorLines[0].offsetWidth : 1;
-    size.axis.lineMajorWidth = dom.axis.majorLines.length ?
-        dom.axis.majorLines[0].offsetWidth : 1;
-
-    size.items.top = itemsTop;
-
-    resized = resized || (size.axis.characterMinorWidth  !== characterMinorWidth);
-    resized = resized || (size.axis.characterMinorHeight !== characterMinorHeight);
-    resized = resized || (size.axis.characterMajorWidth  !== characterMajorWidth);
-    resized = resized || (size.axis.characterMajorHeight !== characterMajorHeight);
-    size.axis.characterMinorWidth  = characterMinorWidth;
-    size.axis.characterMinorHeight = characterMinorHeight;
-    size.axis.characterMajorWidth  = characterMajorWidth;
-    size.axis.characterMajorHeight = characterMajorHeight;
-
-    // conversion factors can be changed when width of the Timeline is changed,
-    // and when start or end are changed
-    this.recalcConversion();
-
-    return resized;
-};
-
-
 
 /**
  * Calculate the factor and offset to convert a position on screen to the
@@ -2753,9 +2500,6 @@ links.Timeline.prototype.onMouseDown = function(event) {
         return;
     }
 
-    // check if frame is not resized (causing a mismatch with the end Date) 
-    this.recalcSize();
-
     // get mouse position
     if (!params.touchDown) {
         params.mouseX = event.clientX;
@@ -2777,8 +2521,10 @@ links.Timeline.prototype.onMouseDown = function(event) {
     params.end = new Date(this.end);
 
     params.target = links.Timeline.getTarget(event);
-    params.itemDragLeft = (params.target === this.dom.items.dragLeft);
-    params.itemDragRight = (params.target === this.dom.items.dragRight);
+    var dragLeft = (dom.items && dom.items.dragLeft) ? dom.items.dragLeft : undefined;
+    var dragRight = (dom.items && dom.items.dragRight) ? dom.items.dragRight : undefined;
+    params.itemDragLeft = (params.target === dragLeft);
+    params.itemDragRight = (params.target === dragRight);
 
     if (params.itemDragLeft || params.itemDragRight) {
         params.itemIndex = this.selection ? this.selection.index : undefined;
@@ -2822,14 +2568,8 @@ links.Timeline.prototype.onMouseDown = function(event) {
         params.itemStart = item.start;
         params.itemEnd = item.end;
         params.itemGroup = item.group;
-        params.itemType = item.type;
-        if (params.itemType == 'range') {
-            params.itemLeft = this.timeToScreen(item.start);
-            params.itemRight = this.timeToScreen(item.end);
-        }
-        else {
-            params.itemLeft = this.timeToScreen(item.start);
-        }
+        params.itemLeft = item.start ? this.timeToScreen(item.start) : undefined;
+        params.itemRight = item.end ? this.timeToScreen(item.end) : undefined;
     }
     else {
         this.dom.frame.style.cursor = 'move';
@@ -2898,14 +2638,13 @@ links.Timeline.prototype.onMouseMove = function (event) {
         var x = this.timeToScreen(params.customTime);
         var xnew = x + diffX;
         this.customTime = this.screenToTime(xnew);
-        this.redrawCustomTime();
+        this.repaintCustomTime();
 
         // fire a timechange event
         this.trigger('timechange');
     }
     else if (params.editItem) {
         var item = this.items[params.itemIndex],
-            domItem = item.dom,
             left,
             right;
 
@@ -2956,37 +2695,27 @@ links.Timeline.prototype.onMouseMove = function (event) {
             }
         }
 
-        this.repositionItem(item, left, right);
+        item.setPosition(left, right);
 
         if (this.groups.length == 0) {
             // TODO: does not work well in FF, forces redraw with every mouse move it seems
-            this.filterEvents();
-            this.stackEvents(options.animate);
-            if (!options.animate) {
-                this.redrawFrame();
-            }
-            // Note: when animate==true, no redraw is needed here, its done by stackEvents animation
+            this.render(); // TODO: optimize, only redraw the items?
+            // Note: when animate==true, no redraw is needed here, its done by stackItems animation
         }
         else {
             // move item from one group to another when needed
-            if (options.groupsChangeable) {
-                var y = mouseY - params.frameTop;
-                var group = this.getGroupFromHeight(y);
-                if (item.group !== group) {
-                    // move item to the other group
-
-                    //item.group = group;
-                    var index = this.items.indexOf(item);
-                    this.changeItem(index, {'group': this.getGroupName(group)});
-
-                    item.top = group.top;
-                    this.repositionItem(item);
-                }
+            var y = mouseY - params.frameTop;
+            var group = this.getGroupFromHeight(y);
+            if (options.groupsChangeable && item.group !== group) {
+                // move item to the other group
+                var index = this.items.indexOf(item);
+                this.changeItem(index, {'group': this.getGroupName(group)});
+            }
+            else {
+                this.repaintDeleteButton();
+                this.repaintDragAreas();
             }
         }
-
-        this.redrawDeleteButton();
-        this.redrawDragAreas();
     }
     else if (options.moveable) {
         var interval = (params.end.valueOf() - params.start.valueOf());
@@ -3006,7 +2735,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
 
         // move the items by changing the left position of their frame.
         // this is much faster than repositioning all elements individually via the 
-        // redrawFrame() function (which is done once at mouseup)
+        // repaintFrame() function (which is done once at mouseup)
         // note that we round diffX to prevent wrong positioning on millisecond scale
         var previousLeft = params.previousLeft || 0;
         var currentLeft = parseFloat(dom.items.frame.style.left) || 0;
@@ -3020,9 +2749,9 @@ links.Timeline.prototype.onMouseMove = function (event) {
         params.previousOffset = frameOffset;
         params.previousLeft = parseFloat(dom.items.frame.style.left) || frameLeft;
 
-        this.redrawCurrentTime();
-        this.redrawCustomTime();
-        this.redrawAxis();
+        this.repaintCurrentTime();
+        this.repaintCustomTime();
+        this.repaintAxis();
 
         // fire a rangechange event
         this.trigger('rangechange');
@@ -3109,19 +2838,12 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     item.start = params.itemStart;
                     item.end = params.itemEnd;
                     item.group = params.itemGroup;
-                    // TODO: original group hould be restored too
-                    this.repositionItem(item, params.itemLeft, params.itemRight);
+                    // TODO: original group should be restored too
+                    item.setPosition(params.itemLeft, params.itemRight);
                 }
             }
 
-            this.recalcSize();
-            this.filterEvents();
-            this.stackEvents(options.animate);
-            if (!options.animate) {
-                this.redrawFrame();
-            }
-            this.redrawDeleteButton();
-            this.redrawDragAreas();
+            this.render();
         }
     }
     else {
@@ -3133,29 +2855,25 @@ links.Timeline.prototype.onMouseUp = function (event) {
                 if (this.selection) {
                     this.confirmDeleteItem(this.selection.index);
                 }
-                this.redrawFrame();
             }
             else if (options.selectable) {
                 // select/unselect item
                 if (params.itemIndex !== undefined) {
                     if (!this.isSelected(params.itemIndex)) {
                         this.selectItem(params.itemIndex);
-                        this.redrawDeleteButton();
-                        this.redrawDragAreas();
                         this.trigger('select');
                     }
                 }
                 else {
                     this.unselectItem();
-                    this.redrawDeleteButton();
-                    this.redrawDragAreas();
                     this.trigger('select');
                 }
             }
         }
         else {
-            // timeline is moved 
-            this.redrawFrame();
+            // timeline is moved
+            // TODO: optimize: no need to reflow and cluster again?
+            this.render();
 
             if ((params.moved && options.moveable) || (params.zoomed && options.zoomable) ) {
                 // fire a rangechanged event
@@ -3227,9 +2945,6 @@ links.Timeline.prototype.onDblClick = function (event) {
             // undo an add
             this.deleteItem(params.itemIndex);
         }
-
-        this.redrawDeleteButton();
-        this.redrawDragAreas();
     }
 
     links.Timeline.preventDefault(event);
@@ -3268,9 +2983,6 @@ links.Timeline.prototype.onMouseWheel = function(event) {
 
         var timeline = this;
         var zoom = function () {
-            // check if frame is not resized (causing a mismatch with the end date) 
-            timeline.recalcSize();
-
             // perform the zoom action. Delta is normally 1 or -1
             var zoomFactor = delta / 5.0;
             var frameLeft = links.Timeline.getAbsoluteLeft(timeline.dom.content);
@@ -3359,21 +3071,9 @@ links.Timeline.prototype.zoom = function(zoomFactor, zoomAroundDate) {
 
     this.applyRange(newStart, newEnd, zoomAroundDate);
 
-    this.recalcSize();
-    this.clusterEvents();
-    this.filterEvents();
-    var animate = this.options.animate ? this.options.animateZoom : false;
-    this.stackEvents(animate);
-    if (!animate || this.groups.length > 0) {
-        this.redrawFrame();
-    }
-    /* TODO
-     else {
-     this.redrawFrame();
-     this.recalcSize();
-     this.stackEvents(animate);
-     this.redrawFrame();
-     }*/
+    this.render({
+        animate: this.options.animate && this.options.animateZoom
+    });
 };
 
 /**
@@ -3392,40 +3092,7 @@ links.Timeline.prototype.move = function(moveFactor) {
     var newEnd   = new Date(this.end.valueOf() + diff * moveFactor);
     this.applyRange(newStart, newEnd);
 
-    this.recalcConversion();
-    this.redrawFrame();
-};
-
-/**
- * Reposition given item
- * @param {Object} item
- * @param {Number} left
- * @param {Number} right
- */
-links.Timeline.prototype.repositionItem = function (item, left, right) {
-    var domItem = item.dom;
-    switch(item.type) {
-        case 'range':
-            domItem.style.left = left + "px";
-            //domItem.style.width = Math.max(right - left - 2 * item.borderWidth, 1) + "px";  // TODO: borderwidth
-            domItem.style.width = Math.max(right - left, 1) + "px";
-            break;
-
-        case 'box':
-            domItem.style.left = (left - item.width / 2) + "px";
-            domItem.line.style.left = (left - item.lineWidth / 2) + "px";
-            domItem.dot.style.left = (left - item.dotWidth / 2) + "px";
-            break;
-
-        case 'dot':
-            domItem.style.left = (left - item.dotWidth / 2) + "px";
-            break;
-    }
-
-    if (item.group) {
-        item.top = item.group.top;
-        domItem.style.top = item.top + 'px';
-    }
+    this.render(); // TODO: optimize, no need to reflow, only to recalc conversion and repaint
 };
 
 /**
@@ -3555,8 +3222,9 @@ links.Timeline.prototype.deleteItem = function(index) {
 
     this.unselectItem();
 
-    // actually delete the item
-    this.items.splice(index, 1);
+    // actually delete the item and remove it from the DOM
+    var item = this.items.splice(index, 1)[0];
+    item.deleteDOM();
 
     // delete the row in the original data table
     if (this.data) {
@@ -3572,16 +3240,7 @@ links.Timeline.prototype.deleteItem = function(index) {
         }
     }
 
-    this.size.dataChanged = true;
-    this.redrawFrame();
-    this.recalcSize();
-    this.clusterEvents();
-    this.filterEvents();
-    this.stackEvents(this.options.animate);
-    if (!this.options.animate) {
-        this.redrawFrame();
-    }
-    this.size.dataChanged = false;
+    this.render();
 };
 
 
@@ -3591,8 +3250,8 @@ links.Timeline.prototype.deleteItem = function(index) {
 links.Timeline.prototype.deleteAllItems = function() {
     this.unselectItem();
 
-    // delete the loaded data
-    this.items = [];
+    // delete the loaded items
+    this.clearItems();
 
     // delete the groups
     this.deleteGroups();
@@ -3611,16 +3270,7 @@ links.Timeline.prototype.deleteAllItems = function() {
         }
     }
 
-    this.size.dataChanged = true;
-    this.redrawFrame();
-    this.recalcSize();
-    this.clusterEvents();
-    this.filterEvents();
-    this.stackEvents(this.options.animate);
-    if (!this.options.animate) {
-        this.redrawFrame();
-    }
-    this.size.dataChanged = false;
+    this.render();
 };
 
 
@@ -3628,27 +3278,29 @@ links.Timeline.prototype.deleteAllItems = function() {
  * Find the group from a given height in the timeline
  * @param {Number} height   Height in the timeline
  * @param {boolean}
-    * @return {Object} group   The group object, or undefined if out of range
+ * @return {Object | undefined} group   The group object, or undefined if out
+ *                                      of range
  */
 links.Timeline.prototype.getGroupFromHeight = function(height) {
-    var groups = this.groups,
-        options = this.options,
-        size = this.size,
-        y = height - (options.axisOnTop ? size.axis.height : 0);
+    var i,
+        group,
+        groups = this.groups;
 
     if (groups) {
-        var group;
-        /* TODO: cleanup
-         for (var i = 0, iMax = groups.length; i < iMax; i++) {
-         group = groups[i];
-         if (y > group.top && y < group.top + group.height) {
-         return group;
-         }
-         }*/
-        for (var i = groups.length - 1; i >= 0; i--) {
-            group = groups[i];
-            if (y > group.top) {
-                return group;
+        if (this.options.axisOnTop) {
+            for (i = groups.length - 1; i >= 0; i--) {
+                group = groups[i];
+                if (height > group.top) {
+                    return group;
+                }
+            }
+        }
+        else {
+            for (i = 0; i < groups.length; i++) {
+                group = groups[i];
+                if (height > group.top) {
+                    return group;
+                }
             }
         }
 
@@ -3656,6 +3308,801 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
     }
 
     return undefined;
+};
+
+/**
+ * @constructor links.Timeline.Item
+ * @param {Object}         data       Object containing parameters start, end
+ *                                    content, group. type, group.
+ */
+links.Timeline.Item = function (data) {
+    if (data) {
+        this.start = data.start;
+        this.end = data.end;
+        this.content = data.content;
+        this.className = data.className;
+        this.group = data.group;
+    }
+    this.top = 0;
+    this.left = 0;
+    this.width = 0;
+    this.height = 0;
+    this.lineWidth = 0;
+    this.dotWidth = 0;
+    this.dotHeight = 0;
+};
+
+/**
+ * Repaint the item
+ * @param {Element} container      The HTML container where the item will be
+ *                                 created
+ * @return {boolean} needsReflow   Returns true if the DOM is changed such that
+ *                                 a reflow is needed.
+ */
+links.Timeline.Item.prototype.repaint = function (container) {
+    var needsReflow = false;
+
+    if (this.visible) {
+        if (!this.dom) {
+            this.dom = this.createDOM();
+            this.changed = true;
+            needsReflow = true;
+        }
+        if (!this.domVisible) {
+            this.showDOM(container);
+        }
+        if (this.changed) {
+            this.updateDOM();
+            this.changed = false;
+        }
+    }
+    else {
+        if (this.domVisible) {
+            this.hideDOM(container);
+        }
+        // TODO: test if it is faster when setting style.display='none' instead of removing from the DOM
+    }
+
+    return needsReflow;
+};
+
+/**
+ * Reflow the Item: retrieve its actual size from the DOM
+ * @return {boolean} resized    returns true if the axis is resized
+ */
+links.Timeline.Item.prototype.reflow = function () {
+    // Should be implemented by sub-prototype
+    return false;
+};
+
+/**
+ * Append all image urls present in the items DOM to the provided array
+ * @param {String[]} imageUrls
+ */
+links.Timeline.Item.prototype.getImageUrls = function (imageUrls) {
+    if (this.dom) {
+        links.imageloader.filterImageUrls(this.dom, imageUrls);
+    }
+};
+
+/**
+ * Select the item
+ */
+links.Timeline.Item.prototype.select = function () {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Unselect the item
+ */
+links.Timeline.Item.prototype.unselect = function () {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ */
+links.Timeline.Item.prototype.createDOM = function () {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Append the items DOM to the given HTML container. the items DOM must be
+ * created before
+ * @param {Element} container
+ */
+links.Timeline.Item.prototype.showDOM = function (container) {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * @param {Element} container
+ */
+links.Timeline.Item.prototype.hideDOM = function (container) {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ */
+links.Timeline.Item.prototype.updateDOM = function () {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Delete the DOM from this item, if there is any DOM loaded. The DOM will be
+ * neatly removed from the HTML container where it is attached.
+ */
+links.Timeline.Item.prototype.deleteDOM = function () {
+    var dom = this.dom;
+    if (dom) {
+        var container = dom.parentNode;
+        if (container) {
+            this.hideDOM(container);
+        }
+        delete this.dom;
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ */
+links.Timeline.Item.prototype.updatePosition = function (timeline) {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Check if the item is visible in the timeline.
+ * @param {links.Timeline} timeline
+ */
+links.Timeline.Item.prototype.updateVisible = function (timeline) {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ */
+links.Timeline.Item.prototype.setPosition = function (left, right) {
+    // Should be implemented by sub-prototype
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ */
+links.Timeline.Item.prototype.getRight = function (timeline) {
+    // Should be implemented by sub-prototype
+    return 0;
+};
+
+
+/**
+ * @constructor links.Timeline.ItemBox
+ * @extends links.Timeline.Item
+ * @param {Object}         data       Object containing parameters start, end
+ *                                    content, group. type, group.
+ */
+links.Timeline.ItemBox = function (data) {
+    links.Timeline.Item.call(this, data);
+};
+
+links.Timeline.ItemBox.prototype = new links.Timeline.Item();
+
+/**
+ * Reflow the Item: retrieve its actual size from the DOM
+ * @return {boolean} resized    returns true if the axis is resized
+ * @override
+ */
+links.Timeline.ItemBox.prototype.reflow = function () {
+    var dom = this.dom,
+        dotHeight = dom.dot.offsetHeight,
+        dotWidth = dom.dot.offsetWidth,
+        lineWidth = dom.line.offsetWidth,
+        resized = (
+            (this.dotHeight != dotHeight) ||
+            (this.dotWidth != dotWidth) ||
+            (this.lineWidth != lineWidth)
+        );
+
+    this.dotHeight = dotHeight;
+    this.dotWidth = dotWidth;
+    this.lineWidth = lineWidth;
+
+    return resized;
+};
+
+/**
+ * Select the item
+ * @override
+ */
+links.Timeline.ItemBox.prototype.select = function () {
+    var dom = this.dom;
+    links.Timeline.addClassName(dom, 'timeline-event-selected');
+    links.Timeline.addClassName(dom.line, 'timeline-event-selected');
+    links.Timeline.addClassName(dom.dot, 'timeline-event-selected');
+};
+
+/**
+ * Unselect the item
+ * @override
+ */
+links.Timeline.ItemBox.prototype.unselect = function () {
+    var dom = this.dom;
+    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom.line, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom.dot, 'timeline-event-selected');
+};
+
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ * @override
+ */
+links.Timeline.ItemBox.prototype.createDOM = function () {
+    // background box
+    var divBox = document.createElement("DIV");
+    divBox.style.position = "absolute";
+    divBox.style.left  = "0px";
+    divBox.style.top = "0px";
+
+    // contents box (inside the background box). used for making margins
+    var divContent = document.createElement("DIV");
+    divContent.className = "timeline-event-content";
+    divContent.innerHTML = this.content;
+    divBox.appendChild(divContent);
+
+    // line to axis
+    var divLine = document.createElement("DIV");
+    divLine.style.position = "absolute";
+    divLine.style.width = "0px";
+    // important: the vertical line is added at the front of the list of elements,
+    // so it will be drawn behind all boxes and ranges
+    divBox.line = divLine;
+
+    // dot on axis
+    var divDot = document.createElement("DIV");
+    divDot.style.position = "absolute";
+    divDot.style.width  = "0px";
+    divDot.style.height = "0px";
+    divBox.dot = divDot;
+
+    return divBox;
+};
+
+/**
+ * Append the items DOM to the given HTML container. the items DOM must be
+ * created before
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemBox.prototype.showDOM = function (container) {
+    container.appendChild(this.dom);
+    container.insertBefore(this.dom.line, container.firstChild);
+    // Note: line must be added in front of the thiss,
+    //       such that it stays below all thiss
+    container.appendChild(this.dom.dot);
+
+    this.domVisible = true;
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemBox.prototype.hideDOM = function (container) {
+    container.removeChild(this.dom);
+    container.removeChild(this.dom.line);
+    container.removeChild(this.dom.dot);
+
+    this.domVisible = false;
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ * @override
+ */
+links.Timeline.ItemBox.prototype.updateDOM = function () {
+    if (this.dom) {
+        var divBox = this.dom;
+        var divLine = divBox.line;
+        var divDot = divBox.dot;
+
+        // update contents
+        divBox.firstChild.innerHTML = this.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-box";
+        divLine.className = "timeline-event timeline-event-line";
+        divDot.className  = "timeline-event timeline-event-dot";
+
+        if (this.isCluster) {
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
+            links.Timeline.addClassName(divLine, 'timeline-event-cluster');
+            links.Timeline.addClassName(divDot, 'timeline-event-cluster');
+        }
+
+        // add item specific class name when provided
+        if (this.className) {
+            links.Timeline.addClassName(divBox, this.className);
+            links.Timeline.addClassName(divLine, this.className);
+            links.Timeline.addClassName(divDot, this.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemBox.prototype.updatePosition = function (timeline) {
+    var dom = this.dom,
+        left = timeline.timeToScreen(this.start),
+        axisOnTop = timeline.options.axisOnTop,
+        axisTop = timeline.size.axis.top,
+        axisHeight = timeline.size.axis.height,
+        boxAlign = (timeline.options.box && timeline.options.box.align) ?
+            timeline.options.box.align : undefined;
+
+    dom.style.top = this.top + "px";
+    if (boxAlign == 'right') {
+        dom.style.left = (left - this.width) + "px";
+    }
+    else if (boxAlign == 'left') {
+        dom.style.left = (left) + "px";
+    }
+    else { // default or 'center'
+        dom.style.left = (left - this.width/2) + "px";
+    }
+
+    var line = dom.line;
+    var dot = dom.dot;
+    line.style.left = (left - this.lineWidth/2) + "px";
+    dot.style.left = (left - this.dotWidth/2) + "px";
+    if (axisOnTop) {
+        line.style.top = axisHeight + "px";
+        line.style.height = Math.max(this.top - axisHeight, 0) + "px";
+        dot.style.top = (axisHeight - this.dotHeight/2) + "px";
+    }
+    else {
+        line.style.top = (this.top + this.height) + "px";
+        line.style.height = Math.max(axisTop - this.top - this.height, 0) + "px";
+        dot.style.top = (axisTop - this.dotHeight/2) + "px";
+    }
+
+};
+
+/**
+ * Check if the item is visible in the timeline.
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemBox.prototype.updateVisible = function (timeline) {
+    var left = timeline.timeToScreen(this.start),
+        contentWidth = timeline.size.contentWidth;
+
+    this.visible = ((left + this.width/2 > -contentWidth)
+        && (left - this.width/2 < 2 * contentWidth))
+        && (!this.cluster);
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ * @override
+ */
+links.Timeline.ItemBox.prototype.setPosition = function (left, right) {
+    var dom = this.dom;
+
+    dom.style.left = (left - this.width / 2) + "px";
+    dom.line.style.left = (left - this.lineWidth / 2) + "px";
+    dom.dot.style.left = (left - this.dotWidth / 2) + "px";
+
+    if (this.group) {
+        this.top = this.group.top;
+        dom.style.top = this.top + 'px';
+    }
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ * @override
+ */
+links.Timeline.ItemBox.prototype.getRight = function (timeline) {
+    var boxAlign = (timeline.options.box && timeline.options.box.align) ?
+        timeline.options.box.align : undefined;
+
+    var left = timeline.timeToScreen(this.start);
+    var right;
+    if (boxAlign == 'right') {
+        right = left;
+    }
+    else if (boxAlign == 'left') {
+        right = (left + this.width);
+    }
+    else { // default or 'center'
+        right = (left + this.width / 2);
+    }
+
+    return right;
+};
+
+/**
+ * @constructor links.Timeline.ItemRange
+ * @extends links.Timeline.Item
+ * @param {Object}         data       Object containing parameters start, end
+ *                                    content, group. type, group.
+ */
+links.Timeline.ItemRange = function (data) {
+    links.Timeline.Item.call(this, data);
+};
+
+links.Timeline.ItemRange.prototype = new links.Timeline.Item();
+
+/**
+ * Select the item
+ * @override
+ */
+links.Timeline.ItemRange.prototype.select = function () {
+    var dom = this.dom;
+    links.Timeline.addClassName(dom, 'timeline-event-selected');
+};
+
+/**
+ * Unselect the item
+ * @override
+ */
+links.Timeline.ItemRange.prototype.unselect = function () {
+    var dom = this.dom;
+    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+};
+
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ * @override
+ */
+links.Timeline.ItemRange.prototype.createDOM = function () {
+    // background box
+    var divBox = document.createElement("DIV");
+    divBox.style.position = "absolute";
+
+    // contents box
+    var divContent = document.createElement("DIV");
+    divContent.className = "timeline-event-content";
+    divBox.appendChild(divContent);
+
+    return divBox;
+};
+
+/**
+ * Append the items DOM to the given HTML container. the items DOM must be
+ * created before
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemRange.prototype.showDOM = function (container) {
+    container.appendChild(this.dom);
+
+    this.domVisible = true;
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemRange.prototype.hideDOM = function (container) {
+    container.removeChild(this.dom);
+
+    this.domVisible = false;
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ * @override
+ */
+links.Timeline.ItemRange.prototype.updateDOM = function () {
+    if (this.dom) {
+        var divBox = this.dom;
+
+        // update contents
+        divBox.firstChild.innerHTML = this.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-range";
+
+        if (this.isCluster) {
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
+        }
+
+        // add item specific class name when provided
+        if (this.className) {
+            links.Timeline.addClassName(divBox, this.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemRange.prototype.updatePosition = function (timeline) {
+    var dom = this.dom,
+        contentWidth = timeline.size.contentWidth,
+        left = timeline.timeToScreen(this.start),
+        right = timeline.timeToScreen(this.end);
+
+    // limit the width of the this, as browsers cannot draw very wide divs
+    if (left < -contentWidth) {
+        left = -contentWidth;
+    }
+    if (right > 2 * contentWidth) {
+        right = 2 * contentWidth;
+    }
+
+    dom.style.top = this.top + "px";
+    dom.style.left = left + "px";
+    //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
+    dom.style.width = Math.max(right - left, 1) + "px";
+};
+
+/**
+ * Check if the item is visible in the timeline.
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemRange.prototype.updateVisible = function (timeline) {
+    var left = timeline.timeToScreen(this.start),
+        right = timeline.timeToScreen(this.end),
+        contentWidth = timeline.size.contentWidth;
+
+    this.visible = (right > -contentWidth)
+        && (left < 2 * contentWidth)
+        && (!this.cluster);
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ * @override
+ */
+links.Timeline.ItemRange.prototype.setPosition = function (left, right) {
+    var dom = this.dom;
+
+    dom.style.left = left + 'px';
+    dom.style.width = (right - left) + 'px';
+
+    if (this.group) {
+        this.top = this.group.top;
+        dom.style.top = this.top + 'px';
+    }
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ * @override
+ */
+links.Timeline.ItemRange.prototype.getRight = function (timeline) {
+    return timeline.timeToScreen(this.end);
+};
+
+/**
+ * @constructor links.Timeline.ItemDot
+ * @extends links.Timeline.Item
+ * @param {Object}         data       Object containing parameters start, end
+ *                                    content, group, type.
+ * @override
+ */
+links.Timeline.ItemDot = function (data) {
+    links.Timeline.Item.call(this, data);
+};
+
+links.Timeline.ItemDot.prototype = new links.Timeline.Item();
+
+/**
+ * Reflow the Item: retrieve its actual size from the DOM
+ * @return {boolean} resized    returns true if the axis is resized
+ * @override
+ */
+links.Timeline.ItemDot.prototype.reflow = function () {
+    var dom = this.dom,
+        dotHeight = dom.dot.offsetHeight,
+        dotWidth = dom.dot.offsetWidth,
+        contentHeight = dom.content.offsetHeight,
+        resized = (
+            (this.dotHeight != dotHeight) ||
+            (this.dotWidth != dotWidth) ||
+            (this.contentHeight != contentHeight)
+        );
+
+    this.dotHeight = dotHeight;
+    this.dotWidth = dotWidth;
+    this.contentHeight = contentHeight;
+
+    return resized;
+};
+
+/**
+ * Select the item
+ * @override
+ */
+links.Timeline.ItemDot.prototype.select = function () {
+    var dom = this.dom;
+    links.Timeline.addClassName(dom, 'timeline-event-selected');
+};
+
+/**
+ * Unselect the item
+ * @override
+ */
+links.Timeline.ItemDot.prototype.unselect = function () {
+    var dom = this.dom;
+    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+};
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ * @override
+ */
+links.Timeline.ItemDot.prototype.createDOM = function () {
+    // background box
+    var divBox = document.createElement("DIV");
+    divBox.style.position = "absolute";
+
+    // contents box, right from the dot
+    var divContent = document.createElement("DIV");
+    divContent.className = "timeline-event-content";
+    divBox.appendChild(divContent);
+
+    // dot at start
+    var divDot = document.createElement("DIV");
+    divDot.style.position = "absolute";
+    divDot.style.width = "0px";
+    divDot.style.height = "0px";
+    divBox.appendChild(divDot);
+
+    divBox.content = divContent;
+    divBox.dot = divDot;
+
+    return divBox;
+};
+
+/**
+ * Append the items DOM to the given HTML container. the items DOM must be
+ * created before
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemDot.prototype.showDOM = function (container) {
+    container.appendChild(this.dom);
+
+    this.domVisible = true;
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemDot.prototype.hideDOM = function (container) {
+    container.removeChild(this.dom);
+
+    this.domVisible = false;
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ * @override
+ */
+links.Timeline.ItemDot.prototype.updateDOM = function () {
+    if (this.dom) {
+        var divBox = this.dom;
+        var divDot = divBox.dot;
+
+        // update contents
+        divBox.firstChild.innerHTML = this.content;
+
+        // update class
+        divDot.className  = "timeline-event timeline-event-dot";
+
+        if (this.isCluster) {
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
+            links.Timeline.addClassName(divDot, 'timeline-event-cluster');
+        }
+
+        // add item specific class name when provided
+        if (this.className) {
+            links.Timeline.addClassName(divBox, this.className);
+            links.Timeline.addClassName(divDot, this.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemDot.prototype.updatePosition = function (timeline) {
+    var dom = this.dom,
+        left = timeline.timeToScreen(this.start);
+
+    dom.style.top = this.top + "px";
+    dom.style.left = (left - this.dotWidth / 2) + "px";
+
+    dom.content.style.marginLeft = (1.5 * this.dotWidth) + "px";
+    //dom.content.style.marginRight = (0.5 * this.dotWidth) + "px"; // TODO
+    dom.dot.style.top = ((this.height - this.dotHeight) / 2) + "px";
+};
+
+/**
+ * Check if the item is visible in the timeline.
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemDot.prototype.updateVisible = function (timeline) {
+    var left = timeline.timeToScreen(this.start),
+        contentWidth = timeline.size.contentWidth;
+
+    this.visible = (left + this.width > -contentWidth)
+        && (left < 2 * contentWidth)
+        && (!this.cluster);
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ * @override
+ */
+links.Timeline.ItemDot.prototype.setPosition = function (left, right) {
+    var dom = this.dom;
+
+    dom.style.left = (left - this.dotWidth / 2) + "px";
+
+    if (this.group) {
+        this.top = this.group.top;
+        dom.style.top = this.top + 'px';
+    }
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ * @override
+ */
+links.Timeline.ItemDot.prototype.getRight = function (timeline) {
+    return timeline.timeToScreen(this.start) + this.width;
 };
 
 /**
@@ -3726,15 +4173,9 @@ links.Timeline.prototype.addItems = function (items) {
         this.updateData(index, itemData);
     }
 
-    // redraw timeline
-    this.size.dataChanged = true;
-    this.redrawFrame();
-    this.recalcSize();
-    this.clusterEvents();
-    this.filterEvents();
-    this.stackEvents(false);
-    this.redrawFrame();
-    this.size.dataChanged = false;
+    this.render({
+        animate: false
+    });
 };
 
 /**
@@ -3744,21 +4185,24 @@ links.Timeline.prototype.addItems = function (items) {
  * @return {Object} item
  */
 links.Timeline.prototype.createItem = function(itemData) {
-    return {
-        'start': itemData.start,
-        'end': itemData.end,
-        'content': itemData.content,
-        'type': itemData.end ? 'range' : this.options.style,
-        'group': this.getGroup(itemData.group),
-        'className': itemData.className,
-        'top': 0,
-        'left': 0,
-        'width': 0,
-        'height': 0,
-        'lineWidth' : 0,
-        'dotWidth': 0,
-        'dotHeight': 0
+    var type = itemData.end ? 'range' : this.options.style;
+    var data = {
+        start: itemData.start,
+        end: itemData.end,
+        content: itemData.content,
+        className: itemData.className,
+        //type: type,
+        group: this.getGroup(itemData.group)
     };
+
+    switch (type) {
+        case 'box': return new links.Timeline.ItemBox(data);
+        case 'range': return new links.Timeline.ItemRange(data);
+        case 'dot': return new links.Timeline.ItemDot(data);
+    }
+
+    console.log('ERROR: Unknown event style "' + type + '"');
+    return new links.Timeline.Item(data);
 };
 
 /**
@@ -3775,28 +4219,28 @@ links.Timeline.prototype.changeItem = function (index, itemData) {
     if (!item) {
         throw "Cannot change item, index out of range";
     }
+    item.deleteDOM();
 
-    // create new item
-    var newItem = {
-        'start': itemData.hasOwnProperty('start') ? itemData.start : item.start,
-        'end': itemData.hasOwnProperty('end') ? itemData.end : item.end,
+    // replace item, merge changed
+    var newItem = this.createItem({
+        'start':   itemData.hasOwnProperty('start') ?   itemData.start :   item.start,
+        'end':     itemData.hasOwnProperty('end') ?     itemData.end :     item.end,
         'content': itemData.hasOwnProperty('content') ? itemData.content : item.content,
-        'group': itemData.hasOwnProperty('group') ? itemData.group : this.getGroupName(item.group)
-    };
-    this.items[index] = this.createItem(newItem);
+        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(item.group)
+    });
+    //newItem.createDOM();
+    //newItem.select();
+    this.items[index] = newItem;
 
-        // update the original data table
+    // update the original data table
     this.updateData(index, itemData);
 
     // redraw timeline
-    this.size.dataChanged = true;
-    this.redrawFrame();
-    this.recalcSize();
-    this.clusterEvents();
-    this.filterEvents();
-    this.stackEvents(false);
-    this.redrawFrame();
-    this.size.dataChanged = false;
+    this.render({
+        animate: false
+    });
+
+    newItem.select();
 };
 
 /**
@@ -3966,32 +4410,13 @@ links.Timeline.prototype.selectItem = function(index) {
             'item': domItem
         };
 
+        // TODO: move adjusting the domItem to the item itself
         if (this.options.editable) {
             domItem.style.cursor = 'move';
         }
-        switch (item.type) {
-            case 'range':
-                links.Timeline.addClassName(domItem, 'timeline-event-selected');
-                break;
-            case 'box':
-                links.Timeline.addClassName(domItem, 'timeline-event-selected');
-                links.Timeline.addClassName(domItem.line, 'timeline-event-selected');
-                links.Timeline.addClassName(domItem.dot, 'timeline-event-selected');
-                break;
-            case 'dot':
-                links.Timeline.addClassName(domItem, 'timeline-event-selected');
-                links.Timeline.addClassName(domItem.dot, 'timeline-event-selected');
-                break;
-        }
-
-        /* TODO: cleanup this cannot work as this breaks any javscript action inside the item
-         // move the item to the end, such that it will be displayed on top of the other items
-         var parent = domItem.parentNode;
-         if (parent) {
-         parent.removeChild(domItem);
-         parent.appendChild(domItem);
-         }
-         */
+        item.select();
+        this.repaintDeleteButton();
+        this.repaintDragAreas();
     }
 };
 
@@ -4014,36 +4439,27 @@ links.Timeline.prototype.unselectItem = function() {
         if (item && item.dom) {
             var domItem = item.dom;
             domItem.style.cursor = '';
-            switch (item.type) {
-                case 'range':
-                    links.Timeline.removeClassName(domItem, 'timeline-event-selected');
-                    break;
-                case 'box':
-                    links.Timeline.removeClassName(domItem, 'timeline-event-selected');
-                    links.Timeline.removeClassName(domItem.line, 'timeline-event-selected');
-                    links.Timeline.removeClassName(domItem.dot, 'timeline-event-selected');
-                    break;
-                case 'dot':
-                    links.Timeline.removeClassName(domItem, 'timeline-event-selected');
-                    links.Timeline.removeClassName(domItem.dot, 'timeline-event-selected');
-                    break;
-            }
+            item.unselect();
         }
-    }
 
-    this.selection = undefined;
+        this.selection = undefined;
+        this.repaintDeleteButton();
+        this.repaintDragAreas();
+    }
 };
 
 
 /**
  * Stack the items such that they don't overlap. The items will have a minimal
  * distance equal to options.eventMargin.
- * @param {boolean} animate     if animate is true, the items are moved to
- *                              their new position animated
+ * @param {boolean | undefined} animate    if animate is true, the items are
+ *                                         moved to their new position animated
+ *                                         defaults to false.
  */
-links.Timeline.prototype.stackEvents = function(animate) {
+links.Timeline.prototype.stackItems = function(animate) {
     if (this.groups.length > 0) {
         // under this conditions we refuse to stack the events
+        // TODO: implement support for stacking items per group
         return;
     }
 
@@ -4051,43 +4467,49 @@ links.Timeline.prototype.stackEvents = function(animate) {
         animate = false;
     }
 
-    var sortedItems = this.stackOrder(this.visibleItems);
-    var finalItems = this.stackCalculateFinal(sortedItems, animate);
+    // calculate the order and final stack position of the items
+    var stack = this.stack;
+    if (!stack) {
+        stack = {};
+        this.stack = stack;
+    }
+    stack.sortedItems = this.stackOrder(this.visibleItems);
+    stack.finalItems = this.stackCalculateFinal(stack.sortedItems, animate);
 
-    if (animate) {
+    if (animate || stack.timer) {
         // move animated to the final positions
-        var animation = this.animation;
-        if (!animation) {
-            animation = {};
-            this.animation = animation;
-        }
-        animation.sortedItems = sortedItems;
-        animation.finalItems = finalItems;
-
         var timeline = this;
         var step = function () {
-            var arrived = timeline.stackMoveOneStep(animation.sortedItems,
-                animation.finalItems);
+            var arrived = timeline.stackMoveOneStep(stack.sortedItems,
+                    stack.finalItems);
 
-            timeline.recalcSize();
-            timeline.redrawFrame();
+            timeline.repaint();
 
             if (!arrived) {
-                animation.timer = setTimeout(step, 30);
+                stack.timer = setTimeout(step, 30);
             }
             else {
-                delete animation.finalItems;
-                delete animation.timer;
+                delete stack.timer;
             }
         };
 
-        if (!animation.timer) {
-            animation.timer = setTimeout(step, 30);
+        if (!stack.timer) {
+            stack.timer = setTimeout(step, 30);
         }
     }
     else {
-        this.stackMoveToFinal(sortedItems, finalItems);
-        this.recalcSize();
+        // move immediately to the final positions
+        this.stackMoveToFinal(stack.sortedItems, stack.finalItems);
+    }
+};
+
+/**
+ * Cancel any running animation
+ */
+links.Timeline.prototype.stackCancelAnimation = function() {
+    if (this.stack && this.stack.timer) {
+        clearTimeout(this.stack.timer);
+        delete this.stack.timer;
     }
 };
 
@@ -4095,7 +4517,7 @@ links.Timeline.prototype.stackEvents = function(animate) {
 /**
  * Order the items in the array this.items. The order is determined via:
  * - Ranges go before boxes and dots.
- * - The item with the left most location goes first
+ * - The item with the oldest start time goes first
  * @param {Array} items        Array with items
  * @return {Array} sortedItems Array with sorted items
  */
@@ -4104,13 +4526,16 @@ links.Timeline.prototype.stackOrder = function(items) {
     var sortedItems = items.concat([]);
 
     var f = function (a, b) {
-        if (a.type == 'range' && b.type != 'range') {
+        if ((a instanceof links.Timeline.ItemRange) &&
+                !(b instanceof links.Timeline.ItemRange)) {
             return -1;
         }
 
-        if (a.type != 'range' && b.type == 'range') {
+        if (!(a instanceof links.Timeline.ItemRange) &&
+                (b instanceof links.Timeline.ItemRange)) {
             return 1;
         }
+
 
         return (a.left - b.left);
     };
@@ -4125,8 +4550,11 @@ links.Timeline.prototype.stackOrder = function(items) {
  * other.
  */
 links.Timeline.prototype.stackCalculateFinal = function(items) {
-    var size = this.size,
+    var i,
+        iMax,
+        size = this.size,
         axisTop = size.axis.top,
+        axisHeight = size.axis.height,
         options = this.options,
         axisOnTop = options.axisOnTop,
         eventMargin = options.eventMargin,
@@ -4134,7 +4562,7 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
         finalItems = [];
 
     // initialize final positions
-    for (var i = 0, iMax = items.length; i < iMax; i++) {
+    for (i = 0, iMax = items.length; i < iMax; i++) {
         var item = items[i],
             top,
             left,
@@ -4144,24 +4572,21 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             width = item.width;
 
         if (axisOnTop) {
-            top = axisTop + eventMarginAxis + eventMargin / 2;
+            console.log('axisHeight', axisHeight);
+            top = axisHeight + eventMarginAxis + eventMargin / 2;
         }
         else {
             top = axisTop - height - eventMarginAxis - eventMargin / 2;
         }
         bottom = top + height;
 
-        switch (item.type) {
-            case 'range':
-            case 'dot':
-                left = this.timeToScreen(item.start);
-                right = item.end ? this.timeToScreen(item.end) : left + width;
-                break;
-
-            case 'box':
-                left = this.timeToScreen(item.start) - width / 2;
-                right = left + width;
-                break;
+        if (item instanceof links.Timeline.ItemBox) {
+            left = this.timeToScreen(item.start) - width / 2;
+            right = left + width;
+        }
+        else if (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemDot) {
+            left = this.timeToScreen(item.start);
+            right = item.end ? this.timeToScreen(item.end) : left + width;
         }
 
         finalItems[i] = {
@@ -4177,14 +4602,14 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     if (this.options.stackEvents) {
         // calculate new, non-overlapping positions
         //var items = sortedItems;
-        for (var i = 0, iMax = finalItems.length; i < iMax; i++) {
+        for (i = 0, iMax = finalItems.length; i < iMax; i++) {
             //for (var i = finalItems.length - 1; i >= 0; i--) {
             var finalItem = finalItems[i];
             var collidingItem = null;
             do {
                 // TODO: optimize checking for overlap. when there is a gap without items,
                 //  you only need to check for items from the next item on, not from zero
-                collidingItem = this.stackEventsCheckOverlap(finalItems, i, 0, i-1);
+                collidingItem = this.stackItemsCheckOverlap(finalItems, i, 0, i-1);
                 if (collidingItem != null) {
                     // There is a collision. Reposition the event above the colliding element
                     if (axisOnTop) {
@@ -4280,7 +4705,7 @@ links.Timeline.prototype.stackMoveToFinal = function(currentItems, finalItems) {
  * @param {int}  itemEnd     Last item to be checked.
  * @return {Object}          colliding item, or undefined when no collisions
  */
-links.Timeline.prototype.stackEventsCheckOverlap = function(items, itemIndex,
+links.Timeline.prototype.stackItemsCheckOverlap = function(items, itemIndex,
                                                             itemStart, itemEnd) {
     var eventMargin = this.options.eventMargin,
         collision = this.collision;
@@ -4398,7 +4823,7 @@ links.Timeline.prototype.filterItemTypes = function () {
 /**
  * Filter the visible events
  */
-links.Timeline.prototype.filterEvents = function () {
+links.Timeline.prototype.filterItems = function () {
     var left,
         right,
         items = this.items,
@@ -4409,43 +4834,12 @@ links.Timeline.prototype.filterEvents = function () {
 
     for (var i = 0, iMax = items.length; i < iMax; i++) {
         var item = items[i];
-        switch (item.type) {
-            case 'range':
-                left = this.timeToScreen(item.start);
-                right = this.timeToScreen(item.end);
-
-                item.visible = (right > -contentWidth)
-                    && (left < 2 * contentWidth)
-                    && (!item.cluster);
-                break;
-
-            case 'box':
-                left = this.timeToScreen(item.start);
-
-                item.visible = ((left + item.width/2 > -contentWidth)
-                    && (left - item.width/2 < 2 * contentWidth))
-                    && (!item.cluster);
-                break;
-
-            case 'dot':
-                left = this.timeToScreen(item.start);
-
-                item.visible = (left + item.width > -contentWidth)
-                    && (left < 2 * contentWidth)
-                    && (!item.cluster);
-                break;
-
-            default:
-                // do nothing
-                break;
-        }
-
+        item.updateVisible(this);
         if (item.visible) {
             visibleItems.push(item);
         }
     }
 
-    /* TODO: add the clusters
     // add the clusters to the visible items
     var clusters = this.clusters;
     for (var j = 0, jMax = clusters.length; j < jMax; j++) {
@@ -4458,17 +4852,22 @@ links.Timeline.prototype.filterEvents = function () {
             visibleItems.push(cluster);
         }
     }
-    */
 };
-
 
 /**
  * Cluster the events which are too close together
  */
-links.Timeline.prototype.clusterEvents = function () {
+links.Timeline.prototype.clusterItems = function () {
+    return; // TODO: activate clustering
+
     // TODO: do not hardcode timeWindow and maxItems
     var timeWindow = 1000*60*60*24*7,
         maxItems = 3;
+
+    // TODO: cleanup, make non-static clusters
+    if (this.clusters.length) {
+        return;
+    }
 
     var clusters = [];
     this.clusters = clusters;
@@ -4530,7 +4929,8 @@ links.Timeline.prototype.clusterEvents = function () {
                 count++;
             }
             cluster.start = new Date(start);
-            cluster.content = 'Cluster<br>(' + count + ' items)';
+            var title = 'Cluster containing ' + count + ' events. Zoom in to see the individual events.';
+            cluster.content = '<div title="' + title + '">' + count + ' events</div>';
             cluster.isCluster = true;
 
             clusters.push(cluster);
@@ -5029,7 +5429,7 @@ links.Timeline.StepDate.prototype.snap = function(date) {
 /**
  * Check if the current step is a major step (for example when the step
  * is DAY, a major step is each first day of the MONTH)
- * @return true if current date is major, else false.
+ * @return {boolean} true if current date is major, else false.
  */
 links.Timeline.StepDate.prototype.isMajor = function() {
     switch (this.scale)
@@ -5239,10 +5639,71 @@ links.imageloader = (function () {
         }
     }
 
+    /**
+     * Load a set of images, and send a callback as soon as all images are
+     * loaded
+     * @param {String[]} urls
+     * @param {function } callback
+     * @param {boolean} sendCallbackWhenAlreadyLoaded
+     */
+    function loadAll (urls, callback, sendCallbackWhenAlreadyLoaded) {
+        // list all urls which are not yet loaded
+        var urlsLeft = [];
+        urls.forEach(function (url) {
+            if (!isLoaded(url)) {
+                urlsLeft.push(url);
+            }
+        });
+
+        if (urlsLeft.length) {
+            // there are unloaded images
+            var countLeft = urlsLeft.length;
+            urlsLeft.forEach(function (url) {
+                load(url, function () {
+                    countLeft--;
+                    if (countLeft == 0) {
+                        // done!
+                        callback();
+                    }
+                }, sendCallbackWhenAlreadyLoaded);
+            });
+        }
+        else {
+            // we are already done!
+            if (sendCallbackWhenAlreadyLoaded) {
+                callback();
+            }
+        }
+    }
+
+    /**
+     * Recursively retrieve all image urls from the images located inside a given
+     * HTML element
+     * @param {Node} elem
+     * @param {String[]} urls   Urls will be added here (no duplicates)
+     */
+    function filterImageUrls (elem, urls) {
+        var child = elem.firstChild;
+        while (child) {
+            if (child.tagName == 'IMG') {
+                var url = child.src;
+                if (urls.indexOf(url) == -1) {
+                    urls.push(url);
+                }
+            }
+
+            filterImageUrls(child, urls);
+
+            child = child.nextSibling;
+        }
+    }
+
     return {
         'isLoaded': isLoaded,
         'isLoading': isLoading,
-        'load': load
+        'load': load,
+        'loadAll': loadAll,
+        'filterImageUrls': filterImageUrls
     };
 })();
 
@@ -5300,7 +5761,7 @@ links.Timeline.removeEventListener = function(element, action, listener, useCapt
 
 /**
  * Get HTML element which is the target of the event
- * @param {MouseEvent} event
+ * @param {Event} event
  * @return {Element} target element
  */
 links.Timeline.getTarget = function (event) {

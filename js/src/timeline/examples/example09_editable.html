@@ -69,7 +69,7 @@
                     document.getElementById("info").innerHTML += "event " + row + " selected<br>";
 
                 }
-            }
+            };
 
             // callback function for the change event
             var onchange = function () {
@@ -80,7 +80,7 @@
                         document.getElementById("info").innerHTML += "event " + row + " changed<br>";
                     }
                 }
-            }
+            };
 
             // callback function for the delete event
             var ondelete = function () {
@@ -91,13 +91,13 @@
                         document.getElementById("info").innerHTML += "event " + row + " deleted<br>";
                     }
                 }
-            }
+            };
 
             // callback function for the add event
             var onadd = function () {
                 var count = data.getNumberOfRows();
                 document.getElementById("info").innerHTML += "event " + (count-1) + " added<br>";
-            }
+            };
 
             // Add event listeners
             google.visualization.events.addListener(timeline, 'select', onselect);

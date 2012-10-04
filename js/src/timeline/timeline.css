@@ -43,10 +43,10 @@ div.timeline-event-selected {
     z-index: 999;
 }
 
-
 div.timeline-event-cluster {
-    color: #109618;
-    background-color: #8AC28B;
+    /* TODO: use another color or pattern? */
+    background: #97B0F8 url('img/cluster_bg.png');
+    color: white;
 }
 
 div.timeline-event-box {

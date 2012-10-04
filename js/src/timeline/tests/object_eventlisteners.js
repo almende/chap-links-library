@@ -1,4 +1,5 @@
 
+/*
 // For IE browsers
 if (!Object.prototype.addEventListener) {
   Object.prototype.addEventListener = function (action, callback) {
@@ -25,3 +26,4 @@ if (!Object.prototype.preventDefault) {
   }
 }
 
+*/

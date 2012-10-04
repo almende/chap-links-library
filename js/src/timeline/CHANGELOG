@@ -1,6 +1,18 @@
 CHAP Links Library - Timeline
 
 
+<not yet released>, version 2.4.0
+
+- implemented clustering of items.
+- changed: option showButtonAdd renamed to showButtonNew, and is now false by
+  default.
+- fixed: options scale and step did not work (method setScale worked correctly
+  though).
+- fixed: alignment of the delete button for selected events with style box,
+  when the option box.align was "left" or "right" instead of the default
+  "center".
+
+
 2012-09-18, version 2.3.2
 
 - fixed mouseover/dragging of the vertical lines with current time and custom
