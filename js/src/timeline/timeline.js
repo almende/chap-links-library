@@ -115,8 +115,7 @@ links.Timeline = function(container) {
     this.groupIndexes = {};
     this.items = [];
     this.visibleItems = [];
-    this.clusters = [];
-    this.points = [];
+    this.clusterFactory = new links.Timeline.ClusterFactory(this);
     this.selection = undefined; // stores index and item which is currently selected
 
     this.listeners = {}; // event listener callbacks
@@ -347,7 +346,7 @@ links.Timeline.prototype.setData = function(data) {
 
     // prepare data for clustering, by filtering and sorting by type
     if (this.options.cluster) {
-        this.filterItemTypes();
+        this.clusterFactory.setData(this.items);
     }
 
     this.render({
@@ -684,7 +683,7 @@ links.Timeline.prototype.render = function(options) {
     }
 
     this.recalcConversion();
-    this.clusterItems();
+    // this.clusterItems(); // TODO: cleanup
     this.filterItems();
     this.stackItems(animate);
 
@@ -1515,7 +1514,7 @@ links.Timeline.prototype.recalcItems = function () {
 /**
  * This method clears the (internal) array this.items in a safe way: neatly
  * cleaning up the DOM, and accompanying arrays this.visibleItems and
- * this.clusters.
+ * the created clusters.
  */
 links.Timeline.prototype.clearItems = function() {
     var visibleItems = this.visibleItems;
@@ -1526,7 +1525,7 @@ links.Timeline.prototype.clearItems = function() {
 
     this.items = [];
     this.visibleItems = [];
-    this.clusters = [];
+    this.clusterFactory.clear();
 };
 
 /**
@@ -1541,8 +1540,6 @@ links.Timeline.prototype.repaintItems = function() {
         dom = this.dom,
         size = this.size,
         items = this.items;
-
-    //console.log('redrawItems visibleItems=', items);
 
     if (!dom.items) {
         dom.items = {};
@@ -1577,17 +1574,37 @@ links.Timeline.prototype.repaintItems = function() {
     }
 
     // create/update/hide the clusters DOM
-    var clusters = this.clusters;
-    for (i = 0, iMax = clusters.length; i < iMax; i++) {
-        item = clusters[i];
-        itemNeedsReflow = item.repaint(frame);
-        needsReflow = needsReflow || itemNeedsReflow;
-        if (itemNeedsReflow) {
-            item.getImageUrls(newImageUrls);
-        }
-    }
+    var clusters = this.clusterFactory.getClusters(this.conversion.factor);
+    if (clusters != this.clusters) {
+        // clusters changed
 
-    //console.log('redrawItems after creation visibleitems=', items) // TODO: cleanup
+        // remove the old clusters from the scene
+        if (this.clusters) {
+            this.clusters.forEach(function (cluster) {
+                cluster.hideDOM(frame);
+                cluster.items.forEach(function (item) {
+                    delete item.cluster;
+                });
+            });
+        }
+
+        // check the new clusters for images and changes
+        clusters.forEach(function (cluster) {
+            var clusterNeedsReflow = cluster.repaint(frame);
+            needsReflow = needsReflow || clusterNeedsReflow;
+            if (clusterNeedsReflow) {
+                cluster.getImageUrls(newImageUrls);
+            }
+            cluster.items.forEach(function (item) {
+                item.cluster = cluster;
+            });
+        });
+
+        // store a pointer to the current clusters
+        this.clusters = clusters;
+
+        needsReflow = true;
+    }
 
     // reposition all visible items
     var visibleItems = this.visibleItems;
@@ -3437,14 +3454,8 @@ links.Timeline.Item.prototype.updateDOM = function () {
  * neatly removed from the HTML container where it is attached.
  */
 links.Timeline.Item.prototype.deleteDOM = function () {
-    var dom = this.dom;
-    if (dom) {
-        var container = dom.parentNode;
-        if (container) {
-            this.hideDOM(container);
-        }
-        delete this.dom;
-    }
+    this.hideDOM();
+    delete this.dom;
 };
 
 /**
@@ -3594,15 +3605,20 @@ links.Timeline.ItemBox.prototype.showDOM = function (container) {
 };
 
 /**
- * Remove the items DOM from the current HTML container
- * @param {Element} container
+ * Remove the items DOM from the current HTML container, but keep the DOM in
+ * memory
  * @override
  */
-links.Timeline.ItemBox.prototype.hideDOM = function (container) {
-    container.removeChild(this.dom);
-    container.removeChild(this.dom.line);
-    container.removeChild(this.dom.dot);
-
+links.Timeline.ItemBox.prototype.hideDOM = function () {
+    var dom = this.dom;
+    if (dom) {
+        var parent = dom.parentNode;
+        if (parent) {
+            parent.removeChild(dom);
+            parent.removeChild(dom.line);
+            parent.removeChild(dom.dot);
+        }
+    }
     this.domVisible = false;
 };
 
@@ -3805,12 +3821,17 @@ links.Timeline.ItemRange.prototype.showDOM = function (container) {
 
 /**
  * Remove the items DOM from the current HTML container
- * @param {Element} container
+ * The DOM will be kept in memory
  * @override
  */
-links.Timeline.ItemRange.prototype.hideDOM = function (container) {
-    container.removeChild(this.dom);
-
+links.Timeline.ItemRange.prototype.hideDOM = function () {
+    var dom = this.dom;
+    if (dom) {
+        var parent = dom.parentNode;
+        if (parent) {
+            parent.removeChild(dom);
+        }
+    }
     this.domVisible = false;
 };
 
@@ -4010,8 +4031,13 @@ links.Timeline.ItemDot.prototype.showDOM = function (container) {
  * @override
  */
 links.Timeline.ItemDot.prototype.hideDOM = function (container) {
-    container.removeChild(this.dom);
-
+    var dom = this.dom;
+    if (dom) {
+        var parent = dom.parentNode;
+        if (parent) {
+            parent.removeChild(dom);
+        }
+    }
     this.domVisible = false;
 };
 
@@ -4572,7 +4598,6 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             width = item.width;
 
         if (axisOnTop) {
-            console.log('axisHeight', axisHeight);
             top = axisHeight + eventMarginAxis + eventMargin / 2;
         }
         else {
@@ -4789,11 +4814,67 @@ links.Timeline.prototype.trigger = function (event) {
 
 
 /**
- * Filter items by type range (start and end) or point (start only),
- * and sort the filtered items
+ * Filter the visible events
  */
-links.Timeline.prototype.filterItemTypes = function () {
-    var items = this.items || [];
+links.Timeline.prototype.filterItems = function () {
+    var left,
+        timeline = this,
+        items = this.items,
+        size = this.size,
+        contentWidth = size.contentWidth,
+        visibleItems = [];
+    this.visibleItems = visibleItems;
+
+    for (var i = 0, iMax = items.length; i < iMax; i++) {
+        var item = items[i];
+        item.updateVisible(this);
+        if (item.visible) {
+            visibleItems.push(item);
+        }
+    }
+
+    // add the clusters to the visible items
+    var clusters = this.clusterFactory.getClusters(this.conversion.factor);
+    clusters.forEach(function (cluster) {
+        left = timeline.timeToScreen(cluster.start);
+        cluster.visible = ((left + cluster.width/2 > -contentWidth)
+            && (left - cluster.width/2 < 2 * contentWidth));
+
+        if (cluster.visible) {
+            visibleItems.push(cluster);
+        }
+    });
+};
+
+/**
+ * @constructor links.Timeline.ClusterFactory
+ * Factory for creating and caching clusters of items.
+ * @param {links.Timeline} timeline
+ */
+links.Timeline.ClusterFactory = function (timeline) {
+    this.timeline = timeline;
+    this.clear();
+};
+
+/**
+ * Clear all cached clusters and data, and initialize all variables
+ */
+links.Timeline.ClusterFactory.prototype.clear = function () {
+    this.cache = {
+        '-1': []
+    }; // cache containing created clusters for each cluster level
+
+    // all items are filtered into points and ranges
+    this.points = [];
+    this.ranges = [];
+};
+
+/**
+ * Set the items to be clustered
+ * @param {Item[]} items
+ */
+links.Timeline.ClusterFactory.prototype.setData = function (items) {
+    items = items || [];
     this.points = [];
     this.ranges = [];
 
@@ -4821,126 +4902,106 @@ links.Timeline.prototype.filterItemTypes = function () {
 };
 
 /**
- * Filter the visible events
- */
-links.Timeline.prototype.filterItems = function () {
-    var left,
-        right,
-        items = this.items,
-        size = this.size,
-        contentWidth = size.contentWidth,
-        visibleItems = [];
-    this.visibleItems = visibleItems;
-
-    for (var i = 0, iMax = items.length; i < iMax; i++) {
-        var item = items[i];
-        item.updateVisible(this);
-        if (item.visible) {
-            visibleItems.push(item);
-        }
-    }
-
-    // add the clusters to the visible items
-    var clusters = this.clusters;
-    for (var j = 0, jMax = clusters.length; j < jMax; j++) {
-        var cluster = clusters[j];
-        left = this.timeToScreen(cluster.start);
-        cluster.visible = ((left + cluster.width/2 > -contentWidth)
-            && (left - cluster.width/2 < 2 * contentWidth));
-
-        if (cluster.visible) {
-            visibleItems.push(cluster);
-        }
-    }
-};
-
-/**
  * Cluster the events which are too close together
+ * @param {Number} scale     The scale of the current window,
+ *                           defined as (windowWidth / (endDate - startDate))
+ * @return {Item[]} clusters
  */
-links.Timeline.prototype.clusterItems = function () {
-    return; // TODO: activate clustering
+links.Timeline.ClusterFactory.prototype.getClusters = function (scale) {
+    var level = -1,
+        timeWindow = 0,
+        maxItems = 3; // TODO: do not hard code maxItems
 
-    // TODO: do not hardcode timeWindow and maxItems
-    var timeWindow = 1000*60*60*24*7,
-        maxItems = 3;
-
-    // TODO: cleanup, make non-static clusters
-    if (this.clusters.length) {
-        return;
+    if (scale > 0) {
+        level = Math.round(Math.log(100 / scale) / Math.LN10);
+        timeWindow = Math.pow(10, level);
     }
 
-    var clusters = [];
-    this.clusters = clusters;
-    var points = this.points;
-    var max = points.length;
+    var clusters = this.cache[level];
+    if (!clusters) {
+        clusters = [];
+        this.cache[level] = clusters;
 
-    var i = 0;
-    while (i < max) {
-        // find all items around current item, within the timeWindow
-        var item = points[i];
-        var neighbors = 1;  // start at 1, to include itself)
+        /*
+        // TODO: do not delete the clusters here with every call!!! very inefficient
+        this.clusters.forEach(function (cluster) {
+            cluster.deleteDOM();
+        });
+        this.clusters = [];
+        */
 
-        // loop through items left from the current item
-        var j = i - 1;
-        while (j >= 0 && (item.start - points[j].start) < timeWindow / 2) {
-            if (!points[j].cluster) {
+        var points = this.points;
+        var max = points.length;
+        var i = 0;
+        while (i < max) {
+            // find all items around current item, within the timeWindow
+            var item = points[i];
+            var neighbors = 1;  // start at 1, to include itself)
+
+            // loop through items left from the current item
+            var j = i - 1;
+            while (j >= 0 && (item.start - points[j].start) < timeWindow / 2) {
+                if (!points[j].cluster) {
+                    neighbors++;
+                }
+                j--;
+            }
+
+            // loop through items right from the current item
+            var k = i + 1;
+            while (k < points.length && (points[k].start - item.start) < timeWindow / 2) {
                 neighbors++;
+                k++;
             }
-            j--;
-        }
 
-        // loop through items right from the current item
-        var k = i + 1;
-        while (k < points.length && (points[k].start - item.start) < timeWindow / 2) {
-            neighbors++;
-            k++;
-        }
-
-        // loop through the created clusters
-        var l = clusters.length - 1;
-        while (l >= 0 && (item.start - clusters[l].start) < timeWindow / 2) {
-            neighbors++;
-            l--;
-        }
-
-        // aggregate until the number of items is within maxItems
-        if (neighbors > maxItems) {
-            // too busy in this window.
-            var num = neighbors - maxItems + 1;
-            var cluster = this.createItem({});
-            cluster.items = [];
-
-            // append the items to the cluster,
-            // and calculate the average start for the cluster
-            var start = undefined;
-            var count = 0;
-            for (var m = i, mMax =  m + num; m < mMax; m++) {
-                var p = points[m];
-                p.cluster = cluster;
-                cluster.items.push(p);
-                if (count) {
-                    // calculate new average (use fractions to prevent overflow)
-                    start = (count / (count + 1)) * start +
-                            (1 / (count + 1)) * p.start.valueOf();
-                }
-                else {
-                    start = p.start.valueOf();
-                }
-                count++;
+            // loop through the created clusters
+            var l = clusters.length - 1;
+            while (l >= 0 && (item.start - clusters[l].start) < timeWindow / 2) {
+                neighbors++;
+                l--;
             }
-            cluster.start = new Date(start);
-            var title = 'Cluster containing ' + count + ' events. Zoom in to see the individual events.';
-            cluster.content = '<div title="' + title + '">' + count + ' events</div>';
-            cluster.isCluster = true;
 
-            clusters.push(cluster);
-            i += num;
-        }
-        else {
-            delete item.cluster;
-            i += 1;
+            // aggregate until the number of items is within maxItems
+            if (neighbors > maxItems) {
+                // too busy in this window.
+                var num = neighbors - maxItems + 1;
+                var cluster = this.timeline.createItem({});
+                cluster.items = [];
+
+                // append the items to the cluster,
+                // and calculate the average start for the cluster
+                var start = undefined;
+                var count = 0;
+                for (var m = i, mMax =  m + num; m < mMax; m++) {
+                    var p = points[m];
+                    p.cluster = cluster;
+                    cluster.items.push(p);
+                    if (count) {
+                        // calculate new average (use fractions to prevent overflow)
+                        start = (count / (count + 1)) * start +
+                                (1 / (count + 1)) * p.start.valueOf();
+                    }
+                    else {
+                        start = p.start.valueOf();
+                    }
+                    count++;
+                }
+                cluster.start = new Date(start);
+                var title = 'Cluster containing ' + count + ' events. Zoom in to see the individual events.';
+                cluster.content = '<div title="' + title + '">' + count + ' events</div>';
+                cluster.isCluster = true;
+
+                clusters.push(cluster);
+                i += num;
+            }
+            else {
+                delete item.cluster;
+                i += 1;
+            }
         }
     }
+
+    return clusters;
 };
 
 
