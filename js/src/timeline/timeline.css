@@ -48,6 +48,9 @@ div.timeline-event-cluster {
     background: #97B0F8 url('img/cluster_bg.png');
     color: white;
 }
+div.timeline-event-cluster div.timeline-event-dot {
+    border-color: #D5DDF6;
+}
 
 div.timeline-event-box {
     text-align: center;
