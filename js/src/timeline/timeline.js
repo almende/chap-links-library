@@ -1587,14 +1587,13 @@ links.Timeline.prototype.repaintItems = function() {
     // create/update/hide the items DOM
     var newImageUrls = [];
     var itemNeedsReflow;
-    for (i = 0, iMax = items.length; i < iMax; i++) {
-        item = items[i];
+    items.forEach(function(item) {
         itemNeedsReflow = item.repaint(frame);
         needsReflow = needsReflow || itemNeedsReflow;
         if (itemNeedsReflow) {
             item.getImageUrls(newImageUrls);
         }
-    }
+    });
 
     // create/update/hide the clusters DOM
     // var clusters = this.currentClusters; // TODO
@@ -1629,6 +1628,15 @@ links.Timeline.prototype.repaintItems = function() {
 
         needsReflow = true;
     }
+
+    // create/update/hide the cluster DOM
+    clusters.forEach(function (item) {
+        itemNeedsReflow = item.repaint(frame);
+        needsReflow = needsReflow || itemNeedsReflow;
+        if (itemNeedsReflow) {
+            item.getImageUrls(newImageUrls);
+        }
+    });
 
     // reposition all visible items
     var visibleItems = this.visibleItems;
@@ -3352,6 +3360,17 @@ links.Timeline.Item = function (data, options) {
         this.content = data.content;
         this.className = data.className;
         this.group = data.group;
+
+        if (this.start) {
+            if (this.end) {
+                // range
+                this.center = (this.start.valueOf() + this.end.valueOf()) / 2;
+            }
+            else {
+                // box, dot
+                this.center = this.start.valueOf();
+            }
+        }
     }
     this.top = 0;
     this.left = 0;
@@ -3701,10 +3720,6 @@ links.Timeline.ItemBox.prototype.updatePosition = function (timeline) {
         boxAlign = (timeline.options.box && timeline.options.box.align) ?
             timeline.options.box.align : undefined;
 
-    if (!dom) {
-        dom = this.createDOM();
-    }
-
     dom.style.top = this.top + "px";
     if (boxAlign == 'right') {
         dom.style.left = (left - this.width) + "px";
@@ -3910,10 +3925,6 @@ links.Timeline.ItemRange.prototype.updatePosition = function (timeline) {
         contentWidth = timeline.size.contentWidth,
         left = timeline.timeToScreen(this.start),
         right = timeline.timeToScreen(this.end);
-
-    if (!dom) {
-        dom = this.createDOM();
-    }
 
     // limit the width of the this, as browsers cannot draw very wide divs
     if (left < -contentWidth) {
@@ -4126,10 +4137,6 @@ links.Timeline.ItemDot.prototype.updateDOM = function () {
 links.Timeline.ItemDot.prototype.updatePosition = function (timeline) {
     var dom = this.dom,
         left = timeline.timeToScreen(this.start);
-
-    if (!dom) {
-        dom = this.createDOM();
-    }
 
     dom.style.top = this.top + "px";
     dom.style.left = (left - this.dotWidth / 2) + "px";
@@ -4927,10 +4934,7 @@ links.Timeline.ClusterFactory.prototype.clear = function () {
     this.clearCache();
 
     // all items are filtered into points and ranges
-    this.items = [];
-    this.boxes = [];
-    this.dots = [];
-    this.ranges = [];
+    this.sortedItems = [];
 };
 
 /**
@@ -4950,39 +4954,30 @@ links.Timeline.ClusterFactory.prototype.clearCache = function () {
  */
 links.Timeline.ClusterFactory.prototype.setData = function (items) {
     items = items || [];
-    this.items = items;
-    this.boxes = [];
-    this.dots = [];
-    this.ranges = [];
 
-    // filter items per type
-    var boxes = this.boxes;
-    var dots = this.dots;
-    var ranges = this.ranges;
-    for (var i = 0, iMax = items.length; i < iMax; i++) {
-        var item = items[i];
-        if (item instanceof links.Timeline.ItemBox) {
-            boxes.push(item);
+    // filter per group
+    var groups = {};
+    this.groups = groups;
+
+    // split the items per group
+    items.forEach(function (item) {
+        var groupName = item.group ? item.group.content : '';
+        var group = groups[groupName];
+        if (!group) {
+            group = [];
+            groups[groupName] = group;
         }
-        else if (item instanceof links.Timeline.ItemDot) {
-            dots.push(item);
-        }
-        else if (item instanceof links.Timeline.ItemRange) {
-            ranges.push(item);
+        group.push(item);
+    });
+
+    // sort the items per group
+    for (var groupName in groups) {
+        if (groups.hasOwnProperty(groupName)) {
+            groups[groupName].sort(function (a, b) {
+                return (a.center - b.center);
+            });
         }
     }
-
-    // order items by start date
-    boxes.sort(function (a, b) {
-        return (a.start - b.start);
-    });
-    dots.sort(function (a, b) {
-        return (a.start - b.start);
-    });
-    ranges.sort(function (a, b) {
-        // TODO: sort ranges by center instead of start?
-        return (a.start - b.start);
-    });
 };
 
 /**
@@ -4993,90 +4988,132 @@ links.Timeline.ClusterFactory.prototype.setData = function (items) {
  */
 links.Timeline.ClusterFactory.prototype.getClusters = function (scale) {
     var level = -1,
-        timeWindow = 0,
-        maxItems = 5; // TODO: do not hard code maxItems
+        granularity = 2, // TODO: what granularity is needed for the cluster levels?
+        timeWindow = 0,  // milliseconds
+        maxItems = 5;    // TODO: do not hard code maxItems
 
     if (scale > 0) {
-        level = Math.round(Math.log(100 / scale) / Math.LN10);
-        timeWindow = Math.pow(10, level);
-        //* TODO: what granularity is needed for the cluster levels?
-        level = Math.round(Math.log(100 / scale) );
-        timeWindow = Math.pow(Math.E, level);
-        /**/
+        level = Math.round(Math.log(100 / scale) / Math.log(granularity));
+        timeWindow = Math.pow(granularity, level);
+
+        // groups must have a larger time window, as the items will not be stacked
+        if (this.timeline.groups && this.timeline.groups.length) {
+            timeWindow *= 4;
+        }
     }
 
     var clusters = this.cache[level];
     if (!clusters) {
         clusters = [];
-        console.log('level', level);
 
-        var boxes = this.boxes;
-        var max = boxes.length;
-        var i = 0;
-        while (i < max) {
-            // find all items around current item, within the timeWindow
-            var item = boxes[i];
-            var neighbors = 1;  // start at 1, to include itself)
+        // TODO: spit this method, it is too large
+        for (var groupName in this.groups) {
+            if (this.groups.hasOwnProperty(groupName)) {
+                var items = this.groups[groupName];
+                var iMax = items.length;
+                var i = 0;
+                while (i < iMax) {
+                    // find all items around current item, within the timeWindow
+                    var item = items[i];
+                    var neighbors = 1;  // start at 1, to include itself)
 
-            // loop through items left from the current item
-            var j = i - 1;
-            while (j >= 0 && (item.start - boxes[j].start) < timeWindow / 2) {
-                if (!boxes[j].cluster) {
-                    neighbors++;
-                }
-                j--;
-            }
+                    // loop through items left from the current item
+                    var j = i - 1;
+                    while (j >= 0 &&
+                            (item.center - items[j].center) < timeWindow / 2) {
+                        if (!items[j].cluster) {
+                            neighbors++;
+                        }
+                        j--;
+                    }
 
-            // loop through items right from the current item
-            var k = i + 1;
-            while (k < boxes.length && (boxes[k].start - item.start) < timeWindow / 2) {
-                neighbors++;
-                k++;
-            }
+                    // loop through items right from the current item
+                    var k = i + 1;
+                    while (k < items.length &&
+                            (items[k].center - item.center) < timeWindow / 2) {
+                        neighbors++;
+                        k++;
+                    }
 
-            // loop through the created clusters
-            var l = clusters.length - 1;
-            while (l >= 0 && (item.start - clusters[l].start) < timeWindow / 2) {
-                neighbors++;
-                l--;
-            }
+                    // loop through the created clusters
+                    var l = clusters.length - 1;
+                    while (l >= 0 &&
+                            (item.center - clusters[l].center) < timeWindow / 2) {
+                        if (item.group == clusters[l].group) {
+                            neighbors++;
+                        }
+                        l--;
+                    }
 
-            // aggregate until the number of items is within maxItems
-            if (neighbors > maxItems) {
-                // too busy in this window.
-                var num = neighbors - maxItems + 1;
-                var cluster = this.timeline.createItem({});
-                cluster.items = [];
+                    // aggregate until the number of items is within maxItems
+                    if (neighbors > maxItems) {
+                        // too busy in this window.
+                        var num = neighbors - maxItems + 1;
+                        var clusterItems = [];
 
-                // append the items to the cluster,
-                // and calculate the average start for the cluster
-                var start = undefined;
-                var count = 0;
-                for (var m = i, mMax =  m + num; m < mMax; m++) {
-                    var p = boxes[m];
-                    p.cluster = cluster;
-                    cluster.items.push(p);
-                    if (count) {
-                        // calculate new average (use fractions to prevent overflow)
-                        start = (count / (count + 1)) * start +
-                                (1 / (count + 1)) * p.start.valueOf();
+                        // append the items to the cluster,
+                        // and calculate the average start for the cluster
+                        var avg = undefined;  // average of all start dates
+                        var min = undefined;  // minimum of all start dates
+                        var max = undefined;  // maximum of all start and end dates
+                        var containsRanges = false;
+                        var count = 0;
+                        var m = i;
+                        while (clusterItems.length < num && m < items.length) {
+                            var p = items[m];
+                            var start = p.start.valueOf();
+                            var end = p.end ? p.end.valueOf() : p.start.valueOf();
+                            clusterItems.push(p);
+                            if (count) {
+                                // calculate new average (use fractions to prevent overflow)
+                                avg = (count / (count + 1)) * avg + (1 / (count + 1)) * p.center;
+                            }
+                            else {
+                                avg = p.center;
+                            }
+                            min = (min != undefined) ? Math.min(min, start) : start;
+                            max = (max != undefined) ? Math.max(max, end) : end;
+                            containsRanges = containsRanges || (p instanceof links.Timeline.ItemRange);
+                            count++;
+                            m++;
+                        }
+
+                        var cluster;
+                        var title = 'Cluster containing ' + count +
+                            ' events. Zoom in to see the individual events.';
+                        var content = '<div title="' + title + '">' + count + ' events</div>';
+                        var group = item.group ? item.group.content : undefined;
+                        if (containsRanges) {
+                            // boxes and/or ranges
+                            cluster = this.timeline.createItem({
+                                'start': new Date(min),
+                                'end': new Date(max),
+                                'content': content,
+                                'group': group
+                            });
+                        }
+                        else {
+                            // boxes only
+                            cluster = this.timeline.createItem({
+                                'start': new Date(avg),
+                                'content': content,
+                                'group': group
+                            });
+                        }
+                        cluster.isCluster = true;
+                        cluster.items = clusterItems;
+                        cluster.items.forEach(function (item) {
+                            item.cluster = cluster;
+                        });
+
+                        clusters.push(cluster);
+                        i += num;
                     }
                     else {
-                        start = p.start.valueOf();
+                        delete item.cluster;
+                        i += 1;
                     }
-                    count++;
                 }
-                cluster.start = new Date(start);
-                var title = 'Cluster containing ' + count + ' events. Zoom in to see the individual events.';
-                cluster.content = '<div title="' + title + '">' + count + ' events</div>';
-                cluster.isCluster = true;
-
-                clusters.push(cluster);
-                i += num;
-            }
-            else {
-                delete item.cluster;
-                i += 1;
             }
         }
 
