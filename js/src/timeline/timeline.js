@@ -281,26 +281,7 @@ links.Timeline.prototype.setOptions = function(options) {
 };
 
 /**
- * Find a column by its label in a Google DataTable
- * @param {google.visualization.DataTable} dataTable
- * @param {String} label                    label name of the column to be found
- * @return {Number | undefined} columnId    returns the column id of the column
- *                                          if found, or undefined when not
- *                                          found.
- */
-links.Timeline.findColumnId = function (dataTable, label) {
-    for (var i = 0, iMax = dataTable.getNumberOfColumns(); i < iMax; i++) {
-        if ((dataTable.getColumnId(i) == label) ||
-                (dataTable.getColumnLabel(i) == label)) {
-            return i;
-        }
-    }
-
-    return undefined;
-};
-
-/**
- * Retrieve a map with the ids of the columns by column name.
+ * Retrieve a map with the column indexes of the columns by column name.
  * For example, the method returns the map
  *     {
  *         start: 0,
@@ -313,21 +294,23 @@ links.Timeline.findColumnId = function (dataTable, label) {
  * @type {Object} map
  */
 links.Timeline.mapColumnIds = function (dataTable) {
-    var cols = {
-        'start':     links.Timeline.findColumnId(dataTable, 'start'),
-        'end':       links.Timeline.findColumnId(dataTable, 'end'),
-        'content':   links.Timeline.findColumnId(dataTable, 'content'),
-        'group':     links.Timeline.findColumnId(dataTable, 'group'),
-        'className': links.Timeline.findColumnId(dataTable, 'className')
-    };
+    var cols = {},
+        colMax = dataTable.getNumberOfColumns(),
+        allUndefined = true;
+
+    // loop over the columns, and map the column id's to the column indexes
+    for (var col = 0; col < colMax; col++) {
+        var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
+        if (id == 'start' || id == 'end' || id == 'content' ||
+                id == 'group' || id == 'className') {
+            cols[id] = col;
+            allUndefined = false;
+        }
+    }
 
     // if no labels or ids are defined,
     // use the default mapping for start, end, content
-    if (cols.start == undefined &&
-            cols.end == undefined &&
-            cols.content == undefined &&
-            cols.group == undefined &&
-            cols.className == undefined) {
+    if (allUndefined) {
         cols.start = 0;
         cols.end = 1;
         cols.content = 2;

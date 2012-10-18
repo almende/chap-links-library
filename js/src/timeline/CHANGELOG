@@ -11,6 +11,8 @@ CHAP Links Library - Timeline
 - fixed: alignment of the delete button for selected events with style box,
   when the option box.align was "left" or "right" instead of the default
   "center".
+- fixed: DataTable columns may now have their name defined as label or id,
+  and the first three columns can have any order now. More robust and flexible.
 
 
 2012-09-18, version 2.3.2
