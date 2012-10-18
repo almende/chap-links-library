@@ -237,7 +237,8 @@ data.push({
 
 <h3>Google DataTable</h3>
 <p>
-    The Timeline requires a data table with three or optionally four columns.
+    The Timeline requires a data table with two required and three optional
+    columns.
     It is possible to use a Google DataTable or DataView, and the data
     can be queried from an external data source using Google Query.
     Note that the needed Google API is only available online and cannot be
@@ -260,10 +261,17 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
 // ...
 </pre>
 
-<h3>Fields</h3>
+<h3>Columns</h3>
 
 <p>
-    The fields are defined as:
+    The Timeline checks checks the type of the columns by first reading the
+    column id, if not provided read the column label.
+    If both the column id's and label's are undefined, the Timeline will use
+    column 0 as start, column 1 as end, and column 2 as content.
+</p>
+
+<p>
+    The columns are defined as:
 </p>
 
 <table>

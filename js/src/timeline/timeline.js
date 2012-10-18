@@ -290,12 +290,50 @@ links.Timeline.prototype.setOptions = function(options) {
  */
 links.Timeline.findColumnId = function (dataTable, label) {
     for (var i = 0, iMax = dataTable.getNumberOfColumns(); i < iMax; i++) {
-        if (dataTable.getColumnLabel(i) == label) {
+        if ((dataTable.getColumnId(i) == label) ||
+                (dataTable.getColumnLabel(i) == label)) {
             return i;
         }
     }
 
     return undefined;
+};
+
+/**
+ * Retrieve a map with the ids of the columns by column name.
+ * For example, the method returns the map
+ *     {
+ *         start: 0,
+ *         end: 1,
+ *         content: 2,
+ *         group: undefined,
+ *         className: undefined
+ *     }
+ * @param {google.visualization.DataTable} dataTable
+ * @type {Object} map
+ */
+links.Timeline.mapColumnIds = function (dataTable) {
+    var cols = {
+        'start':     links.Timeline.findColumnId(dataTable, 'start'),
+        'end':       links.Timeline.findColumnId(dataTable, 'end'),
+        'content':   links.Timeline.findColumnId(dataTable, 'content'),
+        'group':     links.Timeline.findColumnId(dataTable, 'group'),
+        'className': links.Timeline.findColumnId(dataTable, 'className')
+    };
+
+    // if no labels or ids are defined,
+    // use the default mapping for start, end, content
+    if (cols.start == undefined &&
+            cols.end == undefined &&
+            cols.content == undefined &&
+            cols.group == undefined &&
+            cols.className == undefined) {
+        cols.start = 0;
+        cols.end = 1;
+        cols.content = 2;
+    }
+
+    return cols;
 };
 
 /**
@@ -319,17 +357,17 @@ links.Timeline.prototype.setData = function(data) {
 
     if (google && google.visualization &&
         data instanceof google.visualization.DataTable) {
-        // read DataTable
-        var groupCol = links.Timeline.findColumnId(data, 'group');
-        var classNameCol = links.Timeline.findColumnId(data, 'className');
+        // map the datatable columns
+        var cols = links.Timeline.mapColumnIds(data);
 
+        // read DataTable
         for (var row = 0, rows = data.getNumberOfRows(); row < rows; row++) {
             items.push(this.createItem({
-                'start': data.getValue(row, 0),
-                'end': data.getValue(row, 1),
-                'content': data.getValue(row, 2),
-                'group': ((groupCol != undefined) ? data.getValue(row, groupCol) : undefined),
-                'className': ((classNameCol != undefined) ? data.getValue(row, classNameCol) : undefined)
+                'start':     ((cols.start != undefined)     ? data.getValue(row, cols.start)     : undefined),
+                'end':       ((cols.end != undefined)       ? data.getValue(row, cols.end)       : undefined),
+                'content':   ((cols.content != undefined)   ? data.getValue(row, cols.content)   : undefined),
+                'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
+                'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined)
             }));
         }
     }
@@ -385,25 +423,26 @@ links.Timeline.prototype.updateData = function  (index, values) {
             data.addRows(missingRows);
         }
 
+        // map the column id's by name
+        var cols = links.Timeline.mapColumnIds(data);
+
         if (values.start) {
-            data.setValue(index, 0, values.start);
+            data.setValue(index, cols.start, values.start);
         }
         if (values.end) {
-            data.setValue(index, 1, values.end);
+            data.setValue(index, cols.end, values.end);
         }
         if (values.content) {
-            data.setValue(index, 2, values.content);
+            data.setValue(index, cols.content, values.content);
         }
 
-        var groupCol = links.Timeline.findColumnId(data, 'group');
-        if (values.group && groupCol != undefined) {
+        if (values.group && cols.group != undefined) {
             // TODO: append a column when needed?
-            data.setValue(index, groupCol, values.group);
+            data.setValue(index, cols.group, values.group);
         }
-
-        var classNameCol = links.Timeline.findColumnId(data, 'className');
-        if (values.className && classNameCol != undefined) {
-            data.setValue(index, classNameCol, values.className);
+        if (values.className && cols.className != undefined) {
+            // TODO: append a column when needed?
+            data.setValue(index, cols.className, values.className);
         }
     }
     else if (links.Timeline.isArray(data)) {
