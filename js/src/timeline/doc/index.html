@@ -229,8 +229,9 @@ data.push({
   'start': new Date(2010, 7, 15),
   'end': new Date(2010, 8, 2),  // end is optional
   'content': 'Trajectory A'
-  // Optional: a parameter 'group'
-  // Optional: a parameter 'className'
+  // Optional: a field 'group'
+  // Optional: a field 'className'
+  // Optional: a field 'editable'
 });
 </pre>
 
@@ -256,22 +257,23 @@ data.addColumn('datetime', 'end');
 data.addColumn('string', 'content');
 // Optional: a column 'group'
 // Optional: a column 'className'
+// Optional: a column 'editable'
 
 data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
 // ...
 </pre>
 
-<h3>Columns</h3>
-
 <p>
-    The Timeline checks checks the type of the columns by first reading the
-    column id, if not provided read the column label.
+    The Timeline checks the type of the columns by first reading the
+    column id, and if not provided read the column label.
     If both the column id's and label's are undefined, the Timeline will use
     column 0 as start, column 1 as end, and column 2 as content.
 </p>
 
+<h3>Fields</h3>
+
 <p>
-    The columns are defined as:
+    The fields are defined as:
 </p>
 
 <table>
@@ -305,7 +307,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
         <td>group</td>
         <td>any type</td>
         <td>no</td>
-        <td>This column is optional. When the group column is provided,
+        <td>This field is optional. When the group column is provided,
             all events with the same group are placed on one line.
             A vertical axis is displayed showing the groups.
             Grouping events can be useful for example when showing availability of multiple
@@ -320,7 +322,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
         <td>className</td>
         <td>String</td>
         <td>no</td>
-        <td>This column is optional. A className can be used to give events
+        <td>This field is optional. A className can be used to give events
             and individual css style. For example, when an event has className
             'red', one can define a css style
             <code>
@@ -334,6 +336,18 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
             (class <code>timeline-event-selected</code>).
             More details on how to style events can be found in the section
             <a href="#Styles">Styles</a>.
+        </td>
+    </tr>
+    <tr>
+        <td>editable</td>
+        <td>Boolean</td>
+        <td>no</td>
+        <td>This field is optional. By providing the field editable, events
+            can be made editable or read-only on an individual basis.
+            If editable is true, the event can be edited and deleted.
+            The editable setting of an individual event overwrites the global
+            setting options.editable. So when the Timeline as a whole is
+            read-only, individual events may be made editable, and vice versa.
         </td>
     </tr>
 </table>
@@ -428,6 +442,10 @@ var options = {
         Events can only be editable when th option <code>selectable</code> is true
         (default). When editable is true, the Timeline can fire events
         <code>change</code>, <code>edit</code>, <code>add</code>, <code>delete</code>.
+        <br>
+        This global setting editable can be overwritten for individual events
+        by providing the events with a field editable,
+        as described in section <a href="#Data_Format">Data Format.</a>
     </td>
 </tr>
 

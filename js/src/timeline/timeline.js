@@ -302,7 +302,7 @@ links.Timeline.mapColumnIds = function (dataTable) {
     for (var col = 0; col < colMax; col++) {
         var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
         if (id == 'start' || id == 'end' || id == 'content' ||
-                id == 'group' || id == 'className') {
+                id == 'group' || id == 'className' || id == 'editable') {
             cols[id] = col;
             allUndefined = false;
         }
@@ -350,7 +350,8 @@ links.Timeline.prototype.setData = function(data) {
                 'end':       ((cols.end != undefined)       ? data.getValue(row, cols.end)       : undefined),
                 'content':   ((cols.content != undefined)   ? data.getValue(row, cols.content)   : undefined),
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
-                'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined)
+                'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
+                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined)
             }));
         }
     }
@@ -427,6 +428,10 @@ links.Timeline.prototype.updateData = function  (index, values) {
             // TODO: append a column when needed?
             data.setValue(index, cols.className, values.className);
         }
+        if (values.editable && cols.editable != undefined) {
+            // TODO: append a column when needed?
+            data.setValue(index, cols.editable, values.editable);
+        }
     }
     else if (links.Timeline.isArray(data)) {
         // update the original JSON table
@@ -450,6 +455,9 @@ links.Timeline.prototype.updateData = function  (index, values) {
         }
         if (values.className) {
             row.className = values.className;
+        }
+        if (values.editable != undefined) {
+            row.editable = values.editable;
         }
     }
     else {
@@ -2030,10 +2038,6 @@ links.Timeline.prototype.repaintDeleteButton = function () {
         size = this.size,
         frame = dom.items.frame;
 
-    if (!options.editable) {
-        return;
-    }
-
     var deleteButton = dom.items.deleteButton;
     if (!deleteButton) {
         // create a delete button
@@ -2047,7 +2051,7 @@ links.Timeline.prototype.repaintDeleteButton = function () {
 
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
-    if (item && item.visible) {
+    if (item && item.visible && this.isEditable(item)) {
         var right = item.getRight(this),
             top = item.top;
 
@@ -2072,10 +2076,6 @@ links.Timeline.prototype.repaintDragAreas = function () {
         options = this.options,
         dom = this.dom,
         frame = this.dom.items.frame;
-
-    if (!options.editable) {
-        return;
-    }
 
     // create left drag area
     var dragLeft = dom.items.dragLeft;
@@ -2104,7 +2104,8 @@ links.Timeline.prototype.repaintDragAreas = function () {
     // reposition left and right drag area
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
-    if (item && item.visible && (item instanceof links.Timeline.ItemRange)) {
+    if (item && item.visible && this.isEditable(item) &&
+            (item instanceof links.Timeline.ItemRange)) {
         var left = this.timeToScreen(item.start),
             right = this.timeToScreen(item.end),
             top = item.top,
@@ -2365,6 +2366,23 @@ links.Timeline.prototype.checkResize = function() {
 };
 
 /**
+ * Check whether a given item is editable
+ * @param {links.Timeline.Item} item
+ * @return {boolean} editable
+ */
+links.Timeline.prototype.isEditable = function (item) {
+    if (item) {
+        if (item.editable != undefined) {
+            return item.editable;
+        }
+        else {
+            return this.options.editable;
+        }
+    }
+    return false;
+};
+
+/**
  * Calculate the factor and offset to convert a position on screen to the
  * corresponding date and vice versa.
  * After the method calcConversionFactor is executed once, the methods screenToTime and
@@ -2618,9 +2636,10 @@ links.Timeline.prototype.onMouseDown = function(event) {
         params.itemDragRight = true;
     }
 
-    params.editItem = options.editable ? this.isSelected(params.itemIndex) : undefined;
+    var item = this.items[params.itemIndex];
+    var isSelected = this.isSelected(params.itemIndex);
+    params.editItem = isSelected && this.isEditable(item);
     if (params.editItem) {
-        var item = this.items[params.itemIndex];
         params.itemStart = item.start;
         params.itemEnd = item.end;
         params.itemGroup = item.group;
@@ -2906,7 +2925,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
         if (!params.moved && !params.zoomed) {
             // mouse did not move -> user has selected an item
 
-            if (options.editable && (params.target === this.dom.items.deleteButton)) {
+            if (params.target === this.dom.items.deleteButton) {
                 // delete item
                 if (this.selection) {
                     this.confirmDeleteItem(this.selection.index);
@@ -2950,56 +2969,57 @@ links.Timeline.prototype.onDblClick = function (event) {
         size = this.size;
     event = event || window.event;
 
-    if (!options.editable) {
-        return;
-    }
-
     if (params.itemIndex !== undefined) {
-        // fire the edit event
-        this.trigger('edit');
+        var item = this.items[params.itemIndex];
+        if (item && this.isEditable(item)) {
+            // fire the edit event
+            this.trigger('edit');
+        }
     }
     else {
-        // create a new item
+        if (options.editable) {
+            // create a new item
 
-        // get mouse position
-        if (!params.touchDown) {
-            params.mouseX = event.clientX;
-            params.mouseY = event.clientY;
-        }
-        if (params.mouseX === undefined) {params.mouseX = 0;}
-        if (params.mouseY === undefined) {params.mouseY = 0;}
-        var x = params.mouseX - links.Timeline.getAbsoluteLeft(dom.content);
-        var y = params.mouseY - links.Timeline.getAbsoluteTop(dom.content);
+            // get mouse position
+            if (!params.touchDown) {
+                params.mouseX = event.clientX;
+                params.mouseY = event.clientY;
+            }
+            if (params.mouseX === undefined) {params.mouseX = 0;}
+            if (params.mouseY === undefined) {params.mouseY = 0;}
+            var x = params.mouseX - links.Timeline.getAbsoluteLeft(dom.content);
+            var y = params.mouseY - links.Timeline.getAbsoluteTop(dom.content);
 
-        // create a new event at the current mouse position
-        var xstart = this.screenToTime(x);
-        var xend = this.screenToTime(x  + size.frameWidth / 10); // add 10% of timeline width
-        if (options.snapEvents) {
-            this.step.snap(xstart);
-            this.step.snap(xend);
-        }
+            // create a new event at the current mouse position
+            var xstart = this.screenToTime(x);
+            var xend = this.screenToTime(x  + size.frameWidth / 10); // add 10% of timeline width
+            if (options.snapEvents) {
+                this.step.snap(xstart);
+                this.step.snap(xend);
+            }
 
-        var content = "New";
-        var group = this.getGroupFromHeight(y);   // (group may be undefined)
-        this.addItem({
-            'start': xstart,
-            'end': xend,
-            'content': content,
-            'group': this.getGroupName(group)
-        });
-        params.itemIndex = (this.items.length - 1);
-        this.selectItem(params.itemIndex);
+            var content = "New";
+            var group = this.getGroupFromHeight(y);   // (group may be undefined)
+            this.addItem({
+                'start': xstart,
+                'end': xend,
+                'content': content,
+                'group': this.getGroupName(group)
+            });
+            params.itemIndex = (this.items.length - 1);
+            this.selectItem(params.itemIndex);
 
-        this.applyAdd = true;
+            this.applyAdd = true;
 
-        // fire an add event. 
-        // Note that the change can be canceled from within an event listener if 
-        // this listener calls the method cancelAdd().
-        this.trigger('add');
+            // fire an add event.
+            // Note that the change can be canceled from within an event listener if
+            // this listener calls the method cancelAdd().
+            this.trigger('add');
 
-        if (!this.applyAdd) {
-            // undo an add
-            this.deleteItem(params.itemIndex);
+            if (!this.applyAdd) {
+                // undo an add
+                this.deleteItem(params.itemIndex);
+            }
         }
     }
 
@@ -3381,6 +3401,7 @@ links.Timeline.Item = function (data, options) {
         this.end = data.end;
         this.content = data.content;
         this.className = data.className;
+        this.editable = data.editable;
         this.group = data.group;
 
         if (this.start) {
@@ -4295,9 +4316,10 @@ links.Timeline.prototype.createItem = function(itemData) {
         end: itemData.end,
         content: itemData.content,
         className: itemData.className,
-        //type: type,
+        editable: itemData.editable,
         group: this.getGroup(itemData.group)
     };
+    // TODO: optimize this, when creating an item, all data is copied twice...
 
     // TODO: is initialTop needed?
     var initialTop,
@@ -4527,7 +4549,7 @@ links.Timeline.prototype.selectItem = function(index) {
         };
 
         // TODO: move adjusting the domItem to the item itself
-        if (this.options.editable) {
+        if (this.isEditable(item)) {
             domItem.style.cursor = 'move';
         }
         item.select();
