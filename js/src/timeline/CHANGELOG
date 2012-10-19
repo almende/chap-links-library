@@ -4,6 +4,8 @@ CHAP Links Library - Timeline
 <not yet released>, version 2.4.0
 
 - implemented clustering of items.
+- events can be made editable/read-only on an individual basis by providing
+  them with a field "editable".
 - changed: option showButtonAdd renamed to showButtonNew, and is now false by
   default.
 - fixed: options scale and step did not work (method setScale worked correctly
