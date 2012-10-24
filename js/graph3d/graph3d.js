@@ -27,8 +27,8 @@
  * Copyright (C) 2010-2012 Almende B.V.
  *
  * @author  Jos de Jong, jos@almende.org
- * @date    2012-06-04
- * @version 1.1
+ * @date    2012-10-24
+ * @version 1.2
  */
 
 /*
@@ -410,15 +410,16 @@ links.Graph3d.prototype.draw = function(data, options) {
                 this.style = styleNumber;
             }
         }
-        if (options.showGrid !== undefined)        this.showGrid = options.showGrid;
-        if (options.showPerspective !== undefined) this.showPerspective = options.showPerspective;
-        if (options.showShadow !== undefined)      this.showShadow = options.showShadow;
-        if (options.keepAspectRatio !== undefined) this.keepAspectRatio = options.keepAspectRatio;
-        if (options.verticalRatio !== undefined)   this.verticalRatio = options.verticalRatio;
+        if (options.showGrid !== undefined)          this.showGrid = options.showGrid;
+        if (options.showPerspective !== undefined)   this.showPerspective = options.showPerspective;
+        if (options.showShadow !== undefined)        this.showShadow = options.showShadow;
+        if (options.showAnimationControls !== undefined) this.showAnimationControls = options.showAnimationControls;
+        if (options.keepAspectRatio !== undefined)   this.keepAspectRatio = options.keepAspectRatio;
+        if (options.verticalRatio !== undefined)     this.verticalRatio = options.verticalRatio;
 
         if (options.animationInterval !== undefined) this.animationInterval = options.animationInterval;
-        if (options.animationPreload !== undefined) this.animationPreload = options.animationPreload;
-        if (options.animationAutoStart !== undefined) this.animationAutoStart = options.animationAutoStart;
+        if (options.animationPreload !== undefined)  this.animationPreload = options.animationPreload;
+        if (options.animationAutoStart !== undefined)this.animationAutoStart = options.animationAutoStart;
 
         if (options.xMin !== undefined) this.defaultXMin = options.xMin;
         if (options.xStep !== undefined) this.defaultXStep = options.xStep;
@@ -1119,7 +1120,10 @@ links.Graph3d.prototype._redrawFilter = function() {
     this.frame.filter.innerHTML = "";
 
     if (this.dataFilter) {
-        var slider = new links.Slider(this.frame.filter);
+        var options = {
+            'visible': this.showAnimationControls
+        };
+        var slider = new links.Slider(this.frame.filter, options);
         this.frame.filter.slider = slider;
 
         // TODO: css here is not nice here...
@@ -1451,6 +1455,8 @@ links.Graph3d.prototype._redrawAxis = function() {
  * @param {number} V   Value, a value between 0 and 1
  */
 links.Graph3d.prototype._hsv2rgb = function(H, S, V) {
+    var R, G, B, C, Hi, X;
+
     C = V * S;
     Hi = Math.floor(H/60);  // hi = 0,1,2,3,4,5
     X = C * (1 - Math.abs(((H/60) % 2) - 1));
@@ -2402,59 +2408,66 @@ links.StepNumber.prototype.end = function () {
  *
  * An html slider control with start/stop/prev/next buttons
  * @param {Element} container  The element where the slider will be created
+ * @param {Object} options     Available options:
+ *                                 {boolean} visible   If true (default) the
+ *                                                     slider is visible.
  */
-links.Slider = function(container) {
-    if (container === undefined) throw "Error: No container element defined";
-
+links.Slider = function(container, options) {
+    if (container === undefined) {
+        throw "Error: No container element defined";
+    }
     this.container = container;
+    this.visible = (options && options.visible != undefined) ? options.visible : true;
 
-    this.frame = document.createElement("DIV");
-    //this.frame.style.backgroundColor = "#E5E5E5";
-    this.frame.style.width = "100%";
-    this.frame.style.position = "relative";
-    this.container.appendChild(this.frame);
+    if (this.visible) {
+        this.frame = document.createElement("DIV");
+        //this.frame.style.backgroundColor = "#E5E5E5";
+        this.frame.style.width = "100%";
+        this.frame.style.position = "relative";
+        this.container.appendChild(this.frame);
 
-    this.frame.prev = document.createElement("INPUT");
-    this.frame.prev.type = "BUTTON";
-    this.frame.prev.value = "Prev";
-    this.frame.appendChild(this.frame.prev);
+        this.frame.prev = document.createElement("INPUT");
+        this.frame.prev.type = "BUTTON";
+        this.frame.prev.value = "Prev";
+        this.frame.appendChild(this.frame.prev);
 
-    this.frame.play = document.createElement("INPUT");
-    this.frame.play.type = "BUTTON";
-    this.frame.play.value = "Play";
-    this.frame.appendChild(this.frame.play);
+        this.frame.play = document.createElement("INPUT");
+        this.frame.play.type = "BUTTON";
+        this.frame.play.value = "Play";
+        this.frame.appendChild(this.frame.play);
 
-    this.frame.next = document.createElement("INPUT");
-    this.frame.next.type = "BUTTON";
-    this.frame.next.value = "Next";
-    this.frame.appendChild(this.frame.next);
+        this.frame.next = document.createElement("INPUT");
+        this.frame.next.type = "BUTTON";
+        this.frame.next.value = "Next";
+        this.frame.appendChild(this.frame.next);
 
-    this.frame.bar = document.createElement("INPUT");
-    this.frame.bar.type = "BUTTON";
-    this.frame.bar.style.position = "absolute";
-    this.frame.bar.style.border = "1px solid red";
-    this.frame.bar.style.width = "100px";
-    this.frame.bar.style.height = "6px";
-    this.frame.bar.style.borderRadius = "2px";
-    this.frame.bar.style.MozBorderRadius = "2px";
-    this.frame.bar.style.border = "1px solid #7F7F7F";
-    this.frame.bar.style.backgroundColor = "#E5E5E5";
-    this.frame.appendChild(this.frame.bar);
+        this.frame.bar = document.createElement("INPUT");
+        this.frame.bar.type = "BUTTON";
+        this.frame.bar.style.position = "absolute";
+        this.frame.bar.style.border = "1px solid red";
+        this.frame.bar.style.width = "100px";
+        this.frame.bar.style.height = "6px";
+        this.frame.bar.style.borderRadius = "2px";
+        this.frame.bar.style.MozBorderRadius = "2px";
+        this.frame.bar.style.border = "1px solid #7F7F7F";
+        this.frame.bar.style.backgroundColor = "#E5E5E5";
+        this.frame.appendChild(this.frame.bar);
 
-    this.frame.slide = document.createElement("INPUT");
-    this.frame.slide.type = "BUTTON";
-    this.frame.slide.style.margin = "0px";
-    this.frame.slide.value = " ";
-    this.frame.slide.style.position = "relative";
-    this.frame.slide.style.left = "-100px";
-    this.frame.appendChild(this.frame.slide);
+        this.frame.slide = document.createElement("INPUT");
+        this.frame.slide.type = "BUTTON";
+        this.frame.slide.style.margin = "0px";
+        this.frame.slide.value = " ";
+        this.frame.slide.style.position = "relative";
+        this.frame.slide.style.left = "-100px";
+        this.frame.appendChild(this.frame.slide);
 
-    // create events
-    var me = this;
-    this.frame.slide.onmousedown = function (event) {me._onMouseDown(event);};
-    this.frame.prev.onclick = function (event) {me.prev(event);};
-    this.frame.play.onclick = function (event) {me.togglePlay(event);};
-    this.frame.next.onclick = function (event) {me.next(event);};
+        // create events
+        var me = this;
+        this.frame.slide.onmousedown = function (event) {me._onMouseDown(event);};
+        this.frame.prev.onclick = function (event) {me.prev(event);};
+        this.frame.play.onclick = function (event) {me.togglePlay(event);};
+        this.frame.next.onclick = function (event) {me.next(event);};
+    }
 
     this.onChangeCallback = undefined;
 
@@ -2534,7 +2547,9 @@ links.Slider.prototype.togglePlay = function() {
 links.Slider.prototype.play = function() {
     this.playNext();
 
-    this.frame.play.value = "Stop";
+    if (this.frame) {
+        this.frame.play.value = "Stop";
+    }
 };
 
 /**
@@ -2544,7 +2559,9 @@ links.Slider.prototype.stop = function() {
     clearInterval(this.playTimeout);
     this.playTimeout = undefined;
 
-    this.frame.play.value = "Play";
+    if (this.frame) {
+        this.frame.play.value = "Play";
+    }
 };
 
 /**
@@ -2595,17 +2612,19 @@ links.Slider.prototype.onChange = function() {
  * redraw the slider on the correct place
  */
 links.Slider.prototype.redraw = function() {
-    // resize the bar
-    this.frame.bar.style.top = (this.frame.clientHeight/2 -
-        this.frame.bar.offsetHeight/2) + "px";
-    this.frame.bar.style.width = (this.frame.clientWidth -
-        this.frame.prev.clientWidth -
-        this.frame.play.clientWidth -
-        this.frame.next.clientWidth - 30)  + "px";
+    if (this.frame) {
+        // resize the bar
+        this.frame.bar.style.top = (this.frame.clientHeight/2 -
+            this.frame.bar.offsetHeight/2) + "px";
+        this.frame.bar.style.width = (this.frame.clientWidth -
+            this.frame.prev.clientWidth -
+            this.frame.play.clientWidth -
+            this.frame.next.clientWidth - 30)  + "px";
 
-    // position the slider button
-    var left = this.indexToLeft(this.index);
-    this.frame.slide.style.left = (left) + "px";
+        // position the slider button
+        var left = this.indexToLeft(this.index);
+        this.frame.slide.style.left = (left) + "px";
+    }
 };
 
 

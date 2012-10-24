@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Graph demo</title>
+
+    <style>
+        body {font: 10pt arial;}
+    </style>
+
+    <script type="text/javascript" src="../graph.js"></script>
+    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <link rel="stylesheet" type="text/css" href="../graph.css">
+
+    <script type="text/javascript">
+        /**
+         * Split given dataset in two datasets. The first
+         * @param {Object[]} data     Array with objects, each object has
+         *                            a parameter date and value
+         * @param {Number} treshold   Threshold value
+         * @return {Object} splitted  An object containing data sets 'lower'
+         *                           'threshold', and 'upper'
+         */
+        function dataSplit(data, threshold) {
+            var upper = [];
+            var lower = [];
+            var thres = [];
+
+            var prevIsLower = undefined;
+            for (var i = 0, l = data.length; i < l; i++) {
+                var d = data[i];
+                var isLower = (d.value < threshold);
+                if (isLower) {
+                    lower.push({ 'date': new Date(d.date), 'value': d.value});
+                }
+                else {
+                    upper.push({'date': new Date(d.date), 'value': d.value});
+                }
+                thres.push({'date': new Date(d.date), 'value': threshold});
+
+                if (i > 0 && prevIsLower != isLower) {
+                    // change from lower to upper or vice versa
+                    var dPrev = data[i - 1];
+                    var fraction = (threshold - dPrev.value) / (d.value - dPrev.value);
+                    var dateAvg = new Date(Math.round(
+                            dPrev.date.valueOf() +
+                            (d.date.valueOf() - dPrev.date.valueOf()) * fraction));
+                    var valueAvg = dPrev.value + (d.value - dPrev.value) * fraction;
+
+                    if (prevIsLower) {
+                        lower.push({'date': new Date(dateAvg), 'value': valueAvg});
+                        lower.push({'date': new Date(dateAvg), 'value': undefined});
+                        upper.push({'date': new Date(dateAvg), 'value': undefined});
+                        upper.push({'date': new Date(dateAvg), 'value': valueAvg});
+                    }
+                    else {
+                        upper.push({'date': new Date(dateAvg), 'value': valueAvg});
+                        upper.push({'date': new Date(dateAvg), 'value': undefined});
+                        lower.push({'date': new Date(dateAvg), 'value': undefined});
+                        lower.push({'date': new Date(dateAvg), 'value': valueAvg});
+                    }
+                }
+                prevIsLower = isLower;
+            }
+
+            return {
+                "upper": upper,
+                "lower": lower,
+                "threshold": thres
+            };
+        }
+
+        function drawVisualization() {
+            // Create and populate a data table.
+            var graphData = [];
+
+            function functionA(x) {
+                return Math.sin(x / 10) * Math.cos(x / 5) * 50;
+            }
+
+            // create a set of dates
+            var d = new Date(2010, 9, 23, 20, 0, 0);
+            for (var i = 0; i < 100; i++) {
+                graphData.push({
+                    'date': new Date(d),
+                    'value': functionA(i)
+                });
+                d.setMinutes(d.getMinutes() + 1);
+            }
+
+            var threshold = -5;
+            var splittedData = dataSplit(graphData, threshold);
+
+            var data = [
+                {"label": "Threshold", "data" : splittedData.threshold},
+                {"label": "Upper", "data" : splittedData.upper},
+                {"label": "Lower", "data" : splittedData.lower}
+            ];
+
+            // specify options
+            var options = {
+                width:  "100%",
+                height: "350px",
+                lines: [
+                    {color: "#FF9900", width: 1}, // orange
+                    {color: "#109618", width: 3}, // green
+                    {color: "#DC3912", width: 3}  // red
+                ]
+            };
+
+            // Instantiate our graph object.
+            var graph = new links.Graph(document.getElementById('mygraph'));
+
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
+        }
+    </script>
+</head>
+
+<body onload="drawVisualization();">
+<p>
+    In this example the data of one function is splitted around a threshold
+    into two functions. The two functions are plotted with a different color
+    and visually look like one continuous function.
+</p>
+<div id="mygraph"></div>
+
+<div id="info"></div>
+</body>
+</html>

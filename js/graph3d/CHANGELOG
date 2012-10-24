@@ -1,5 +1,11 @@
 CHAP Links Library - Graph3d
 
+2012-10-24, version 1.2
+
+- Created option showAnimationControls, which enables hiding the animation
+  controls.
+
+
 2012-06-04, version 1.1
 
 - Documentation has a new layout

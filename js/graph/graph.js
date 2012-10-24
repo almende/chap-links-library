@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-06-04
- * @version 1.1
+ * @date    2012-09-05
+ * @version 1.1.2
  */
 
 
@@ -113,8 +113,8 @@ links.Graph = function(container) {
     this.start = null;
     this.end = null;
     this.autoDataStep = true;
-    this._moveable = true;
-    this._zoomable = true;
+    this.moveable = true;
+    this.zoomable = true;
 
     this.redrawWhileMoving = true;
 
@@ -195,8 +195,8 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.step != undefined)          this.step = options.step;
         if (options.autoDataStep != undefined)  this.autoDataStep = options.autoDataStep;
 
-        if (options._moveable != undefined)     this._moveable = options._moveable;
-        if (options._zoomable != undefined)     this._zoomable = options._zoomable;
+        if (options.moveable != undefined)      this.moveable = options.moveable;
+        if (options.zoomable != undefined)      this.zoomable = options.zoomable;
 
         if (options.line != undefined)          this.line = options.line;
         if (options.lines != undefined)         this.lines = options.lines;
@@ -208,7 +208,7 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.vStep != undefined)         this.vStepSize = options.vStep;
         if (options.vPrettyStep != undefined)   this.vPrettyStep = options.vPrettyStep;
 
-        if (options.legend !== undefined)       this.legend = options.legend;  // can contain legend.width
+        if (options.legend != undefined)       this.legend = options.legend;  // can contain legend.width
 
         // TODO: add options to set the horizontal and vertical range
     }
@@ -1306,7 +1306,6 @@ links.Graph.prototype._applyRange = function (start, end, zoomAroundDate) {
  * @param {Date}   zoomAroundValue Value around which will be zoomed. Optional
  */
 links.Graph.prototype._zoomVertical = function(zoomFactor, zoomAroundValue) {
-
     if (zoomAroundValue == undefined)
         zoomAroundValue = (this.vStart + this.vEnd) / 2;
 
@@ -1965,11 +1964,11 @@ links.Graph.prototype._average = function(data, start, length) {
 
     for (row = start, end = Math.min(start+length, data.length); row < end; row++) {
         var d = data[row];
-        if (d.date !== undefined) {
+        if (d.date != undefined) {
             sumDate += d.date.getTime();
             countDate += 1;
         }
-        if (d.value !== undefined) {
+        if (d.value != undefined) {
             sumValue += d.value;
             countValue += 1;
         }
@@ -2119,7 +2118,7 @@ links.Graph.prototype._getVisbleRowRange = function(data, start, end, oldRowRang
 
     // initialize
     var rowRange = {"start": 0, "end": (rowCount-1)};
-    if (oldRowRange !== undefined) {
+    if (oldRowRange != undefined) {
         rowRange.start = oldRowRange.start;
         rowRange.end = oldRowRange.end;
     }
@@ -2182,16 +2181,16 @@ links.Graph.prototype._getRowRange = function(data) {
 
     for (var row = 0, rows = data.length; row < rows; row++) {
         var d = data[row].date;
-        if (d !== undefined) {
+        if (d != undefined) {
             rowRange.min = Math.min(d, rowRange.min);
             rowRange.max = Math.max(d, rowRange.max);
         }
     }
 
-    if (rowRange.min !== undefined) {
+    if (rowRange.min != undefined) {
         rowRange.min = new Date(rowRange.min);
     }
-    if (rowRange.max !== undefined) {
+    if (rowRange.max != undefined) {
         rowRange.max = new Date(rowRange.max);
     }
 
@@ -2222,8 +2221,11 @@ links.Graph.prototype._getDataRange = function(data) {
     }
 
     for (var row = 1, rows = data.length; row < rows; row++) {
-        dataRange.min = Math.min(data[row].value, dataRange.min);
-        dataRange.max = Math.max(data[row].value, dataRange.max);
+        var value = data[row].value;
+        if (value != undefined) {
+            dataRange.min = Math.min(value, dataRange.min);
+            dataRange.max = Math.max(value, dataRange.max);
+        }
     }
 
     return dataRange;
@@ -2401,7 +2403,7 @@ links.Graph.prototype._checkSize = function() {
 links.Graph.prototype._onMouseDown = function(event) {
     event = event || window.event;
 
-    if (!this._moveable)
+    if (!this.moveable)
         return;
 
     // check if mouse is still down (may be up when focus is lost for example
@@ -2601,7 +2603,7 @@ links.Graph.prototype._onTouchEnd = function(event) {
 links.Graph.prototype._onWheel = function(event) {
     event = event || window.event;
 
-    if (!this._zoomable)
+    if (!this.zoomable)
         return;
 
     // retrieve delta
@@ -2991,10 +2993,10 @@ links.events = links.events || {
  */
 links.Graph.addEventListener = function (element, action, listener, useCapture) {
     if (element.addEventListener) {
-        if (useCapture === undefined)
+        if (useCapture == undefined)
             useCapture = false;
 
-        if (action === "mousewheel" && navigator.userAgent.indexOf("Firefox") >= 0) {
+        if (action == "mousewheel" && navigator.userAgent.indexOf("Firefox") >= 0) {
             action = "DOMMouseScroll";  // For Firefox
         }
 
@@ -3014,10 +3016,10 @@ links.Graph.addEventListener = function (element, action, listener, useCapture) 
 links.Graph.removeEventListener = function(element, action, listener, useCapture) {
     if (element.removeEventListener) {
         // non-IE browsers
-        if (useCapture === undefined)
+        if (useCapture == undefined)
             useCapture = false;
 
-        if (action === "mousewheel" && navigator.userAgent.indexOf("Firefox") >= 0) {
+        if (action == "mousewheel" && navigator.userAgent.indexOf("Firefox") >= 0) {
             action = "DOMMouseScroll";  // For Firefox
         }
 

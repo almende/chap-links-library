@@ -493,6 +493,7 @@ function getOptions() {
     width:              document.getElementById("width").value, 
     height:             document.getElementById("height").value,
     style:              document.getElementById("style").value,
+    showAnimationControls: (document.getElementById("showAnimationControls").checked != false),
     showGrid:          (document.getElementById("showGrid").checked != false),
     showPerspective:   (document.getElementById("showPerspective").checked != false),
     showShadow:        (document.getElementById("showShadow").checked != false),
