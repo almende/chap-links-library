@@ -3,6 +3,7 @@ CHAP Links Library - Timeline
 
 <not yet released>, version 2.4.0
 
+- Added a new scale "WEEKDAY", which shows the weekday in the minor label.
 - implemented clustering of items.
 - events can be made editable/read-only on an individual basis by providing
   them with a field "editable".

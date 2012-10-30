@@ -2327,7 +2327,8 @@ links.Timeline.prototype.getCustomTime = function() {
  * @param {links.Timeline.StepDate.SCALE} scale
  *                               A scale. Choose from SCALE.MILLISECOND,
  *                               SCALE.SECOND, SCALE.MINUTE, SCALE.HOUR,
- *                               SCALE.DAY, SCALE.MONTH, SCALE.YEAR.
+ *                               SCALE.WEEKDAY, SCALE.DAY, SCALE.MONTH,
+ *                               SCALE.YEAR.
  * @param {int}        step   A step size, by default 1. Choose for
  *                               example 1, 2, 5, or 10.
  */
@@ -4983,13 +4984,21 @@ links.Timeline.ClusterFactory.prototype.clear = function () {
 
 /**
  * Clear the cached clusters
- * @private
  */
 links.Timeline.ClusterFactory.prototype.clearCache = function () {
     // cache containing created clusters for each cluster level
-    this.cache = {
-        '-1': []
-    };
+    this.cache = {};
+    this.cacheLevel = -1;
+    this.cache[this.cacheLevel] = [];
+    this.cacheValid = true;
+};
+
+/**
+ * Invalidate the current cache. The cache will be cleared as soon as
+ * the cluster level changes.
+ */
+links.Timeline.ClusterFactory.prototype.invalidateCache = function () {
+    this.cacheValid = false;
 };
 
 /**
@@ -5045,6 +5054,13 @@ links.Timeline.ClusterFactory.prototype.getClusters = function (scale) {
             timeWindow *= 4;
         }
     }
+
+    // clear the cache when the cache is invalidated and the cache level is changed
+    if (!this.cacheValid && level != this.cacheLevel) {
+        this.clearCache();
+        console.log('cache cleared...'); // TODO: cleanup
+    }
+    this.cacheLevel = level;
 
     var clusters = this.cache[level];
     if (!clusters) {
@@ -5309,12 +5325,12 @@ links.events = links.events || {
  * The class step has scales ranging from milliseconds, seconds, minutes, hours,
  * days, to years.
  *
- * Version: 1.0
+ * Version: 1.1
  *
- * @param {Date} start        The start date, for example new Date(2010, 9, 21)
- *                            or new Date(2010, 9,21,23,45,00)
- * @param {Date} end          The end date
- * @param {int}  minimumStep  Optional. Minimum step size in milliseconds
+ * @param {Date} start          The start date, for example new Date(2010, 9, 21)
+ *                              or new Date(2010, 9, 21, 23, 45, 00)
+ * @param {Date} end            The end date
+ * @param {Number}  minimumStep Optional. Minimum step size in milliseconds
  */
 links.Timeline.StepDate = function(start, end, minimumStep) {
 
@@ -5332,13 +5348,16 @@ links.Timeline.StepDate = function(start, end, minimumStep) {
 };
 
 /// enum scale
-links.Timeline.StepDate.SCALE = { MILLISECOND : 1,
-    SECOND : 2,
-    MINUTE : 3,
-    HOUR : 4,
-    DAY : 5,
-    MONTH : 6,
-    YEAR : 7};
+links.Timeline.StepDate.SCALE = {
+    MILLISECOND: 1,
+    SECOND: 2,
+    MINUTE: 3,
+    HOUR: 4,
+    DAY: 5,
+    WEEKDAY: 6,
+    MONTH: 7,
+    YEAR: 8
+};
 
 
 /**
@@ -5357,8 +5376,8 @@ links.Timeline.StepDate.prototype.setRange = function(start, end, minimumStep) {
         return;
     }
 
-    this._start      = (start != undefined)  ? new Date(start) : new Date();
-    this._end        = (end != undefined)    ? new Date(end) : new Date();
+    this._start = (start != undefined) ? new Date(start) : new Date();
+    this._end = (end != undefined) ? new Date(end) : new Date();
 
     if (this.autoScale) {
         this.setMinimumStep(minimumStep);
@@ -5385,7 +5404,8 @@ links.Timeline.StepDate.prototype.roundToMinor = function() {
             this.current.setFullYear(this.step * Math.floor(this.current.getFullYear() / this.step));
             this.current.setMonth(0);
         case links.Timeline.StepDate.SCALE.MONTH:        this.current.setDate(1);
-        case links.Timeline.StepDate.SCALE.DAY:          this.current.setHours(0);
+        case links.Timeline.StepDate.SCALE.DAY:          // intentional fall through
+        case links.Timeline.StepDate.SCALE.WEEKDAY:      this.current.setHours(0);
         case links.Timeline.StepDate.SCALE.HOUR:         this.current.setMinutes(0);
         case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setSeconds(0);
         case links.Timeline.StepDate.SCALE.SECOND:       this.current.setMilliseconds(0);
@@ -5396,13 +5416,14 @@ links.Timeline.StepDate.prototype.roundToMinor = function() {
         // round down to the first minor value that is a multiple of the current step size
         switch (this.scale) {
             case links.Timeline.StepDate.SCALE.MILLISECOND:  this.current.setMilliseconds(this.current.getMilliseconds() - this.current.getMilliseconds() % this.step);  break;
-            case links.Timeline.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() - this.current.getSeconds() % this.step);  break;
-            case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() - this.current.getMinutes() % this.step);  break;
-            case links.Timeline.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() - this.current.getHours() % this.step);  break;
-            case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate((this.current.getDate()-1) - (this.current.getDate()-1) % this.step + 1);  break;
+            case links.Timeline.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() - this.current.getSeconds() % this.step); break;
+            case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() - this.current.getMinutes() % this.step); break;
+            case links.Timeline.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() - this.current.getHours() % this.step); break;
+            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
+            case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate((this.current.getDate()-1) - (this.current.getDate()-1) % this.step + 1); break;
             case links.Timeline.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() - this.current.getMonth() % this.step);  break;
             case links.Timeline.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() - this.current.getFullYear() % this.step); break;
-            default:                      break;
+            default: break;
         }
     }
 };
@@ -5424,8 +5445,7 @@ links.Timeline.StepDate.prototype.next = function() {
     // Two cases, needed to prevent issues with switching daylight savings 
     // (end of March and end of October)
     if (this.current.getMonth() < 6)   {
-        switch (this.scale)
-        {
+        switch (this.scale) {
             case links.Timeline.StepDate.SCALE.MILLISECOND:
 
                 this.current = new Date(this.current.getTime() + this.step); break;
@@ -5437,6 +5457,7 @@ links.Timeline.StepDate.prototype.next = function() {
                 var h = this.current.getHours();
                 this.current.setHours(h - (h % this.step));
                 break;
+            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
             case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate(this.current.getDate() + this.step); break;
             case links.Timeline.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() + this.step); break;
             case links.Timeline.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() + this.step); break;
@@ -5444,14 +5465,12 @@ links.Timeline.StepDate.prototype.next = function() {
         }
     }
     else {
-        switch (this.scale)
-        {
-            case links.Timeline.StepDate.SCALE.MILLISECOND:
-
-                this.current = new Date(this.current.getTime() + this.step); break;
+        switch (this.scale) {
+            case links.Timeline.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.getTime() + this.step); break;
             case links.Timeline.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() + this.step); break;
             case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() + this.step); break;
             case links.Timeline.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() + this.step); break;
+            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
             case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate(this.current.getDate() + this.step); break;
             case links.Timeline.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() + this.step); break;
             case links.Timeline.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() + this.step); break;
@@ -5466,6 +5485,7 @@ links.Timeline.StepDate.prototype.next = function() {
             case links.Timeline.StepDate.SCALE.SECOND:       if(this.current.getSeconds() < this.step) this.current.setSeconds(0);  break;
             case links.Timeline.StepDate.SCALE.MINUTE:       if(this.current.getMinutes() < this.step) this.current.setMinutes(0);  break;
             case links.Timeline.StepDate.SCALE.HOUR:         if(this.current.getHours() < this.step) this.current.setHours(0);  break;
+            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
             case links.Timeline.StepDate.SCALE.DAY:          if(this.current.getDate() < this.step+1) this.current.setDate(1); break;
             case links.Timeline.StepDate.SCALE.MONTH:        if(this.current.getMonth() < this.step) this.current.setMonth(0);  break;
             case links.Timeline.StepDate.SCALE.YEAR:         break; // nothing to do for year
@@ -5496,15 +5516,17 @@ links.Timeline.StepDate.prototype.getCurrent = function() {
  * @param {links.Timeline.StepDate.SCALE} newScale
  *                               A scale. Choose from SCALE.MILLISECOND,
  *                               SCALE.SECOND, SCALE.MINUTE, SCALE.HOUR,
- *                               SCALE.DAY, SCALE.MONTH, SCALE.YEAR.
- * @param {int}        newStep   A step size, by default 1. Choose for
+ *                               SCALE.WEEKDAY, SCALE.DAY, SCALE.MONTH,
+ *                               SCALE.YEAR.
+ * @param {Number}     newStep   A step size, by default 1. Choose for
  *                               example 1, 2, 5, or 10.
  */
 links.Timeline.StepDate.prototype.setScale = function(newScale, newStep) {
     this.scale = newScale;
 
-    if (newStep > 0)
+    if (newStep > 0) {
         this.step = newStep;
+    }
 
     this.autoScale = false;
 };
@@ -5548,6 +5570,7 @@ links.Timeline.StepDate.prototype.setMinimumStep = function(minimumStep) {
     if (stepDay*5 > minimumStep)            {this.scale = links.Timeline.StepDate.SCALE.DAY;         this.step = 5;}
     if (stepDay*2 > minimumStep)            {this.scale = links.Timeline.StepDate.SCALE.DAY;         this.step = 2;}
     if (stepDay > minimumStep)              {this.scale = links.Timeline.StepDate.SCALE.DAY;         this.step = 1;}
+    if (stepDay/2 > minimumStep)            {this.scale = links.Timeline.StepDate.SCALE.WEEKDAY;     this.step = 1;}
     if (stepHour*4 > minimumStep)           {this.scale = links.Timeline.StepDate.SCALE.HOUR;        this.step = 4;}
     if (stepHour > minimumStep)             {this.scale = links.Timeline.StepDate.SCALE.HOUR;        this.step = 1;}
     if (stepMinute*15 > minimumStep)        {this.scale = links.Timeline.StepDate.SCALE.MINUTE;      this.step = 15;}
@@ -5597,7 +5620,8 @@ links.Timeline.StepDate.prototype.snap = function(date) {
         date.setSeconds(0);
         date.setMilliseconds(0);
     }
-    else if (this.scale == links.Timeline.StepDate.SCALE.DAY) {
+    else if (this.scale == links.Timeline.StepDate.SCALE.DAY ||
+             this.scale == links.Timeline.StepDate.SCALE.WEEKDAY) {
         switch (this.step) {
             case 5:
             case 2:
@@ -5657,8 +5681,7 @@ links.Timeline.StepDate.prototype.snap = function(date) {
  * @return {boolean} true if current date is major, else false.
  */
 links.Timeline.StepDate.prototype.isMajor = function() {
-    switch (this.scale)
-    {
+    switch (this.scale) {
         case links.Timeline.StepDate.SCALE.MILLISECOND:
             return (this.current.getMilliseconds() == 0);
         case links.Timeline.StepDate.SCALE.SECOND:
@@ -5668,6 +5691,7 @@ links.Timeline.StepDate.prototype.isMajor = function() {
         // Note: this is no bug. Major label is equal for both minute and hour scale
         case links.Timeline.StepDate.SCALE.HOUR:
             return (this.current.getHours() == 0);
+        case links.Timeline.StepDate.SCALE.WEEKDAY: // intentional fall through
         case links.Timeline.StepDate.SCALE.DAY:
             return (this.current.getDate() == 1);
         case links.Timeline.StepDate.SCALE.MONTH:
@@ -5687,23 +5711,25 @@ links.Timeline.StepDate.prototype.isMajor = function() {
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
 links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
-    var MONTHS_SHORT = new Array("Jan", "Feb", "Mar",
+    var MONTHS_SHORT = ["Jan", "Feb", "Mar",
         "Apr", "May", "Jun",
         "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec");
+        "Oct", "Nov", "Dec"];
+    var DAYS_SHORT = ["Sun", "Mon", "Tue",
+        "Wed", "Thu", "Fri", "Sat"];
 
     if (date == undefined) {
         date = this.current;
     }
 
-    switch (this.scale)
-    {
+    switch (this.scale) {
         case links.Timeline.StepDate.SCALE.MILLISECOND:  return String(date.getMilliseconds());
         case links.Timeline.StepDate.SCALE.SECOND:       return String(date.getSeconds());
-        case links.Timeline.StepDate.SCALE.MINUTE:       return this.addZeros(date.getHours(), 2) + ":" +
-            this.addZeros(date.getMinutes(), 2);
-        case links.Timeline.StepDate.SCALE.HOUR:         return this.addZeros(date.getHours(), 2) + ":" +
-            this.addZeros(date.getMinutes(), 2);
+        case links.Timeline.StepDate.SCALE.MINUTE:
+            return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
+        case links.Timeline.StepDate.SCALE.HOUR:
+            return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
+        case links.Timeline.StepDate.SCALE.WEEKDAY:      return DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
         case links.Timeline.StepDate.SCALE.DAY:          return String(date.getDate());
         case links.Timeline.StepDate.SCALE.MONTH:        return MONTHS_SHORT[date.getMonth()];   // month is zero based
         case links.Timeline.StepDate.SCALE.YEAR:         return String(date.getFullYear());
@@ -5719,12 +5745,12 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
 links.Timeline.StepDate.prototype.getLabelMajor = function(date) {
-    var MONTHS = new Array("January", "February", "March",
+    var MONTHS = ["January", "February", "March",
         "April", "May", "June",
         "July", "August", "September",
-        "October", "November", "December");
-    var DAYS = new Array("Sunday", "Monday", "Tuesday",
-        "Wednesday", "Thursday", "Friday", "Saturday");
+        "October", "November", "December"];
+    var DAYS = ["Sunday", "Monday", "Tuesday",
+        "Wednesday", "Thursday", "Friday", "Saturday"];
 
     if (date == undefined) {
         date = this.current;
@@ -5750,6 +5776,7 @@ links.Timeline.StepDate.prototype.getLabelMajor = function(date) {
                 date.getDate() + " " +
                 MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
+        case links.Timeline.StepDate.SCALE.WEEKDAY:
         case links.Timeline.StepDate.SCALE.DAY:
             return  MONTHS[date.getMonth()] + " " +
                 date.getFullYear();

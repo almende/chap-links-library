@@ -1,5 +1,11 @@
 CHAP Links Library - Graph
 
+
+<not yet released>, version 1.2
+
+- Added a new scale "WEEKDAY", which shows the weekday in the minor label.
+
+
 2012-09-05, version 1.1.2
 
 - Fix: the options moveable and zoomable did not work at all.
