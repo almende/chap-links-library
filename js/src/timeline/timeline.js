@@ -115,7 +115,7 @@ links.Timeline = function(container) {
     this.groupIndexes = {};
     this.items = [];
     this.visibleItems = [];
-    this.clusterFactory = new links.Timeline.ClusterFactory(this);
+    this.clusterGenerator = new links.Timeline.ClusterGenerator(this);
     this.currentClusters = [];
     this.selection = undefined; // stores index and item which is currently selected
 
@@ -369,7 +369,7 @@ links.Timeline.prototype.setData = function(data) {
 
     // prepare data for clustering, by filtering and sorting by type
     if (this.options.cluster) {
-        this.clusterFactory.setData(this.items);
+        this.clusterGenerator.setData(this.items);
     }
 
     this.render({
@@ -1578,7 +1578,7 @@ links.Timeline.prototype.clearItems = function() {
 
     this.items = [];
     this.visibleItems = [];
-    this.clusterFactory.clear();
+    this.clusterGenerator.clear();
 };
 
 /**
@@ -1627,7 +1627,7 @@ links.Timeline.prototype.repaintItems = function() {
 
     // create/update/hide the clusters DOM
     // var clusters = this.currentClusters; // TODO
-    var clusters = this.clusterFactory.getClusters(this.conversion.factor);
+    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
     if (clusters != this.clusters) {
         // clusters changed
 
@@ -4947,7 +4947,7 @@ links.Timeline.prototype.filterItems = function () {
     }
 
     // add the clusters to the visible items
-    var clusters = this.clusterFactory.getClusters(this.conversion.factor);
+    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
     clusters.forEach(function (cluster) {
         left = timeline.timeToScreen(cluster.start);
         cluster.visible = ((left + cluster.width/2 > -contentWidth)
@@ -4962,11 +4962,11 @@ links.Timeline.prototype.filterItems = function () {
 /** ------------------------------------------------------------------------ **/
 
 /**
- * @constructor links.Timeline.ClusterFactory
+ * @constructor links.Timeline.ClusterGenerator
  * Factory for creating and caching clusters of items.
  * @param {links.Timeline} timeline
  */
-links.Timeline.ClusterFactory = function (timeline) {
+links.Timeline.ClusterGenerator = function (timeline) {
     this.timeline = timeline;
     this.clear();
 };
@@ -4974,18 +4974,15 @@ links.Timeline.ClusterFactory = function (timeline) {
 /**
  * Clear all cached clusters and data, and initialize all variables
  */
-links.Timeline.ClusterFactory.prototype.clear = function () {
+links.Timeline.ClusterGenerator.prototype.clear = function () {
     // cache containing created clusters for each cluster level
     this.clearCache();
-
-    // all items are filtered into points and ranges
-    this.sortedItems = [];
 };
 
 /**
  * Clear the cached clusters
  */
-links.Timeline.ClusterFactory.prototype.clearCache = function () {
+links.Timeline.ClusterGenerator.prototype.clearCache = function () {
     // cache containing created clusters for each cluster level
     this.cache = {};
     this.cacheLevel = -1;
@@ -4997,7 +4994,7 @@ links.Timeline.ClusterFactory.prototype.clearCache = function () {
  * Invalidate the current cache. The cache will be cleared as soon as
  * the cluster level changes.
  */
-links.Timeline.ClusterFactory.prototype.invalidateCache = function () {
+links.Timeline.ClusterGenerator.prototype.invalidateCache = function () {
     this.cacheValid = false;
 };
 
@@ -5005,7 +5002,7 @@ links.Timeline.ClusterFactory.prototype.invalidateCache = function () {
  * Set the items to be clustered
  * @param {Item[]} items
  */
-links.Timeline.ClusterFactory.prototype.setData = function (items) {
+links.Timeline.ClusterGenerator.prototype.setData = function (items) {
     items = items || [];
 
     // filter per group
@@ -5039,7 +5036,7 @@ links.Timeline.ClusterFactory.prototype.setData = function (items) {
  *                           defined as (windowWidth / (endDate - startDate))
  * @return {Item[]} clusters
  */
-links.Timeline.ClusterFactory.prototype.getClusters = function (scale) {
+links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
     var level = -1,
         granularity = 2, // TODO: what granularity is needed for the cluster levels?
         timeWindow = 0,  // milliseconds
