@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-10-04
- * @version 2.4.0
+ * @date    2012-11-02
+ * @version 2.4.1
  */
 
 /*
@@ -114,7 +114,12 @@ links.Timeline = function(container) {
     this.groups = [];
     this.groupIndexes = {};
     this.items = [];
-    this.visibleItems = [];
+    this.renderQueue = {
+        show: [],   // Items made visible but not yet added to DOM
+        hide: [],   // Items currently visible but not yet removed from DOM
+        update: []  // Items with changed data but not yet adjusted DOM
+    };
+    this.renderedItems = [];  // Items currently rendered in the DOM
     this.clusterGenerator = new links.Timeline.ClusterGenerator(this);
     this.currentClusters = [];
     this.selection = undefined; // stores index and item which is currently selected
@@ -714,6 +719,7 @@ links.Timeline.prototype.render = function(options) {
     }
 
     this.recalcConversion();
+    this.clusterItems();
     this.filterItems();
     this.stackItems(animate);
 
@@ -1389,7 +1395,7 @@ links.Timeline.prototype.reflowItems = function() {
         group,
         dom = this.dom,
         groups = this.groups,
-        visibleItems = this.visibleItems;
+        renderedItems = this.renderedItems;
 
     if (groups) { // TODO: need to check if labels exists?
         // loop through all groups to reset the items height
@@ -1399,12 +1405,13 @@ links.Timeline.prototype.reflowItems = function() {
     }
 
     // loop through the width and height of all visible items
-    for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
-        var item = visibleItems[i],
+    for (i = 0, iMax = renderedItems.length; i < iMax; i++) {
+        var item = renderedItems[i],
             domItem = item.dom;
         group = item.group;
 
         if (domItem) {
+            // TODO: move updating width and height into item.reflow
             var width = domItem ? domItem.clientWidth : 0;
             var height = domItem ? domItem.clientHeight : 0;
             resized = resized || (item.width != width);
@@ -1443,7 +1450,7 @@ links.Timeline.prototype.recalcItems = function () {
         groups = this.groups,
         size = this.size,
         options = this.options,
-        visibleItems = this.visibleItems;
+        renderedItems = this.renderedItems;
 
     var actualHeight = 0;
     if (groups.length == 0) {
@@ -1468,13 +1475,13 @@ links.Timeline.prototype.recalcItems = function () {
                 }
             }
             else {
-                item = visibleItems[0];
+                item = renderedItems[0];
                 if (item && item.top) {
                     min = item.top;
                     max = item.top + item.height;
                 }
-                for (i = 1, iMax = visibleItems.length; i < iMax; i++) {
-                    item = visibleItems[i];
+                for (i = 1, iMax = renderedItems.length; i < iMax; i++) {
+                    item = renderedItems[i];
                     if (item.top) {
                         min = Math.min(min, item.top);
                         max = Math.max(max, (item.top + item.height));
@@ -1498,8 +1505,8 @@ links.Timeline.prototype.recalcItems = function () {
                     }
                 }
                 else {
-                    for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
-                        visibleItems[i].top += diff;
+                    for (i = 0, iMax = renderedItems.length; i < iMax; i++) {
+                        renderedItems[i].top += diff;
                     }
                 }
             }
@@ -1543,8 +1550,8 @@ links.Timeline.prototype.recalcItems = function () {
         }
 
         // calculate top position of the visible items
-        for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
-            item = visibleItems[i];
+        for (i = 0, iMax = renderedItems.length; i < iMax; i++) {
+            item = renderedItems[i];
             group = item.group;
 
             if (group) {
@@ -1566,19 +1573,21 @@ links.Timeline.prototype.recalcItems = function () {
 
 /**
  * This method clears the (internal) array this.items in a safe way: neatly
- * cleaning up the DOM, and accompanying arrays this.visibleItems and
+ * cleaning up the DOM, and accompanying arrays this.renderedItems and
  * the created clusters.
  */
 links.Timeline.prototype.clearItems = function() {
-    var visibleItems = this.visibleItems;
-    for (var i = 0, iMax = visibleItems.length; i < iMax; i++) {
-        this.visibleItems[i].visible = false;
-    }
-    this.repaintItems();
+    // add all visible items to the list to be hidden
+    var hideItems = this.renderQueue.hide;
+    this.renderedItems.forEach(function (item) {
+        hideItems.push(item);
+    });
 
-    this.items = [];
-    this.visibleItems = [];
+    // clear the cluster generator
     this.clusterGenerator.clear();
+
+    // actually clear the items
+    this.items = [];
 };
 
 /**
@@ -1587,12 +1596,13 @@ links.Timeline.prototype.clearItems = function() {
  *                                 a reflow is needed.
  */
 links.Timeline.prototype.repaintItems = function() {
-    var i, iMax, item;
+    var i, iMax, item, index;
 
     var needsReflow = false,
         dom = this.dom,
         size = this.size,
-        items = this.items;
+        timeline = this,
+        renderedItems = this.renderedItems;
 
     if (!dom.items) {
         dom.items = {};
@@ -1614,66 +1624,46 @@ links.Timeline.prototype.repaintItems = function() {
     // Take frame offline (for faster manipulation of the DOM)
     dom.content.removeChild(frame);
 
-    // create/update/hide the items DOM
+    // process the render queue with changes
+    var queue = this.renderQueue;
     var newImageUrls = [];
-    var itemNeedsReflow;
-    items.forEach(function(item) {
-        itemNeedsReflow = item.repaint(frame);
-        needsReflow = needsReflow || itemNeedsReflow;
-        if (itemNeedsReflow) {
-            item.getImageUrls(newImageUrls);
-        }
-    });
-
-    // create/update/hide the clusters DOM
-    // var clusters = this.currentClusters; // TODO
-    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
-    if (clusters != this.clusters) {
-        // clusters changed
-
-        // remove the old clusters from the scene
-        if (this.clusters) {
-            this.clusters.forEach(function (cluster) {
-                cluster.hideDOM(frame);
-                cluster.items.forEach(function (item) {
-                    delete item.cluster;
-                });
-            });
-        }
-
-        // check the new clusters for images and changes
-        clusters.forEach(function (cluster) {
-            var clusterNeedsReflow = cluster.repaint(frame);
-            needsReflow = needsReflow || clusterNeedsReflow;
-            if (clusterNeedsReflow) {
-                cluster.getImageUrls(newImageUrls);
-            }
-            cluster.items.forEach(function (item) {
-                item.cluster = cluster;
-            });
-        });
-
-        // store a pointer to the current clusters
-        this.clusters = clusters;
-
-        needsReflow = true;
+    needsReflow = needsReflow ||
+        (queue.show.length > 0) ||
+        (queue.update.length > 0) ||
+        (queue.hide.length > 0);   // TODO: reflow needed on hide of items?
+    /* TODO: cleanup
+    console.log(
+        'show=', queue.show.length,
+        'hide=', queue.show.length,
+        'update=', queue.show.length
+    );
+    */
+    while (item = queue.show.shift()) {
+        item.showDOM(frame);
+        item.getImageUrls(newImageUrls);
+        renderedItems.push(item);
     }
-
-    // create/update/hide the cluster DOM
-    clusters.forEach(function (item) {
-        itemNeedsReflow = item.repaint(frame);
-        needsReflow = needsReflow || itemNeedsReflow;
-        if (itemNeedsReflow) {
-            item.getImageUrls(newImageUrls);
+    while (item = queue.update.shift()) {
+        item.updateDOM(frame);
+        item.getImageUrls(newImageUrls);
+        index = this.renderedItems.indexOf(item);
+        if (index == -1) {
+            renderedItems.push(item);
         }
-    });
+    }
+    while (item = queue.hide.shift()) {
+        item.hideDOM(frame);
+        index = this.renderedItems.indexOf(item);
+        if (index != -1) {
+            renderedItems.splice(index, 1);
+        }
+    }
+    // console.log('renderedItems=', renderedItems.length); // TODO: cleanup
 
     // reposition all visible items
-    var visibleItems = this.visibleItems;
-    for (i = 0, iMax = visibleItems.length; i < iMax; i++) {
-        item = visibleItems[i];
-        item.updatePosition(this);
-    }
+    renderedItems.forEach(function (item) {
+        item.updatePosition(timeline);
+    });
 
     // redraw the delete button and dragareas of the selected item (if any)
     this.repaintDeleteButton();
@@ -1685,7 +1675,6 @@ links.Timeline.prototype.repaintItems = function() {
     if (newImageUrls.length) {
         // retrieve all image sources from the items, and set a callback once
         // all images are retrieved
-        var timeline = this;
         var callback = function () {
             timeline.render();
         };
@@ -2033,9 +2022,7 @@ links.Timeline.prototype.repaintCustomTime = function() {
  */
 links.Timeline.prototype.repaintDeleteButton = function () {
     var timeline = this,
-        options = this.options,
         dom = this.dom,
-        size = this.size,
         frame = dom.items.frame;
 
     var deleteButton = dom.items.deleteButton;
@@ -2051,7 +2038,7 @@ links.Timeline.prototype.repaintDeleteButton = function () {
 
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
-    if (item && item.visible && this.isEditable(item)) {
+    if (item && item.rendered && this.isEditable(item)) {
         var right = item.getRight(this),
             top = item.top;
 
@@ -2104,7 +2091,7 @@ links.Timeline.prototype.repaintDragAreas = function () {
     // reposition left and right drag area
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
-    if (item && item.visible && this.isEditable(item) &&
+    if (item && item.rendered && this.isEditable(item) &&
             (item instanceof links.Timeline.ItemRange)) {
         var left = this.timeToScreen(item.start),
             right = this.timeToScreen(item.end),
@@ -3301,7 +3288,7 @@ links.Timeline.prototype.deleteItem = function(index) {
 
     // actually delete the item and remove it from the DOM
     var item = this.items.splice(index, 1)[0];
-    item.deleteDOM();
+    this.renderQueue.hide.push(item);
 
     // delete the row in the original data table
     if (this.data) {
@@ -3424,6 +3411,8 @@ links.Timeline.Item = function (data, options) {
     this.dotWidth = 0;
     this.dotHeight = 0;
 
+    this.rendered = false; // true when the item is draw in the Timeline DOM
+
     if (options) {
         // override the default properties
         for (var option in options) {
@@ -3433,40 +3422,6 @@ links.Timeline.Item = function (data, options) {
         }
     }
 
-};
-
-/**
- * Repaint the item
- * @param {Element} container      The HTML container where the item will be
- *                                 created
- * @return {boolean} needsReflow   Returns true if the DOM is changed such that
- *                                 a reflow is needed.
- */
-links.Timeline.Item.prototype.repaint = function (container) {
-    var needsReflow = false;
-
-    if (this.visible) {
-        if (!this.dom) {
-            this.dom = this.createDOM();
-            this.changed = true;
-            needsReflow = true;
-        }
-        if (!this.domVisible) {
-            this.showDOM(container);
-        }
-        if (this.changed) {
-            this.updateDOM();
-            this.changed = false;
-        }
-    }
-    else {
-        if (this.domVisible) {
-            this.hideDOM(container);
-        }
-        // TODO: test if it is faster when setting style.display='none' instead of removing from the DOM
-    }
-
-    return needsReflow;
 };
 
 /**
@@ -3511,8 +3466,8 @@ links.Timeline.Item.prototype.createDOM = function () {
 };
 
 /**
- * Append the items DOM to the given HTML container. the items DOM must be
- * created before
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
  * @param {Element} container
  */
 links.Timeline.Item.prototype.showDOM = function (container) {
@@ -3536,17 +3491,8 @@ links.Timeline.Item.prototype.updateDOM = function () {
 };
 
 /**
- * Delete the DOM from this item, if there is any DOM loaded. The DOM will be
- * neatly removed from the HTML container where it is attached.
- */
-links.Timeline.Item.prototype.deleteDOM = function () {
-    this.hideDOM();
-    delete this.dom;
-};
-
-/**
  * Reposition the item, recalculate its left, top, and width, using the current
- * range of the timeline and the timeline options. *
+ * range of the timeline and the timeline options.
  * @param {links.Timeline} timeline
  */
 links.Timeline.Item.prototype.updatePosition = function (timeline) {
@@ -3554,11 +3500,24 @@ links.Timeline.Item.prototype.updatePosition = function (timeline) {
 };
 
 /**
- * Check if the item is visible in the timeline.
- * @param {links.Timeline} timeline
+ * Check if the item is drawn in the timeline (i.e. the DOM of the item is
+ * attached to the frame. You may also just request the parameter item.rendered
+ * @return {boolean} rendered
  */
-links.Timeline.Item.prototype.updateVisible = function (timeline) {
+links.Timeline.Item.prototype.isRendered = function () {
+    return this.rendered;
+};
+
+/**
+ * Check if the item is located in the visible area of the timeline, and
+ * not part of a cluster
+ * @param {Date} start
+ * @param {Date} end
+ * @return {boolean} visible
+ */
+links.Timeline.Item.prototype.isVisible = function (start, end) {
     // Should be implemented by sub-prototype
+    return false;
 };
 
 /**
@@ -3676,23 +3635,38 @@ links.Timeline.ItemBox.prototype.createDOM = function () {
     divDot.style.height = "0px";
     divBox.dot = divDot;
 
+    this.dom = divBox;
+    this.updateDOM();
+
     return divBox;
 };
 
 /**
- * Append the items DOM to the given HTML container. the items DOM must be
- * created before
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
  * @param {Element} container
  * @override
  */
 links.Timeline.ItemBox.prototype.showDOM = function (container) {
-    container.appendChild(this.dom);
-    container.insertBefore(this.dom.line, container.firstChild);
-    // Note: line must be added in front of the thiss,
-    //       such that it stays below all thiss
-    container.appendChild(this.dom.dot);
+    var dom = this.dom;
+    if (!dom) {
+        dom = this.createDOM();
+    }
 
-    this.domVisible = true;
+    if (dom.parentNode != container) {
+        if (dom.parentNode) {
+            // container is changed. remove from old container
+            this.hideDOM();
+        }
+
+        // append to this container
+        container.appendChild(dom);
+        container.insertBefore(dom.line, container.firstChild);
+        // Note: line must be added in front of the this,
+        //       such that it stays below all this
+        container.appendChild(dom.dot);
+        this.rendered = true;
+    }
 };
 
 /**
@@ -3708,9 +3682,9 @@ links.Timeline.ItemBox.prototype.hideDOM = function () {
             parent.removeChild(dom);
             parent.removeChild(dom.line);
             parent.removeChild(dom.dot);
+            this.rendered = false;
         }
     }
-    this.domVisible = false;
 };
 
 /**
@@ -3719,8 +3693,8 @@ links.Timeline.ItemBox.prototype.hideDOM = function () {
  * @override
  */
 links.Timeline.ItemBox.prototype.updateDOM = function () {
-    if (this.dom) {
-        var divBox = this.dom;
+    var divBox = this.dom;
+    if (divBox) {
         var divLine = divBox.line;
         var divDot = divBox.dot;
 
@@ -3756,53 +3730,56 @@ links.Timeline.ItemBox.prototype.updateDOM = function () {
  * @override
  */
 links.Timeline.ItemBox.prototype.updatePosition = function (timeline) {
-    var dom = this.dom,
-        left = timeline.timeToScreen(this.start),
-        axisOnTop = timeline.options.axisOnTop,
-        axisTop = timeline.size.axis.top,
-        axisHeight = timeline.size.axis.height,
-        boxAlign = (timeline.options.box && timeline.options.box.align) ?
-            timeline.options.box.align : undefined;
+    var dom = this.dom;
+    if (dom) {
+        var left = timeline.timeToScreen(this.start),
+            axisOnTop = timeline.options.axisOnTop,
+            axisTop = timeline.size.axis.top,
+            axisHeight = timeline.size.axis.height,
+            boxAlign = (timeline.options.box && timeline.options.box.align) ?
+                timeline.options.box.align : undefined;
 
-    dom.style.top = this.top + "px";
-    if (boxAlign == 'right') {
-        dom.style.left = (left - this.width) + "px";
-    }
-    else if (boxAlign == 'left') {
-        dom.style.left = (left) + "px";
-    }
-    else { // default or 'center'
-        dom.style.left = (left - this.width/2) + "px";
-    }
+        dom.style.top = this.top + "px";
+        if (boxAlign == 'right') {
+            dom.style.left = (left - this.width) + "px";
+        }
+        else if (boxAlign == 'left') {
+            dom.style.left = (left) + "px";
+        }
+        else { // default or 'center'
+            dom.style.left = (left - this.width/2) + "px";
+        }
 
-    var line = dom.line;
-    var dot = dom.dot;
-    line.style.left = (left - this.lineWidth/2) + "px";
-    dot.style.left = (left - this.dotWidth/2) + "px";
-    if (axisOnTop) {
-        line.style.top = axisHeight + "px";
-        line.style.height = Math.max(this.top - axisHeight, 0) + "px";
-        dot.style.top = (axisHeight - this.dotHeight/2) + "px";
-    }
-    else {
-        line.style.top = (this.top + this.height) + "px";
-        line.style.height = Math.max(axisTop - this.top - this.height, 0) + "px";
-        dot.style.top = (axisTop - this.dotHeight/2) + "px";
+        var line = dom.line;
+        var dot = dom.dot;
+        line.style.left = (left - this.lineWidth/2) + "px";
+        dot.style.left = (left - this.dotWidth/2) + "px";
+        if (axisOnTop) {
+            line.style.top = axisHeight + "px";
+            line.style.height = Math.max(this.top - axisHeight, 0) + "px";
+            dot.style.top = (axisHeight - this.dotHeight/2) + "px";
+        }
+        else {
+            line.style.top = (this.top + this.height) + "px";
+            line.style.height = Math.max(axisTop - this.top - this.height, 0) + "px";
+            dot.style.top = (axisTop - this.dotHeight/2) + "px";
+        }
     }
 };
 
 /**
- * Check if the item is visible in the timeline.
- * @param {links.Timeline} timeline
+ * Check if the item is visible in the timeline, and not part of a cluster
+ * @param {Date} start
+ * @param {Date} end
+ * @return {Boolean} visible
  * @override
  */
-links.Timeline.ItemBox.prototype.updateVisible = function (timeline) {
-    var left = timeline.timeToScreen(this.start),
-        contentWidth = timeline.size.contentWidth;
+links.Timeline.ItemBox.prototype.isVisible = function (start, end) {
+    if (this.cluster) {
+        return false;
+    }
 
-    this.visible = ((left + this.width/2 > -contentWidth)
-        && (left - this.width/2 < 2 * contentWidth))
-        && (!this.cluster);
+    return (this.start > start) && (this.start < end);
 };
 
 /**
@@ -3899,19 +3876,34 @@ links.Timeline.ItemRange.prototype.createDOM = function () {
     divContent.className = "timeline-event-content";
     divBox.appendChild(divContent);
 
+    this.dom = divBox;
+    this.updateDOM();
+
     return divBox;
 };
 
 /**
- * Append the items DOM to the given HTML container. the items DOM must be
- * created before
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
  * @param {Element} container
  * @override
  */
 links.Timeline.ItemRange.prototype.showDOM = function (container) {
-    container.appendChild(this.dom);
+    var dom = this.dom;
+    if (!dom) {
+        dom = this.createDOM();
+    }
 
-    this.domVisible = true;
+    if (dom.parentNode != container) {
+        if (dom.parentNode) {
+            // container changed. remove the item from the old container
+            this.hideDOM();
+        }
+
+        // append to the new container
+        container.appendChild(dom);
+        this.rendered = true;
+    }
 };
 
 /**
@@ -3925,9 +3917,9 @@ links.Timeline.ItemRange.prototype.hideDOM = function () {
         var parent = dom.parentNode;
         if (parent) {
             parent.removeChild(dom);
+            this.rendered = false;
         }
     }
-    this.domVisible = false;
 };
 
 /**
@@ -3936,9 +3928,8 @@ links.Timeline.ItemRange.prototype.hideDOM = function () {
  * @override
  */
 links.Timeline.ItemRange.prototype.updateDOM = function () {
-    if (this.dom) {
-        var divBox = this.dom;
-
+    var divBox = this.dom;
+    if (divBox) {
         // update contents
         divBox.firstChild.innerHTML = this.content;
 
@@ -3965,38 +3956,41 @@ links.Timeline.ItemRange.prototype.updateDOM = function () {
  * @override
  */
 links.Timeline.ItemRange.prototype.updatePosition = function (timeline) {
-    var dom = this.dom,
-        contentWidth = timeline.size.contentWidth,
-        left = timeline.timeToScreen(this.start),
-        right = timeline.timeToScreen(this.end);
+    var dom = this.dom;
+    if (dom) {
+            var contentWidth = timeline.size.contentWidth,
+            left = timeline.timeToScreen(this.start),
+            right = timeline.timeToScreen(this.end);
 
-    // limit the width of the this, as browsers cannot draw very wide divs
-    if (left < -contentWidth) {
-        left = -contentWidth;
-    }
-    if (right > 2 * contentWidth) {
-        right = 2 * contentWidth;
-    }
+        // limit the width of the this, as browsers cannot draw very wide divs
+        if (left < -contentWidth) {
+            left = -contentWidth;
+        }
+        if (right > 2 * contentWidth) {
+            right = 2 * contentWidth;
+        }
 
-    dom.style.top = this.top + "px";
-    dom.style.left = left + "px";
-    //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
-    dom.style.width = Math.max(right - left, 1) + "px";
+        dom.style.top = this.top + "px";
+        dom.style.left = left + "px";
+        //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
+        dom.style.width = Math.max(right - left, 1) + "px";
+    }
 };
 
 /**
- * Check if the item is visible in the timeline.
- * @param {links.Timeline} timeline
+ * Check if the item is visible in the timeline, and not part of a cluster
+ * @param {Number} start
+ * @param {Number} end
+ * @return {boolean} visible
  * @override
  */
-links.Timeline.ItemRange.prototype.updateVisible = function (timeline) {
-    var left = timeline.timeToScreen(this.start),
-        right = timeline.timeToScreen(this.end),
-        contentWidth = timeline.size.contentWidth;
+links.Timeline.ItemRange.prototype.isVisible = function (start, end) {
+    if (this.cluster) {
+        return false;
+    }
 
-    this.visible = (right > -contentWidth)
-        && (left < 2 * contentWidth)
-        && (!this.cluster);
+    return (this.end > start)
+        && (this.start < end);
 };
 
 /**
@@ -4110,35 +4104,49 @@ links.Timeline.ItemDot.prototype.createDOM = function () {
     divBox.content = divContent;
     divBox.dot = divDot;
 
+    this.dom = divBox;
+    this.updateDOM();
+
     return divBox;
 };
 
 /**
- * Append the items DOM to the given HTML container. the items DOM must be
- * created before
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
  * @param {Element} container
  * @override
  */
 links.Timeline.ItemDot.prototype.showDOM = function (container) {
-    container.appendChild(this.dom);
+    var dom = this.dom;
+    if (!dom) {
+        dom = this.createDOM();
+    }
 
-    this.domVisible = true;
+    if (dom.parentNode != container) {
+        if (dom.parentNode) {
+            // container changed. remove it from old container first
+            this.hideDOM();
+        }
+
+        // append to container
+        container.appendChild(dom);
+        this.rendered = true;
+    }
 };
 
 /**
  * Remove the items DOM from the current HTML container
- * @param {Element} container
  * @override
  */
-links.Timeline.ItemDot.prototype.hideDOM = function (container) {
+links.Timeline.ItemDot.prototype.hideDOM = function () {
     var dom = this.dom;
     if (dom) {
         var parent = dom.parentNode;
         if (parent) {
             parent.removeChild(dom);
+            this.rendered = false;
         }
     }
-    this.domVisible = false;
 };
 
 /**
@@ -4179,29 +4187,33 @@ links.Timeline.ItemDot.prototype.updateDOM = function () {
  * @override
  */
 links.Timeline.ItemDot.prototype.updatePosition = function (timeline) {
-    var dom = this.dom,
-        left = timeline.timeToScreen(this.start);
+    var dom = this.dom;
+    if (dom) {
+        var left = timeline.timeToScreen(this.start);
 
-    dom.style.top = this.top + "px";
-    dom.style.left = (left - this.dotWidth / 2) + "px";
+        dom.style.top = this.top + "px";
+        dom.style.left = (left - this.dotWidth / 2) + "px";
 
-    dom.content.style.marginLeft = (1.5 * this.dotWidth) + "px";
-    //dom.content.style.marginRight = (0.5 * this.dotWidth) + "px"; // TODO
-    dom.dot.style.top = ((this.height - this.dotHeight) / 2) + "px";
+        dom.content.style.marginLeft = (1.5 * this.dotWidth) + "px";
+        //dom.content.style.marginRight = (0.5 * this.dotWidth) + "px"; // TODO
+        dom.dot.style.top = ((this.height - this.dotHeight) / 2) + "px";
+    }
 };
 
 /**
- * Check if the item is visible in the timeline.
- * @param {links.Timeline} timeline
+ * Check if the item is visible in the timeline, and not part of a cluster.
+ * @param {Date} start
+ * @param {Date} end
+ * @return {boolean} visible
  * @override
  */
-links.Timeline.ItemDot.prototype.updateVisible = function (timeline) {
-    var left = timeline.timeToScreen(this.start),
-        contentWidth = timeline.size.contentWidth;
+links.Timeline.ItemDot.prototype.isVisible = function (start, end) {
+    if (this.cluster) {
+        return false;
+    }
 
-    this.visible = (left + this.width > -contentWidth)
-        && (left < 2 * contentWidth)
-        && (!this.cluster);
+    return (this.start > start)
+        && (this.start < end);
 };
 
 /**
@@ -4269,35 +4281,37 @@ links.Timeline.prototype.getItem = function (index) {
  *                              {String} group (optional)
  */
 links.Timeline.prototype.addItem = function (itemData) {
-    var items = [
+    var itemsData = [
         itemData
     ];
 
-    this.addItems(items);
+    this.addItems(itemsData);
 };
 
 /**
  * Add new items.
- * @param {Array} items  An array containing Objects.
- *                       The objects must have the following parameters:
- *                         {Date} start,
- *                         {Date} end,
- *                         {String} content with text or HTML code,
- *                         {String} group
+ * @param {Array} itemsData An array containing Objects.
+ *                          The objects must have the following parameters:
+ *                            {Date} start,
+ *                            {Date} end,
+ *                            {String} content with text or HTML code,
+ *                            {String} group
  */
-links.Timeline.prototype.addItems = function (items) {
-    var newItems = items,
-        curItems = this.items;
+links.Timeline.prototype.addItems = function (itemsData) {
+    var timeline = this,
+        items = this.items,
+        queue = this.renderQueue;
 
     // append the items
-    for (var i = 0, iMax = newItems.length; i < iMax; i++) {
-        var itemData = items[i];
+    itemsData.forEach(function (itemData) {
+        var index = items.length;
+        items.push(timeline.createItem(itemData));
+        timeline.updateData(index, itemData);
 
-        curItems.push(this.createItem(itemData));
-
-        var index = curItems.length - 1;
-        this.updateData(index, itemData);
-    }
+        // note: there is no need to add the item to the renderQueue, that
+        // will be done when this.render() is executed and all items are
+        // filtered again.
+    });
 
     this.render({
         animate: false
@@ -4354,22 +4368,23 @@ links.Timeline.prototype.createItem = function(itemData) {
  *                              {String} group (optional)
  */
 links.Timeline.prototype.changeItem = function (index, itemData) {
-    var item = this.items[index];
-    if (!item) {
+    var oldItem = this.items[index];
+    if (!oldItem) {
         throw "Cannot change item, index out of range";
     }
-    item.deleteDOM();
 
-    // replace item, merge changed
+    // replace item, merge the changes
     var newItem = this.createItem({
-        'start':   itemData.hasOwnProperty('start') ?   itemData.start :   item.start,
-        'end':     itemData.hasOwnProperty('end') ?     itemData.end :     item.end,
-        'content': itemData.hasOwnProperty('content') ? itemData.content : item.content,
-        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(item.group)
+        'start':   itemData.hasOwnProperty('start') ?   itemData.start :   oldItem.start,
+        'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
+        'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
+        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group)
     });
-    //newItem.createDOM();
-    //newItem.select();
     this.items[index] = newItem;
+
+    // append the changes to the render queue
+    this.renderQueue.hide.push(oldItem);
+    this.renderQueue.show.push(newItem);
 
     // update the original data table
     this.updateData(index, itemData);
@@ -4612,7 +4627,7 @@ links.Timeline.prototype.stackItems = function(animate) {
         stack = {};
         this.stack = stack;
     }
-    stack.sortedItems = this.stackOrder(this.visibleItems);
+    stack.sortedItems = this.stackOrder(this.renderedItems);
     stack.finalItems = this.stackCalculateFinal(stack.sortedItems);
 
     if (animate || stack.timer) {
@@ -4925,45 +4940,82 @@ links.Timeline.prototype.trigger = function (event) {
 };
 
 
+/**
+ * Cluster the events
+ */
+links.Timeline.prototype.clusterItems = function () {
+    if (!this.options.cluster) {
+        return;
+    }
+
+    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
+    if (this.clusters != clusters) {
+        // cluster level changed
+        var queue = this.renderQueue;
+
+        // remove the old clusters from the scene
+        if (this.clusters) {
+            this.clusters.forEach(function (cluster) {
+                queue.hide.push(cluster);
+
+                // unlink the items
+                cluster.items.forEach(function (item) {
+                    item.cluster = undefined;
+                });
+            });
+        }
+
+        // append the new clusters
+        clusters.forEach(function (cluster) {
+            // don't add to the queue.show here, will be done in .filterItems()
+
+            // link all items to the cluster
+            cluster.items.forEach(function (item) {
+                item.cluster = cluster;
+            });
+        });
+
+        this.clusters = clusters;
+    }
+};
 
 /**
  * Filter the visible events
  */
 links.Timeline.prototype.filterItems = function () {
-    var left,
-        timeline = this,
-        items = this.items,
-        size = this.size,
-        contentWidth = size.contentWidth,
-        visibleItems = [];
-    this.visibleItems = visibleItems;
+    var queue = this.renderQueue,
+        window = this.end.valueOf() - this.start.valueOf(),
+        start = new Date(this.start.valueOf() - window),
+        end = new Date(this.end.valueOf() + window);
 
-    for (var i = 0, iMax = items.length; i < iMax; i++) {
-        var item = items[i];
-        item.updateVisible(this);
-        if (item.visible) {
-            visibleItems.push(item);
-        }
+    function filter (arr) {
+        arr.forEach(function (item) {
+            var rendered = item.rendered;
+            var visible = item.isVisible(start, end);
+            if (rendered != visible) {
+                if (rendered) {
+                    queue.hide.push(item); // item is rendered but no longer visible
+                }
+                if (visible) {
+                    queue.show.push(item); // item is visible but not yet rendered
+                }
+            }
+        });
     }
 
-    // add the clusters to the visible items
-    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
-    clusters.forEach(function (cluster) {
-        left = timeline.timeToScreen(cluster.start);
-        cluster.visible = ((left + cluster.width/2 > -contentWidth)
-            && (left - cluster.width/2 < 2 * contentWidth));
-
-        if (cluster.visible) {
-            visibleItems.push(cluster);
-        }
-    });
+    // filter all items and all clusters
+    filter(this.items);
+    if (this.clusters) {
+        filter(this.clusters);
+    }
 };
 
 /** ------------------------------------------------------------------------ **/
 
 /**
  * @constructor links.Timeline.ClusterGenerator
- * Factory for creating and caching clusters of items.
+ * Generator which creates clusters of items, based on the visible range in
+ * the Timeline. There is a set of cluster levels which is cached.
  * @param {links.Timeline} timeline
  */
 links.Timeline.ClusterGenerator = function (timeline) {
@@ -4976,6 +5028,8 @@ links.Timeline.ClusterGenerator = function (timeline) {
  */
 links.Timeline.ClusterGenerator.prototype.clear = function () {
     // cache containing created clusters for each cluster level
+    this.items = [];
+    this.groups = {};
     this.clearCache();
 };
 
@@ -4987,25 +5041,35 @@ links.Timeline.ClusterGenerator.prototype.clearCache = function () {
     this.cache = {};
     this.cacheLevel = -1;
     this.cache[this.cacheLevel] = [];
-    this.cacheValid = true;
 };
 
 /**
- * Invalidate the current cache. The cache will be cleared as soon as
- * the cluster level changes.
- */
-links.Timeline.ClusterGenerator.prototype.invalidateCache = function () {
-    this.cacheValid = false;
-};
-
-/**
- * Set the items to be clustered
+ * Set the items to be clustered.
+ * This will clear cached clusters.
  * @param {Item[]} items
+ * @param {Object} [options]  Available options:
+ *                            {boolean} applyOnChangedLevel
+ *                                If true (default), the changed data is applied
+ *                                as soon the cluster level changes. If false,
+ *                                The changed data is applied immediately
  */
-links.Timeline.ClusterGenerator.prototype.setData = function (items) {
-    items = items || [];
+links.Timeline.ClusterGenerator.prototype.setData = function (items, options) {
+    this.items = items || [];
+    this.dataChanged = true;
+    this.applyOnChangedLevel = true;
+    if (options && options.applyOnChangedLevel) {
+        this.applyOnChangedLevel = options.applyOnChangedLevel;
+    }
+    // console.log('clustergenerator setData applyOnChangedLevel=' + this.applyOnChangedLevel); // TODO: cleanup
+};
 
+/**
+ * Filter the items per group.
+ * @private
+ */
+links.Timeline.ClusterGenerator.prototype.filterData = function () {
     // filter per group
+    var items = this.items || [];
     var groups = {};
     this.groups = groups;
 
@@ -5028,6 +5092,8 @@ links.Timeline.ClusterGenerator.prototype.setData = function (items) {
             });
         }
     }
+
+    this.dataChanged = false;
 };
 
 /**
@@ -5052,15 +5118,22 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
         }
     }
 
-    // clear the cache when the cache is invalidated and the cache level is changed
-    if (!this.cacheValid && level != this.cacheLevel) {
-        this.clearCache();
-        console.log('cache cleared...'); // TODO: cleanup
+    // clear the cache when and re-filter the data when needed.
+    if (this.dataChanged) {
+        var levelChanged = (level != this.cacheLevel);
+        var applyDataNow = this.applyOnChangedLevel ? levelChanged : true;
+        if (applyDataNow) {
+            // TODO: currently drawn clusters should be removed! mark them as invisible?
+            this.clearCache();
+            this.filterData();
+            // console.log('clustergenerator: cache cleared...'); // TODO: cleanup
+        }
     }
-    this.cacheLevel = level;
 
+    this.cacheLevel = level;
     var clusters = this.cache[level];
     if (!clusters) {
+        // console.log('clustergenerator: create cluster level ' + level); // TODO: cleanup
         clusters = [];
 
         // TODO: spit this method, it is too large
