@@ -3,7 +3,7 @@
 <project name="jar-builder" default="makejar" basedir=".">
   <target name="makejar" description="Create a jar from the project">
     <property name="bin" location="bin" />
-  	<property name="jar" value="gwt-links-graph.jar" />
+  	<property name="jar" value="gwt-links-network.jar" />
     
     <mkdir dir="${bin}" />
 
