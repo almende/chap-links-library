@@ -4996,8 +4996,8 @@ links.Timeline.prototype.filterItems = function () {
                 if (rendered) {
                     queue.hide.push(item); // item is rendered but no longer visible
                 }
-                if (visible) {
-                    queue.show.push(item); // item is visible but not yet rendered
+                if (visible && (queue.show.indexOf(item) == -1)) {
+                    queue.show.push(item); // item is visible but neither rendered nor queued up to be rendered
                 }
             }
         });
