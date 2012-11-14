@@ -622,7 +622,9 @@ var options = {
     <td>"box"</td>
     <td>Specifies the style for the timeline events.
         Choose from "dot" or "box".
-        Note that the content of the events may contain additional html formatting.</td>
+        Note that the content of the events may contain additional html formatting.
+        It is possible to implement custom styles using the method <code>addItemType</code>.
+    </td>
 </tr>
 
 <tr>
@@ -722,6 +724,26 @@ var options = {
         Parameters <code>end</code> and <code>group</code> are optional.
     </td>
 </tr>
+<tr>
+    <td>addItemType(typeName, typeFactory)</td>
+    <td>none</td>
+    <td>Add a custom item type to the Timeline, extending the built-in types
+        "box" and "dot".
+        Parameter <code>typeName</code> is a String,
+        and <code>typeFactory</code> is a constructor implementing the abstract
+        prototype <code>links.Timeline.Item</code>. To use a custom type,
+        specify the option <code>style</code> with the name of the custom type.
+        <br>
+
+        See
+        <a href="../examples/example25_new_item_type.html">example25_new_item_type.html</a>
+        for an example, or study the implementations of <code>links.Timeline.ItemBox</code>,
+        <code>links.Timeline.ItemRange</code>,
+        and <code>links.Timeline.ItemDot</code> in the sourcecode of the Timeline.
+    </td>
+</tr>
+
+
 
 <tr>
     <td>cancelAdd()</td>

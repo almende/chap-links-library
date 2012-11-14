@@ -299,7 +299,7 @@ links.Timeline.prototype.setOptions = function(options) {
  */
 links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
     this.itemTypes[typeName] = typeFactory;
-}
+};
 
 /**
  * Retrieve a map with the column indexes of the columns by column name.

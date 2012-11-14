@@ -10,7 +10,7 @@
     <script type="text/javascript" src="../timeline.js"></script>
     <link rel="stylesheet" type="text/css" href="../timeline.css">
     
-    <style>
+    <style type="text/css">
         .item-line
         {
             border-left-width: 3px;
@@ -19,8 +19,12 @@
     </style>
 
     <script type="text/javascript">
-    
-        //user-defined item type
+
+        /**
+         * @constructor links.Timeline.ItemLine
+         * @extends links.Timeline.Item
+         * User defined item type "line".
+         */
         var ItemLine = function (data, options) {
             links.Timeline.Item.call(this, data, options);
         };
