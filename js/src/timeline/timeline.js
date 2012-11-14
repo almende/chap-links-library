@@ -208,6 +208,13 @@ links.Timeline = function(container) {
 
     // create a step for drawing the axis
     this.step = new links.Timeline.StepDate();
+    
+    // add standard item types
+    this.itemTypes = {
+        box:   links.Timeline.ItemBox,
+        range: links.Timeline.ItemRange,
+        dot:   links.Timeline.ItemDot
+    };
 
     // initialize data
     this.data = [];
@@ -284,6 +291,15 @@ links.Timeline.prototype.setOptions = function(options) {
     // validate options
     this.options.autoHeight = (this.options.height === "auto");
 };
+
+/**
+ * Add new type of items
+ * @param {String} typeName  Name of new type
+ * @param {links.Timeline.Item} typeFactory Constructor of items
+ */
+links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
+    this.itemTypes[typeName] = typeFactory;
+}
 
 /**
  * Retrieve a map with the column indexes of the columns by column name.
@@ -4346,10 +4362,8 @@ links.Timeline.prototype.createItem = function(itemData) {
         initialTop = this.size.contentHeight - options.eventMarginAxis - options.eventMargin / 2;
     }
 
-    switch (type) {
-        case 'box':   return new links.Timeline.ItemBox(data,   {'top': initialTop});
-        case 'range': return new links.Timeline.ItemRange(data, {'top': initialTop});
-        case 'dot':   return new links.Timeline.ItemDot(data,   {'top': initialTop});
+    if (type in this.itemTypes) {
+        return new this.itemTypes[type](data, {'top': initialTop})
     }
 
     console.log('ERROR: Unknown event style "' + type + '"');
@@ -4721,11 +4735,11 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     for (i = 0, iMax = items.length; i < iMax; i++) {
         var item = items[i],
             top,
-            left,
-            right,
             bottom,
             height = item.height,
-            width = item.width;
+            width = item.width,
+            right = item.getRight(this),
+            left = right - width;
 
         if (axisOnTop) {
             top = axisHeight + eventMarginAxis + eventMargin / 2;
@@ -4734,15 +4748,6 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             top = axisTop - height - eventMarginAxis - eventMargin / 2;
         }
         bottom = top + height;
-
-        if (item instanceof links.Timeline.ItemBox) {
-            left = this.timeToScreen(item.start) - width / 2;
-            right = left + width;
-        }
-        else if (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemDot) {
-            left = this.timeToScreen(item.start);
-            right = item.end ? this.timeToScreen(item.end) : left + width;
-        }
 
         finalItems[i] = {
             'left': left,
