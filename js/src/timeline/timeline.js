@@ -4721,11 +4721,11 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     for (i = 0, iMax = items.length; i < iMax; i++) {
         var item = items[i],
             top,
-            left,
-            right,
             bottom,
             height = item.height,
-            width = item.width;
+            width = item.width,
+            right = item.getRight(this),
+            left = right - width;
 
         if (axisOnTop) {
             top = axisHeight + eventMarginAxis + eventMargin / 2;
@@ -4734,15 +4734,6 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             top = axisTop - height - eventMarginAxis - eventMargin / 2;
         }
         bottom = top + height;
-
-        if (item instanceof links.Timeline.ItemBox) {
-            left = this.timeToScreen(item.start) - width / 2;
-            right = left + width;
-        }
-        else if (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemDot) {
-            left = this.timeToScreen(item.start);
-            right = item.end ? this.timeToScreen(item.end) : left + width;
-        }
 
         finalItems[i] = {
             'left': left,
