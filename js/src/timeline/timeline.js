@@ -208,6 +208,13 @@ links.Timeline = function(container) {
 
     // create a step for drawing the axis
     this.step = new links.Timeline.StepDate();
+    
+    // add standard item types
+    this.itemTypes = {
+        box:   links.Timeline.ItemBox,
+        range: links.Timeline.ItemRange,
+        dot:   links.Timeline.ItemDot
+    };
 
     // initialize data
     this.data = [];
@@ -284,6 +291,15 @@ links.Timeline.prototype.setOptions = function(options) {
     // validate options
     this.options.autoHeight = (this.options.height === "auto");
 };
+
+/**
+ * Add new type of items
+ * @param {String} typeName  Name of new type
+ * @param {links.Timeline.Item} typeFactory Constructor of items
+ */
+links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
+    this.itemTypes[typeName] = typeFactory;
+}
 
 /**
  * Retrieve a map with the column indexes of the columns by column name.
@@ -4346,10 +4362,8 @@ links.Timeline.prototype.createItem = function(itemData) {
         initialTop = this.size.contentHeight - options.eventMarginAxis - options.eventMargin / 2;
     }
 
-    switch (type) {
-        case 'box':   return new links.Timeline.ItemBox(data,   {'top': initialTop});
-        case 'range': return new links.Timeline.ItemRange(data, {'top': initialTop});
-        case 'dot':   return new links.Timeline.ItemDot(data,   {'top': initialTop});
+    if (type in this.itemTypes) {
+        return new this.itemTypes[type](data, {'top': initialTop})
     }
 
     console.log('ERROR: Unknown event style "' + type + '"');
