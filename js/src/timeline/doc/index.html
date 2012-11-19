@@ -799,10 +799,11 @@ var options = {
 </tr>
 
 <tr>
-    <td>deleteItem(index)</td>
+    <td>deleteItem(index, preventRender)</td>
     <td>none</td>
     <td>Delete an existing item.
         <code>index</code> (Number) is the index of the item.
+        <code>preventRender</code> (Boolean) is optional parameter to prevent re-render timeline immediately after delete (for multiple deletions). Default is false.
     </td>
 </tr>
 
