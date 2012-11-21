@@ -322,9 +322,9 @@ links.Timeline.mapColumnIds = function (dataTable) {
     // loop over the columns, and map the column id's to the column indexes
     for (var col = 0; col < colMax; col++) {
         var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
+        cols[id] = col;
         if (id == 'start' || id == 'end' || id == 'content' ||
                 id == 'group' || id == 'className' || id == 'editable') {
-            cols[id] = col;
             allUndefined = false;
         }
     }
@@ -418,7 +418,8 @@ links.Timeline.prototype.getData = function  () {
  *                          {String} group
  */
 links.Timeline.prototype.updateData = function  (index, values) {
-    var data = this.data;
+    var data = this.data,
+        prop;
 
     if (google && google.visualization &&
         data instanceof google.visualization.DataTable) {
@@ -431,27 +432,22 @@ links.Timeline.prototype.updateData = function  (index, values) {
         // map the column id's by name
         var cols = links.Timeline.mapColumnIds(data);
 
-        if (values.start) {
-            data.setValue(index, cols.start, values.start);
-        }
-        if (values.end) {
-            data.setValue(index, cols.end, values.end);
-        }
-        if (values.content) {
-            data.setValue(index, cols.content, values.content);
-        }
-
-        if (values.group && cols.group != undefined) {
-            // TODO: append a column when needed?
-            data.setValue(index, cols.group, values.group);
-        }
-        if (values.className && cols.className != undefined) {
-            // TODO: append a column when needed?
-            data.setValue(index, cols.className, values.className);
-        }
-        if (values.editable && cols.editable != undefined) {
-            // TODO: append a column when needed?
-            data.setValue(index, cols.editable, values.editable);
+        // merge all fields from the provided data into the current data
+        for (prop in values) {
+            if (values.hasOwnProperty(prop)) {
+                var col = cols[prop];
+                if (col == undefined) {
+                    // create new column
+                    var value = values[prop];
+                    var valueType = 'string';
+                    if (typeof(value) == 'number')       valueType = 'number';
+                    else if (typeof(value) == 'boolean') valueType = 'boolean';
+                    else if (value instanceof Date)      valueType = 'datetime';
+                    console.log(value, valueType);
+                    col = data.addColumn(valueType, prop);
+                }
+                data.setValue(index, col, values[prop]);
+            }
         }
     }
     else if (links.Timeline.isArray(data)) {
@@ -462,23 +458,11 @@ links.Timeline.prototype.updateData = function  (index, values) {
             data[index] = row;
         }
 
-        if (values.start) {
-            row.start = values.start;
-        }
-        if (values.end) {
-            row.end = values.end;
-        }
-        if (values.content) {
-            row.content = values.content;
-        }
-        if (values.group) {
-            row.group = values.group;
-        }
-        if (values.className) {
-            row.className = values.className;
-        }
-        if (values.editable != undefined) {
-            row.editable = values.editable;
+        // merge all fields from the provided data into the current data
+        for (prop in values) {
+            if (values.hasOwnProperty(prop)) {
+                row[prop] = values[prop];
+            }
         }
     }
     else {

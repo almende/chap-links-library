@@ -9,6 +9,9 @@ CHAP Links Library - Timeline
   range, and dot). See example 25. Thanks Alexander Parshin.
 - events can be made editable/read-only on an individual basis by providing
   them with a field "editable".
+- changed: data can now have custom fields (like an id).
+- changed: method addItem has a second, optional parameter "preventRedraw",
+  which can be used to prevent redrawing the timeline after every addItem.
 - changed: option showButtonAdd renamed to showButtonNew, and is now false by
   default.
 - fixed: options scale and step did not work (method setScale worked correctly
