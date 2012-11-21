@@ -443,7 +443,6 @@ links.Timeline.prototype.updateData = function  (index, values) {
                     if (typeof(value) == 'number')       valueType = 'number';
                     else if (typeof(value) == 'boolean') valueType = 'boolean';
                     else if (value instanceof Date)      valueType = 'datetime';
-                    console.log(value, valueType);
                     col = data.addColumn(valueType, prop);
                 }
                 data.setValue(index, col, values[prop]);
