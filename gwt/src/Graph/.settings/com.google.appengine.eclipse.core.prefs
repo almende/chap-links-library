@@ -1,3 +1,4 @@
-#Thu Jul 14 16:29:38 CEST 2011
 eclipse.preferences.version=1
 filesCopiedToWebInfLib=
+googleCloudSqlEnabled=false
+localDevMySqlEnabled=true

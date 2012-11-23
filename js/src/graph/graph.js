@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-09-05
- * @version 1.1.2
+ * @date    2012-11-23
+ * @version 1.2
  */
 
 
@@ -42,10 +42,8 @@
  css: make two style groups: haxis and vaxis
 
  add an option to select/deselect all functions in the legend
- add possibilty to have a horizontal axis with numbers instead of dates
- add possibility to see the actual value where you are hovering about with the mouse
+ add possibility to have a horizontal axis with numbers instead of dates
  recalculate min and max scale after each zoom action too?
- add possiblitiy to zoom vertically
 
  add a line style circle? square? triange? custom color for the circle or dot?
  enable highlighting one of the graphs (select one graph)
@@ -115,12 +113,13 @@ links.Graph = function(container) {
     this.autoDataStep = true;
     this.moveable = true;
     this.zoomable = true;
+    this.showTooltip = true;
 
     this.redrawWhileMoving = true;
 
     this.legend = undefined;
-    this.line = new Object();  // object default style for all lines
-    this.lines = new Array();  // array containing specific line styles, colors, etc.
+    this.line = {};  // object default style for all lines
+    this.lines = [];  // array containing specific line styles, colors, etc.
     /*
      this.defaultColors = ["red", "green", "blue", "magenta",
      "purple", "orange", "lime", "darkgreen", "darkblue",
@@ -208,7 +207,8 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.vStep != undefined)         this.vStepSize = options.vStep;
         if (options.vPrettyStep != undefined)   this.vPrettyStep = options.vPrettyStep;
 
-        if (options.legend != undefined)       this.legend = options.legend;  // can contain legend.width
+        if (options.legend != undefined)        this.legend = options.legend;  // can contain legend.width
+        if (options.tooltip != undefined)       this.showTooltip = options.tooltip;
 
         // TODO: add options to set the horizontal and vertical range
     }
@@ -897,16 +897,6 @@ links.Graph.StepNumber.prototype.getCurrent = function () {
     else {
         return this._current;
     }
-
-    /* TODO: cleanup
-     if (this._current < 100000) {
-     currentRounded *= 1; // remove zeros at the tail, behind the comma
-     }
-     else {
-     currentRounded = Number(currentRounded);
-     }
-     return Number(currentRounded);
-     */
 };
 
 /**
@@ -1102,10 +1092,13 @@ links.Graph.prototype._create = function () {
     var onmousedown = function (event) {me._onMouseDown(event);};
     var onmousewheel = function (event) {me._onWheel(event);};
     var ontouchstart = function (event) {me._onTouchStart(event);};
-    var onzoom = function (event) {me._onZoom(event);};
+    if (this.showTooltip) {
+        var onmousehover = function (event) {me._onMouseHover(event);};
+    }
 
     // TODO: these events are never cleaned up... can give a "memory leakage"?
     links.Graph.addEventListener(this.frame, "mousedown", onmousedown);
+    links.Graph.addEventListener(this.frame, "mousemove", onmousehover);
     links.Graph.addEventListener(this.frame, "mousewheel", onmousewheel);
     links.Graph.addEventListener(this.frame, "touchstart", ontouchstart);
     links.Graph.addEventListener(this.frame, "mousedown", function() {me._checkSize();});
@@ -1195,6 +1188,7 @@ links.Graph.prototype._zoom = function(zoomFactor, zoomAroundDate) {
 
     this._redrawHorizontalAxis();
     this._redrawData();
+    this._redrawDataTooltip();
 };
 
 /**
@@ -1371,6 +1365,7 @@ links.Graph.prototype._zoomVertical = function(zoomFactor, zoomAroundValue) {
     this._redrawVerticalAxis();
     this._redrawHorizontalAxis(); // -> width of the vertical axis can be changed
     this._redrawData();
+    this._redrawDataTooltip();
 };
 
 
@@ -1386,6 +1381,7 @@ links.Graph.prototype.redraw = function() {
     this._redrawVerticalAxis();
     this._redrawHorizontalAxis();
     this._redrawData();
+    this._redrawDataTooltip();
 
     // store the current width and height. This is needed to detect when the frame
     // was resized (externally).
@@ -1873,22 +1869,10 @@ links.Graph.prototype._redrawData = function() {
         var data = this.data[col].data;
 
         // determine the first and last row inside the visible area
-        rowRange =
-            this._getVisbleRowRange(data, start, end, this.data[col].visibleRowRange);
+        var rowRange = this._getVisbleRowRange(data, start, end,
+            this.data[col].visibleRowRange);
         this.data[col].visibleRowRange = rowRange;
-
-        // choose a step size, depending on the width of the screen in pixels
-        // and the number of data points.
-        if ( this.autoDataStep ) {
-            // skip data points in case of much data
-            var rowCount = (rowRange.end - rowRange.start);
-            var canvasWidth = (this.frame.clientWidth + 2 * this.axisMargin);
-            var rowStep = Math.max(Math.floor(rowCount / canvasWidth), 1);
-        }
-        else {
-            // draw all data points
-            var rowStep = 1;
-        }
+        var rowStep = this._calculateRowStep(rowRange);
 
         if (visible) {
             if (style == "line" || style == "dot-line") {
@@ -1897,7 +1881,7 @@ links.Graph.prototype._redrawData = function() {
                 ctx.lineWidth = width;
 
                 ctx.beginPath();
-                row = rowRange.start;
+                var row = rowRange.start;
                 while (row <= rowRange.end) {
                     // find the first data row with a non-null value
                     while (row <= rowRange.end && data[row].value == null) {
@@ -1906,8 +1890,8 @@ links.Graph.prototype._redrawData = function() {
                     if (row <= rowRange.end) {
                         // move to the first non-null data point
                         value = data[row].value;
-                        x = this.timeToScreen(data[row].date) - offset;
-                        y = this.yToScreen(value);
+                        var x = this.timeToScreen(data[row].date) - offset;
+                        var y = this.yToScreen(value);
                         ctx.moveTo(x, y);
 
                         /* TODO: implement fill style
@@ -1962,6 +1946,191 @@ links.Graph.prototype._redrawData = function() {
 };
 
 /**
+ * Calculate the row step (skipping datapoints in case of much data)
+ * @param {Object} rowRange  Object containing parameters
+ *                               {Date} start
+ *                               {Date} end
+ * @return {Number} rowStep   an integer number
+ * @private
+ */
+links.Graph.prototype._calculateRowStep = function(rowRange) {
+    var rowStep;
+
+    // choose a step size, depending on the width of the screen in pixels
+    // and the number of data points.
+    if ( this.autoDataStep && rowRange ) {
+        // skip data points in case of much data
+        var rowCount = (rowRange.end - rowRange.start);
+        var canvasWidth = (this.frame.clientWidth + 2 * this.axisMargin);
+        rowStep = Math.max(Math.floor(rowCount / canvasWidth), 1);
+    }
+    else {
+        // draw all data points
+        rowStep = 1;
+    }
+
+    return rowStep;
+};
+
+/**
+ * Redraw the tooltip showing the currently hovered value
+ */
+links.Graph.prototype._redrawDataTooltip = function () {
+    var tooltip = this.tooltip;
+    if (this.showTooltip && tooltip) {
+        var dataPoint = tooltip.dataPoint;
+        if (dataPoint) {
+            var dot = tooltip.dot;
+            var label = tooltip.label;
+            if (!dot) {
+                dot = document.createElement('div');
+                dot.className = 'graph-tooltip-dot';
+                tooltip.dot = dot;
+
+                label = document.createElement('div');
+                label.className = 'graph-tooltip-label';
+                dot.appendChild(label);
+                tooltip.label = label;
+            }
+
+            var graph = this.frame.canvas.graph;
+            var offset = parseFloat(graph.style.left) + this.axisMargin;
+            var radius = dataPoint.radius || 4;
+            var color = dataPoint.color || '#4d4d4d';
+            var left = this.timeToScreen(dataPoint.date) + offset;
+            var top = this.yToScreen(dataPoint.value);
+
+            dot.style.left = left + 'px';
+            dot.style.top = top + 'px';
+            dot.style.borderColor = color;
+            dot.style.borderRadius = radius + 'px';
+            dot.style.borderWidth = radius + 'px';
+            dot.style.marginLeft = -radius + 'px';
+            dot.style.marginTop = -radius + 'px';
+
+            label.innerHTML = '<table>' +
+                '<tr><td>Date:</td><td>' + dataPoint.date.toISOString() + '</td></tr>' +
+                '<tr><td>Value:</td><td>' + dataPoint.value + '</td></tr>';
+            label.style.color = color;
+
+            var width = label.clientWidth + 10;
+            var graphWidth = this.timeToScreen(this.end) - this.timeToScreen(this.start);
+            var height = label.clientHeight + 10;
+            var showAbove = (top - height > 0);
+            var showRight = (left + width < graphWidth);
+            label.style.bottom = showAbove ? (radius + 'px') : '';
+            label.style.top = !showAbove ? radius + 'px' : '';
+            label.style.left = showRight ? radius + 'px' : '';
+            label.style.right = !showRight ? radius + 'px' : '';
+
+            if (!dot.parentNode) {
+                this.frame.appendChild(dot);
+            }
+        }
+        else {
+            // remove the dot when visible
+            if (tooltip.dot && tooltip.dot.parentNode) {
+                tooltip.dot.parentNode.removeChild(tooltip.dot);
+            }
+        }
+    }
+};
+
+/**
+ * Set a tooltip for the currently hovered data
+ * @param {Object} dataPoint    object containing parameters:
+ *                              {String} date
+ *                              {String} value
+ *                              {String} color
+ *                              {String} width
+ * @private
+ */
+links.Graph.prototype._setTooltip = function (dataPoint) {
+    if (!this.tooltip) {
+        this.tooltip = {};
+    }
+    this.tooltip.dataPoint = dataPoint;
+
+    this._redrawDataTooltip();
+};
+
+
+/**
+ * Find the data point closest to given date and value (eucledian distance).
+ * If no data point is found near given position, undefined is returned.
+ * @param {Date} date
+ * @param {Number} value
+ * @return {Object | undefined} dataPoint   An object containing parameters
+ *                                            {Date} date
+ *                                            {Number} value
+ *                                            {String} color
+ *                                            {Number} radius
+ * @private
+ */
+links.Graph.prototype._findClosestDataPoint = function (date, value) {
+    var maxDistance = 30; // px
+    var winner = undefined;
+
+    for (var col = 0, colCount = this.data.length; col < colCount; col++) {
+        var visible = this._getLineVisible(col);
+
+        if (visible) {
+            var rowRange = this.data[col].visibleRowRange;
+            var data = this.data[col].data;
+            var rowStep = this._calculateRowStep(rowRange);
+            var row = rowRange.start;
+
+            while (row <= rowRange.end) {
+                var dataPoint = data[row];
+                if (dataPoint.value != null ) {
+                    //if (dataPoint.date > date || row == rowRange.end) {
+
+                    // first data point found right from x.
+                    var dateDistance = Math.abs(dataPoint.date - date) * this.ttsFactor;
+                    if (dateDistance < maxDistance) {
+                        var valueDistance = Math.abs(this.yToScreen(dataPoint.value) - this.yToScreen(value));
+                        if (valueDistance < maxDistance) {
+                            var eucledianDistance = Math.sqrt(
+                                    dateDistance * dateDistance +
+                                    valueDistance * valueDistance);
+
+                            if (!winner || eucledianDistance < winner.eucledianDistance) {
+                                // we have a new winner
+                                var radius = Math.max(
+                                    (this._getLineStyle(col) == 'line') ?
+                                        this._getLineWidth(col) * 2 :
+                                        this._getLineRadius(col) * 2, 4);
+                                var color = this._getLineColor(col);
+
+                                winner = {
+                                    dateDistance: dateDistance,
+                                    valueDistance: valueDistance,
+                                    eucledianDistance: eucledianDistance,
+                                    col: col,
+                                    dataPoint: {
+                                        date: dataPoint.date,
+                                        value: dataPoint.value,
+                                        color: color,
+                                        radius: radius
+                                    }
+                                };
+                            }
+                        }
+                    }
+                    else if (dataPoint.date > date) {
+                        // skip the rest of the data
+                        row = rowRange.end;
+                    }
+                }
+                row += rowStep;
+            }
+        }
+    }
+
+    return winner ? winner.dataPoint : undefined;
+};
+
+/**
  * Average a range of values in the given data table
  * @param {Array}  data    table containing objects with parameters date and value
  * @param {Number} start   index to start averaging
@@ -1976,7 +2145,7 @@ links.Graph.prototype._average = function(data, start, length) {
     var sumValue = 0;
     var countValue = 0;
 
-    for (row = start, end = Math.min(start+length, data.length); row < end; row++) {
+    for (var row = start, end = Math.min(start+length, data.length); row < end; row++) {
         var d = data[row];
         if (d.date != undefined) {
             sumDate += d.date.getTime();
@@ -2411,7 +2580,7 @@ links.Graph.prototype._checkSize = function() {
 
 /**
  * Start a moving operation inside the provided parent element
- * @param {event}       event         The event that occurred (required for
+ * @param {Event}       event         The event that occurred (required for
  *                                    retrieving the  mouse position)
  */
 links.Graph.prototype._onMouseDown = function(event) {
@@ -2436,8 +2605,8 @@ links.Graph.prototype._onMouseDown = function(event) {
     this._checkSize();
 
     // get mouse position
-    this.startMouseX = event.clientX || event.targetTouches[0].clientX;
-    this.startMouseY =  event.clientY || event.targetTouches[0].clientY;
+    this.startMouseX = links.Graph._getClientX(event);
+    this.startMouseY = links.Graph._getClientY(event);
 
     this.startStart = new Date(this.start);
     this.startEnd = new Date(this.end);
@@ -2463,13 +2632,13 @@ links.Graph.prototype._onMouseDown = function(event) {
 /**
  * Perform moving operating.
  * This function activated from within the funcion links.Graph._onMouseDown().
- * @param {event}   event  Well, eehh, the event
+ * @param {Event}   event  Well, eehh, the event
  */
 links.Graph.prototype._onMouseMove = function (event) {
     event = event || window.event;
 
-    var mouseX = event.clientX || event.targetTouches[0].clientX;
-    var mouseY = event.clientY || event.targetTouches[0].clientY;
+    var mouseX = links.Graph._getClientX(event);
+    var mouseY = links.Graph._getClientY(event);
 
     // calculate change in mouse position
     var diffX = parseFloat(mouseX) - this.startMouseX;
@@ -2536,6 +2705,7 @@ links.Graph.prototype._onMouseMove = function (event) {
         this._redrawData();
     }
     this._redrawAxisLeftMajorLabel(); // reposition the left major label
+    this._redrawDataTooltip();
 
     // fire a rangechange event
     var properties = {'start': new Date(this.start),
@@ -2547,8 +2717,33 @@ links.Graph.prototype._onMouseMove = function (event) {
 
 
 /**
+ * Perform mouse hover
+ * @param {Event} event
+ */
+links.Graph.prototype._onMouseHover = function (event) {
+    // TODO: handle touch
+    var leftButtonDown = event.which ? (event.which == 1) : (event.button == 1);
+    if (leftButtonDown) {
+        return;
+    }
+
+    var mouseX = links.Graph._getClientX(event);
+    var mouseY = links.Graph._getClientY(event);
+    var offsetX = links.Graph._getAbsoluteLeft(this.frame);
+    var offsetY = links.Graph._getAbsoluteTop(this.frame);
+
+    // calculate the timestamp from the mouse position
+    var date = this._screenToTime(mouseX - offsetX);
+    var value = this.screenToY(mouseY - offsetY);
+
+    // find the value closest to the current date
+    var dataPoint = this._findClosestDataPoint(date, value);
+    this._setTooltip(dataPoint);
+};
+
+/**
  * Stop moving operating.
- * This function activated from within the funcion links.Graph._onMouseDown().
+ * This function activated from within the function links.Graph._onMouseDown().
  * @param {event}  event   The event
  */
 links.Graph.prototype._onMouseUp = function (event) {
@@ -2689,8 +2884,7 @@ links.Graph.prototype._onWheel = function(event) {
  * @return {number} left        The absolute left position of this element
  *                              in the browser page.
  */
-links.Graph._getAbsoluteLeft = function(elem)
-{
+links.Graph._getAbsoluteLeft = function(elem) {
     var left = 0;
     while( elem != null ) {
         left += elem.offsetLeft;
@@ -2710,8 +2904,7 @@ links.Graph._getAbsoluteLeft = function(elem)
  * @return {number} top         The absolute top position of this element
  *                              in the browser page.
  */
-links.Graph._getAbsoluteTop = function(elem)
-{
+links.Graph._getAbsoluteTop = function(elem) {
     var top = 0;
     while( elem != null ) {
         top += elem.offsetTop;
@@ -2723,6 +2916,44 @@ links.Graph._getAbsoluteTop = function(elem)
         top -= window.pageYOffset;
     }
     return top;
+};
+
+/**
+ * Get the horizontal mouse or touch position from given event.
+ * The method will first read event.clientX, and if not available,
+ * read the touch location
+ * @param {Event} event
+ * @return {Number | undefined} clientX
+ * @private
+ */
+links.Graph._getClientX = function(event) {
+    if (event.clientX != undefined) {
+        return event.clientX
+    }
+    if (event.targetTouches && event.targetTouches[0]) {
+        return event.targetTouches[0].clientX;
+    }
+
+    return undefined;
+};
+
+/**
+ * Get the vertical mouse or touch position from given event.
+ * The method will first read event.clientX, and if not available,
+ * read the touch location
+ * @param {Event} event
+ * @return {Number | undefined} clientX
+ * @private
+ */
+links.Graph._getClientY = function(event) {
+    if (event.clientY != undefined) {
+        return event.clientY
+    }
+    if (event.targetTouches && event.targetTouches[0]) {
+        return event.targetTouches[0].clientY;
+    }
+
+    return undefined;
 };
 
 

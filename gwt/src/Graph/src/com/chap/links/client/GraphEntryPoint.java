@@ -124,8 +124,8 @@ public class GraphEntryPoint implements EntryPoint {
         options.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
         options.setVerticalMin(-1);
         options.setVerticalMax(1);
-        options.setMin(dtf.parse("2012-08-22"));
-        options.setMax(dtf.parse("2012-08-24"));
+        options.setMin(dtf.parse("2010-08-22"));
+        options.setMax(dtf.parse("2010-08-24"));
         options.setIntervalMin(1000L * 60L * 60L);
         
 /*

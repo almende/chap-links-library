@@ -27,10 +27,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright © 2010-2011 Almende B.V.
+ * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date	  2011-09-05
+ * @date	2011-11-23
  */
 
 package com.chap.links.client;
@@ -321,6 +321,17 @@ public class Graph extends Visualization<Graph.Options> {
 		 */
 		public final native void setZoomable(boolean zoomable) /*-{
 			this.zoomable = zoomable;
+		}-*/;
+
+		/**
+		 * Show a tooltip containing date and value when hovering over a 
+		 * function. True by default.
+		 * 
+		 * @param showTooltip
+		 *            default: true
+		 */
+		public final native void setTooltip(boolean showTooltip) /*-{
+			this.tooltip = showTooltip;
 		}-*/;
 
 		/**
