@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-09-05
- * @version 1.1.2
+ * @date    2012-11-23
+ * @version 1.2
  */
 
 
@@ -42,10 +42,8 @@
  css: make two style groups: haxis and vaxis
 
  add an option to select/deselect all functions in the legend
- add possibilty to have a horizontal axis with numbers instead of dates
- add possibility to see the actual value where you are hovering about with the mouse
+ add possibility to have a horizontal axis with numbers instead of dates
  recalculate min and max scale after each zoom action too?
- add possiblitiy to zoom vertically
 
  add a line style circle? square? triange? custom color for the circle or dot?
  enable highlighting one of the graphs (select one graph)
@@ -115,12 +113,13 @@ links.Graph = function(container) {
     this.autoDataStep = true;
     this.moveable = true;
     this.zoomable = true;
+    this.showTooltip = true;
 
     this.redrawWhileMoving = true;
 
     this.legend = undefined;
-    this.line = new Object();  // object default style for all lines
-    this.lines = new Array();  // array containing specific line styles, colors, etc.
+    this.line = {};  // object default style for all lines
+    this.lines = [];  // array containing specific line styles, colors, etc.
     /*
      this.defaultColors = ["red", "green", "blue", "magenta",
      "purple", "orange", "lime", "darkgreen", "darkblue",
@@ -208,7 +207,8 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.vStep != undefined)         this.vStepSize = options.vStep;
         if (options.vPrettyStep != undefined)   this.vPrettyStep = options.vPrettyStep;
 
-        if (options.legend != undefined)       this.legend = options.legend;  // can contain legend.width
+        if (options.legend != undefined)        this.legend = options.legend;  // can contain legend.width
+        if (options.tooltip != undefined)       this.showTooltip = options.tooltip;
 
         // TODO: add options to set the horizontal and vertical range
     }
@@ -287,7 +287,7 @@ links.Graph.prototype._readData = function(data) {
 
 
 /**
- * @constructor links.Graph.StepDate
+ * @constructor  links.Graph.StepDate
  * The class StepDate is an iterator for dates. You provide a start date and an
  * end date. The class itself determines the best scale (step size) based on the
  * provided start Date, end Date, and minimumStep.
@@ -305,12 +305,12 @@ links.Graph.prototype._readData = function(data) {
  * The class step has scales ranging from milliseconds, seconds, minutes, hours,
  * days, to years.
  *
- * Version: 0.9
+ * Version: 1.1
  *
- * @param {Date} start        The start date, for example new Date(2010, 9, 21)
- *                            or new Date(2010, 9,21,23,45,00)
- * @param {Date} end          The end date
- * @param {int}  minimumStep  Optional. Minimum step size in milliseconds
+ * @param {Date} start          The start date, for example new Date(2010, 9, 21)
+ *                              or new Date(2010, 9, 21, 23, 45, 00)
+ * @param {Date} end            The end date
+ * @param {Number}  minimumStep Optional. Minimum step size in milliseconds
  */
 links.Graph.StepDate = function(start, end, minimumStep) {
 
@@ -324,17 +324,20 @@ links.Graph.StepDate = function(start, end, minimumStep) {
     this.step = 1;
 
     // initialize the range
-    this._setRange(start, end, minimumStep);
+    this.setRange(start, end, minimumStep);
 };
 
 /// enum scale
-links.Graph.StepDate.SCALE = { MILLISECOND : 1,
-    SECOND : 2,
-    MINUTE : 3,
-    HOUR : 4,
-    DAY : 5,
-    MONTH : 6,
-    YEAR : 7};
+links.Graph.StepDate.SCALE = {
+    MILLISECOND: 1,
+    SECOND: 2,
+    MINUTE: 3,
+    HOUR: 4,
+    DAY: 5,
+    WEEKDAY: 6,
+    MONTH: 7,
+    YEAR: 8
+};
 
 
 /**
@@ -347,17 +350,17 @@ links.Graph.StepDate.SCALE = { MILLISECOND : 1,
  * @param {Date} end          The end date and time.
  * @param {int}  minimumStep  Optional. Minimum step size in milliseconds
  */
-links.Graph.StepDate.prototype._setRange = function(start, end, minimumStep) {
+links.Graph.StepDate.prototype.setRange = function(start, end, minimumStep) {
     if (isNaN(start) || isNaN(end)) {
-        // TODO: throw error?
+        //throw  "No legal start or end date in method setRange";
         return;
     }
 
-    this._start      = (start != undefined)  ? new Date(start) : new Date();
-    this._end        = (end != undefined)    ? new Date(end) : new Date();
+    this._start = (start != undefined) ? new Date(start) : new Date();
+    this._end = (end != undefined) ? new Date(end) : new Date();
 
     if (this.autoScale) {
-        this._setMinimumStep(minimumStep);
+        this.setMinimumStep(minimumStep);
     }
 };
 
@@ -366,14 +369,14 @@ links.Graph.StepDate.prototype._setRange = function(start, end, minimumStep) {
  */
 links.Graph.StepDate.prototype.start = function() {
     this.current = new Date(this._start);
-    this._roundToMinor();
+    this.roundToMinor();
 };
 
 /**
  * Round the current date to the first minor date value
  * This must be executed once when the current date is set to start Date
  */
-links.Graph.StepDate.prototype._roundToMinor = function() {
+links.Graph.StepDate.prototype.roundToMinor = function() {
     // round to floor
     // IMPORTANT: we have no breaks in this switch! (this is no bug)
     switch (this.scale) {
@@ -381,7 +384,8 @@ links.Graph.StepDate.prototype._roundToMinor = function() {
             this.current.setFullYear(this.step * Math.floor(this.current.getFullYear() / this.step));
             this.current.setMonth(0);
         case links.Graph.StepDate.SCALE.MONTH:        this.current.setDate(1);
-        case links.Graph.StepDate.SCALE.DAY:          this.current.setHours(0);
+        case links.Graph.StepDate.SCALE.DAY:          // intentional fall through
+        case links.Graph.StepDate.SCALE.WEEKDAY:      this.current.setHours(0);
         case links.Graph.StepDate.SCALE.HOUR:         this.current.setMinutes(0);
         case links.Graph.StepDate.SCALE.MINUTE:       this.current.setSeconds(0);
         case links.Graph.StepDate.SCALE.SECOND:       this.current.setMilliseconds(0);
@@ -392,13 +396,14 @@ links.Graph.StepDate.prototype._roundToMinor = function() {
         // round down to the first minor value that is a multiple of the current step size
         switch (this.scale) {
             case links.Graph.StepDate.SCALE.MILLISECOND:  this.current.setMilliseconds(this.current.getMilliseconds() - this.current.getMilliseconds() % this.step);  break;
-            case links.Graph.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() - this.current.getSeconds() % this.step);  break;
-            case links.Graph.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() - this.current.getMinutes() % this.step);  break;
-            case links.Graph.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() - this.current.getHours() % this.step);  break;
-            case links.Graph.StepDate.SCALE.DAY:          this.current.setDate((this.current.getDate()-1) - (this.current.getDate()-1) % this.step + 1);  break;
+            case links.Graph.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() - this.current.getSeconds() % this.step); break;
+            case links.Graph.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() - this.current.getMinutes() % this.step); break;
+            case links.Graph.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() - this.current.getHours() % this.step); break;
+            case links.Graph.StepDate.SCALE.WEEKDAY:      // intentional fall through
+            case links.Graph.StepDate.SCALE.DAY:          this.current.setDate((this.current.getDate()-1) - (this.current.getDate()-1) % this.step + 1); break;
             case links.Graph.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() - this.current.getMonth() % this.step);  break;
             case links.Graph.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() - this.current.getFullYear() % this.step); break;
-            default:                      break;
+            default: break;
         }
     }
 };
@@ -408,20 +413,19 @@ links.Graph.StepDate.prototype._roundToMinor = function() {
  * @return {boolean}  true if the current date has passed the end date
  */
 links.Graph.StepDate.prototype.end = function () {
-    return (this.current > this._end);
+    return (this.current.getTime() > this._end.getTime());
 };
 
 /**
  * Do the next step
  */
 links.Graph.StepDate.prototype.next = function() {
-    var prev = this.getCurrent().getTime();
+    var prev = this.current.getTime();
 
     // Two cases, needed to prevent issues with switching daylight savings
     // (end of March and end of October)
     if (this.current.getMonth() < 6)   {
-        switch (this.scale)
-        {
+        switch (this.scale) {
             case links.Graph.StepDate.SCALE.MILLISECOND:
 
                 this.current = new Date(this.current.getTime() + this.step); break;
@@ -433,6 +437,7 @@ links.Graph.StepDate.prototype.next = function() {
                 var h = this.current.getHours();
                 this.current.setHours(h - (h % this.step));
                 break;
+            case links.Graph.StepDate.SCALE.WEEKDAY:      // intentional fall through
             case links.Graph.StepDate.SCALE.DAY:          this.current.setDate(this.current.getDate() + this.step); break;
             case links.Graph.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() + this.step); break;
             case links.Graph.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() + this.step); break;
@@ -440,14 +445,12 @@ links.Graph.StepDate.prototype.next = function() {
         }
     }
     else {
-        switch (this.scale)
-        {
-            case links.Graph.StepDate.SCALE.MILLISECOND:
-
-                this.current = new Date(this.current.getTime() + this.step); break;
+        switch (this.scale) {
+            case links.Graph.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.getTime() + this.step); break;
             case links.Graph.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() + this.step); break;
             case links.Graph.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() + this.step); break;
             case links.Graph.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() + this.step); break;
+            case links.Graph.StepDate.SCALE.WEEKDAY:      // intentional fall through
             case links.Graph.StepDate.SCALE.DAY:          this.current.setDate(this.current.getDate() + this.step); break;
             case links.Graph.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() + this.step); break;
             case links.Graph.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() + this.step); break;
@@ -462,6 +465,7 @@ links.Graph.StepDate.prototype.next = function() {
             case links.Graph.StepDate.SCALE.SECOND:       if(this.current.getSeconds() < this.step) this.current.setSeconds(0);  break;
             case links.Graph.StepDate.SCALE.MINUTE:       if(this.current.getMinutes() < this.step) this.current.setMinutes(0);  break;
             case links.Graph.StepDate.SCALE.HOUR:         if(this.current.getHours() < this.step) this.current.setHours(0);  break;
+            case links.Graph.StepDate.SCALE.WEEKDAY:      // intentional fall through
             case links.Graph.StepDate.SCALE.DAY:          if(this.current.getDate() < this.step+1) this.current.setDate(1); break;
             case links.Graph.StepDate.SCALE.MONTH:        if(this.current.getMonth() < this.step) this.current.setMonth(0);  break;
             case links.Graph.StepDate.SCALE.YEAR:         break; // nothing to do for year
@@ -474,6 +478,7 @@ links.Graph.StepDate.prototype.next = function() {
         this.current = new Date(this._end);
     }
 };
+
 
 /**
  * Get the current datetime
@@ -488,17 +493,20 @@ links.Graph.StepDate.prototype.getCurrent = function() {
  * For example setScale(SCALE.MINUTES, 5) will result
  * in minor steps of 5 minutes, and major steps of an hour.
  *
- * @param {links.Graph.StepDate.SCALE} newScale  A scale. Choose from SCALE.MILLISECOND,
+ * @param {links.Graph.StepDate.SCALE} newScale
+ *                               A scale. Choose from SCALE.MILLISECOND,
  *                               SCALE.SECOND, SCALE.MINUTE, SCALE.HOUR,
- *                               SCALE.DAY, SCALE.MONTH, SCALE.YEAR.
- * @param {int}        newStep   A step size, by default 1. Choose for
+ *                               SCALE.WEEKDAY, SCALE.DAY, SCALE.MONTH,
+ *                               SCALE.YEAR.
+ * @param {Number}     newStep   A step size, by default 1. Choose for
  *                               example 1, 2, 5, or 10.
  */
 links.Graph.StepDate.prototype.setScale = function(newScale, newStep) {
     this.scale = newScale;
 
-    if (newStep > 0)
+    if (newStep > 0) {
         this.step = newStep;
+    }
 
     this.autoScale = false;
 };
@@ -514,11 +522,12 @@ links.Graph.StepDate.prototype.setAutoScale = function (enable) {
 
 /**
  * Automatically determine the scale that bests fits the provided minimum step
- * @param {int} minimumStep  The minimum step size in milliseconds
+ * @param {Number} minimumStep  The minimum step size in milliseconds
  */
-links.Graph.StepDate.prototype._setMinimumStep = function(minimumStep) {
-    if (minimumStep == undefined)
+links.Graph.StepDate.prototype.setMinimumStep = function(minimumStep) {
+    if (minimumStep == undefined) {
         return;
+    }
 
     var stepYear       = (1000 * 60 * 60 * 24 * 30 * 12);
     var stepMonth      = (1000 * 60 * 60 * 24 * 30);
@@ -541,6 +550,7 @@ links.Graph.StepDate.prototype._setMinimumStep = function(minimumStep) {
     if (stepDay*5 > minimumStep)            {this.scale = links.Graph.StepDate.SCALE.DAY;         this.step = 5;}
     if (stepDay*2 > minimumStep)            {this.scale = links.Graph.StepDate.SCALE.DAY;         this.step = 2;}
     if (stepDay > minimumStep)              {this.scale = links.Graph.StepDate.SCALE.DAY;         this.step = 1;}
+    if (stepDay/2 > minimumStep)            {this.scale = links.Graph.StepDate.SCALE.WEEKDAY;     this.step = 1;}
     if (stepHour*4 > minimumStep)           {this.scale = links.Graph.StepDate.SCALE.HOUR;        this.step = 4;}
     if (stepHour > minimumStep)             {this.scale = links.Graph.StepDate.SCALE.HOUR;        this.step = 1;}
     if (stepMinute*15 > minimumStep)        {this.scale = links.Graph.StepDate.SCALE.MINUTE;      this.step = 15;}
@@ -564,7 +574,7 @@ links.Graph.StepDate.prototype._setMinimumStep = function(minimumStep) {
  * current scale and step.
  * @param {Date} date   the date to be snapped
  */
-links.Graph.StepDate.prototype._snap = function(date) {
+links.Graph.StepDate.prototype.snap = function(date) {
     if (this.scale == links.Graph.StepDate.SCALE.YEAR) {
         var year = date.getFullYear() + Math.round(date.getMonth() / 12);
         date.setFullYear(Math.round(year / this.step) * this.step);
@@ -590,7 +600,8 @@ links.Graph.StepDate.prototype._snap = function(date) {
         date.setSeconds(0);
         date.setMilliseconds(0);
     }
-    else if (this.scale == links.Graph.StepDate.SCALE.DAY) {
+    else if (this.scale == links.Graph.StepDate.SCALE.DAY ||
+        this.scale == links.Graph.StepDate.SCALE.WEEKDAY) {
         switch (this.step) {
             case 5:
             case 2:
@@ -647,11 +658,10 @@ links.Graph.StepDate.prototype._snap = function(date) {
 /**
  * Check if the current step is a major step (for example when the step
  * is DAY, a major step is each first day of the MONTH)
- * @return true if current date is major, else false.
+ * @return {boolean} true if current date is major, else false.
  */
 links.Graph.StepDate.prototype.isMajor = function() {
-    switch (this.scale)
-    {
+    switch (this.scale) {
         case links.Graph.StepDate.SCALE.MILLISECOND:
             return (this.current.getMilliseconds() == 0);
         case links.Graph.StepDate.SCALE.SECOND:
@@ -661,6 +671,7 @@ links.Graph.StepDate.prototype.isMajor = function() {
         // Note: this is no bug. Major label is equal for both minute and hour scale
         case links.Graph.StepDate.SCALE.HOUR:
             return (this.current.getHours() == 0);
+        case links.Graph.StepDate.SCALE.WEEKDAY: // intentional fall through
         case links.Graph.StepDate.SCALE.DAY:
             return (this.current.getDate() == 1);
         case links.Graph.StepDate.SCALE.MONTH:
@@ -676,32 +687,33 @@ links.Graph.StepDate.prototype.isMajor = function() {
 /**
  * Returns formatted text for the minor axislabel, depending on the current
  * date and the scale. For example when scale is MINUTE, the current time is
- * formatted as "hh::mm".
+ * formatted as "hh:mm".
  * @param {Date} [date] custom date. if not provided, current date is taken
- * @return {string}     minor axislabel
  */
 links.Graph.StepDate.prototype.getLabelMinor = function(date) {
-    var MONTHS_SHORT = new Array("Jan", "Feb", "Mar",
+    var MONTHS_SHORT = ["Jan", "Feb", "Mar",
         "Apr", "May", "Jun",
         "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec");
+        "Oct", "Nov", "Dec"];
+    var DAYS_SHORT = ["Sun", "Mon", "Tue",
+        "Wed", "Thu", "Fri", "Sat"];
 
     if (date == undefined) {
         date = this.current;
     }
 
-    switch (this.scale)
-    {
-        case links.Graph.StepDate.SCALE.MILLISECOND:  return date.getMilliseconds();
-        case links.Graph.StepDate.SCALE.SECOND:       return date.getSeconds();
-        case links.Graph.StepDate.SCALE.MINUTE:       return this._addZeros(date.getHours(), 2) + ":" +
-            this._addZeros(date.getMinutes(), 2);
-        case links.Graph.StepDate.SCALE.HOUR:         return this._addZeros(date.getHours(), 2) + ":" +
-            this._addZeros(date.getMinutes(), 2);
-        case links.Graph.StepDate.SCALE.DAY:          return date.getDate();
+    switch (this.scale) {
+        case links.Graph.StepDate.SCALE.MILLISECOND:  return String(date.getMilliseconds());
+        case links.Graph.StepDate.SCALE.SECOND:       return String(date.getSeconds());
+        case links.Graph.StepDate.SCALE.MINUTE:
+            return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
+        case links.Graph.StepDate.SCALE.HOUR:
+            return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
+        case links.Graph.StepDate.SCALE.WEEKDAY:      return DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
+        case links.Graph.StepDate.SCALE.DAY:          return String(date.getDate());
         case links.Graph.StepDate.SCALE.MONTH:        return MONTHS_SHORT[date.getMonth()];   // month is zero based
-        case links.Graph.StepDate.SCALE.YEAR:         return date.getFullYear();
-        default:                                return "";
+        case links.Graph.StepDate.SCALE.YEAR:         return String(date.getFullYear());
+        default:                                         return "";
     }
 };
 
@@ -710,16 +722,15 @@ links.Graph.StepDate.prototype.getLabelMinor = function(date) {
  * Returns formatted text for the major axislabel, depending on the current
  * date and the scale. For example when scale is MINUTE, the major scale is
  * hours, and the hour will be formatted as "hh".
- * @param {Date} [date]  custom date. if not provided, current date is taken
- * @return {string}      major axislabel
+ * @param {Date} [date] custom date. if not provided, current date is taken
  */
 links.Graph.StepDate.prototype.getLabelMajor = function(date) {
-    var MONTHS = new Array("January", "February", "March",
+    var MONTHS = ["January", "February", "March",
         "April", "May", "June",
         "July", "August", "September",
-        "October", "November", "December");
-    var DAYS = new Array("Sunday", "Monday", "Tuesday",
-        "Wednesday", "Thursday", "Friday", "Saturday");
+        "October", "November", "December"];
+    var DAYS = ["Sunday", "Monday", "Tuesday",
+        "Wednesday", "Thursday", "Friday", "Saturday"];
 
     if (date == undefined) {
         date = this.current;
@@ -727,14 +738,14 @@ links.Graph.StepDate.prototype.getLabelMajor = function(date) {
 
     switch (this.scale) {
         case links.Graph.StepDate.SCALE.MILLISECOND:
-            return  this._addZeros(date.getHours(), 2) + ":" +
-                this._addZeros(date.getMinutes(), 2) + ":" +
-                this._addZeros(date.getSeconds(), 2);
+            return  this.addZeros(date.getHours(), 2) + ":" +
+                this.addZeros(date.getMinutes(), 2) + ":" +
+                this.addZeros(date.getSeconds(), 2);
         case links.Graph.StepDate.SCALE.SECOND:
             return  date.getDate() + " " +
                 MONTHS[date.getMonth()] + " " +
-                this._addZeros(date.getHours(), 2) + ":" +
-                this._addZeros(date.getMinutes(), 2);
+                this.addZeros(date.getHours(), 2) + ":" +
+                this.addZeros(date.getMinutes(), 2);
         case links.Graph.StepDate.SCALE.MINUTE:
             return  DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
@@ -745,11 +756,12 @@ links.Graph.StepDate.prototype.getLabelMajor = function(date) {
                 date.getDate() + " " +
                 MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
+        case links.Graph.StepDate.SCALE.WEEKDAY:
         case links.Graph.StepDate.SCALE.DAY:
             return  MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Graph.StepDate.SCALE.MONTH:
-            return date.getFullYear();
+            return String(date.getFullYear());
         default:
             return "";
     }
@@ -762,13 +774,15 @@ links.Graph.StepDate.prototype.getLabelMajor = function(date) {
  * @param {int} len     Desired final length
  * @return {string}     value with leading zeros
  */
-links.Graph.StepDate.prototype._addZeros = function(value, len) {
+links.Graph.StepDate.prototype.addZeros = function(value, len) {
     var str = "" + value;
     while (str.length < len) {
         str = "0" + str;
     }
     return str;
 };
+
+
 
 /**
  * @class StepNumber
@@ -883,16 +897,6 @@ links.Graph.StepNumber.prototype.getCurrent = function () {
     else {
         return this._current;
     }
-
-    /* TODO: cleanup
-     if (this._current < 100000) {
-     currentRounded *= 1; // remove zeros at the tail, behind the comma
-     }
-     else {
-     currentRounded = Number(currentRounded);
-     }
-     return Number(currentRounded);
-     */
 };
 
 /**
@@ -1088,10 +1092,13 @@ links.Graph.prototype._create = function () {
     var onmousedown = function (event) {me._onMouseDown(event);};
     var onmousewheel = function (event) {me._onWheel(event);};
     var ontouchstart = function (event) {me._onTouchStart(event);};
-    var onzoom = function (event) {me._onZoom(event);};
+    if (this.showTooltip) {
+        var onmousehover = function (event) {me._onMouseHover(event);};
+    }
 
     // TODO: these events are never cleaned up... can give a "memory leakage"?
     links.Graph.addEventListener(this.frame, "mousedown", onmousedown);
+    links.Graph.addEventListener(this.frame, "mousemove", onmousehover);
     links.Graph.addEventListener(this.frame, "mousewheel", onmousewheel);
     links.Graph.addEventListener(this.frame, "touchstart", ontouchstart);
     links.Graph.addEventListener(this.frame, "mousedown", function() {me._checkSize();});
@@ -1181,6 +1188,7 @@ links.Graph.prototype._zoom = function(zoomFactor, zoomAroundDate) {
 
     this._redrawHorizontalAxis();
     this._redrawData();
+    this._redrawDataTooltip();
 };
 
 /**
@@ -1357,6 +1365,7 @@ links.Graph.prototype._zoomVertical = function(zoomFactor, zoomAroundValue) {
     this._redrawVerticalAxis();
     this._redrawHorizontalAxis(); // -> width of the vertical axis can be changed
     this._redrawData();
+    this._redrawDataTooltip();
 };
 
 
@@ -1372,6 +1381,7 @@ links.Graph.prototype.redraw = function() {
     this._redrawVerticalAxis();
     this._redrawHorizontalAxis();
     this._redrawData();
+    this._redrawDataTooltip();
 
     // store the current width and height. This is needed to detect when the frame
     // was resized (externally).
@@ -1480,7 +1490,7 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
     this.minimumStep = this._screenToTime(this.axisCharWidth * 6).valueOf() -
         this._screenToTime(0).valueOf();
 
-    this.hStep._setRange(start, end, this.minimumStep);
+    this.hStep.setRange(start, end, this.minimumStep);
 
     // create a left major label
     if (this.leftMajorLabel) {
@@ -1859,22 +1869,10 @@ links.Graph.prototype._redrawData = function() {
         var data = this.data[col].data;
 
         // determine the first and last row inside the visible area
-        rowRange =
-            this._getVisbleRowRange(data, start, end, this.data[col].visibleRowRange);
+        var rowRange = this._getVisbleRowRange(data, start, end,
+            this.data[col].visibleRowRange);
         this.data[col].visibleRowRange = rowRange;
-
-        // choose a step size, depending on the width of the screen in pixels
-        // and the number of data points.
-        if ( this.autoDataStep ) {
-            // skip data points in case of much data
-            var rowCount = (rowRange.end - rowRange.start);
-            var canvasWidth = (this.frame.clientWidth + 2 * this.axisMargin);
-            var rowStep = Math.max(Math.floor(rowCount / canvasWidth), 1);
-        }
-        else {
-            // draw all data points
-            var rowStep = 1;
-        }
+        var rowStep = this._calculateRowStep(rowRange);
 
         if (visible) {
             if (style == "line" || style == "dot-line") {
@@ -1883,7 +1881,7 @@ links.Graph.prototype._redrawData = function() {
                 ctx.lineWidth = width;
 
                 ctx.beginPath();
-                row = rowRange.start;
+                var row = rowRange.start;
                 while (row <= rowRange.end) {
                     // find the first data row with a non-null value
                     while (row <= rowRange.end && data[row].value == null) {
@@ -1892,8 +1890,8 @@ links.Graph.prototype._redrawData = function() {
                     if (row <= rowRange.end) {
                         // move to the first non-null data point
                         value = data[row].value;
-                        x = this.timeToScreen(data[row].date) - offset;
-                        y = this.yToScreen(value);
+                        var x = this.timeToScreen(data[row].date) - offset;
+                        var y = this.yToScreen(value);
                         ctx.moveTo(x, y);
 
                         /* TODO: implement fill style
@@ -1948,6 +1946,191 @@ links.Graph.prototype._redrawData = function() {
 };
 
 /**
+ * Calculate the row step (skipping datapoints in case of much data)
+ * @param {Object} rowRange  Object containing parameters
+ *                               {Date} start
+ *                               {Date} end
+ * @return {Number} rowStep   an integer number
+ * @private
+ */
+links.Graph.prototype._calculateRowStep = function(rowRange) {
+    var rowStep;
+
+    // choose a step size, depending on the width of the screen in pixels
+    // and the number of data points.
+    if ( this.autoDataStep && rowRange ) {
+        // skip data points in case of much data
+        var rowCount = (rowRange.end - rowRange.start);
+        var canvasWidth = (this.frame.clientWidth + 2 * this.axisMargin);
+        rowStep = Math.max(Math.floor(rowCount / canvasWidth), 1);
+    }
+    else {
+        // draw all data points
+        rowStep = 1;
+    }
+
+    return rowStep;
+};
+
+/**
+ * Redraw the tooltip showing the currently hovered value
+ */
+links.Graph.prototype._redrawDataTooltip = function () {
+    var tooltip = this.tooltip;
+    if (this.showTooltip && tooltip) {
+        var dataPoint = tooltip.dataPoint;
+        if (dataPoint) {
+            var dot = tooltip.dot;
+            var label = tooltip.label;
+            if (!dot) {
+                dot = document.createElement('div');
+                dot.className = 'graph-tooltip-dot';
+                tooltip.dot = dot;
+
+                label = document.createElement('div');
+                label.className = 'graph-tooltip-label';
+                dot.appendChild(label);
+                tooltip.label = label;
+            }
+
+            var graph = this.frame.canvas.graph;
+            var offset = parseFloat(graph.style.left) + this.axisMargin;
+            var radius = dataPoint.radius || 4;
+            var color = dataPoint.color || '#4d4d4d';
+            var left = this.timeToScreen(dataPoint.date) + offset;
+            var top = this.yToScreen(dataPoint.value);
+
+            dot.style.left = left + 'px';
+            dot.style.top = top + 'px';
+            dot.style.borderColor = color;
+            dot.style.borderRadius = radius + 'px';
+            dot.style.borderWidth = radius + 'px';
+            dot.style.marginLeft = -radius + 'px';
+            dot.style.marginTop = -radius + 'px';
+
+            label.innerHTML = '<table>' +
+                '<tr><td>Date:</td><td>' + dataPoint.date.toISOString() + '</td></tr>' +
+                '<tr><td>Value:</td><td>' + dataPoint.value + '</td></tr>';
+            label.style.color = color;
+
+            var width = label.clientWidth + 10;
+            var graphWidth = this.timeToScreen(this.end) - this.timeToScreen(this.start);
+            var height = label.clientHeight + 10;
+            var showAbove = (top - height > 0);
+            var showRight = (left + width < graphWidth);
+            label.style.bottom = showAbove ? (radius + 'px') : '';
+            label.style.top = !showAbove ? radius + 'px' : '';
+            label.style.left = showRight ? radius + 'px' : '';
+            label.style.right = !showRight ? radius + 'px' : '';
+
+            if (!dot.parentNode) {
+                this.frame.appendChild(dot);
+            }
+        }
+        else {
+            // remove the dot when visible
+            if (tooltip.dot && tooltip.dot.parentNode) {
+                tooltip.dot.parentNode.removeChild(tooltip.dot);
+            }
+        }
+    }
+};
+
+/**
+ * Set a tooltip for the currently hovered data
+ * @param {Object} dataPoint    object containing parameters:
+ *                              {String} date
+ *                              {String} value
+ *                              {String} color
+ *                              {String} width
+ * @private
+ */
+links.Graph.prototype._setTooltip = function (dataPoint) {
+    if (!this.tooltip) {
+        this.tooltip = {};
+    }
+    this.tooltip.dataPoint = dataPoint;
+
+    this._redrawDataTooltip();
+};
+
+
+/**
+ * Find the data point closest to given date and value (eucledian distance).
+ * If no data point is found near given position, undefined is returned.
+ * @param {Date} date
+ * @param {Number} value
+ * @return {Object | undefined} dataPoint   An object containing parameters
+ *                                            {Date} date
+ *                                            {Number} value
+ *                                            {String} color
+ *                                            {Number} radius
+ * @private
+ */
+links.Graph.prototype._findClosestDataPoint = function (date, value) {
+    var maxDistance = 30; // px
+    var winner = undefined;
+
+    for (var col = 0, colCount = this.data.length; col < colCount; col++) {
+        var visible = this._getLineVisible(col);
+
+        if (visible) {
+            var rowRange = this.data[col].visibleRowRange;
+            var data = this.data[col].data;
+            var rowStep = this._calculateRowStep(rowRange);
+            var row = rowRange.start;
+
+            while (row <= rowRange.end) {
+                var dataPoint = data[row];
+                if (dataPoint.value != null ) {
+                    //if (dataPoint.date > date || row == rowRange.end) {
+
+                    // first data point found right from x.
+                    var dateDistance = Math.abs(dataPoint.date - date) * this.ttsFactor;
+                    if (dateDistance < maxDistance) {
+                        var valueDistance = Math.abs(this.yToScreen(dataPoint.value) - this.yToScreen(value));
+                        if (valueDistance < maxDistance) {
+                            var eucledianDistance = Math.sqrt(
+                                    dateDistance * dateDistance +
+                                    valueDistance * valueDistance);
+
+                            if (!winner || eucledianDistance < winner.eucledianDistance) {
+                                // we have a new winner
+                                var radius = Math.max(
+                                    (this._getLineStyle(col) == 'line') ?
+                                        this._getLineWidth(col) * 2 :
+                                        this._getLineRadius(col) * 2, 4);
+                                var color = this._getLineColor(col);
+
+                                winner = {
+                                    dateDistance: dateDistance,
+                                    valueDistance: valueDistance,
+                                    eucledianDistance: eucledianDistance,
+                                    col: col,
+                                    dataPoint: {
+                                        date: dataPoint.date,
+                                        value: dataPoint.value,
+                                        color: color,
+                                        radius: radius
+                                    }
+                                };
+                            }
+                        }
+                    }
+                    else if (dataPoint.date > date) {
+                        // skip the rest of the data
+                        row = rowRange.end;
+                    }
+                }
+                row += rowStep;
+            }
+        }
+    }
+
+    return winner ? winner.dataPoint : undefined;
+};
+
+/**
  * Average a range of values in the given data table
  * @param {Array}  data    table containing objects with parameters date and value
  * @param {Number} start   index to start averaging
@@ -1962,7 +2145,7 @@ links.Graph.prototype._average = function(data, start, length) {
     var sumValue = 0;
     var countValue = 0;
 
-    for (row = start, end = Math.min(start+length, data.length); row < end; row++) {
+    for (var row = start, end = Math.min(start+length, data.length); row < end; row++) {
         var d = data[row];
         if (d.date != undefined) {
             sumDate += d.date.getTime();
@@ -2397,7 +2580,7 @@ links.Graph.prototype._checkSize = function() {
 
 /**
  * Start a moving operation inside the provided parent element
- * @param {event}       event         The event that occurred (required for
+ * @param {Event}       event         The event that occurred (required for
  *                                    retrieving the  mouse position)
  */
 links.Graph.prototype._onMouseDown = function(event) {
@@ -2422,8 +2605,8 @@ links.Graph.prototype._onMouseDown = function(event) {
     this._checkSize();
 
     // get mouse position
-    this.startMouseX = event.clientX || event.targetTouches[0].clientX;
-    this.startMouseY =  event.clientY || event.targetTouches[0].clientY;
+    this.startMouseX = links.Graph._getClientX(event);
+    this.startMouseY = links.Graph._getClientY(event);
 
     this.startStart = new Date(this.start);
     this.startEnd = new Date(this.end);
@@ -2449,13 +2632,13 @@ links.Graph.prototype._onMouseDown = function(event) {
 /**
  * Perform moving operating.
  * This function activated from within the funcion links.Graph._onMouseDown().
- * @param {event}   event  Well, eehh, the event
+ * @param {Event}   event  Well, eehh, the event
  */
 links.Graph.prototype._onMouseMove = function (event) {
     event = event || window.event;
 
-    var mouseX = event.clientX || event.targetTouches[0].clientX;
-    var mouseY = event.clientY || event.targetTouches[0].clientY;
+    var mouseX = links.Graph._getClientX(event);
+    var mouseY = links.Graph._getClientY(event);
 
     // calculate change in mouse position
     var diffX = parseFloat(mouseX) - this.startMouseX;
@@ -2522,6 +2705,7 @@ links.Graph.prototype._onMouseMove = function (event) {
         this._redrawData();
     }
     this._redrawAxisLeftMajorLabel(); // reposition the left major label
+    this._redrawDataTooltip();
 
     // fire a rangechange event
     var properties = {'start': new Date(this.start),
@@ -2533,8 +2717,33 @@ links.Graph.prototype._onMouseMove = function (event) {
 
 
 /**
+ * Perform mouse hover
+ * @param {Event} event
+ */
+links.Graph.prototype._onMouseHover = function (event) {
+    // TODO: handle touch
+    var leftButtonDown = event.which ? (event.which == 1) : (event.button == 1);
+    if (leftButtonDown) {
+        return;
+    }
+
+    var mouseX = links.Graph._getClientX(event);
+    var mouseY = links.Graph._getClientY(event);
+    var offsetX = links.Graph._getAbsoluteLeft(this.frame);
+    var offsetY = links.Graph._getAbsoluteTop(this.frame);
+
+    // calculate the timestamp from the mouse position
+    var date = this._screenToTime(mouseX - offsetX);
+    var value = this.screenToY(mouseY - offsetY);
+
+    // find the value closest to the current date
+    var dataPoint = this._findClosestDataPoint(date, value);
+    this._setTooltip(dataPoint);
+};
+
+/**
  * Stop moving operating.
- * This function activated from within the funcion links.Graph._onMouseDown().
+ * This function activated from within the function links.Graph._onMouseDown().
  * @param {event}  event   The event
  */
 links.Graph.prototype._onMouseUp = function (event) {
@@ -2675,8 +2884,7 @@ links.Graph.prototype._onWheel = function(event) {
  * @return {number} left        The absolute left position of this element
  *                              in the browser page.
  */
-links.Graph._getAbsoluteLeft = function(elem)
-{
+links.Graph._getAbsoluteLeft = function(elem) {
     var left = 0;
     while( elem != null ) {
         left += elem.offsetLeft;
@@ -2696,8 +2904,7 @@ links.Graph._getAbsoluteLeft = function(elem)
  * @return {number} top         The absolute top position of this element
  *                              in the browser page.
  */
-links.Graph._getAbsoluteTop = function(elem)
-{
+links.Graph._getAbsoluteTop = function(elem) {
     var top = 0;
     while( elem != null ) {
         top += elem.offsetTop;
@@ -2709,6 +2916,44 @@ links.Graph._getAbsoluteTop = function(elem)
         top -= window.pageYOffset;
     }
     return top;
+};
+
+/**
+ * Get the horizontal mouse or touch position from given event.
+ * The method will first read event.clientX, and if not available,
+ * read the touch location
+ * @param {Event} event
+ * @return {Number | undefined} clientX
+ * @private
+ */
+links.Graph._getClientX = function(event) {
+    if (event.clientX != undefined) {
+        return event.clientX
+    }
+    if (event.targetTouches && event.targetTouches[0]) {
+        return event.targetTouches[0].clientX;
+    }
+
+    return undefined;
+};
+
+/**
+ * Get the vertical mouse or touch position from given event.
+ * The method will first read event.clientX, and if not available,
+ * read the touch location
+ * @param {Event} event
+ * @return {Number | undefined} clientX
+ * @private
+ */
+links.Graph._getClientY = function(event) {
+    if (event.clientY != undefined) {
+        return event.clientY
+    }
+    if (event.targetTouches && event.targetTouches[0]) {
+        return event.targetTouches[0].clientY;
+    }
+
+    return undefined;
 };
 
 

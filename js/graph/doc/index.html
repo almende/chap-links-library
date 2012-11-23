@@ -440,8 +440,9 @@ var options = {
         For example scale=SCALE.MINUTES and step=5 will result in minor steps of
         5 minutes, and major steps of an hour.
         Available scales: <code>MILLISECOND</code>, <code>SECOND</code>,
-        <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>,
-        <code>YEAR</code>. As step size, choose for example 1, 2, 5, or 10.
+        <code>MINUTE</code>, <code>HOUR</code>, <code>WEEKDAY</code>,
+        <code>DAY</code>, <code>MONTH</code>, <code>YEAR</code>.
+        As step size, choose for example 1, 2, 5, or 10.
     </td>
 </tr>
 
@@ -461,6 +462,14 @@ var options = {
     <td>See option <code>scale</code>.
     </td>
 </tr>
+
+<tr>
+    <td>tooltip</td>
+    <td>boolean</td>
+    <td>true</td>
+    <td>Show a tooltip containing date and value when hovering over a function.</td>
+</tr>
+
 <tr>
     <td>vEnd</td>
     <td>number</td>
@@ -650,8 +659,9 @@ var options = {
             For example setScale(SCALE.MINUTES, 5) will result in minor steps of
             5 minutes, and major steps of an hour.
             Available scales: <code>MILLISECOND</code>, <code>SECOND</code>,
-            <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>,
-            <code>YEAR</code>. As step size, choose for example 1, 2, 5, or 10.
+            <code>MINUTE</code>, <code>HOUR</code>, <code>WEEKDAY</code>,
+            <code>DAY</code>, <code>MONTH</code>, <code>YEAR</code>.
+            As step size, choose for example 1, 2, 5, or 10.
         </td>
     </tr>
 
@@ -961,6 +971,48 @@ div.graph-canvas {
         <td>
             color: #4d4d4d;<br>
             margin: 5px;<br>
+        </td>
+    </tr>
+
+    <tr>
+        <td>div.graph-legend-item</td>
+        <td>Each line has an legend item.</td>
+        <td>
+            color: #4d4d4d;<br>
+            margin: 5px;<br>
+        </td>
+    </tr>
+
+    <tr>
+        <td>div.graph-tooltip-dot</td>
+        <td>When hovering over a function in the graph, a tooltip is shown.
+            The dot is displayed on datapoint currently hovered.
+        </td>
+        <td>
+            position: absolute;<br>
+            width: 0;<br>
+            height: 0;<br>
+            margin-left: -4px;<br>
+            margin-top: -4px;<br>
+            border: 4px solid #4d4d4d;<br>
+            border-radius: 4px;<br>
+        </td>
+    </tr>
+
+    <tr>
+        <td>div.graph-tooltip-label</td>
+        <td>When hovering over a function in the graph, a tooltip is shown.
+            The tooltip
+        </td>
+        <td>
+            position: absolute;<br>
+            white-space: nowrap;<br>
+            background-color: rgba(255, 255, 255, 0.8);<br>
+            border: 1px solid #bfbfbf;<br>
+            border-radius: 1px;<br>
+            box-shadow: 0 0 15px rgba(128, 128, 128, 0.2);<br>
+            padding: 5px;<br>
+            color: #4d4d4d;<br>
         </td>
     </tr>
 

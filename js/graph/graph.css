@@ -3,8 +3,9 @@ div.graph-frame {
 } 
   
 div.graph-canvas {
+    position: relative;
 }
-                                             
+
 div.graph-axis {
   border-color: #bfbfbf;
   border-width: 1px;
@@ -62,4 +63,25 @@ div.graph-legend {
 div.graph-legend-item {
   color: #4D4D4D;
   margin: 5px;
-} 
+}
+
+div.graph-tooltip-dot {
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin-left: -4px;
+    margin-top: -4px;
+    border: 4px solid #4d4d4d;
+    border-radius: 4px;
+}
+
+div.graph-tooltip-label {
+    position: absolute;
+    white-space: nowrap;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #bfbfbf;
+    border-radius: 1px;
+    box-shadow: 0 0 15px rgba(128, 128, 128, 0.2);
+    padding: 5px;
+    color: #4d4d4d;
+}

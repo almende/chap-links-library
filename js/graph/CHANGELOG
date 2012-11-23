@@ -1,5 +1,13 @@
 CHAP Links Library - Graph
 
+
+2012-11-23, version 1.2
+
+- Added a tooltip showing date and value when overing over a function in the
+  graph. The tooltip can be turned on or off with the option tooltip.
+- Added a new scale "WEEKDAY", which shows the weekday in the minor label.
+
+
 2012-09-05, version 1.1.2
 
 - Fix: the options moveable and zoomable did not work at all.
