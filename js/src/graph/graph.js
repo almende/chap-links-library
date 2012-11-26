@@ -2008,8 +2008,10 @@ links.Graph.prototype._redrawDataTooltip = function () {
             dot.style.marginLeft = -radius + 'px';
             dot.style.marginTop = -radius + 'px';
 
+            var date = dataPoint.date;
+            var dateStr = date.toISOString ? date.toISOString() : date.toString();
             label.innerHTML = '<table>' +
-                '<tr><td>Date:</td><td>' + dataPoint.date.toISOString() + '</td></tr>' +
+                '<tr><td>Date:</td><td>' + dateStr + '</td></tr>' +
                 '<tr><td>Value:</td><td>' + dataPoint.value + '</td></tr>';
             label.style.color = color;
 
@@ -2018,10 +2020,10 @@ links.Graph.prototype._redrawDataTooltip = function () {
             var height = label.clientHeight + 10;
             var showAbove = (top - height > 0);
             var showRight = (left + width < graphWidth);
-            label.style.bottom = showAbove ? (radius + 'px') : '';
-            label.style.top = !showAbove ? radius + 'px' : '';
-            label.style.left = showRight ? radius + 'px' : '';
-            label.style.right = !showRight ? radius + 'px' : '';
+            label.style.bottom =  showAbove ? (radius + 'px') : null;
+            label.style.top    = !showAbove ? (radius + 'px') : null;
+            label.style.left   =  showRight ? (radius + 'px') : null;
+            label.style.right  = !showRight ? (radius + 'px') : null;
 
             if (!dot.parentNode) {
                 this.frame.appendChild(dot);
@@ -2042,7 +2044,7 @@ links.Graph.prototype._redrawDataTooltip = function () {
  *                              {String} date
  *                              {String} value
  *                              {String} color
- *                              {String} width
+ *                              {String} radius
  * @private
  */
 links.Graph.prototype._setTooltip = function (dataPoint) {
@@ -2721,9 +2723,10 @@ links.Graph.prototype._onMouseMove = function (event) {
  * @param {Event} event
  */
 links.Graph.prototype._onMouseHover = function (event) {
+    event = event || window.event;
+
     // TODO: handle touch
-    var leftButtonDown = event.which ? (event.which == 1) : (event.button == 1);
-    if (leftButtonDown) {
+    if (this.leftButtonDown) {
         return;
     }
 

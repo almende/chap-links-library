@@ -1,6 +1,12 @@
 CHAP Links Library - Graph
 
 
+<not yet released>, version 1.2.1
+
+- Fixed a bug in IE caused by the new tooltip introduced in version 1.2.0.
+  The tooltip is now working on IE 9, though not yet on IE 6-8.
+
+
 2012-11-23, version 1.2
 
 - Added a tooltip showing date and value when overing over a function in the
