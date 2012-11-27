@@ -77,6 +77,7 @@ div.graph-tooltip-dot {
 div.graph-tooltip-label {
     position: absolute;
     white-space: nowrap;
+    background-color: white;
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid #bfbfbf;
     border-radius: 1px;
