@@ -30,7 +30,7 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date	2011-11-23
+ * @date	2011-11-27
  */
 
 package com.chap.links.client;

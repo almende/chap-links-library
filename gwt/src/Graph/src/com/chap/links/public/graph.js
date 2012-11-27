@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-11-23
- * @version 1.2
+ * @date    2012-11-27
+ * @version 1.2.1
  */
 
 
@@ -1987,6 +1987,12 @@ links.Graph.prototype._redrawDataTooltip = function () {
                 dot.className = 'graph-tooltip-dot';
                 tooltip.dot = dot;
 
+                // note: attaching the dot to the DOM must be done here,
+                // else we get weird issues in IE6-8 when attaching the label
+                if (!dot.parentNode) {
+                    this.frame.canvas.appendChild(dot);
+                }
+
                 label = document.createElement('div');
                 label.className = 'graph-tooltip-label';
                 dot.appendChild(label);
@@ -2009,7 +2015,7 @@ links.Graph.prototype._redrawDataTooltip = function () {
             dot.style.marginTop = -radius + 'px';
 
             label.innerHTML = '<table>' +
-                '<tr><td>Date:</td><td>' + dataPoint.date.toISOString() + '</td></tr>' +
+                '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
                 '<tr><td>Value:</td><td>' + dataPoint.value + '</td></tr>';
             label.style.color = color;
 
@@ -2018,19 +2024,16 @@ links.Graph.prototype._redrawDataTooltip = function () {
             var height = label.clientHeight + 10;
             var showAbove = (top - height > 0);
             var showRight = (left + width < graphWidth);
-            label.style.bottom = showAbove ? (radius + 'px') : '';
-            label.style.top = !showAbove ? radius + 'px' : '';
-            label.style.left = showRight ? radius + 'px' : '';
-            label.style.right = !showRight ? radius + 'px' : '';
-
-            if (!dot.parentNode) {
-                this.frame.appendChild(dot);
-            }
+            label.style.bottom =  showAbove ? (radius + 'px') : null;
+            label.style.top    = !showAbove ? (radius + 'px') : null;
+            label.style.left   =  showRight ? (radius + 'px') : null;
+            label.style.right  = !showRight ? (radius + 'px') : null;
         }
         else {
             // remove the dot when visible
             if (tooltip.dot && tooltip.dot.parentNode) {
                 tooltip.dot.parentNode.removeChild(tooltip.dot);
+                tooltip.dot = undefined; // remove the dot, else we get issues on IE8-
             }
         }
     }
@@ -2042,7 +2045,7 @@ links.Graph.prototype._redrawDataTooltip = function () {
  *                              {String} date
  *                              {String} value
  *                              {String} color
- *                              {String} width
+ *                              {String} radius
  * @private
  */
 links.Graph.prototype._setTooltip = function (dataPoint) {
@@ -2070,6 +2073,13 @@ links.Graph.prototype._setTooltip = function (dataPoint) {
 links.Graph.prototype._findClosestDataPoint = function (date, value) {
     var maxDistance = 30; // px
     var winner = undefined;
+    var graph = this;
+    function isVisible (dataPoint) {
+        return dataPoint.date >= graph.start &&
+            dataPoint.date <= graph.end &&
+            dataPoint.value >= graph.vStart &&
+            dataPoint.value <= graph.vEnd
+    }
 
     for (var col = 0, colCount = this.data.length; col < colCount; col++) {
         var visible = this._getLineVisible(col);
@@ -2089,11 +2099,10 @@ links.Graph.prototype._findClosestDataPoint = function (date, value) {
                     var dateDistance = Math.abs(dataPoint.date - date) * this.ttsFactor;
                     if (dateDistance < maxDistance) {
                         var valueDistance = Math.abs(this.yToScreen(dataPoint.value) - this.yToScreen(value));
-                        if (valueDistance < maxDistance) {
+                        if (valueDistance < maxDistance && isVisible(dataPoint)) {
                             var eucledianDistance = Math.sqrt(
                                     dateDistance * dateDistance +
                                     valueDistance * valueDistance);
-
                             if (!winner || eucledianDistance < winner.eucledianDistance) {
                                 // we have a new winner
                                 var radius = Math.max(
@@ -2721,16 +2730,24 @@ links.Graph.prototype._onMouseMove = function (event) {
  * @param {Event} event
  */
 links.Graph.prototype._onMouseHover = function (event) {
+    event = event || window.event;
+
+    /* TODO: check target
+     var target = event.target || event.srcElement;
+    console.log(target == this.frame.canvas)
+    if (target != this.frame.canvas) {
+        return;
+    }*/
+
     // TODO: handle touch
-    var leftButtonDown = event.which ? (event.which == 1) : (event.button == 1);
-    if (leftButtonDown) {
+    if (this.leftButtonDown) {
         return;
     }
 
     var mouseX = links.Graph._getClientX(event);
     var mouseY = links.Graph._getClientY(event);
-    var offsetX = links.Graph._getAbsoluteLeft(this.frame);
-    var offsetY = links.Graph._getAbsoluteTop(this.frame);
+    var offsetX = links.Graph._getAbsoluteLeft(this.frame.canvas);
+    var offsetY = links.Graph._getAbsoluteTop(this.frame.canvas);
 
     // calculate the timestamp from the mouse position
     var date = this._screenToTime(mouseX - offsetX);
