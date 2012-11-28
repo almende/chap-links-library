@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-11-27
- * @version 1.2.1
+ * @date    2012-11-28
+ * @version 1.2.2
  */
 
 
@@ -1982,22 +1982,6 @@ links.Graph.prototype._redrawDataTooltip = function () {
         if (dataPoint) {
             var dot = tooltip.dot;
             var label = tooltip.label;
-            if (!dot) {
-                dot = document.createElement('div');
-                dot.className = 'graph-tooltip-dot';
-                tooltip.dot = dot;
-
-                // note: attaching the dot to the DOM must be done here,
-                // else we get weird issues in IE6-8 when attaching the label
-                if (!dot.parentNode) {
-                    this.frame.canvas.appendChild(dot);
-                }
-
-                label = document.createElement('div');
-                label.className = 'graph-tooltip-label';
-                dot.appendChild(label);
-                tooltip.label = label;
-            }
 
             var graph = this.frame.canvas.graph;
             var offset = parseFloat(graph.style.left) + this.axisMargin;
@@ -2005,6 +1989,33 @@ links.Graph.prototype._redrawDataTooltip = function () {
             var color = dataPoint.color || '#4d4d4d';
             var left = this.timeToScreen(dataPoint.date) + offset;
             var top = this.yToScreen(dataPoint.value);
+
+            if (!dot) {
+                dot = document.createElement('div');
+                dot.className = 'graph-tooltip-dot';
+                tooltip.dot = dot;
+            }
+            if (dot.style.borderColor != color && dot.parentNode) {
+                // note: this is a workaround for a bug in Chrome on Windows,
+                // which does not apply changed border color correctly
+                dot.parentNode.removeChild(dot);
+            }
+            if (!dot.parentNode) {
+                this.frame.canvas.appendChild(dot);
+            }
+
+            if (!label) {
+                // note: we could create label as a child of dot, but there
+                // appears to be a bug in Chrome on Windows giving issues.
+                label = document.createElement('div');
+                label.className = 'graph-tooltip-label';
+                tooltip.label = label;
+            }
+            if (!label.parentNode) {
+                // note: the label must be added to the DOM before changing
+                // its innerHTML, else you encounter a bug on IE 6-8.
+                this.frame.canvas.appendChild(label);
+            }
 
             dot.style.left = left + 'px';
             dot.style.top = top + 'px';
@@ -2016,24 +2027,27 @@ links.Graph.prototype._redrawDataTooltip = function () {
 
             label.innerHTML = '<table>' +
                 '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
-                '<tr><td>Value:</td><td>' + dataPoint.value + '</td></tr>';
+                '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>';
             label.style.color = color;
 
-            var width = label.clientWidth + 10;
+            var width = label.clientWidth;
             var graphWidth = this.timeToScreen(this.end) - this.timeToScreen(this.start);
-            var height = label.clientHeight + 10;
-            var showAbove = (top - height > 0);
-            var showRight = (left + width < graphWidth);
-            label.style.bottom =  showAbove ? (radius + 'px') : null;
-            label.style.top    = !showAbove ? (radius + 'px') : null;
-            label.style.left   =  showRight ? (radius + 'px') : null;
-            label.style.right  = !showRight ? (radius + 'px') : null;
+            var height = label.clientHeight;
+            var margin = 10;
+            var showAbove = (top - height - margin > 0);
+            var showRight = (left + width + margin < graphWidth);
+            label.style.top    = (showAbove ? (top - height - radius) : (top + radius)) + 'px';
+            label.style.left   = (showRight ? (left + radius) : (left - width - radius)) + 'px';
         }
         else {
             // remove the dot when visible
             if (tooltip.dot && tooltip.dot.parentNode) {
                 tooltip.dot.parentNode.removeChild(tooltip.dot);
                 tooltip.dot = undefined; // remove the dot, else we get issues on IE8-
+            }
+            if (tooltip.label && tooltip.label.parentNode) {
+                tooltip.label.parentNode.removeChild(tooltip.label);
+                tooltip.label = undefined; // remove the label, else we get issues on IE8-
             }
         }
     }
