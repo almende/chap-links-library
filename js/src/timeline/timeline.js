@@ -3277,14 +3277,25 @@ links.Timeline.prototype.confirmDeleteItem = function(index) {
 /**
  * Delete an item
  * @param {int} index   Index of the item to be deleted
- * @param {boolean} [preventRender=false]   Do not re-render timeline if true (optimization for multiple delete)
+ * @param {boolean} [preventRender=false]   Do not re-render timeline if true
+ *                                          (optimization for multiple delete)
  */
 links.Timeline.prototype.deleteItem = function(index, preventRender) {
     if (index >= this.items.length) {
         throw "Cannot delete row, index out of range";
     }
 
-    this.unselectItem();
+    if (this.selection) {
+        // adjust the selection
+        if (this.selection.index == index) {
+            // item to be deleted is selected
+            this.unselectItem();
+        }
+        else if (this.selection.index > index) {
+            // update selection index
+            this.selection.index--;
+        }
+    }
 
     // actually delete the item and remove it from the DOM
     var item = this.items.splice(index, 1)[0];

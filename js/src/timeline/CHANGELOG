@@ -21,6 +21,8 @@ CHAP Links Library - Timeline
   "center".
 - fixed: DataTable columns may now have their name defined as label or id,
   and the first three columns can have any order now. More robust and flexible.
+- fixed: when deleting an item via deleteItem, the currently selection is
+  maintained instead of unselected (issue #47).
 
 
 2012-09-18, version 2.3.2
