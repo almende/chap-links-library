@@ -1,5 +1,9 @@
 CHAP Links Library - Graph
 
+2012-12-29, version 1.2.3
+
+- Fixed unclosed table element in the tooltip.
+
 
 2012-11-28, version 1.2.2
 

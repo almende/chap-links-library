@@ -2027,7 +2027,8 @@ links.Graph.prototype._redrawDataTooltip = function () {
 
             label.innerHTML = '<table>' +
                 '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
-                '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>';
+                '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>' +
+                '</table>';
             label.style.color = color;
 
             var width = label.clientWidth;
