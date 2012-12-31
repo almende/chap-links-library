@@ -440,12 +440,14 @@ links.Timeline.prototype.updateData = function  (index, values) {
                     // create new column
                     var value = values[prop];
                     var valueType = 'string';
-                    if (typeof(value) == 'number')       valueType = 'number';
-                    else if (typeof(value) == 'boolean') valueType = 'boolean';
-                    else if (value instanceof Date)      valueType = 'datetime';
+                    if (typeof(value) == 'number')       {valueType = 'number';}
+                    else if (typeof(value) == 'boolean') {valueType = 'boolean';}
+                    else if (value instanceof Date)      {valueType = 'datetime';}
                     col = data.addColumn(valueType, prop);
                 }
                 data.setValue(index, col, values[prop]);
+
+                // TODO: correctly serialize the start and end Date to the desired type (Date, String, or Number)
             }
         }
     }
@@ -461,6 +463,8 @@ links.Timeline.prototype.updateData = function  (index, values) {
         for (prop in values) {
             if (values.hasOwnProperty(prop)) {
                 row[prop] = values[prop];
+
+                // TODO: correctly serialize the start and end Date to the desired type (Date, String, or Number)
             }
         }
     }
@@ -4314,8 +4318,7 @@ links.Timeline.prototype.addItem = function (itemData) {
  */
 links.Timeline.prototype.addItems = function (itemsData) {
     var timeline = this,
-        items = this.items,
-        queue = this.renderQueue;
+        items = this.items;
 
     // append the items
     itemsData.forEach(function (itemData) {
@@ -6225,39 +6228,36 @@ links.Timeline.isArray = function (obj) {
     return (Object.prototype.toString.call(obj) === '[object Array]');
 };
 
-
-
 /**
  * parse a JSON date
- * @param {Object}  date object to be parsed.  
- *
-**/
-links.Timeline.parseJSONDate = function (date)
-{
-
+ * @param {Date | String | Number} date    Date object to be parsed. Can be:
+ *                                         - a Date object like new Date(),
+ *                                         - a long like 1356970529389,
+ *                                         an ISO String like "2012-12-31T16:16:07.213Z",
+ *                                         or a .Net Date string like
+ *                                         "\/Date(1356970529389)\/"
+ * @return {Date} parsedDate
+ */
+links.Timeline.parseJSONDate = function (date) {
     //test for date
-    if (date instanceof Date)
+    if (date instanceof Date) {
         return date;
-
-
-    //test for MS format. 
-    var m = date.match(/\/Date\((-?\d+)([-\+]?\d{2})?(\d{2})?\)\//i);
-
-    if (m)
-    {
-        var offset = m[2]
-                    ? (3600000 * m[2]) //hrs offset
-                        + (60000 * m[3] * (m[2] / Math.abs(m[2]))) //mins offset
-                    : 0;
-
-        return new Date(
-                        (1 * m[1]) //ticks  
-                        + offset
-
-                    );
     }
 
-    //failing that, try to parse whatever we've got. 
-    return Date.parse(date);
+    // test for MS format.
+    var m = date.match(/\/Date\((-?\d+)([-\+]?\d{2})?(\d{2})?\)\//i);
+    if (m) {
+        var offset = m[2]
+            ? (3600000 * m[2]) // hrs offset
+            + (60000 * m[3] * (m[2] / Math.abs(m[2]))) // mins offset
+            : 0;
 
+        return new Date(
+            (1 * m[1]) // ticks
+                + offset
+        );
+    }
+
+    // failing that, try to parse whatever we've got.
+    return Date.parse(date);
 };
