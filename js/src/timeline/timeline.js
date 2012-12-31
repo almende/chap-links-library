@@ -3398,8 +3398,8 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
  */
 links.Timeline.Item = function (data, options) {
     if (data) {
-        this.start = data.start;
-        this.end = data.end;
+        this.start = links.Timeline.parseJSONDate(data.start);
+        this.end = links.Timeline.parseJSONDate(data.end);
         this.content = data.content;
         this.className = data.className;
         this.editable = data.editable;
@@ -3436,6 +3436,8 @@ links.Timeline.Item = function (data, options) {
     }
 
 };
+
+
 
 /**
  * Reflow the Item: retrieve its actual size from the DOM
@@ -6221,4 +6223,41 @@ links.Timeline.isArray = function (obj) {
         return true;
     }
     return (Object.prototype.toString.call(obj) === '[object Array]');
+};
+
+
+
+/**
+ * parse a JSON date
+ * @param {Object}  date object to be parsed.  
+ *
+**/
+links.Timeline.parseJSONDate = function (date)
+{
+
+    //test for date
+    if (date instanceof Date)
+        return date;
+
+
+    //test for MS format. 
+    var m = date.match(/\/Date\((-?\d+)([-\+]?\d{2})?(\d{2})?\)\//i);
+
+    if (m)
+    {
+        var offset = m[2]
+                    ? (3600000 * m[2]) //hrs offset
+                        + (60000 * m[3] * (m[2] / Math.abs(m[2]))) //mins offset
+                    : 0;
+
+        return new Date(
+                        (1 * m[1]) //ticks  
+                        + offset
+
+                    );
+    }
+
+    //failing that, try to parse whatever we've got. 
+    return Date.parse(date);
+
 };
