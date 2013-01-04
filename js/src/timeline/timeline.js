@@ -6245,6 +6245,7 @@ links.Timeline.parseJSONDate = function (date) {
     }
 
     // test for MS format.
+    // FIXME: will fail on a Number
     var m = date.match(/\/Date\((-?\d+)([-\+]?\d{2})?(\d{2})?\)\//i);
     if (m) {
         var offset = m[2]
