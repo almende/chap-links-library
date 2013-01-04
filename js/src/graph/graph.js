@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-11-28
- * @version 1.2.2
+ * @date    2012-12-29
+ * @version 1.2.3
  */
 
 
@@ -2689,15 +2689,16 @@ links.Graph.prototype._onMouseMove = function (event) {
 
     // adjust vertical axis setting when needed
     // TODO: put that in a separate method _applyVerticalRange()
-    vStartNew = this.startVStart + diffY;
-    vEndNew = this.startVEnd + diffY;
+    var vStartNew = this.startVStart + diffY;
+    var vEndNew = this.startVEnd + diffY;
+    var d;
     if (vStartNew < this.vMin) {
-        var d = (this.vMin - vStartNew);
+        d = (this.vMin - vStartNew);
         vStartNew += d;
         vEndNew += d;
     }
     if (vEndNew > this.vMax) {
-        var d = (vEndNew - this.vMax);
+        d = (vEndNew - this.vMax);
         vStartNew -= d;
         vEndNew -= d;
     }
