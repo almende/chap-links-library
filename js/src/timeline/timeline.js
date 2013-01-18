@@ -3402,8 +3402,12 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
  */
 links.Timeline.Item = function (data, options) {
     if (data) {
+        /* TODO: use parseJSONDate as soon as it is tested and working (in two directions)
         this.start = links.Timeline.parseJSONDate(data.start);
         this.end = links.Timeline.parseJSONDate(data.end);
+        */
+        this.start = data.start;
+        this.end = data.end;
         this.content = data.content;
         this.className = data.className;
         this.editable = data.editable;
@@ -6239,6 +6243,10 @@ links.Timeline.isArray = function (obj) {
  * @return {Date} parsedDate
  */
 links.Timeline.parseJSONDate = function (date) {
+    if (date == undefined) {
+        return undefined;
+    }
+
     //test for date
     if (date instanceof Date) {
         return date;
