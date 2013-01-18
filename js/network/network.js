@@ -34,8 +34,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-06-04
- * @version 1.2
+ * @date    2012-01-18
+ * @version 1.3
  */
 
 /*
@@ -152,7 +152,10 @@ links.Network = function(container) {
             "width": 1,
             "style": "line",
             "color": "#2B7CE9",
-            "length": 100   // px
+            //"distance": 100, //px
+            "length": 100,   // px
+            "dashlength": 10,
+            "dashgap": 5
         },
         "packages": {
             "radius": 5,
@@ -165,7 +168,8 @@ links.Network = function(container) {
             "widthMax": 64, // px
             "duration": 1.0   // seconds
         },
-        "minVelocity": 0.01,   // px/s
+        "minForce": 0.05,
+        "minVelocity": 0.02,   // px/s
         "maxIterations": 1000  // maximum number of iteration to stabilize
     };
 
@@ -200,7 +204,6 @@ links.Network = function(container) {
  */
 links.Network.prototype.draw = function(nodes, links, packages, options) {
     var nodesTable, linksTable, packagesTable;
-
     // correctly read the parameters. links and packages are optional.
     if (options != undefined) {
         nodesTable = nodes;
@@ -232,7 +235,7 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
         if (options.height != undefined)          {this.height = options.height;}
         if (options.stabilize != undefined)       {this.stabilize = options.stabilize;}
         if (options.selectable != undefined)      {this.selectable = options.selectable;}
-
+        
         // TODO: work out these options and document them
         if (options.links) {
             for (var prop in options.links) {
@@ -241,9 +244,22 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
                 }
             }
 
-            if (options.links.length != undefined && options.links.distance == undefined) {
+            if (options.links.length != undefined &&
+                    options.nodes && options.nodes.distance == undefined) {
                 this.constants.links.length   = options.links.length;
                 this.constants.nodes.distance = options.links.length * 1.25;
+            }
+            // Added to support dashed lines
+            // David Jordan
+            // 2012-08-08
+            if (options.links.dashlength != undefined) {
+                this.constants.links.dashlength   = options.links.dashlength;
+            }
+            if (options.links.dashgap != undefined) {
+                this.constants.links.dashgap   = options.links.dashgap;
+            }
+            if (options.links.altdashlength != undefined) {
+                this.constants.links.altdashlength   = options.links.altdashlength;
             }
         }
         if (options.nodes) {
@@ -430,11 +446,14 @@ links.Network.prototype._onMouseDown = function (event) {
     // we store the function onmousemove and onmouseup in the timeline, so we can
     // remove the eventlisteners lateron in the function mouseUp()
     var me = this;
-    this.onmousemove = function (event) {me._onMouseMove(event);};
-    this.onmouseup   = function (event) {me._onMouseUp(event);};
-
-    links.Network.addEventListener(document, "mousemove", me.onmousemove);
-    links.Network.addEventListener(document, "mouseup", me.onmouseup);
+    if (!this.onmousemove) {
+        this.onmousemove = function (event) {me._onMouseMove(event);};
+        links.Network.addEventListener(document, "mousemove", me.onmousemove);
+    }
+    if (!this.onmouseup) {
+        this.onmouseup = function (event) {me._onMouseUp(event);};
+        links.Network.addEventListener(document, "mouseup", me.onmouseup);
+    }
     links.Network.preventDefault(event);
 
     // store the start x and y position of the mouse
@@ -568,8 +587,14 @@ links.Network.prototype._onMouseUp = function (event) {
     }
 
     // remove event listeners here, important for Safari
-    links.Network.removeEventListener(document, "mousemove", this.onmousemove);
-    links.Network.removeEventListener(document, "mouseup",   this.onmouseup);
+    if (this.onmousemove) {
+        links.Network.removeEventListener(document, "mousemove", this.onmousemove);
+        this.onmousemove = undefined;
+    }
+    if (this.onmouseup) {
+        links.Network.removeEventListener(document, "mouseup",   this.onmouseup);
+        this.onmouseup = undefined;
+    }
     links.Network.preventDefault(event);
 
     // check selected nodes
@@ -815,13 +840,23 @@ links.Network.prototype._checkHidePopup = function (x, y) {
  * Event handler for touchstart event on mobile devices
  */
 links.Network.prototype._onTouchStart = function(event) {
+    links.Network.preventDefault(event);
+
+    if (this.touchDown) {
+        // if already moving, return
+        return;
+    }
     this.touchDown = true;
 
     var me = this;
-    this.ontouchmove = function (event) {me._onTouchMove(event);};
-    this.ontouchend   = function (event) {me._onTouchEnd(event);};
-    links.Network.addEventListener(document, "touchmove", me.ontouchmove);
-    links.Network.addEventListener(document, "touchend", me.ontouchend);
+    if (!this.ontouchmove) {
+        this.ontouchmove = function (event) {me._onTouchMove(event);};
+        links.Network.addEventListener(document, "touchmove", this.ontouchmove);
+    }
+    if (!this.ontouchend) {
+        this.ontouchend   = function (event) {me._onTouchEnd(event);};
+        links.Network.addEventListener(document, "touchend", this.ontouchend);
+    }
 
     this._onMouseDown(event);
 };
@@ -830,6 +865,7 @@ links.Network.prototype._onTouchStart = function(event) {
  * Event handler for touchmove event on mobile devices
  */
 links.Network.prototype._onTouchMove = function(event) {
+    links.Network.preventDefault(event);
     this._onMouseMove(event);
 };
 
@@ -837,10 +873,18 @@ links.Network.prototype._onTouchMove = function(event) {
  * Event handler for touchend event on mobile devices
  */
 links.Network.prototype._onTouchEnd = function(event) {
+    links.Network.preventDefault(event);
+
     this.touchDown = false;
 
-    links.Network.removeEventListener(document, "touchmove", this.ontouchmove);
-    links.Network.removeEventListener(document, "touchend",   this.ontouchend);
+    if (this.ontouchmove) {
+        links.Network.removeEventListener(document, "touchmove", this.ontouchmove);
+        this.ontouchmove = undefined;
+    }
+    if (this.ontouchend) {
+        links.Network.removeEventListener(document, "touchend", this.ontouchend);
+        this.ontouchend = undefined;
+    }
 
     this._onMouseUp(event);
 };
@@ -2537,6 +2581,29 @@ links.Network.prototype._calculateForces = function(nodeId) {
             this.nodes[n]._addForce(-fx, -fy);
             this.nodes[n2]._addForce(fx, fy);
         }
+        /* TODO: re-implement repulsion of links
+        for (var l = 0; l < links.length; l++) {
+        	var lx = links[l].from.x+(links[l].to.x - links[l].from.x)/2,
+        	    ly = links[l].from.y+(links[l].to.y - links[l].from.y)/2,
+        	    
+                // calculate normally distributed force
+                dx = nodes[n].x - lx,
+                dy = nodes[n].y - ly,
+                distance = Math.sqrt(dx * dx + dy * dy),
+                angle = Math.atan2(dy, dx),
+ 
+
+            // TODO: correct factor for repulsing force
+            //var repulsingforce = 2 * Math.exp(-5 * (distance * distance) / (dmin * dmin) ); // TODO: customize the repulsing force
+            //repulsingforce = Math.exp(-1 * (distance * distance) / (dmin * dmin) ), // TODO: customize the repulsing force
+                repulsingforce = 1 / (1 + Math.exp((distance / (minimumDistance / 2) - 1) * steepness)), // TODO: customize the repulsing force
+                fx = Math.cos(angle) * repulsingforce,
+                fy = Math.sin(angle) * repulsingforce;
+            nodes[n]._addForce(fx, fy);
+            links[l].from._addForce(-fx/2,-fy/2);
+            links[l].to._addForce(-fx/2,-fy/2);            
+        }
+        */
     }
 
     // forces caused by the links, modelled as springs
@@ -2560,6 +2627,43 @@ links.Network.prototype._calculateForces = function(nodeId) {
         link.from._addForce(-fx, -fy);
         link.to._addForce(fx, fy);
     }
+
+    /* TODO: re-implement repulsion of links
+    // repulsing forces between links
+    var minimumDistance = this.constants.links.distance,
+        steepness = 10; // higher value gives steeper slope of the force around the given minimumDistance
+    for (var l = 0; l < links.length; l++) {
+    	//Keep distance from other link centers
+    	for (var l2 = l + 1; l2 < this.links.length; l2++) {
+        	//var dmin = (nodes[n].width + nodes[n].height + nodes[n2].width + nodes[n2].height) / 1 || minimumDistance, // TODO: dmin
+            //var dmin = (nodes[n].width + nodes[n2].width)/2  || minimumDistance, // TODO: dmin
+            //dmin = 40 + ((nodes[n].width/2 + nodes[n2].width/2) || 0),
+        	var lx = links[l].from.x+(links[l].to.x - links[l].from.x)/2,
+        		ly = links[l].from.y+(links[l].to.y - links[l].from.y)/2,
+        		l2x = links[l2].from.x+(links[l2].to.x - links[l2].from.x)/2,
+        		l2y = links[l2].from.y+(links[l2].to.y - links[l2].from.y)/2,
+                         	
+            // calculate normally distributed force
+            dx = l2x - lx,
+            dy = l2y - ly,
+            distance = Math.sqrt(dx * dx + dy * dy),
+            angle = Math.atan2(dy, dx),
+ 
+
+            // TODO: correct factor for repulsing force
+            //var repulsingforce = 2 * Math.exp(-5 * (distance * distance) / (dmin * dmin) ); // TODO: customize the repulsing force
+            //repulsingforce = Math.exp(-1 * (distance * distance) / (dmin * dmin) ), // TODO: customize the repulsing force
+            repulsingforce = 1 / (1 + Math.exp((distance / minimumDistance - 1) * steepness)), // TODO: customize the repulsing force
+            fx = Math.cos(angle) * repulsingforce,
+            fy = Math.sin(angle) * repulsingforce;
+        		
+        	links[l].from._addForce(-fx, -fy);
+        	links[l].to._addForce(-fx, -fy);
+        	links[l2].from._addForce(fx, fy);
+        	links[l2].to._addForce(fx, fy);            
+        }
+    }
+    */
 };
 
 
@@ -2857,7 +2961,8 @@ links.Network.Node = function (properties, imagelist, grouplist, constants) {
     this.fy = 0.0;  // external force y
     this.vx = 0.0;  // velocity x
     this.vy = 0.0;  // velocity y
-    this.damping = 0.5; // damping factor   TODO: choose better damping factor?
+    this.minForce = constants.minForce;
+    this.damping = 0.9; // damping factor   TODO: choose better damping factor?
 };
 
 
@@ -3036,11 +3141,9 @@ links.Network.Node.prototype.isFixed = function() {
  */
 // TODO: replace this method with calculating the kinetic energy
 links.Network.Node.prototype.isMoving = function(vmin) {
-    var fmin = 0.005; // TODO
-    return (this.vx > vmin || this.vx < -vmin ||
-        this.vy > vmin || this.vy < -vmin ||
-        (!this.xFixed && Math.abs(this.fx) > fmin) ||
-        (!this.yFixed && Math.abs(this.fy) > fmin));
+    return (Math.abs(this.vx) > vmin || Math.abs(this.vy) > vmin ||
+        (!this.xFixed && Math.abs(this.fx) > this.minForce) ||
+        (!this.yFixed && Math.abs(this.fy) > this.minForce));
 };
 
 /**
@@ -3100,7 +3203,7 @@ links.Network.Node.prototype.draw = function(ctx) {
  * @return {boolean}     True if location is located on node
  */
 links.Network.Node.prototype.isOverlappingWith = function(obj) {
-    return (this.left              < obj.right &&
+    return (this.left          < obj.right &&
         this.left + this.width > obj.left &&
         this.top               < obj.bottom &&
         this.top + this.height > obj.top);
@@ -3338,6 +3441,14 @@ links.Network.Link = function (properties, network, constants) {
     this.width  = constants.links.width;
     this.value  = undefined;
     this.length = constants.links.length;
+    
+    // Added to support dashed lines
+    // David Jordan
+    // 2012-08-08
+    this.dashlength = constants.links.dashlength;
+    this.dashgap = constants.links.dashgap;
+    this.altdashlength  = constants.links.altdashlength;
+    
     this.stiffness = undefined; // depends on the length of the link
     this.color  = constants.links.color;
     this.timestamp  = undefined;
@@ -3365,6 +3476,13 @@ links.Network.Link.prototype.setProperties = function(properties) {
     if (properties.width != undefined) {this.width = properties.width;}
     if (properties.value != undefined) {this.value = properties.value;}
     if (properties.length != undefined) {this.length = properties.length;}
+    // Added to support dashed lines
+    // David Jordan
+    // 2012-08-08
+    if (properties.dashlength != undefined) {this.dashlength = properties.dashlength;}
+    if (properties.dashgap != undefined) {this.dashgap = properties.dashgap;}
+    if (properties.altdashlength != undefined) {this.altdashlength = properties.altdashlength;}
+    
     if (properties.color != undefined) {this.color = properties.color;}
     if (properties.timestamp != undefined) {this.timestamp = properties.timestamp;}
 
@@ -3407,6 +3525,7 @@ links.Network.Link.prototype.setProperties = function(properties) {
         case 'arrow':         this.draw = this._drawArrow; break;
         case 'moving-arrows': this.draw = this._drawMovingArrows; break;
         case 'moving-dot':    this.draw = this._drawMovingDot; break;
+        case 'dash-line':     this.draw = this._drawDashLine; break;
         default:              this.draw = this._drawLine; break;
     }
 };
@@ -3483,6 +3602,67 @@ links.Network.Link.prototype.setLength = function(length) {
     }
 };
 
+/**
+ * Retrieve the length of the links dashes. Can be undefined
+ * @author David Jordan
+ * @date 2012-08-08
+ * @return {Number} dashlength
+ */
+links.Network.Link.prototype.getDashLength = function() {
+    return this.dashlength;
+};
+
+/**
+ * Adjust the length of the links dashes. 
+ * @author David Jordan
+ * @date 2012-08-08
+ * @param {Number} dashlength
+ */
+links.Network.Link.prototype.setDashLength = function(dashlength) {
+    this.dashlength = dashlength;
+};
+
+/**
+ * Retrieve the length of the links dashes gaps. Can be undefined
+ * @author David Jordan
+ * @date 2012-08-08
+ * @return {Number} dashgap
+ */
+links.Network.Link.prototype.getDashGap = function() {
+    return this.dashgap;
+};
+
+/**
+ * Adjust the length of the links dashes gaps. 
+ * @author David Jordan
+ * @date 2012-08-08
+ * @param {Number} dashgap
+ */
+links.Network.Link.prototype.setDashGap = function(dashgap) {
+    this.dashgap = dashgap;
+};
+
+/**
+ * Retrieve the length of the links alternate dashes. Can be undefined
+ * @author David Jordan
+ * @date 2012-08-08
+ * @return {Number} altdashlength
+ */
+links.Network.Link.prototype.getAltDashLength = function() {
+    return this.altdashlength;
+};
+
+/**
+ * Adjust the length of the links alternate dashes.
+ * @author David Jordan
+ * @date 2012-08-08
+ * @param {Number} altdashlength
+ */
+links.Network.Link.prototype.setAltDashLength = function(altdashlength) {
+    this.altdashlength = altdashlength;
+};
+
+
 
 /**
  * Redraw a link
@@ -3554,7 +3734,6 @@ links.Network._dist = function (x1,y1, x2,y2, x3,y3) { // x3,y3 is the point
     return Math.sqrt(dx*dx + dy*dy);
 };
 
-
 /**
  * Redraw a link as a line
  * Draw this link in the given canvas
@@ -3569,6 +3748,69 @@ links.Network.Link.prototype._drawLine = function(ctx) {
     ctx.beginPath();
     ctx.moveTo(this.from.x, this.from.y);
     ctx.lineTo(this.to.x, this.to.y);
+    ctx.stroke();
+};
+
+/**
+ * Sets up the dashedLine functionality for drawing
+ * Original code came from http://stackoverflow.com/questions/4576724/dotted-stroke-in-canvas
+ * @author David Jordan
+ * @date 2012-08-08
+ */
+var CP = window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
+if (CP && CP.lineTo){
+  CP.dashedLine = function(x,y,x2,y2,dashArray){
+    if (!dashArray) dashArray=[10,5];
+    if (dashLength==0) dashLength = 0.001; // Hack for Safari
+    var dashCount = dashArray.length;
+    this.moveTo(x, y);
+    var dx = (x2-x), dy = (y2-y);
+    var slope = dy/dx;
+    var distRemaining = Math.sqrt( dx*dx + dy*dy );
+    var dashIndex=0, draw=true;
+    while (distRemaining>=0.1){
+      var dashLength = dashArray[dashIndex++%dashCount];
+      if (dashLength > distRemaining) dashLength = distRemaining;
+      var xStep = Math.sqrt( dashLength*dashLength / (1 + slope*slope) );
+      if (dx<0) xStep = -xStep;
+      x += xStep
+      y += slope*xStep;
+      this[draw ? 'lineTo' : 'moveTo'](x,y);
+      distRemaining -= dashLength;
+      draw = !draw;
+    }
+  }
+}
+
+/**
+ * Redraw a link as a dashed line
+ * Draw this link in the given canvas
+ * @author David Jordan
+ * @date 2012-08-08
+ * The 2d context of a HTML canvas can be retrieved by canvas.getContext("2d");
+ * @param {CanvasRenderingContext2D}   ctx
+ */
+links.Network.Link.prototype._drawDashLine = function(ctx) {
+    // set style
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.width;
+
+    ctx.beginPath();
+    ctx.lineCap = 'round';
+    
+	if (this.altdashlength != undefined) //If an alt dash value has been set add to the array this value
+    {
+    	ctx.dashedLine(this.from.x,this.from.y,this.to.x,this.to.y,[this.dashlength,this.dashgap,this.altdashlength,this.dashgap]);
+    }
+    else if (this.dashlength != undefined && this.dashgap != undefined) //If a dash and gap value has been set add to the array this value
+    {
+    	ctx.dashedLine(this.from.x,this.from.y,this.to.x,this.to.y,[this.dashlength,this.dashgap]);
+    }
+    else //If all else fails draw a line
+	{
+    	ctx.moveTo(this.from.x, this.from.y);
+        ctx.lineTo(this.to.x, this.to.y);
+	}
     ctx.stroke();
 };
 
@@ -3782,6 +4024,9 @@ links.Network.Package.prototype.setProperties = function(properties, constants) 
     if (properties.value != undefined) {this.value = properties.value;}
     if (properties.image != undefined) {this.image = properties.image;}
     if (properties.color != undefined) {this.color = properties.color;}
+    if (properties.dashlength != undefined) {this.dashlength = properties.dashlength;}
+    if (properties.dashgap != undefined) {this.dashgap = properties.dashgap;}
+    if (properties.altdashlength != undefined) {this.altdashlength = properties.altdashlength;}
     if (properties.progress != undefined) {this.progress = properties.progress;}
     if (properties.timestamp != undefined) {this.timestamp = properties.timestamp;}
     if (properties.duration != undefined) {this.duration = properties.duration;}

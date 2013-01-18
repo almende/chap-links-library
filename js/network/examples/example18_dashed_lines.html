@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Links Network demo</title>
+
+    <style type="text/css">
+        body {
+            font: 10pt sans;
+        }
+    </style>
+
+    <script type="text/javascript" src="../network.js"></script>
+
+    <script type="text/javascript">
+        // Called on page load
+        function draw() {
+            var nodesTable = [
+                {"id": 1, "text": "dashed\nline\nexamples"},
+                {"id": 2, "text": "default"},
+                {"id": 3, "text": "dashlength: 20\ndashgap: 20"},
+                {"id": 4, "text": "dashlength: 20\ndashgap: 5"},
+                {"id": 5, "text": "dashlength: 5\ndashgap: 20"},
+                {"id": 6, "text": "dashlength: 20\ndashgap: 5\naltdashlength: 5"}
+            ];
+            var linksTable = [
+                {"from": 1, "to": 2, "style": "dash-line"},
+                {"from": 1, "to": 3, "style": "dash-line", "dashlength": 20, "dashgap": 20},
+                {"from": 1, "to": 4, "style": "dash-line", "dashlength": 20, "dashgap": 5},
+                {"from": 1, "to": 5, "style": "dash-line", "dashlength": 5, "dashgap": 20},
+                {"from": 1, "to": 6, "style": "dash-line", "dashlength": 20, "dashgap": 5, "altdashlength": 5}
+            ];
+
+            // specify options
+            var options = {
+                "width": "600px",
+                "height": "600px",
+                "links": {
+                    "length": 150
+                },
+                "stabilize": false
+            };
+
+            // Instantiate our graph object.
+            var network = new links.Network(document.getElementById('mynetwork'));
+
+            // Draw our graph with the created data and options
+            network.draw(nodesTable, linksTable, options);
+        }
+    </script>
+</head>
+
+<body onload="draw();">
+    <p>
+        This example shows the different options for dashed lines.
+    </p>
+
+    <div id="mynetwork"></div>
+</body>
+</html>
