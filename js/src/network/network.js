@@ -34,7 +34,7 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-08-13
+ * @date    <not yet released>
  * @version 1.3
  */
 
@@ -445,11 +445,14 @@ links.Network.prototype._onMouseDown = function (event) {
     // we store the function onmousemove and onmouseup in the timeline, so we can
     // remove the eventlisteners lateron in the function mouseUp()
     var me = this;
-    this.onmousemove = function (event) {me._onMouseMove(event);};
-    this.onmouseup   = function (event) {me._onMouseUp(event);};
-
-    links.Network.addEventListener(document, "mousemove", me.onmousemove);
-    links.Network.addEventListener(document, "mouseup", me.onmouseup);
+    if (!this.onmousemove) {
+        this.onmousemove = function (event) {me._onMouseMove(event);};
+        links.Network.addEventListener(document, "mousemove", me.onmousemove);
+    }
+    if (!this.onmouseup) {
+        this.onmouseup = function (event) {me._onMouseUp(event);};
+        links.Network.addEventListener(document, "mouseup", me.onmouseup);
+    }
     links.Network.preventDefault(event);
 
     // store the start x and y position of the mouse
@@ -583,8 +586,14 @@ links.Network.prototype._onMouseUp = function (event) {
     }
 
     // remove event listeners here, important for Safari
-    links.Network.removeEventListener(document, "mousemove", this.onmousemove);
-    links.Network.removeEventListener(document, "mouseup",   this.onmouseup);
+    if (this.onmousemove) {
+        links.Network.removeEventListener(document, "mousemove", this.onmousemove);
+        this.onmousemove = undefined;
+    }
+    if (this.onmouseup) {
+        links.Network.removeEventListener(document, "mouseup",   this.onmouseup);
+        this.onmouseup = undefined;
+    }
     links.Network.preventDefault(event);
 
     // check selected nodes
@@ -830,13 +839,23 @@ links.Network.prototype._checkHidePopup = function (x, y) {
  * Event handler for touchstart event on mobile devices
  */
 links.Network.prototype._onTouchStart = function(event) {
+    links.Network.preventDefault(event);
+
+    if (this.touchDown) {
+        // if already moving, return
+        return;
+    }
     this.touchDown = true;
 
     var me = this;
-    this.ontouchmove = function (event) {me._onTouchMove(event);};
-    this.ontouchend   = function (event) {me._onTouchEnd(event);};
-    links.Network.addEventListener(document, "touchmove", me.ontouchmove);
-    links.Network.addEventListener(document, "touchend", me.ontouchend);
+    if (!this.ontouchmove) {
+        this.ontouchmove = function (event) {me._onTouchMove(event);};
+        links.Network.addEventListener(document, "touchmove", this.ontouchmove);
+    }
+    if (!this.ontouchend) {
+        this.ontouchend   = function (event) {me._onTouchEnd(event);};
+        links.Network.addEventListener(document, "touchend", this.ontouchend);
+    }
 
     this._onMouseDown(event);
 };
@@ -845,6 +864,7 @@ links.Network.prototype._onTouchStart = function(event) {
  * Event handler for touchmove event on mobile devices
  */
 links.Network.prototype._onTouchMove = function(event) {
+    links.Network.preventDefault(event);
     this._onMouseMove(event);
 };
 
@@ -852,10 +872,18 @@ links.Network.prototype._onTouchMove = function(event) {
  * Event handler for touchend event on mobile devices
  */
 links.Network.prototype._onTouchEnd = function(event) {
+    links.Network.preventDefault(event);
+
     this.touchDown = false;
 
-    links.Network.removeEventListener(document, "touchmove", this.ontouchmove);
-    links.Network.removeEventListener(document, "touchend",   this.ontouchend);
+    if (this.ontouchmove) {
+        links.Network.removeEventListener(document, "touchmove", this.ontouchmove);
+        this.ontouchmove = undefined;
+    }
+    if (this.ontouchend) {
+        links.Network.removeEventListener(document, "touchend", this.ontouchend);
+        this.ontouchend = undefined;
+    }
 
     this._onMouseUp(event);
 };
