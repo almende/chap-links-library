@@ -27,10 +27,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright © 2010-2012 Almende B.V.
+ * Copyright © 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date	2011-11-28
+ * @date	2013-01-18
  */
 
 package com.chap.links.client;

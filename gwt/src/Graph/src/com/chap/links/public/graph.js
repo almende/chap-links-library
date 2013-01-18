@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-11-28
- * @version 1.2.2
+ * @date    2013-01-18
+ * @version 1.2.4
  */
 
 
@@ -2027,7 +2027,8 @@ links.Graph.prototype._redrawDataTooltip = function () {
 
             label.innerHTML = '<table>' +
                 '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
-                '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>';
+                '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>' +
+                '</table>';
             label.style.color = color;
 
             var width = label.clientWidth;
@@ -2644,10 +2645,14 @@ links.Graph.prototype._onMouseDown = function(event) {
     // we store the function onmousemove and onmouseup in the graph, so we can
     // remove the eventlisteners lateron in the function mouseUp()
     var me = this;
-    this.onmousemove = function (event) {me._onMouseMove(event);};
-    this.onmouseup   = function (event) {me._onMouseUp(event);};
-    links.Graph.addEventListener(document, "mousemove", this.onmousemove);
-    links.Graph.addEventListener(document, "mouseup", this.onmouseup);
+    if (!this.onmousemove) {
+        this.onmousemove = function (event) {me._onMouseMove(event);};
+        links.Graph.addEventListener(document, "mousemove", this.onmousemove);
+    }
+    if (!this.onmouseup) {
+        this.onmouseup = function (event) {me._onMouseUp(event);};
+        links.Graph.addEventListener(document, "mouseup", this.onmouseup);
+    }
     links.Graph.preventDefault(event);
 };
 
@@ -2688,15 +2693,16 @@ links.Graph.prototype._onMouseMove = function (event) {
 
     // adjust vertical axis setting when needed
     // TODO: put that in a separate method _applyVerticalRange()
-    vStartNew = this.startVStart + diffY;
-    vEndNew = this.startVEnd + diffY;
+    var vStartNew = this.startVStart + diffY;
+    var vEndNew = this.startVEnd + diffY;
+    var d;
     if (vStartNew < this.vMin) {
-        var d = (this.vMin - vStartNew);
+        d = (this.vMin - vStartNew);
         vStartNew += d;
         vEndNew += d;
     }
     if (vEndNew > this.vMax) {
-        var d = (vEndNew - this.vMax);
+        d = (vEndNew - this.vMax);
         vStartNew -= d;
         vEndNew -= d;
     }
@@ -2793,8 +2799,14 @@ links.Graph.prototype._onMouseUp = function (event) {
     this.trigger('rangechanged', properties);
 
     // remove event listeners
-    links.Graph.removeEventListener(document, "mousemove", this.onmousemove);
-    links.Graph.removeEventListener(document, "mouseup",   this.onmouseup);
+    if (this.onmousemove) {
+        links.Graph.removeEventListener(document, "mousemove", this.onmousemove);
+        this.onmousemove = undefined;
+    }
+    if (this.onmouseup) {
+        links.Graph.removeEventListener(document, "mouseup",   this.onmouseup);
+        this.onmouseup = undefined;
+    }
     links.Graph.preventDefault(event);
 };
 
@@ -2804,13 +2816,23 @@ links.Graph.prototype._onMouseUp = function (event) {
  * Event handler for touchstart event on mobile devices
  */
 links.Graph.prototype._onTouchStart = function(event) {
+    links.Graph.preventDefault(event);
+
+    if (this.touchDown) {
+        // if already moving, return
+        return;
+    }
     this.touchDown = true;
 
     var me = this;
-    this.ontouchmove = function (event) {me._onTouchMove(event);};
-    this.ontouchend   = function (event) {me._onTouchEnd(event);};
-    links.Graph.addEventListener(document, "touchmove", me.ontouchmove);
-    links.Graph.addEventListener(document, "touchend", me.ontouchend);
+    if (!this.ontouchmove) {
+        this.ontouchmove = function (event) {me._onTouchMove(event);};
+        links.Graph.addEventListener(document, "touchmove", this.ontouchmove);
+    }
+    if (!this.ontouchend) {
+        this.ontouchend   = function (event) {me._onTouchEnd(event);};
+        links.Graph.addEventListener(document, "touchend", this.ontouchend);
+    }
 
     this._onMouseDown(event);
 };
@@ -2819,6 +2841,7 @@ links.Graph.prototype._onTouchStart = function(event) {
  * Event handler for touchmove event on mobile devices
  */
 links.Graph.prototype._onTouchMove = function(event) {
+    links.Graph.preventDefault(event);
     this._onMouseMove(event);
 };
 
@@ -2826,10 +2849,17 @@ links.Graph.prototype._onTouchMove = function(event) {
  * Event handler for touchend event on mobile devices
  */
 links.Graph.prototype._onTouchEnd = function(event) {
+    links.Graph.preventDefault(event);
     this.touchDown = false;
 
-    links.Graph.removeEventListener(document, "touchmove", this.ontouchmove);
-    links.Graph.removeEventListener(document, "touchend",   this.ontouchend);
+    if (this.ontouchmove) {
+        links.Graph.removeEventListener(document, "touchmove", this.ontouchmove);
+        this.ontouchmove = undefined;
+    }
+    if (this.ontouchend) {
+        links.Graph.removeEventListener(document, "touchend", this.ontouchend);
+        this.ontouchend = undefined;
+    }
 
     this._onMouseUp(event);
 };
