@@ -169,7 +169,7 @@ links.Network = function(container) {
             "duration": 1.0   // seconds
         },
         "minForce": 0.05,
-        "minVelocity": 0.05,   // px/s
+        "minVelocity": 0.02,   // px/s
         "maxIterations": 1000  // maximum number of iteration to stabilize
     };
 
@@ -244,7 +244,8 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
                 }
             }
 
-            if (options.links.length != undefined && options.nodes.distance == undefined) {
+            if (options.links.length != undefined &&
+                    options.nodes && options.nodes.distance == undefined) {
                 this.constants.links.length   = options.links.length;
                 this.constants.nodes.distance = options.links.length * 1.25;
             }
@@ -2961,7 +2962,7 @@ links.Network.Node = function (properties, imagelist, grouplist, constants) {
     this.vx = 0.0;  // velocity x
     this.vy = 0.0;  // velocity y
     this.minForce = constants.minForce;
-    this.damping = 0.5; // damping factor   TODO: choose better damping factor?
+    this.damping = 0.9; // damping factor   TODO: choose better damping factor?
 };
 
 
@@ -3202,7 +3203,7 @@ links.Network.Node.prototype.draw = function(ctx) {
  * @return {boolean}     True if location is located on node
  */
 links.Network.Node.prototype.isOverlappingWith = function(obj) {
-    return (this.left              < obj.right &&
+    return (this.left          < obj.right &&
         this.left + this.width > obj.left &&
         this.top               < obj.bottom &&
         this.top + this.height > obj.top);
