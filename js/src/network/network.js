@@ -34,7 +34,7 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    <not yet released>
+ * @date    2012-01-18
  * @version 1.3
  */
 
@@ -152,8 +152,8 @@ links.Network = function(container) {
             "width": 1,
             "style": "line",
             "color": "#2B7CE9",
-            "distance": 100, //px
-            "length": 50,   // px
+            //"distance": 100, //px
+            "length": 100,   // px
             "dashlength": 10,
             "dashgap": 5
         },
@@ -168,7 +168,7 @@ links.Network = function(container) {
             "widthMax": 64, // px
             "duration": 1.0   // seconds
         },
-        "minForce": 0.02,
+        "minForce": 0.05,
         "minVelocity": 0.05,   // px/s
         "maxIterations": 1000  // maximum number of iteration to stabilize
     };
@@ -244,7 +244,7 @@ links.Network.prototype.draw = function(nodes, links, packages, options) {
                 }
             }
 
-            if (options.links.length != undefined && options.links.distance == undefined) {
+            if (options.links.length != undefined && options.nodes.distance == undefined) {
                 this.constants.links.length   = options.links.length;
                 this.constants.nodes.distance = options.links.length * 1.25;
             }
@@ -2580,6 +2580,7 @@ links.Network.prototype._calculateForces = function(nodeId) {
             this.nodes[n]._addForce(-fx, -fy);
             this.nodes[n2]._addForce(fx, fy);
         }
+        /* TODO: re-implement repulsion of links
         for (var l = 0; l < links.length; l++) {
         	var lx = links[l].from.x+(links[l].to.x - links[l].from.x)/2,
         	    ly = links[l].from.y+(links[l].to.y - links[l].from.y)/2,
@@ -2601,6 +2602,7 @@ links.Network.prototype._calculateForces = function(nodeId) {
             links[l].from._addForce(-fx/2,-fy/2);
             links[l].to._addForce(-fx/2,-fy/2);            
         }
+        */
     }
 
     // forces caused by the links, modelled as springs
@@ -2624,8 +2626,9 @@ links.Network.prototype._calculateForces = function(nodeId) {
         link.from._addForce(-fx, -fy);
         link.to._addForce(fx, fy);
     }
-    
-   // repulsing forces between links
+
+    /* TODO: re-implement repulsion of links
+    // repulsing forces between links
     var minimumDistance = this.constants.links.distance,
         steepness = 10; // higher value gives steeper slope of the force around the given minimumDistance
     for (var l = 0; l < links.length; l++) {
@@ -2659,7 +2662,7 @@ links.Network.prototype._calculateForces = function(nodeId) {
         	links[l2].to._addForce(fx, fy);            
         }
     }
-
+    */
 };
 
 
@@ -3137,10 +3140,9 @@ links.Network.Node.prototype.isFixed = function() {
  */
 // TODO: replace this method with calculating the kinetic energy
 links.Network.Node.prototype.isMoving = function(vmin) {
-    var fmin = this.minForce; // TODO
     return (Math.abs(this.vx) > vmin || Math.abs(this.vy) > vmin ||
-        (!this.xFixed && Math.abs(this.fx) > fmin) ||
-        (!this.yFixed && Math.abs(this.fy) > fmin));
+        (!this.xFixed && Math.abs(this.fx) > this.minForce) ||
+        (!this.yFixed && Math.abs(this.fy) > this.minForce));
 };
 
 /**
