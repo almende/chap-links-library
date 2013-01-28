@@ -1,11 +1,11 @@
 package com.chap.links.client;
 
+import com.chap.links.client.events.SelectHandler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.visualization.client.AbstractDrawOptions;
 import com.google.gwt.visualization.client.visualizations.Visualization;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * The treegrid is a visualization chart to display data in grid view
@@ -14,9 +14,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * TreeGrid class is a GWT wrapper for the javascript code.
  */
 public class TreeGrid extends Visualization<TreeGrid.Options> {
-
-  private JavaScriptObject selectEventHandler_ = null;
-  private AsyncCallback<JavaScriptObject> onSelectCallback_ = null;
 
 	/**
 	 * Options for drawing the treegrid. Create an instance via the method
@@ -248,45 +245,24 @@ public class TreeGrid extends Visualization<TreeGrid.Options> {
 	}
 
   /**
-   * Add row select event handler
+   * Add a select handler.
+   * When the user clicks on a TreeGrid's row, the corresponding row is selected and the
+   * visualization then fires the select event.
    *
-   * @param onSelectCallback
+   * @param handler		A select handler
    */
-  public void addSelectEventHandler(AsyncCallback<JavaScriptObject> onSelectCallback) {
-    onSelectCallback_ = onSelectCallback;
-    selectEventHandler_ = createSelectEventHandler();
-    addSelectEventHandler(getJso(), selectEventHandler_);
+  public final void addSelectHandler(com.google.gwt.visualization.client.events.SelectHandler handler) {
+    com.google.gwt.visualization.client.events.SelectHandler.addHandler(this, "select", handler);
   }
 
   /**
-   * Remove row select event handler
+   * Add a select handler.
+   * When the user clicks on a TreeGrid's row, the corresponding row is selected and the
+   * visualization then fires the select event.
+   *
+   * @param handler		A select handler
    */
-  public void removeSelectEventHandler() {
-    if (selectEventHandler_ != null)
-      removeSelectEventHandler(getJso(), selectEventHandler_);
-    selectEventHandler_ = null;
-    onSelectCallback_ = null;
-  }
-
-  private native void addSelectEventHandler(JavaScriptObject jso, JavaScriptObject eventHandler) /*-{
-    $wnd.links.events.addListener(jso, 'select', eventHandler);
-  }-*/;
-
-  private native void removeSelectEventHandler(JavaScriptObject jso, JavaScriptObject eventHandler) /*-{
-    $wnd.links.events.removeListener(jso, 'select', eventHandler);
-  }-*/;
-
-  private native JavaScriptObject createSelectEventHandler() /*-{
-    var self = this;
-    return function (params) {
-      var item = (params && params.items) ? params.items[0] : undefined;
-      if (item)
-        self.@com.chap.links.client.TreeGrid::onSelect(Lcom/google/gwt/core/client/JavaScriptObject;)(item);
-    };
-  }-*/;
-
-  private void onSelect(JavaScriptObject jso) {
-    if (onSelectCallback_ != null)
-      onSelectCallback_.onSuccess(jso);
+  public final void addSelectHandler(SelectHandler handler) {
+    SelectHandler.addHandler(this, "select", handler);
   }
 }
