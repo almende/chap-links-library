@@ -692,8 +692,8 @@ links.Timeline.prototype.getDataRange = function (withMargin) {
     }
 
     return {
-        'min': min ? new Date(min) : undefined,
-        'max': max ? new Date(max) : undefined
+        'min': min != undefined ? new Date(min) : undefined,
+        'max': max != undefined ? new Date(max) : undefined
     };
 };
 
