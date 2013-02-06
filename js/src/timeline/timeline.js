@@ -194,7 +194,8 @@ links.Timeline = function(container) {
         'animate': true,
         'animateZoom': true,
         'cluster': false,
-        'style': 'box'
+        'style': 'box',
+        'customStackOrder': false //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
     };
 
     this.clientTimeOffset = 0;    // difference between client time and the time
@@ -4689,9 +4690,10 @@ links.Timeline.prototype.stackCancelAnimation = function() {
 
 
 /**
- * Order the items in the array this.items. The order is determined via:
+ * Order the items in the array this.items. The default order is determined via:
  * - Ranges go before boxes and dots.
  * - The item with the oldest start time goes first
+ * If a custom function has been provided via the stackorder option, then this will be used. 
  * @param {Array} items        Array with items
  * @return {Array} sortedItems Array with sorted items
  */
@@ -4699,20 +4701,22 @@ links.Timeline.prototype.stackOrder = function(items) {
     // TODO: store the sorted items, to have less work later on
     var sortedItems = items.concat([]);
 
-    var f = function (a, b) {
-        if ((a instanceof links.Timeline.ItemRange) &&
-                !(b instanceof links.Timeline.ItemRange)) {
-            return -1;
-        }
+    //if a customer stack order function exists, use it. 
+    var f = this.options.customStackOrder && (typeof this.options.customStackOrder === 'function') ? this.options.customStackOrder : function (a, b)
+        {
+            if ((a instanceof links.Timeline.ItemRange) &&
+                    !(b instanceof links.Timeline.ItemRange)) {
+                return -1;
+            }
 
-        if (!(a instanceof links.Timeline.ItemRange) &&
-                (b instanceof links.Timeline.ItemRange)) {
-            return 1;
-        }
+            if (!(a instanceof links.Timeline.ItemRange) &&
+                    (b instanceof links.Timeline.ItemRange)) {
+                return 1;
+            }
 
 
-        return (a.left - b.left);
-    };
+            return (a.left - b.left);
+        };
 
     sortedItems.sort(f);
 
