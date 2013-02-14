@@ -4398,7 +4398,8 @@ links.Timeline.prototype.changeItem = function (index, itemData) {
         'start':   itemData.hasOwnProperty('start') ?   itemData.start :   oldItem.start,
         'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
         'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
-        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group)
+        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
+		'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className
     });
     this.items[index] = newItem;
 
