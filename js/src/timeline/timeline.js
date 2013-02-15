@@ -4850,9 +4850,9 @@ links.Timeline.prototype.stackMoveOneStep = function(currentItems, finalItems) {
  */
 links.Timeline.prototype.stackMoveToFinal = function(currentItems, finalItems) {
     // Put the events directly at there final position
-    for (i = 0, iMax = currentItems.length; i < iMax; i++) {
-        var current = currentItems[i],
-            finalItem = finalItems[i];
+    for (i = 0, iMax = finalItems.length; i < iMax; i++) {
+        var finalItem = finalItems[i],
+            current = finalItem.item;
 
         current.left = finalItem.left;
         current.top = finalItem.top;
