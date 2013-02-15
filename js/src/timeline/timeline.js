@@ -107,6 +107,11 @@ if (!Array.prototype.forEach) {
  *                                  be created. Normally a div element.
  */
 links.Timeline = function(container) {
+    if (!container) {
+      // this call was propably only for inheritance, no constructor-code is required
+      return;
+    }
+    
     // create variables and set default values
     this.dom = {};
     this.conversion = {};
