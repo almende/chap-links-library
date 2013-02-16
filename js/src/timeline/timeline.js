@@ -4813,7 +4813,7 @@ links.Timeline.prototype.stackMoveOneStep = function(currentItems, finalItems) {
     var arrived = true;
 
     // apply new positions animated
-    for (i = 0, iMax = currentItems.length; i < iMax; i++) {
+    for (i = 0, iMax = finalItems.length; i < iMax; i++) {
         var finalItem = finalItems[i],
             item = finalItem.item;
 
