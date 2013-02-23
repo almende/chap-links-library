@@ -4563,7 +4563,7 @@ links.Timeline.ItemPeriod.prototype.getRight = function (timeline) {
  * @return {boolean} resizable
  * @override
  */
-links.Timeline.Item.prototype.isMarker = function () {
+links.Timeline.ItemPeriod.prototype.isMarker = function () {
     return true;
 };
 
