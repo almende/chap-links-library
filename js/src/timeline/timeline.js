@@ -175,7 +175,8 @@ links.Timeline = function(container) {
         'intervalMin': 10,     // milliseconds
         'intervalMax': 1000 * 60 * 60 * 24 * 365 * 10000, // milliseconds
 
-        'moveable': true,
+        'itemsMovable': true,
+        'movable': true,
         'zoomable': true,
         'selectable': true,
         'editable': false,
@@ -278,6 +279,18 @@ links.Timeline.prototype.setOptions = function(options) {
             }
         }
 
+        if (options['editable'] && !options.hasOwnProperty('itemsEditable')) {
+            this.options['itemsEditable'] = true;
+        }
+        if (options['editable'] && options.hasOwnProperty('itemsEditable')
+            && !options.hasOwnProperty('itemsMovable') && !options.hasOwnProperty('itemsResizable')
+            && !options.hasOwnProperty('itemsDeletable') && !options.hasOwnProperty('itemsChangable')) {
+            this.options['itemsChangable'] = true;
+            this.options['itemsMovable'] = true;
+            this.options['itemsResizable'] = true;
+            this.options['itemsDeletable'] = true;
+        }
+
         // check for deprecated options
         if (options.showButtonAdd != undefined) {
             this.options.showButtonNew = options.showButtonAdd;
@@ -374,6 +387,10 @@ links.Timeline.prototype.setData = function(data) {
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
                 'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
+                'changeable':  ((cols.changeable != undefined)  ? data.getValue(row, cols.changeable)  : undefined),
+                'movable':  ((cols.movable != undefined)  ? data.getValue(row, cols.movable)  : undefined),
+                'resizable':  ((cols.resizable != undefined)  ? data.getValue(row, cols.resizable)  : undefined),
+                'deletable':  ((cols.deletable != undefined)  ? data.getValue(row, cols.deletable)  : undefined),
                 'type':      ((cols.type != undefined)      ? data.getValue(row, cols.type)      : undefined)
             }));
         }
@@ -2043,7 +2060,7 @@ links.Timeline.prototype.repaintDeleteButton = function () {
 
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
-    if (item && item.rendered && this.isEditable(item)) {
+    if (item && item.rendered && this.isDeletable(item)) {
         var right = item.getRight(this),
             top = item.top;
 
@@ -2096,9 +2113,7 @@ links.Timeline.prototype.repaintDragAreas = function () {
     // reposition left and right drag area
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
-    if (item && item.rendered && this.isEditable(item) &&
-            (item instanceof links.Timeline.ItemRange) || 
-            (item instanceof links.Timeline.ItemPeriod)) {
+    if (item && item.rendered && item.end && this.isResizable(item)) {
         var left = this.timeToScreen(item.start),
             right = this.timeToScreen(item.end),
             top = item.top,
@@ -2375,6 +2390,78 @@ links.Timeline.prototype.isEditable = function (item) {
     }
     return false;
 };
+
+/**
+ * Check whether a given item's content can be changed
+ * @param {links.Timeline.Item} item
+ * @return {boolean} editable
+ */
+links.Timeline.prototype.isChangeable = function (item) {
+    if (item) {
+        if (item.changeable != undefined) {
+            return item.changeable;
+        }
+        else {
+            return this.options.hasOwnProperty("itemsChangable")? this.options.itemsChangable : this.options.editable;
+        }
+    }
+    return false;
+};
+
+/**
+ * Check whether a given item is resizable
+ * @param {links.Timeline.Item} item
+ * @return {boolean} resizable
+ */
+links.Timeline.prototype.isResizable = function (item) {
+    if (item) {
+        if (item instanceof links.Timeline.ItemRange && 
+            item instanceof links.Timeline.ItemPeriod)
+            return false;
+        if (item.resizable != undefined) {
+            return item.resizable;
+        }
+        else {
+            return this.options.hasOwnProperty("itemsResizable")? this.options.itemsResizable : this.options.editable;
+        }
+    }
+    return false;
+};
+
+/**
+ * Check whether a given item is movable
+ * @param {links.Timeline.Item} item
+ * @return {boolean} movable
+ */
+links.Timeline.prototype.isMovable = function (item) {
+    if (item) {
+        if (item.movable != undefined) {
+            return item.movable;
+        }
+        else {
+            return this.options.hasOwnProperty("itemsMovable")? this.options.itemsMovable : this.options.editable;
+        }
+    }
+    return false;
+};
+
+/**
+ * Check whether a given item is deletable
+ * @param {links.Timeline.Item} item
+ * @return {boolean} deletable
+ */
+links.Timeline.prototype.isDeletable = function (item) {
+    if (item) {
+        if (item.deletable != undefined) {
+            return item.deletable;
+        }
+        else {
+            return this.options.hasOwnProperty("itemsDeletable")? this.options.itemsDeletable : this.options.editable;
+        }
+    }
+    return false;
+};
+
 
 /**
  * Calculate the factor and offset to convert a position on screen to the
@@ -2717,7 +2804,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
             left,
             right;
 
-        if (params.itemDragLeft) {
+        if (params.itemDragLeft && this.isResizable(item)) {
             // move the start of the item
             left = params.itemLeft + diffX;
             right = params.itemRight;
@@ -2733,7 +2820,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 item.start = this.screenToTime(left);
             }
         }
-        else if (params.itemDragRight) {
+        else if (params.itemDragRight && this.isResizable(item)) {
             // move the end of the item
             left = params.itemLeft;
             right = params.itemRight + diffX;
@@ -2749,7 +2836,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 item.end = this.screenToTime(right);
             }
         }
-        else {
+        else if (this.isMovable(item)) {
             // move the item
             left = params.itemLeft + diffX;
             item.start = this.screenToTime(left);
@@ -2786,7 +2873,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
             }
         }
     }
-    else if (options.moveable) {
+    else if (options.movable) {
         var interval = (params.end.valueOf() - params.start.valueOf());
         var diffMillisecs = Math.round(parseFloat(-diffX) / size.contentWidth * interval);
         var newStart = new Date(params.start.valueOf() + diffMillisecs);
@@ -2965,7 +3052,7 @@ links.Timeline.prototype.onDblClick = function (event) {
 
     if (params.itemIndex !== undefined) {
         var item = this.items[params.itemIndex];
-        if (item && this.isEditable(item)) {
+        if (item && this.isChangeable(item)) {
             // fire the edit event
             this.trigger('edit');
         }
@@ -2998,7 +3085,8 @@ links.Timeline.prototype.onDblClick = function (event) {
                 'start': xstart,
                 'end': xend,
                 'content': content,
-                'group': this.getGroupName(group)
+                'group': this.getGroupName(group),
+                'editable': options.editable
             });
             params.itemIndex = (this.items.length - 1);
             this.selectItem(params.itemIndex);
@@ -4802,7 +4890,7 @@ links.Timeline.prototype.selectItem = function(index) {
         };
 
         // TODO: move adjusting the domItem to the item itself
-        if (this.isEditable(item)) {
+        if (this.isMovable(item)) {
             domItem.style.cursor = 'move';
         }
         item.select();
@@ -6036,7 +6124,7 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
 
     switch (this.scale) {
         case links.Timeline.StepDate.SCALE.MILLISECOND:  return String(date.getMilliseconds());
-        case links.Timeline.StepDate.SCALE.SECOND:       return String(date.getSeconds());
+        case links.Timeline.StepDate.SCALE.SECOND:       return String(date.getMinutes()) + ":"+ this.addZeros(date.getSeconds(), 2);
         case links.Timeline.StepDate.SCALE.MINUTE:
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.HOUR:
