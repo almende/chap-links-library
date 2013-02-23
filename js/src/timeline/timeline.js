@@ -4347,7 +4347,9 @@ links.Timeline.prototype.addItems = function (itemsData) {
  * @return {Object} item
  */
 links.Timeline.prototype.createItem = function(itemData) {
-    var type = itemData.end ? 'range' : this.options.style;
+    var type = itemData.type;
+    if (!type)
+        type = itemData.end ? 'range' : this.options.style;
     var data = {
         start: itemData.start,
         end: itemData.end,
@@ -4399,7 +4401,8 @@ links.Timeline.prototype.changeItem = function (index, itemData) {
         'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
         'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
         'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
-		'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className
+		'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className,
+        'type': itemData.hasOwnProperty('type') ? itemData.type : oldItem.type
     });
     this.items[index] = newItem;
 
