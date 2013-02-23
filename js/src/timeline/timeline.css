@@ -84,6 +84,9 @@ div.timeline-event-range-drag-right {
     z-index: 1000;
 }
 
+div.timeline-event-period {
+    opacity: 0.5;
+}
 
 div.timeline-event-line {
     border-left-width: 1px;

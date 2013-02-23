@@ -211,9 +211,10 @@ links.Timeline = function(container) {
     
     // add standard item types
     this.itemTypes = {
-        box:   links.Timeline.ItemBox,
-        range: links.Timeline.ItemRange,
-        dot:   links.Timeline.ItemDot
+        box:    links.Timeline.ItemBox,
+        range:  links.Timeline.ItemRange,
+        dot:    links.Timeline.ItemDot,
+        period: links.Timeline.ItemPeriod
     };
 
     // initialize data
@@ -372,7 +373,8 @@ links.Timeline.prototype.setData = function(data) {
                 'content':   ((cols.content != undefined)   ? data.getValue(row, cols.content)   : undefined),
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
-                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined)
+                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
+                'type':      ((cols.type != undefined)      ? data.getValue(row, cols.type)      : undefined)
             }));
         }
     }
@@ -2095,7 +2097,8 @@ links.Timeline.prototype.repaintDragAreas = function () {
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item) &&
-            (item instanceof links.Timeline.ItemRange)) {
+            (item instanceof links.Timeline.ItemRange) || 
+            (item instanceof links.Timeline.ItemPeriod)) {
         var left = this.timeToScreen(item.start),
             right = this.timeToScreen(item.end),
             top = item.top,
@@ -3562,6 +3565,15 @@ links.Timeline.Item.prototype.getRight = function (timeline) {
     return 0;
 };
 
+/**
+ * Check if the item is a marker item, i.e. is not stackable / may overlap the axis
+ * Makes sure that marker items don't collide with other items
+ * @return {boolean} resizable
+ */
+links.Timeline.Item.prototype.isMarker = function () {
+    // Should be implemented by sub-prototype
+    return false;
+};
 
 /**
  * @constructor links.Timeline.ItemBox
@@ -4267,6 +4279,207 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
 };
 
 /**
+ * @constructor links.Timeline.ItemPeriod
+ * @extends links.Timeline.Item
+ * @param {Object} data       Object containing parameters start, end
+ *                            content, group. type, group.
+ * @param {Object} [options]  Options to set initial property values
+ *                                {Number} top
+ *                                {Number} left
+ *                                {Number} width
+ *                                {Number} height
+ */
+links.Timeline.ItemPeriod = function (data, options) {
+    options['top'] = "0px";
+    links.Timeline.Item.call(this, data, options);
+};
+
+links.Timeline.ItemPeriod.prototype = new links.Timeline.Item();
+
+/**
+ * Select the item
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.select = function () {
+    var dom = this.dom;
+    links.Timeline.addClassName(dom, 'timeline-event-selected');
+};
+
+/**
+ * Unselect the item
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.unselect = function () {
+    var dom = this.dom;
+    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+};
+
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.createDOM = function () {
+    // background box
+    var divBox = document.createElement("DIV");
+    divBox.style.position = "absolute";
+
+    // contents box
+    var divContent = document.createElement("DIV");
+    divContent.className = "timeline-event-range-label";
+    divBox.appendChild(divContent);
+
+    this.dom = divBox;
+    this.updateDOM();
+
+    return divBox;
+};
+
+/**
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.showDOM = function (container) {
+    var dom = this.dom;
+    if (!dom) {
+        dom = this.createDOM();
+    }
+
+    if (dom.parentNode != container) {
+        if (dom.parentNode) {
+            // container changed. remove the item from the old container
+            this.hideDOM();
+        }
+
+        // append to the new container
+        container.appendChild(dom);
+        this.rendered = true;
+    }
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * The DOM will be kept in memory
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.hideDOM = function () {
+    var dom = this.dom;
+    if (dom) {
+        var parent = dom.parentNode;
+        if (parent) {
+            parent.removeChild(dom);
+            this.rendered = false;
+        }
+    }
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.updateDOM = function () {
+    var divBox = this.dom;
+    if (divBox) {
+        // update contents
+        divBox.firstChild.innerHTML = this.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-period";
+
+        if (this.isCluster) {
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
+        }
+
+        // add item specific class name when provided
+        if (this.className) {
+            links.Timeline.addClassName(divBox, this.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.updatePosition = function (timeline) {
+    var dom = this.dom;
+    if (dom) {
+            var contentWidth = timeline.size.contentWidth,
+            left = timeline.timeToScreen(this.start),
+            right = timeline.timeToScreen(this.end);
+            axisHeight = timeline.size.axis.height;
+
+        // limit the width of the this, as browsers cannot draw very wide divs
+        if (left < -contentWidth) {
+            left = -contentWidth;
+        }
+        if (right > 2 * contentWidth) {
+            right = 2 * contentWidth;
+        }
+
+        dom.style.top = "0px";
+        dom.style.left = left + "px";
+        //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
+        dom.style.width = Math.max(right - left, 1) + "px";
+        dom.style.height = timeline.size.contentHeight+axisHeight+"px";
+    }
+};
+
+/**
+ * Check if the item is visible in the timeline, and not part of a cluster
+ * @param {Number} start
+ * @param {Number} end
+ * @return {boolean} visible
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.isVisible = function (start, end) {
+    if (this.cluster) {
+        return false;
+    }
+
+    return (this.end > start)
+        && (this.start < end);
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.setPosition = function (left, right) {
+    var dom = this.dom;
+    dom.style.left = left + 'px';
+    dom.style.width = (right - left) + 'px';
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ * @override
+ */
+links.Timeline.ItemPeriod.prototype.getRight = function (timeline) {
+    return timeline.timeToScreen(this.end);
+};
+
+/**
+ * Check if the item is a marker item, i.e. is not stackable / may overlap the axis
+ * @return {boolean} resizable
+ * @override
+ */
+links.Timeline.Item.prototype.isMarker = function () {
+    return true;
+};
+
+/**
  * Retrieve the properties of an item.
  * @param {Number} index
  * @return {Object} properties   Object containing item properties:<br>
@@ -4751,12 +4964,18 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             right = item.getRight(this),
             left = right - width;
 
-        if (axisOnTop) {
-            top = axisHeight + eventMarginAxis + eventMargin / 2;
+        if (item.isMarker()) {
+            // marker items are not affected by stacking
+            top = item.top;
+        } else {
+            if (axisOnTop) {
+                top = axisHeight + eventMarginAxis + eventMargin / 2;
+            }
+            else {
+                top = axisTop - height - eventMarginAxis - eventMargin / 2;
+            }            
         }
-        else {
-            top = axisTop - height - eventMarginAxis - eventMargin / 2;
-        }
+
         bottom = top + height;
 
         finalItems[i] = {
@@ -4776,21 +4995,23 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             //for (var i = finalItems.length - 1; i >= 0; i--) {
             var finalItem = finalItems[i];
             var collidingItem = null;
-            do {
-                // TODO: optimize checking for overlap. when there is a gap without items,
-                //  you only need to check for items from the next item on, not from zero
-                collidingItem = this.stackItemsCheckOverlap(finalItems, i, 0, i-1);
-                if (collidingItem != null) {
-                    // There is a collision. Reposition the event above the colliding element
-                    if (axisOnTop) {
-                        finalItem.top = collidingItem.top + collidingItem.height + eventMargin;
+            if (!finalItem.item.isMarker()) {
+                do {
+                    // TODO: optimize checking for overlap. when there is a gap without items,
+                    //  you only need to check for items from the next item on, not from zero
+                    collidingItem = this.stackItemsCheckOverlap(finalItems, i, 0, i-1);
+                    if (collidingItem != null) {
+                        // There is a collision. Reposition the event above the colliding element
+                        if (axisOnTop) {
+                            finalItem.top = collidingItem.top + collidingItem.height + eventMargin;
+                        }
+                        else {
+                            finalItem.top = collidingItem.top - finalItem.height - eventMargin;
+                        }
+                        finalItem.bottom = finalItem.top + finalItem.height;
                     }
-                    else {
-                        finalItem.top = collidingItem.top - finalItem.height - eventMargin;
-                    }
-                    finalItem.bottom = finalItem.top + finalItem.height;
-                }
-            } while (collidingItem);
+                } while (collidingItem);
+            }
         }
     }
 
@@ -4815,28 +5036,31 @@ links.Timeline.prototype.stackMoveOneStep = function(currentItems, finalItems) {
         var finalItem = finalItems[i],
             item = finalItem.item;
 
-        var topNow = parseInt(item.top);
-        var topFinal = parseInt(finalItem.top);
-        var diff = (topFinal - topNow);
-        if (diff) {
-            var step = (topFinal == topNow) ? 0 : ((topFinal > topNow) ? 1 : -1);
-            if (Math.abs(diff) > 4) step = diff / 4;
-            var topNew = parseInt(topNow + step);
+        if (!item.isMarker()) {
+            var topNow = parseInt(item.top);
+            var topFinal = parseInt(finalItem.top);
+            var diff = (topFinal - topNow);
+            if (diff) {
+                var step = (topFinal == topNow) ? 0 : ((topFinal > topNow) ? 1 : -1);
+                if (Math.abs(diff) > 4) step = diff / 4;
+                var topNew = parseInt(topNow + step);
 
-            if (topNew != topFinal) {
-                arrived = false;
+                if (topNew != topFinal) {
+                    arrived = false;
+                }
+
+                item.top = topNew;
+                item.bottom = item.top + item.height;
             }
-
-            item.top = topNew;
-            item.bottom = item.top + item.height;
+            else {
+                item.top = finalItem.top;
+                item.bottom = finalItem.bottom;
+            }
+            
+            item.left = finalItem.left;
+            item.right = finalItem.right;
         }
-        else {
-            item.top = finalItem.top;
-            item.bottom = finalItem.bottom;
-        }
 
-        item.left = finalItem.left;
-        item.right = finalItem.right;
     }
 
     return arrived;
@@ -4857,10 +5081,13 @@ links.Timeline.prototype.stackMoveToFinal = function(currentItems, finalItems) {
         var current = currentItems[i],
             finalItem = finalItems[i];
 
-        current.left = finalItem.left;
-        current.top = finalItem.top;
-        current.right = finalItem.right;
-        current.bottom = finalItem.bottom;
+        if (!finalItem.item.isMarker()) {
+            current.left = finalItem.left;
+            current.top = finalItem.top;
+            current.right = finalItem.right;
+            current.bottom = finalItem.bottom;
+        }
+
     }
 };
 
