@@ -3413,6 +3413,7 @@ links.Timeline.Item = function (data, options) {
         this.className = data.className;
         this.editable = data.editable;
         this.group = data.group;
+        this.userdata = data.userdata;
 
         if (this.start) {
             if (this.end) {
@@ -4292,6 +4293,9 @@ links.Timeline.prototype.getItem = function (index) {
     if (item.group) {
         properties.group = this.getGroupName(item.group);
     }
+    if (item.userdata) {
+        properties.userdata = item.userdata;
+    }
 
     return properties;
 };
@@ -4355,6 +4359,7 @@ links.Timeline.prototype.createItem = function(itemData) {
         content: itemData.content,
         className: itemData.className,
         editable: itemData.editable,
+        userdata: itemData.userdata,
         group: this.getGroup(itemData.group)
     };
     // TODO: optimize this, when creating an item, all data is copied twice...
