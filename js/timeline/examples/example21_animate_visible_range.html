@@ -85,8 +85,15 @@
         }
 
         function go () {
-            var date = new Date(document.getElementById('animateDate').value);
-            animateTo(date);
+            // interpret the value as a date formatted as "yyyy-MM-dd"
+            var v = document.getElementById('animateDate').value.split('-');
+            var date = new Date(v[0], v[1], v[2]);
+            if (date.toString() == "Invalid Date") {
+                alert("Invalid Date");
+            }
+            else {
+                animateTo(date);
+            }
         }
 
     </script>
@@ -99,7 +106,7 @@
 </p>
 
 <div>
-    <input id="animateDate" value="2012-09-13">
+    <input id="animateDate" value="2012-09-13" placeholder="yyyy-MM-dd">
     <button id="go" onclick="go()">Animate to</button>
 </div>
 <br>

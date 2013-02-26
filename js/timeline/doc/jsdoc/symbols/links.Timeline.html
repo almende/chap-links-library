@@ -195,6 +195,16 @@ ul.inheritsList
 	
 	<li><a href="../symbols/links.Timeline.html">links.Timeline</a></li>
 	
+	<li><a href="../symbols/links.Timeline.ClusterGenerator.html">links.Timeline.ClusterGenerator</a></li>
+	
+	<li><a href="../symbols/links.Timeline.Item.html">links.Timeline.Item</a></li>
+	
+	<li><a href="../symbols/links.Timeline.ItemBox.html">links.Timeline.ItemBox</a></li>
+	
+	<li><a href="../symbols/links.Timeline.ItemDot.html">links.Timeline.ItemDot</a></li>
+	
+	<li><a href="../symbols/links.Timeline.ItemRange.html">links.Timeline.ItemRange</a></li>
+	
 	<li><a href="../symbols/links.Timeline.StepDate.html">links.Timeline.StepDate</a></li>
 	
 </ul>
@@ -283,7 +293,7 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addItem">addItem</a></b>(itemData)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addItem">addItem</a></b>(itemData, preventRender)
 								</div>
 								<div class="description">Add a new item.</div>
 							</td>
@@ -292,9 +302,18 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addItems">addItems</a></b>(items)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addItems">addItems</a></b>(itemsData, preventRender)
 								</div>
 								<div class="description">Add new items.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#addItemType">addItemType</a></b>(typeName, typeFactory)
+								</div>
+								<div class="description">Add new type of items</div>
 							</td>
 						</tr>
 					
@@ -343,7 +362,7 @@ event.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#changeItem">changeItem</a></b>(index, itemData)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#changeItem">changeItem</a></b>(index, itemData, preventRender)
 								</div>
 								<div class="description">Edit an item</div>
 							</td>
@@ -355,6 +374,26 @@ event.</div>
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#checkResize">checkResize</a></b>()
 								</div>
 								<div class="description">Check if the timeline is resized, and if so, redraw the timeline.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#clearItems">clearItems</a></b>()
+								</div>
+								<div class="description">This method clears the (internal) array this.items in a safe way: neatly
+cleaning up the DOM, and accompanying arrays this.renderedItems and
+the created clusters.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#clusterItems">clusterItems</a></b>()
+								</div>
+								<div class="description">Cluster the events</div>
 							</td>
 						</tr>
 					
@@ -374,34 +413,6 @@ The items must have parameters left, right, top, and bottom.</div>
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#confirmDeleteItem">confirmDeleteItem</a></b>(index)
 								</div>
 								<div class="description">Delete an item after a confirmation.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventBox">createEventBox</a></b>(item)
-								</div>
-								<div class="description">Create an event in the timeline, with (optional) formatting: inside a box
-with rounded corners, and a vertical line+dot to the axis.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventDot">createEventDot</a></b>(item)
-								</div>
-								<div class="description">Create an event in the timeline: a dot, followed by the content.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#createEventRange">createEventRange</a></b>(item)
-								</div>
-								<div class="description">Create an event range as a beam in the timeline.</div>
 							</td>
 						</tr>
 					
@@ -435,7 +446,7 @@ with rounded corners, and a vertical line+dot to the axis.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#deleteItem">deleteItem</a></b>(index)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#deleteItem">deleteItem</a></b>(index, preventRender)
 								</div>
 								<div class="description">Delete an item</div>
 							</td>
@@ -451,21 +462,11 @@ with rounded corners, and a vertical line+dot to the axis.</div>
 						</tr>
 					
 						<tr>
-							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.filterImageUrls">filterImageUrls</a></b>(elem, urls)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#filterItems">filterItems</a></b>()
 								</div>
-								<div class="description">Recursively retrieve all image urls from the images located inside a given
-HTML element</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&lt;static&gt; &nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.findColumnId">findColumnId</a></b>(dataTable, label)
-								</div>
-								<div class="description">Find a column by its label in a Google DataTable</div>
+								<div class="description">Filter the visible events</div>
 							</td>
 						</tr>
 					
@@ -535,7 +536,7 @@ HTML element</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroupFromHeight">getGroupFromHeight</a></b>(height, )
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroupFromHeight">getGroupFromHeight</a></b>(height)
 								</div>
 								<div class="description">Find the group from a given height in the timeline</div>
 							</td>
@@ -544,7 +545,7 @@ HTML element</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroupName">getGroupName</a></b>(groupObject)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#getGroupName">getGroupName</a></b>(groupObj)
 								</div>
 								<div class="description">Get the group name from a group object.</div>
 							</td>
@@ -608,9 +609,27 @@ If no item index is found, undefined is returned</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#isEditable">isEditable</a></b>(item)
+								</div>
+								<div class="description">Check whether a given item is editable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#isSelected">isSelected</a></b>(index)
 								</div>
 								<div class="description">Check if an item is currently selected</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.mapColumnIds">mapColumnIds</a></b>(dataTable)
+								</div>
+								<div class="description">Retrieve a map with the column indexes of the columns by column name.</div>
 							</td>
 						</tr>
 					
@@ -699,6 +718,15 @@ Code from http://adomas.org/javascript-mouse-wheel/</div>
 						<tr>
 							<td class="attributes">&lt;static&gt; &nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.parseJSONDate">parseJSONDate</a></b>(date)
+								</div>
+								<div class="description">parse a JSON date</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont">links.Timeline.<b><a href="../symbols/links.Timeline.html#.preventDefault">preventDefault</a></b>(event)
 								</div>
 								<div class="description">Cancels the event if it is cancelable, without stopping further propagation of the event.</div>
@@ -718,10 +746,10 @@ corresponding date and vice versa.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#recalcSize">recalcSize</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#recalcItems">recalcItems</a></b>()
 								</div>
-								<div class="description">Recalculate the sizes of all frames, groups, items, axis
-After recalcSize() is executed, the Timeline should be redrawn normally</div>
+								<div class="description">Recalculate item properties:
+- the height of each group.</div>
 							</td>
 						</tr>
 					
@@ -738,163 +766,36 @@ Reloads the (linked) data table and redraws the timeline when resized.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxis">redrawAxis</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#reflowAxis">reflowAxis</a></b>()
 								</div>
-								<div class="description">Redraw the timeline axis with minor and major labels</div>
+								<div class="description">Reflow the timeline axis.</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisCharacters">redrawAxisCharacters</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#reflowFrame">reflowFrame</a></b>()
 								</div>
-								<div class="description">Create characters used to determine the size of text on the axis</div>
+								<div class="description">Reflow the timeline frame</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisEndOverwriting">redrawAxisEndOverwriting</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#reflowGroups">reflowGroups</a></b>()
 								</div>
-								<div class="description">End of overwriting HTML DOM elements of the axis.</div>
+								<div class="description">Reflow the size of the groups</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisHorizontal">redrawAxisHorizontal</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#reflowItems">reflowItems</a></b>()
 								</div>
-								<div class="description">Redraw the horizontal line and background of the axis</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisMajorLine">redrawAxisMajorLine</a></b>(x)
-								</div>
-								<div class="description">Create a Major line for the axis at position x</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisMajorText">redrawAxisMajorText</a></b>(x, text)
-								</div>
-								<div class="description">Create a Major label for the axis at position x</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisMinorLine">redrawAxisMinorLine</a></b>(x)
-								</div>
-								<div class="description">Create a minor line for the axis at position x</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisMinorText">redrawAxisMinorText</a></b>(x, text)
-								</div>
-								<div class="description">Create a minor label for the axis at position x</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawAxisStartOverwriting">redrawAxisStartOverwriting</a></b>()
-								</div>
-								<div class="description">Initialize redraw of the axis.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawContent">redrawContent</a></b>()
-								</div>
-								<div class="description">Redraw the content of the timeline: the axis and the items</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawCurrentTime">redrawCurrentTime</a></b>()
-								</div>
-								<div class="description">Redraw the current time bar</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawCustomTime">redrawCustomTime</a></b>()
-								</div>
-								<div class="description">Redraw the custom time bar</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawDeleteButton">redrawDeleteButton</a></b>()
-								</div>
-								<div class="description">Redraw the delete button, on the top right of the currently selected item
-if there is no item selected, the button is hidden.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawDragAreas">redrawDragAreas</a></b>()
-								</div>
-								<div class="description">Redraw the drag areas.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawFrame">redrawFrame</a></b>()
-								</div>
-								<div class="description">Redraw the timeline.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawGroups">redrawGroups</a></b>()
-								</div>
-								<div class="description">Redraw the group labels</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawItems">redrawItems</a></b>()
-								</div>
-								<div class="description">Redraw all items</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#redrawNavigation">redrawNavigation</a></b>()
-								</div>
-								<div class="description">Create the navigation buttons for zooming and moving</div>
+								<div class="description">Reflow all items, retrieve their actual size</div>
 							</td>
 						</tr>
 					
@@ -919,9 +820,173 @@ if there is no item selected, the button is hidden.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repositionItem">repositionItem</a></b>(item, left, right)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#render">render</a></b>(options)
 								</div>
-								<div class="description">Reposition given item</div>
+								<div class="description">Re-render (reflow and repaint) all components of the Timeline: frame, axis,
+items, .</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaint">repaint</a></b>()
+								</div>
+								<div class="description">Repaint all components of the Timeline</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxis">repaintAxis</a></b>()
+								</div>
+								<div class="description">Redraw the timeline axis with minor and major labels</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisCharacters">repaintAxisCharacters</a></b>()
+								</div>
+								<div class="description">Create characters used to determine the size of text on the axis</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisEndOverwriting">repaintAxisEndOverwriting</a></b>()
+								</div>
+								<div class="description">End of overwriting HTML DOM elements of the axis.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisHorizontal">repaintAxisHorizontal</a></b>()
+								</div>
+								<div class="description">Repaint the horizontal line and background of the axis</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisMajorLine">repaintAxisMajorLine</a></b>(x)
+								</div>
+								<div class="description">Create a Major line for the axis at position x</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisMajorText">repaintAxisMajorText</a></b>(x, text)
+								</div>
+								<div class="description">Create a Major label for the axis at position x</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisMinorLine">repaintAxisMinorLine</a></b>(x)
+								</div>
+								<div class="description">Create a minor line for the axis at position x</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisMinorText">repaintAxisMinorText</a></b>(x, text)
+								</div>
+								<div class="description">Create a minor label for the axis at position x</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintAxisStartOverwriting">repaintAxisStartOverwriting</a></b>()
+								</div>
+								<div class="description">Initialize redraw of the axis.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintCurrentTime">repaintCurrentTime</a></b>()
+								</div>
+								<div class="description">Redraw the current time bar</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintCustomTime">repaintCustomTime</a></b>()
+								</div>
+								<div class="description">Redraw the custom time bar</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintDeleteButton">repaintDeleteButton</a></b>()
+								</div>
+								<div class="description">Redraw the delete button, on the top right of the currently selected item
+if there is no item selected, the button is hidden.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintDragAreas">repaintDragAreas</a></b>()
+								</div>
+								<div class="description">Redraw the drag areas.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintFrame">repaintFrame</a></b>()
+								</div>
+								<div class="description">repaint the Timeline frame</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintGroups">repaintGroups</a></b>()
+								</div>
+								<div class="description">Redraw the group labels</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintItems">repaintItems</a></b>()
+								</div>
+								<div class="description">Repaint all items</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#repaintNavigation">repaintNavigation</a></b>()
+								</div>
+								<div class="description">Create the navigation buttons for zooming and moving</div>
 							</td>
 						</tr>
 					
@@ -1058,7 +1123,16 @@ other.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#stackEvents">stackEvents</a></b>(animate)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#stackCancelAnimation">stackCancelAnimation</a></b>()
+								</div>
+								<div class="description">Cancel any running animation</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#stackItems">stackItems</a></b>(animate)
 								</div>
 								<div class="description">Stack the items such that they don't overlap.</div>
 							</td>
@@ -1067,7 +1141,7 @@ other.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#stackEventsCheckOverlap">stackEventsCheckOverlap</a></b>(items, itemIndex, itemStart, itemEnd)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#stackItemsCheckOverlap">stackItemsCheckOverlap</a></b>(items, itemIndex, itemStart, itemEnd)
 								</div>
 								<div class="description">Check if the destiny position of given item overlaps with any
 of the other items from index itemStart to itemEnd.</div>
@@ -1145,33 +1219,6 @@ executed once.</div>
 								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateData">updateData</a></b>(index, values)
 								</div>
 								<div class="description">Update the original data with changed start, end or group.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateEventBox">updateEventBox</a></b>(item)
-								</div>
-								<div class="description">Update the dom of the item: apply content, and apply styles</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateEventDot">updateEventDot</a></b>(item)
-								</div>
-								<div class="description">Update the dom of the item: apply content, and apply styles</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.html#updateEventRange">updateEventRange</a></b>(item)
-								</div>
-								<div class="description">Update the dom of the item: apply content, and apply styles</div>
 							</td>
 						</tr>
 					
@@ -1345,7 +1392,7 @@ executed once.</div>
 					<div class="fixedFont">
 					
 					
-					<b>addItem</b>(itemData)
+					<b>addItem</b>(itemData, preventRender)
 					
 					</div>
 					<div class="description">
@@ -1370,6 +1417,12 @@ executed once.</div>
                              {String} content (required),
                              {String} group (optional)</dd>
 							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>preventRender</b>
+									<i>Optional, Default: false</i>
+								</dt>
+								<dd>Do not re-render timeline if true</dd>
+							
 							</dl>
 						
 						
@@ -1385,7 +1438,7 @@ executed once.</div>
 					<div class="fixedFont">
 					
 					
-					<b>addItems</b>(items)
+					<b>addItems</b>(itemsData, preventRender)
 					
 					</div>
 					<div class="description">
@@ -1401,15 +1454,63 @@ executed once.</div>
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{<a href="../symbols/Array.html">Array</a>}</span> <b>items</b>
+									<span class="light fixedFont">{<a href="../symbols/Array.html">Array</a>}</span> <b>itemsData</b>
 									
 								</dt>
 								<dd>An array containing Objects.
-                      The objects must have the following parameters:
-                        {Date} start,
-                        {Date} end,
-                        {String} content with text or HTML code,
-                        {String} group</dd>
+                         The objects must have the following parameters:
+                           {Date} start,
+                           {Date} end,
+                           {String} content with text or HTML code,
+                           {String} group</dd>
+							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>preventRender</b>
+									<i>Optional, Default: false</i>
+								</dt>
+								<dd>Do not re-render timeline if true</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="addItemType"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>addItemType</b>(typeName, typeFactory)
+					
+					</div>
+					<div class="description">
+						Add new type of items
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>typeName</b>
+									
+								</dt>
+								<dd>Name of new type</dd>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/links.Timeline.Item.html">links.Timeline.Item</a>}</span> <b>typeFactory</b>
+									
+								</dt>
+								<dd>Constructor of items</dd>
 							
 							</dl>
 						
@@ -1556,7 +1657,7 @@ event. Deletion of the event will be undone.
 					<div class="fixedFont">
 					
 					
-					<b>changeItem</b>(index, itemData)
+					<b>changeItem</b>(index, itemData, preventRender)
 					
 					</div>
 					<div class="description">
@@ -1587,6 +1688,12 @@ event. Deletion of the event will be undone.
                              {String} content (required),
                              {String} group (optional)</dd>
 							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>preventRender</b>
+									<i>Optional, Default: false</i>
+								</dt>
+								<dd>Do not re-render timeline if true</dd>
+							
 							</dl>
 						
 						
@@ -1608,6 +1715,58 @@ event. Deletion of the event will be undone.
 					<div class="description">
 						Check if the timeline is resized, and if so, redraw the timeline.
 Useful when the webpage is resized.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="clearItems"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>clearItems</b>()
+					
+					</div>
+					<div class="description">
+						This method clears the (internal) array this.items in a safe way: neatly
+cleaning up the DOM, and accompanying arrays this.renderedItems and
+the created clusters.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="clusterItems"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>clusterItems</b>()
+					
+					</div>
+					<div class="description">
+						Cluster the events
 						
 						
 					</div>
@@ -1722,136 +1881,6 @@ triggered event 'delete'.
 
 					<hr />
 				
-					<a name="createEventBox"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{Element}</span>
-					<b>createEventBox</b>(item)
-					
-					</div>
-					<div class="description">
-						Create an event in the timeline, with (optional) formatting: inside a box
-with rounded corners, and a vertical line+dot to the axis.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
-								</dt>
-								<dd>Item containing optional field className</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Element}</span> dom        HTML Element containing box</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
-					<a name="createEventDot"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{Element}</span>
-					<b>createEventDot</b>(item)
-					
-					</div>
-					<div class="description">
-						Create an event in the timeline: a dot, followed by the content.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
-								</dt>
-								<dd>Item containing optional field className</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Element}</span> dom        HTML dom element</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
-					<a name="createEventRange"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{Element}</span>
-					<b>createEventRange</b>(item)
-					
-					</div>
-					<div class="description">
-						Create an event range as a beam in the timeline.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
-								</dt>
-								<dd>Item containing optional field className</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Element}</span> dom        HTML dom element</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
 					<a name="createItem"> </a>
 					<div class="fixedFont">
 					
@@ -1950,7 +1979,7 @@ with rounded corners, and a vertical line+dot to the axis.
 					<div class="fixedFont">
 					
 					
-					<b>deleteItem</b>(index)
+					<b>deleteItem</b>(index, preventRender)
 					
 					</div>
 					<div class="description">
@@ -1970,6 +1999,13 @@ with rounded corners, and a vertical line+dot to the axis.
 									
 								</dt>
 								<dd>Index of the item to be deleted</dd>
+							
+								<dt>
+									<span class="light fixedFont">{boolean}</span> <b>preventRender</b>
+									<i>Optional, Default: false</i>
+								</dt>
+								<dd>Do not re-render timeline if true
+                                         (optimization for multiple delete)</dd>
 							
 							</dl>
 						
@@ -2030,58 +2066,15 @@ A data table with the events must be provided, and an options table.
 
 					<hr />
 				
-					<a name=".filterImageUrls"> </a>
-					<div class="fixedFont">&lt;static&gt; 
+					<a name="filterItems"> </a>
+					<div class="fixedFont">
 					
 					
-					<span class="light">links.Timeline.</span><b>filterImageUrls</b>(elem, urls)
-					
-					</div>
-					<div class="description">
-						Recursively retrieve all image urls from the images located inside a given
-HTML element
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{HTMLElement}</span> <b>elem</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<span class="light fixedFont">{String[]}</span> <b>urls</b>
-									
-								</dt>
-								<dd>Urls will be added here (no duplicates)</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name=".findColumnId"> </a>
-					<div class="fixedFont">&lt;static&gt; 
-					
-					<span class="light">{Number}</span>
-					<span class="light">links.Timeline.</span><b>findColumnId</b>(dataTable, label)
+					<b>filterItems</b>()
 					
 					</div>
 					<div class="description">
-						Find a column by its label in a Google DataTable
+						Filter the visible events
 						
 						
 					</div>
@@ -2089,34 +2082,9 @@ HTML element
 					
 					
 						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{google.visualization.DataTable}</span> <b>dataTable</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<span class="light fixedFont">{String}</span> <b>label</b>
-									
-								</dt>
-								<dd>label name of the column to be found</dd>
-							
-							</dl>
 						
 						
 						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Number}</span> columnId      returns the column id of the column if found,
-                               or undefined when not found.</dd>
-							
-							</dl>
 						
 						
 						
@@ -2403,8 +2371,8 @@ it will be created.
 					<a name="getGroupFromHeight"> </a>
 					<div class="fixedFont">
 					
-					<span class="light">{Object}</span>
-					<b>getGroupFromHeight</b>(height, )
+					<span class="light">{Object | undefined}</span>
+					<b>getGroupFromHeight</b>(height)
 					
 					</div>
 					<div class="description">
@@ -2425,12 +2393,6 @@ it will be created.
 								</dt>
 								<dd>Height in the timeline</dd>
 							
-								<dt>
-									<span class="light fixedFont">{boolean}</span> <b></b>
-									
-								</dt>
-								<dd></dd>
-							
 							</dl>
 						
 						
@@ -2440,7 +2402,8 @@ it will be created.
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Object}</span> group   The group object, or undefined if out of range</dd>
+								<dd><span class="light fixedFont">{Object | undefined}</span> group   The group object, or undefined if out
+                                     of range</dd>
 							
 							</dl>
 						
@@ -2453,7 +2416,7 @@ it will be created.
 					<div class="fixedFont">
 					
 					<span class="light">{String}</span>
-					<b>getGroupName</b>(groupObject)
+					<b>getGroupName</b>(groupObj)
 					
 					</div>
 					<div class="description">
@@ -2469,7 +2432,7 @@ it will be created.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Object}</span> <b>groupObject</b>
+									<span class="light fixedFont">{Object}</span> <b>groupObj</b>
 									
 								</dt>
 								<dd></dd>
@@ -2543,7 +2506,7 @@ it will be created.
 					<a name="getItemIndex"> </a>
 					<div class="fixedFont">
 					
-					<span class="light">{Number}</span>
+					<span class="light">{Number | undefined}</span>
 					<b>getItemIndex</b>(element)
 					
 					</div>
@@ -2575,7 +2538,7 @@ If no item index is found, undefined is returned
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{Number}</span> index</dd>
+								<dd><span class="light fixedFont">{Number | undefined}</span> index</dd>
 							
 							</dl>
 						
@@ -2638,7 +2601,7 @@ If no item index is found, undefined is returned
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{MouseEvent}</span> <b>event</b>
+									<span class="light fixedFont">{Event}</span> <b>event</b>
 									
 								</dt>
 								<dd></dd>
@@ -2736,6 +2699,49 @@ If no item index is found, undefined is returned
 
 					<hr />
 				
+					<a name="isEditable"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>isEditable</b>(item)
+					
+					</div>
+					<div class="description">
+						Check whether a given item is editable
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/links.Timeline.Item.html">links.Timeline.Item</a>}</span> <b>item</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> editable</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name="isSelected"> </a>
 					<div class="fixedFont">
 					
@@ -2773,6 +2779,50 @@ If no item index is found, undefined is returned
 								<dd><span class="light fixedFont">{boolean}</span> true if row is selected, else false</dd>
 							
 							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".mapColumnIds"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{map}</span>
+					<span class="light">links.Timeline.</span><b>mapColumnIds</b>(dataTable)
+					
+					</div>
+					<div class="description">
+						Retrieve a map with the column indexes of the columns by column name.
+For example, the method returns the map
+    {
+        start: 0,
+        end: 1,
+        content: 2,
+        group: undefined,
+        className: undefined
+    }
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{google.visualization.DataTable}</span> <b>dataTable</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
 						
 						
 						
@@ -3110,6 +3160,54 @@ Code from http://adomas.org/javascript-mouse-wheel/
 
 					<hr />
 				
+					<a name=".parseJSONDate"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					<span class="light">{Date}</span>
+					<span class="light">links.Timeline.</span><b>parseJSONDate</b>(date)
+					
+					</div>
+					<div class="description">
+						parse a JSON date
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Date | String | Number}</span> <b>date</b>
+									
+								</dt>
+								<dd>Date object to be parsed. Can be:
+                                        - a Date object like new Date(),
+                                        - a long like 1356970529389,
+                                        an ISO String like "2012-12-31T16:16:07.213Z",
+                                        or a .Net Date string like
+                                        "\/Date(1356970529389)\/"</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Date}</span> parsedDate</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name=".preventDefault"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -3174,16 +3272,17 @@ timeToScreen can be used.
 
 					<hr />
 				
-					<a name="recalcSize"> </a>
+					<a name="recalcItems"> </a>
 					<div class="fixedFont">
 					
 					<span class="light">{boolean}</span>
-					<b>recalcSize</b>()
+					<b>recalcItems</b>()
 					
 					</div>
 					<div class="description">
-						Recalculate the sizes of all frames, groups, items, axis
-After recalcSize() is executed, the Timeline should be redrawn normally
+						Recalculate item properties:
+- the height of each group.
+- the actualHeight, from the stacked items or the sum of the group heights
 						
 						
 					</div>
@@ -3198,7 +3297,8 @@ After recalcSize() is executed, the Timeline should be redrawn normally
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{boolean}</span> resized   Returns true when the timeline has been resized</dd>
+								<dd><span class="light fixedFont">{boolean}</span> resized    returns true if any of the items properties is
+                             changed</dd>
 							
 							</dl>
 						
@@ -3234,15 +3334,15 @@ See also the method checkResize
 
 					<hr />
 				
-					<a name="redrawAxis"> </a>
+					<a name="reflowAxis"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>redrawAxis</b>()
+					<span class="light">{boolean}</span>
+					<b>reflowAxis</b>()
 					
 					</div>
 					<div class="description">
-						Redraw the timeline axis with minor and major labels
+						Reflow the timeline axis. Calculate its height, width, positioning, etc...
 						
 						
 					</div>
@@ -3253,133 +3353,28 @@ See also the method checkResize
 						
 						
 						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawAxisCharacters"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawAxisCharacters</b>()
-					
-					</div>
-					<div class="description">
-						Create characters used to determine the size of text on the axis
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawAxisEndOverwriting"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawAxisEndOverwriting</b>()
-					
-					</div>
-					<div class="description">
-						End of overwriting HTML DOM elements of the axis.
-remaining elements will be removed
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawAxisHorizontal"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawAxisHorizontal</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the horizontal line and background of the axis
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawAxisMajorLine"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawAxisMajorLine</b>(x)
-					
-					</div>
-					<div class="description">
-						Create a Major line for the axis at position x
-						
-						
-					</div>
-					
-					
-					
 						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>x</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{boolean}</span> resized    returns true if the axis is resized</dd>
 							
 							</dl>
 						
 						
 						
-						
-						
-						
-						
 
 					<hr />
 				
-					<a name="redrawAxisMajorText"> </a>
+					<a name="reflowFrame"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>redrawAxisMajorText</b>(x, text)
+					<span class="light">{boolean}</span>
+					<b>reflowFrame</b>()
 					
 					</div>
 					<div class="description">
-						Create a Major label for the axis at position x
+						Reflow the timeline frame
 						
 						
 					</div>
@@ -3387,41 +3382,32 @@ remaining elements will be removed
 					
 					
 						
+						
+						
+						
+						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>x</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<span class="light fixedFont">{String}</span> <b>text</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{boolean}</span> resized    Returns true if any of the frame elements
+                             have been resized.</dd>
 							
 							</dl>
 						
 						
 						
-						
-						
-						
-						
 
 					<hr />
 				
-					<a name="redrawAxisMinorLine"> </a>
+					<a name="reflowGroups"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>redrawAxisMinorLine</b>(x)
+					<span class="light">{boolean}</span>
+					<b>reflowGroups</b>()
 					
 					</div>
 					<div class="description">
-						Create a minor line for the axis at position x
+						Reflow the size of the groups
 						
 						
 					</div>
@@ -3429,316 +3415,49 @@ remaining elements will be removed
 					
 					
 						
+						
+						
+						
+						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>x</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{boolean}</span> resized    Returns true if any of the frame elements
+                             have been resized.</dd>
 							
 							</dl>
 						
 						
 						
-						
-						
-						
-						
 
 					<hr />
 				
-					<a name="redrawAxisMinorText"> </a>
+					<a name="reflowItems"> </a>
 					<div class="fixedFont">
 					
-					
-					<b>redrawAxisMinorText</b>(x, text)
+					<span class="light">{boolean}</span>
+					<b>reflowItems</b>()
 					
 					</div>
 					<div class="description">
-						Create a minor label for the axis at position x
+						Reflow all items, retrieve their actual size
 						
 						
 					</div>
 					
 					
 					
+						
+						
+						
+						
 						
 							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
+							<dt class="heading">Returns:</dt>
 							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>x</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<span class="light fixedFont">{String}</span> <b>text</b>
-									
-								</dt>
-								<dd></dd>
+								<dd><span class="light fixedFont">{boolean}</span> resized    returns true if any of the items is resized</dd>
 							
 							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawAxisStartOverwriting"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawAxisStartOverwriting</b>()
-					
-					</div>
-					<div class="description">
-						Initialize redraw of the axis. All existing labels and lines will be
-overwritten and reused.
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawContent"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawContent</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the content of the timeline: the axis and the items
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawCurrentTime"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawCurrentTime</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the current time bar
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawCustomTime"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawCustomTime</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the custom time bar
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawDeleteButton"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawDeleteButton</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the delete button, on the top right of the currently selected item
-if there is no item selected, the button is hidden.
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawDragAreas"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawDragAreas</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the drag areas. When an item (ranges only) is selected,
-it gets a drag area on the left and right side, to change its width
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawFrame"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawFrame</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the timeline. This needs to be executed after the start and/or
-end time are changed, or when data is added or removed dynamically.
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawGroups"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawGroups</b>()
-					
-					</div>
-					<div class="description">
-						Redraw the group labels
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawItems"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawItems</b>()
-					
-					</div>
-					<div class="description">
-						Redraw all items
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="redrawNavigation"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>redrawNavigation</b>()
-					
-					</div>
-					<div class="description">
-						Create the navigation buttons for zooming and moving
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
 						
 						
 						
@@ -3841,15 +3560,16 @@ end time are changed, or when data is added or removed dynamically.
 
 					<hr />
 				
-					<a name="repositionItem"> </a>
+					<a name="render"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>repositionItem</b>(item, left, right)
+					<b>render</b>(options)
 					
 					</div>
 					<div class="description">
-						Reposition given item
+						Re-render (reflow and repaint) all components of the Timeline: frame, axis,
+items, ...
 						
 						
 					</div>
@@ -3861,24 +3581,567 @@ end time are changed, or when data is added or removed dynamically.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
+									<span class="light fixedFont">{Object}</span> <b>options</b>
+									<i>Optional</i>
 								</dt>
-								<dd></dd>
+								<dd>Available options:
+                           {boolean} renderTimesLeft   Number of times the
+                                                       render may be repeated
+                                                       5 times by default.
+                           {boolean} animate           takes options.animate
+                                                       as default value</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaint"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>repaint</b>()
+					
+					</div>
+					<div class="description">
+						Repaint all components of the Timeline
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> needsReflow   Returns true if the DOM is changed such that
+                                a reflow is needed.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxis"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>repaintAxis</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the timeline axis with minor and major labels
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> needsReflow     Returns true if the DOM is changed such
+                                  that a reflow is needed.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisCharacters"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>repaintAxisCharacters</b>()
+					
+					</div>
+					<div class="description">
+						Create characters used to determine the size of text on the axis
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> needsReflow   Returns true if the DOM is changed such that
+                                a reflow is needed.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisEndOverwriting"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisEndOverwriting</b>()
+					
+					</div>
+					<div class="description">
+						End of overwriting HTML DOM elements of the axis.
+remaining elements will be removed
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisHorizontal"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisHorizontal</b>()
+					
+					</div>
+					<div class="description">
+						Repaint the horizontal line and background of the axis
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisMajorLine"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisMajorLine</b>(x)
+					
+					</div>
+					<div class="description">
+						Create a Major line for the axis at position x
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Number}</span> <b>left</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>right</b>
+									<span class="light fixedFont">{Number}</span> <b>x</b>
 									
 								</dt>
 								<dd></dd>
 							
 							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisMajorText"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisMajorText</b>(x, text)
+					
+					</div>
+					<div class="description">
+						Create a Major label for the axis at position x
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>x</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>text</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisMinorLine"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisMinorLine</b>(x)
+					
+					</div>
+					<div class="description">
+						Create a minor line for the axis at position x
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>x</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisMinorText"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisMinorText</b>(x, text)
+					
+					</div>
+					<div class="description">
+						Create a minor label for the axis at position x
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>x</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{String}</span> <b>text</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintAxisStartOverwriting"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintAxisStartOverwriting</b>()
+					
+					</div>
+					<div class="description">
+						Initialize redraw of the axis. All existing labels and lines will be
+overwritten and reused.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintCurrentTime"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintCurrentTime</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the current time bar
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintCustomTime"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintCustomTime</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the custom time bar
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintDeleteButton"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintDeleteButton</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the delete button, on the top right of the currently selected item
+if there is no item selected, the button is hidden.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintDragAreas"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintDragAreas</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the drag areas. When an item (ranges only) is selected,
+it gets a drag area on the left and right side, to change its width
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintFrame"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>repaintFrame</b>()
+					
+					</div>
+					<div class="description">
+						repaint the Timeline frame
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> needsReflow   Returns true if the DOM is changed such that
+                                a reflow is needed.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintGroups"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintGroups</b>()
+					
+					</div>
+					<div class="description">
+						Redraw the group labels
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintItems"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{boolean}</span>
+					<b>repaintItems</b>()
+					
+					</div>
+					<div class="description">
+						Repaint all items
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{boolean}</span> needsReflow   Returns true if the DOM is changed such that
+                                a reflow is needed.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="repaintNavigation"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>repaintNavigation</b>()
+					
+					</div>
+					<div class="description">
+						Create the navigation buttons for zooming and moving
+						
+						
+					</div>
+					
+					
+					
 						
 						
 						
@@ -4182,7 +4445,8 @@ in minor steps of 5 minutes, and major steps of an hour.
 								</dt>
 								<dd>A scale. Choose from SCALE.MILLISECOND,
                               SCALE.SECOND, SCALE.MINUTE, SCALE.HOUR,
-                              SCALE.DAY, SCALE.MONTH, SCALE.YEAR.</dd>
+                              SCALE.WEEKDAY, SCALE.DAY, SCALE.MONTH,
+                              SCALE.YEAR.</dd>
 							
 								<dt>
 									<span class="light fixedFont">{int}</span> <b>step</b>
@@ -4400,7 +4664,7 @@ of the timeline
 					<a name="stackCalculateFinal"> </a>
 					<div class="fixedFont">
 					
-					
+					<span class="light">{Object[]}</span>
 					<b>stackCalculateFinal</b>(items)
 					
 					</div>
@@ -4418,7 +4682,7 @@ other.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>items</b>
+									<span class="light fixedFont">{timeline.Item[]}</span> <b>items</b>
 									
 								</dt>
 								<dd></dd>
@@ -4429,16 +4693,48 @@ other.
 						
 						
 						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Object[]}</span> finalItems</dd>
+							
+							</dl>
+						
 						
 						
 
 					<hr />
 				
-					<a name="stackEvents"> </a>
+					<a name="stackCancelAnimation"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>stackEvents</b>(animate)
+					<b>stackCancelAnimation</b>()
+					
+					</div>
+					<div class="description">
+						Cancel any running animation
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="stackItems"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>stackItems</b>(animate)
 					
 					</div>
 					<div class="description">
@@ -4455,11 +4751,12 @@ distance equal to options.eventMargin.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{boolean}</span> <b>animate</b>
+									<span class="light fixedFont">{boolean | undefined}</span> <b>animate</b>
 									
 								</dt>
-								<dd>if animate is true, the items are moved to
-                             their new position animated</dd>
+								<dd>if animate is true, the items are
+                                        moved to their new position animated
+                                        defaults to false.</dd>
 							
 							</dl>
 						
@@ -4472,11 +4769,11 @@ distance equal to options.eventMargin.
 
 					<hr />
 				
-					<a name="stackEventsCheckOverlap"> </a>
+					<a name="stackItemsCheckOverlap"> </a>
 					<div class="fixedFont">
 					
 					<span class="light">{Object}</span>
-					<b>stackEventsCheckOverlap</b>(items, itemIndex, itemStart, itemEnd)
+					<b>stackItemsCheckOverlap</b>(items, itemIndex, itemStart, itemEnd)
 					
 					</div>
 					<div class="description">
@@ -4638,9 +4935,10 @@ of the other items from index itemStart to itemEnd.
 					
 					</div>
 					<div class="description">
-						Order the items in the array this.items. The order is determined via:
+						Order the items in the array this.items. The default order is determined via:
 - Ranges go before boxes and dots.
-- The item with the left most location goes first
+- The item with the oldest start time goes first
+If a custom function has been provided via the stackorder option, then this will be used.
 						
 						
 					</div>
@@ -4864,114 +5162,6 @@ executed once.
 
 					<hr />
 				
-					<a name="updateEventBox"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>updateEventBox</b>(item)
-					
-					</div>
-					<div class="description">
-						Update the dom of the item: apply content, and apply styles
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="updateEventDot"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>updateEventDot</b>(item)
-					
-					</div>
-					<div class="description">
-						Update the dom of the item: apply content, and apply styles
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="updateEventRange"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>updateEventRange</b>(item)
-					
-					</div>
-					<div class="description">
-						Update the dom of the item: apply content, and apply styles
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Object}</span> <b>item</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
 					<a name="zoom"> </a>
 					<div class="fixedFont">
 					
@@ -5030,7 +5220,7 @@ For example, try zoomfactor = 0.1 or -0.1
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Tue Sep 18 2012 09:36:21 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Tue Feb 26 2013 16:45:55 GMT+0100 (CET)
 		</div>
 	</body>
 </html>

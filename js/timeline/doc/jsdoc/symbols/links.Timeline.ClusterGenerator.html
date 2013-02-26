@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - Array</title>
+		<title>JsDoc Reference - links.Timeline.ClusterGenerator</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -216,7 +216,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Built-In Namespace Array
+				Class links.Timeline.ClusterGenerator
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -227,9 +227,32 @@ ul.inheritsList
 				
 				
 				
+					<br /><i>Defined in: </i> <a href="../symbols/src/timeline.js.html">timeline.js</a>.
+				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class links.Timeline.ClusterGenerator.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/links.Timeline.ClusterGenerator.html#constructor">links.Timeline.ClusterGenerator</a></b>(timeline)
+							</div>
+							<div class="description"></div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 			
 
 <!-- ============================== properties summary ===================== -->
@@ -239,7 +262,7 @@ ul.inheritsList
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class Array.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class links.Timeline.ClusterGenerator.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
@@ -252,18 +275,46 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Array.html#forEach">forEach</a></b>(fn, scope)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ClusterGenerator.html#clear">clear</a></b>()
 								</div>
-								<div class="description"></div>
+								<div class="description">Clear all cached clusters and data, and initialize all variables</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Array.html#indexOf">indexOf</a></b>(obj)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ClusterGenerator.html#clearCache">clearCache</a></b>()
 								</div>
-								<div class="description"></div>
+								<div class="description">Clear the cached clusters</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ClusterGenerator.html#getClusters">getClusters</a></b>(scale)
+								</div>
+								<div class="description">Cluster the events which are too close together</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ClusterGenerator.html#setData">setData</a></b>(items, options)
+								</div>
+								<div class="description">Set the items to be clustered.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ClusterGenerator.html#updateData">updateData</a></b>()
+								</div>
+								<div class="description">Update the current data set: clear cache, and recalculate the clustering for
+the current level</div>
 							</td>
 						</tr>
 					
@@ -278,6 +329,44 @@ ul.inheritsList
 
 <!-- ============================== constructor details ==================== -->		
 			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Class Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>links.Timeline.ClusterGenerator</b>(timeline)
+				</div>
+				
+				<div class="description">
+					
+					
+				</div>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{<a href="../symbols/links.Timeline.html">links.Timeline</a>}</span>  <b>timeline</b>
+								
+							</dt>
+								<dd></dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
+			
 
 <!-- ============================== field details ========================== -->		
 			
@@ -288,18 +377,65 @@ ul.inheritsList
 					Method Detail
 				</div>
 				
-					<a name="forEach"> </a>
+					<a name="clear"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>forEach</b>(fn, scope)
+					<b>clear</b>()
 					
 					</div>
 					<div class="description">
+						Clear all cached clusters and data, and initialize all variables
 						
 						
-							<br />
-							<i>Defined in: </i> <a href="../symbols/src/timeline.js.html">timeline.js</a>.
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="clearCache"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>clearCache</b>()
+					
+					</div>
+					<div class="description">
+						Clear the cached clusters
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="getClusters"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Item[]}</span>
+					<b>getClusters</b>(scale)
+					
+					</div>
+					<div class="description">
+						Cluster the events which are too close together
 						
 						
 					</div>
@@ -311,16 +447,65 @@ ul.inheritsList
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>fn</b>
+									<span class="light fixedFont">{Number}</span> <b>scale</b>
+									
+								</dt>
+								<dd>The scale of the current window,
+                          defined as (windowWidth / (endDate - startDate))</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Item[]}</span> clusters</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="setData"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setData</b>(items, options)
+					
+					</div>
+					<div class="description">
+						Set the items to be clustered.
+This will clear cached clusters.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Item[]}</span> <b>items</b>
 									
 								</dt>
 								<dd></dd>
 							
 								<dt>
-									<b>scope</b>
-									
+									<span class="light fixedFont">{Object}</span> <b>options</b>
+									<i>Optional</i>
 								</dt>
-								<dd></dd>
+								<dd>Available options:
+                           {boolean} applyOnChangedLevel
+                               If true (default), the changed data is applied
+                               as soon the cluster level changes. If false,
+                               The changed data is applied immediately</dd>
 							
 							</dl>
 						
@@ -333,35 +518,22 @@ ul.inheritsList
 
 					<hr />
 				
-					<a name="indexOf"> </a>
+					<a name="updateData"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>indexOf</b>(obj)
+					<b>updateData</b>()
 					
 					</div>
 					<div class="description">
-						
-						
-							<br />
-							<i>Defined in: </i> <a href="../symbols/src/timeline.js.html">timeline.js</a>.
+						Update the current data set: clear cache, and recalculate the clustering for
+the current level
 						
 						
 					</div>
 					
 					
 					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<b>obj</b>
-									
-								</dt>
-								<dd></dd>
-							
-							</dl>
 						
 						
 						

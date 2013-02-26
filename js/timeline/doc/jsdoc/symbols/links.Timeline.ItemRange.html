@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - links.Timeline.StepDate</title>
+		<title>JsDoc Reference - links.Timeline.ItemRange</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -216,12 +216,14 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Class links.Timeline.StepDate
+				Class links.Timeline.ItemRange
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
 			<p class="description">
 				
+				<br />Extends
+					<a href="../symbols/links.Timeline.Item.html">links.Timeline.Item</a>.<br />
 				
 			
 				
@@ -233,7 +235,7 @@ ul.inheritsList
 
 <!-- ============================== constructor summary ==================== -->			
 			
-			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class links.Timeline.StepDate.">
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class links.Timeline.ItemRange.">
 				<caption>Class Summary</caption>
 				<thead>
 					<tr>
@@ -246,7 +248,7 @@ ul.inheritsList
 						<td class="attributes">&nbsp;</td>
 						<td class="nameDescription" >
 							<div class="fixedFont">
-								<b><a href="../symbols/links.Timeline.StepDate.html#constructor">links.Timeline.StepDate</a></b>(start, end, minimumStep)
+								<b><a href="../symbols/links.Timeline.ItemRange.html#constructor">links.Timeline.ItemRange</a></b>(data, options)
 							</div>
 							<div class="description"></div>
 						</td>
@@ -262,7 +264,7 @@ ul.inheritsList
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class links.Timeline.StepDate.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class links.Timeline.ItemRange.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
@@ -275,132 +277,101 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#addZeros">addZeros</a></b>(value, len)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#createDOM">createDOM</a></b>()
 								</div>
-								<div class="description">Add leading zeros to the given value to match the desired length.</div>
+								<div class="description">Creates the DOM for the item, depending on its type</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#end">end</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#getRight">getRight</a></b>(timeline)
 								</div>
-								<div class="description">Check if the end date is reached</div>
+								<div class="description">Calculate the right position of the item</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#getCurrent">getCurrent</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#getWidth">getWidth</a></b>(timeline)
 								</div>
-								<div class="description">Get the current datetime</div>
+								<div class="description">Calculate the width of the item</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#getLabelMajor">getLabelMajor</a></b>(date)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#hideDOM">hideDOM</a></b>()
 								</div>
-								<div class="description">Returns formatted text for the major axislabel, depending on the current
-date and the scale.</div>
+								<div class="description">Remove the items DOM from the current HTML container
+The DOM will be kept in memory</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#getLabelMinor">getLabelMinor</a></b>(date)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#isVisible">isVisible</a></b>(start, end)
 								</div>
-								<div class="description">Returns formatted text for the minor axislabel, depending on the current
-date and the scale.</div>
+								<div class="description">Check if the item is visible in the timeline, and not part of a cluster</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#isMajor">isMajor</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#select">select</a></b>()
 								</div>
-								<div class="description">Check if the current step is a major step (for example when the step
-is DAY, a major step is each first day of the MONTH)</div>
+								<div class="description">Select the item</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#next">next</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#setPosition">setPosition</a></b>(left, right)
 								</div>
-								<div class="description">Do the next step</div>
+								<div class="description">Reposition the item</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#roundToMinor">roundToMinor</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#showDOM">showDOM</a></b>(container)
 								</div>
-								<div class="description">Round the current date to the first minor date value
-This must be executed once when the current date is set to start Date</div>
+								<div class="description">Append the items DOM to the given HTML container.</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#setAutoScale">setAutoScale</a></b>(enable)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#unselect">unselect</a></b>()
 								</div>
-								<div class="description">Enable or disable autoscaling</div>
+								<div class="description">Unselect the item</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#setMinimumStep">setMinimumStep</a></b>(minimumStep)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#updateDOM">updateDOM</a></b>()
 								</div>
-								<div class="description">Automatically determine the scale that bests fits the provided minimum step</div>
+								<div class="description">Update the DOM of the item.</div>
 							</td>
 						</tr>
 					
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#setRange">setRange</a></b>(start, end, minimumStep)
+								<div class="fixedFont"><b><a href="../symbols/links.Timeline.ItemRange.html#updatePosition">updatePosition</a></b>(timeline)
 								</div>
-								<div class="description">Set a new range
-If minimumStep is provided, the step size is chosen as close as possible
-to the minimumStep but larger than minimumStep.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#setScale">setScale</a></b>(newScale, newStep)
-								</div>
-								<div class="description">Set a custom scale.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#snap">snap</a></b>(date)
-								</div>
-								<div class="description">Snap a date to a rounded value.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.Timeline.StepDate.html#start">start</a></b>()
-								</div>
-								<div class="description">Set the step iterator to the start date.</div>
+								<div class="description">Reposition the item, recalculate its left, top, and width, using the current
+range of the timeline and the timeline options.</div>
 							</td>
 						</tr>
 					
@@ -408,6 +379,10 @@ to the minimumStep but larger than minimumStep.</div>
 				</table>
 				
 				
+				
+				<dl class="inheritsList">
+				<dt>Methods borrowed from class <a href="../symbols/links.Timeline.Item.html">links.Timeline.Item</a>: </dt><dd><a href="../symbols/links.Timeline.Item.html#getImageUrls">getImageUrls</a>, <a href="../symbols/links.Timeline.Item.html#isRendered">isRendered</a>, <a href="../symbols/links.Timeline.Item.html#reflow">reflow</a></dd>
+				</dl>
 				
 			
 <!-- ============================== events summary ======================== -->
@@ -421,7 +396,7 @@ to the minimumStep but larger than minimumStep.</div>
 				</div>
 				
 				<div class="fixedFont">
-						<b>links.Timeline.StepDate</b>(start, end, minimumStep)
+						<b>links.Timeline.ItemRange</b>(data, options)
 				</div>
 				
 				<div class="description">
@@ -437,23 +412,21 @@ to the minimumStep but larger than minimumStep.</div>
 						<dt class="heading">Parameters:</dt>
 						
 							<dt>
-								<span class="light fixedFont">{Date}</span>  <b>start</b>
+								<span class="light fixedFont">{Object}</span>  <b>data</b>
 								
 							</dt>
-								<dd>The start date, for example new Date(2010, 9, 21)
-                             or new Date(2010, 9, 21, 23, 45, 00)</dd>
+								<dd>Object containing parameters start, end
+                           content, group. type, group.</dd>
 						
 							<dt>
-								<span class="light fixedFont">{Date}</span>  <b>end</b>
-								
+								<span class="light fixedFont">{Object}</span>  <b>options</b>
+								<i>Optional</i>
 							</dt>
-								<dd>The end date</dd>
-						
-							<dt>
-								<span class="light fixedFont">{Number}</span>  <b>minimumStep</b>
-								
-							</dt>
-								<dd>Optional. Minimum step size in milliseconds</dd>
+								<dd>Options to set initial property values
+                               {Number} top
+                               {Number} left
+                               {Number} width
+                               {Number} height</dd>
 						
 						</dl>
 					
@@ -476,16 +449,47 @@ to the minimumStep but larger than minimumStep.</div>
 					Method Detail
 				</div>
 				
-					<a name="addZeros"> </a>
+					<a name="createDOM"> </a>
 					<div class="fixedFont">
 					
-					<span class="light">{string}</span>
-					<b>addZeros</b>(value, len)
+					<span class="light">{Element | undefined}</span>
+					<b>createDOM</b>()
 					
 					</div>
 					<div class="description">
-						Add leading zeros to the given value to match the desired length.
-For example addZeros(123, 5) returns "00123"
+						Creates the DOM for the item, depending on its type
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Element | undefined}</span> </dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="getRight"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Number}</span>
+					<b>getRight</b>(timeline)
+					
+					</div>
+					<div class="description">
+						Calculate the right position of the item
 						
 						
 					</div>
@@ -497,16 +501,10 @@ For example addZeros(123, 5) returns "00123"
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{int}</span> <b>value</b>
+									<span class="light fixedFont">{<a href="../symbols/links.Timeline.html">links.Timeline</a>}</span> <b>timeline</b>
 									
 								</dt>
-								<dd>A value</dd>
-							
-								<dt>
-									<span class="light fixedFont">{int}</span> <b>len</b>
-									
-								</dt>
-								<dd>Desired final length</dd>
+								<dd></dd>
 							
 							</dl>
 						
@@ -517,7 +515,7 @@ For example addZeros(123, 5) returns "00123"
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{string}</span> value with leading zeros</dd>
+								<dd><span class="light fixedFont">{Number}</span> right</dd>
 							
 							</dl>
 						
@@ -526,21 +524,107 @@ For example addZeros(123, 5) returns "00123"
 
 					<hr />
 				
-					<a name="end"> </a>
+					<a name="getWidth"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Number}</span>
+					<b>getWidth</b>(timeline)
+					
+					</div>
+					<div class="description">
+						Calculate the width of the item
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/links.Timeline.html">links.Timeline</a>}</span> <b>timeline</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Number}</span> width</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="hideDOM"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>hideDOM</b>()
+					
+					</div>
+					<div class="description">
+						Remove the items DOM from the current HTML container
+The DOM will be kept in memory
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="isVisible"> </a>
 					<div class="fixedFont">
 					
 					<span class="light">{boolean}</span>
-					<b>end</b>()
+					<b>isVisible</b>(start, end)
 					
 					</div>
 					<div class="description">
-						Check if the end date is reached
+						Check if the item is visible in the timeline, and not part of a cluster
 						
 						
 					</div>
 					
 					
 					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>start</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>end</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
 						
 						
 						
@@ -549,7 +633,7 @@ For example addZeros(123, 5) returns "00123"
 							<dl class="detailList">
 							<dt class="heading">Returns:</dt>
 							
-								<dd><span class="light fixedFont">{boolean}</span> true if the current date has passed the end date</dd>
+								<dd><span class="light fixedFont">{boolean}</span> visible</dd>
 							
 							</dl>
 						
@@ -558,15 +642,15 @@ For example addZeros(123, 5) returns "00123"
 
 					<hr />
 				
-					<a name="getCurrent"> </a>
+					<a name="select"> </a>
 					<div class="fixedFont">
 					
-					<span class="light">{Date}</span>
-					<b>getCurrent</b>()
+					
+					<b>select</b>()
 					
 					</div>
 					<div class="description">
-						Get the current datetime
+						Select the item
 						
 						
 					</div>
@@ -577,30 +661,21 @@ For example addZeros(123, 5) returns "00123"
 						
 						
 						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Date}</span> current The current date</dd>
-							
-							</dl>
 						
 						
 						
 
 					<hr />
 				
-					<a name="getLabelMajor"> </a>
+					<a name="setPosition"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>getLabelMajor</b>(date)
+					<b>setPosition</b>(left, right)
 					
 					</div>
 					<div class="description">
-						Returns formatted text for the major axislabel, depending on the current
-date and the scale. For example when scale is MINUTE, the major scale is
-hours, and the hour will be formatted as "hh".
+						Reposition the item
 						
 						
 					</div>
@@ -612,10 +687,16 @@ hours, and the hour will be formatted as "hh".
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Date}</span> <b>date</b>
-									<i>Optional</i>
+									<span class="light fixedFont">{Number}</span> <b>left</b>
+									
 								</dt>
-								<dd>custom date. if not provided, current date is taken</dd>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>right</b>
+									
+								</dt>
+								<dd></dd>
 							
 							</dl>
 						
@@ -628,17 +709,16 @@ hours, and the hour will be formatted as "hh".
 
 					<hr />
 				
-					<a name="getLabelMinor"> </a>
+					<a name="showDOM"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>getLabelMinor</b>(date)
+					<b>showDOM</b>(container)
 					
 					</div>
 					<div class="description">
-						Returns formatted text for the minor axislabel, depending on the current
-date and the scale. For example when scale is MINUTE, the current time is
-formatted as "hh:mm".
+						Append the items DOM to the given HTML container. If items DOM does not yet
+exist, it will be created first.
 						
 						
 					</div>
@@ -650,10 +730,10 @@ formatted as "hh:mm".
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{Date}</span> <b>date</b>
-									<i>Optional</i>
+									<span class="light fixedFont">{Element}</span> <b>container</b>
+									
 								</dt>
-								<dd>custom date. if not provided, current date is taken</dd>
+								<dd></dd>
 							
 							</dl>
 						
@@ -666,48 +746,15 @@ formatted as "hh:mm".
 
 					<hr />
 				
-					<a name="isMajor"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{boolean}</span>
-					<b>isMajor</b>()
-					
-					</div>
-					<div class="description">
-						Check if the current step is a major step (for example when the step
-is DAY, a major step is each first day of the MONTH)
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{boolean}</span> true if current date is major, else false.</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
-				
-					<a name="next"> </a>
+					<a name="unselect"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>next</b>()
+					<b>unselect</b>()
 					
 					</div>
 					<div class="description">
-						Do the next step
+						Unselect the item
 						
 						
 					</div>
@@ -724,16 +771,16 @@ is DAY, a major step is each first day of the MONTH)
 
 					<hr />
 				
-					<a name="roundToMinor"> </a>
+					<a name="updateDOM"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>roundToMinor</b>()
+					<b>updateDOM</b>()
 					
 					</div>
 					<div class="description">
-						Round the current date to the first minor date value
-This must be executed once when the current date is set to start Date
+						Update the DOM of the item. This will update the content and the classes
+of the item
 						
 						
 					</div>
@@ -750,15 +797,16 @@ This must be executed once when the current date is set to start Date
 
 					<hr />
 				
-					<a name="setAutoScale"> </a>
+					<a name="updatePosition"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>setAutoScale</b>(enable)
+					<b>updatePosition</b>(timeline)
 					
 					</div>
 					<div class="description">
-						Enable or disable autoscaling
+						Reposition the item, recalculate its left, top, and width, using the current
+range of the timeline and the timeline options. *
 						
 						
 					</div>
@@ -770,210 +818,12 @@ This must be executed once when the current date is set to start Date
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<span class="light fixedFont">{boolean}</span> <b>enable</b>
+									<span class="light fixedFont">{<a href="../symbols/links.Timeline.html">links.Timeline</a>}</span> <b>timeline</b>
 									
 								</dt>
-								<dd>If true, autoascaling is set true</dd>
+								<dd></dd>
 							
 							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="setMinimumStep"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>setMinimumStep</b>(minimumStep)
-					
-					</div>
-					<div class="description">
-						Automatically determine the scale that bests fits the provided minimum step
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>minimumStep</b>
-									
-								</dt>
-								<dd>The minimum step size in milliseconds</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="setRange"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>setRange</b>(start, end, minimumStep)
-					
-					</div>
-					<div class="description">
-						Set a new range
-If minimumStep is provided, the step size is chosen as close as possible
-to the minimumStep but larger than minimumStep. If minimumStep is not
-provided, the scale is set to 1 DAY.
-The minimumStep should correspond with the onscreen size of about 6 characters
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Date}</span> <b>start</b>
-									
-								</dt>
-								<dd>The start date and time.</dd>
-							
-								<dt>
-									<span class="light fixedFont">{Date}</span> <b>end</b>
-									
-								</dt>
-								<dd>The end date and time.</dd>
-							
-								<dt>
-									<span class="light fixedFont">{int}</span> <b>minimumStep</b>
-									
-								</dt>
-								<dd>Optional. Minimum step size in milliseconds</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="setScale"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>setScale</b>(newScale, newStep)
-					
-					</div>
-					<div class="description">
-						Set a custom scale. Autoscaling will be disabled.
-For example setScale(SCALE.MINUTES, 5) will result
-in minor steps of 5 minutes, and major steps of an hour.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{links.Timeline.StepDate.SCALE}</span> <b>newScale</b>
-									
-								</dt>
-								<dd>A scale. Choose from SCALE.MILLISECOND,
-                              SCALE.SECOND, SCALE.MINUTE, SCALE.HOUR,
-                              SCALE.WEEKDAY, SCALE.DAY, SCALE.MONTH,
-                              SCALE.YEAR.</dd>
-							
-								<dt>
-									<span class="light fixedFont">{Number}</span> <b>newStep</b>
-									
-								</dt>
-								<dd>A step size, by default 1. Choose for
-                              example 1, 2, 5, or 10.</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="snap"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>snap</b>(date)
-					
-					</div>
-					<div class="description">
-						Snap a date to a rounded value. The snap intervals are dependent on the
-current scale and step.
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{Date}</span> <b>date</b>
-									
-								</dt>
-								<dd>the date to be snapped</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="start"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>start</b>()
-					
-					</div>
-					<div class="description">
-						Set the step iterator to the start date.
-						
-						
-					</div>
-					
-					
-					
 						
 						
 						

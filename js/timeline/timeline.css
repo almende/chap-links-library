@@ -34,10 +34,7 @@ div.timeline-event {
     color: #1A1A1A;
     border-color: #97B0F8;
     background-color: #D5DDF6;
-
-
     display: inline-block;
-
 }
 
 div.timeline-event-selected {
@@ -46,6 +43,14 @@ div.timeline-event-selected {
     z-index: 999;
 }
 
+div.timeline-event-cluster {
+    /* TODO: use another color or pattern? */
+    background: #97B0F8 url('img/cluster_bg.png');
+    color: white;
+}
+div.timeline-event-cluster div.timeline-event-dot {
+    border-color: #D5DDF6;
+}
 
 div.timeline-event-box {
     text-align: center;

@@ -1,0 +1,33 @@
+
+handle selection
+    when a selected item is added to a cluster, update the item's delete button and dragareas
+    a selected item should not be clustered, unless when zooming in/out again
+    -> when an item is changed/removed, set a flag "needRecluster" true,
+       and apply reclustering as soon as the user zooms in/out?
+
+make clusters non-editable but selectable
+    when a cluster is selected, select all containing items.
+
+items must be reclustered after an item has been moved/changed
+
+optimize
+    handle change of data (also individual items) -> use item.changed
+
+create an option to define a cluster method, which has the items to be clustered
+    as input, and the data for the clustered item as output
+create an option to define cluster levels yourself
+
+
+
+double clicking on a cluster should zoom in onto this cluster?
+    -> you should be able to easily see the contents of the cluster
+
+autoHeight with ranges: does not take into account a margin around the range
+
+
+EXTRA
+
+stacking is not "stable", items can continuously switch order when moving or zooming
+rename size.frameWidth to size.frame.width, same with height, etc.
+
+

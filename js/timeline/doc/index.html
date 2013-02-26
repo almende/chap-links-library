@@ -229,15 +229,17 @@ data.push({
   'start': new Date(2010, 7, 15),
   'end': new Date(2010, 8, 2),  // end is optional
   'content': 'Trajectory A'
-  // Optional: a parameter 'group'
-  // Optional: a parameter 'className'
+  // Optional: a field 'group'
+  // Optional: a field 'className'
+  // Optional: a field 'editable'
 });
 </pre>
 
 
 <h3>Google DataTable</h3>
 <p>
-    The Timeline requires a data table with three or optionally four columns.
+    The Timeline requires a data table with two required and three optional
+    columns.
     It is possible to use a Google DataTable or DataView, and the data
     can be queried from an external data source using Google Query.
     Note that the needed Google API is only available online and cannot be
@@ -255,10 +257,18 @@ data.addColumn('datetime', 'end');
 data.addColumn('string', 'content');
 // Optional: a column 'group'
 // Optional: a column 'className'
+// Optional: a column 'editable'
 
 data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
 // ...
 </pre>
+
+<p>
+    The Timeline checks the type of the columns by first reading the
+    column id, and if not provided read the column label.
+    If both the column id's and label's are undefined, the Timeline will use
+    column 0 as start, column 1 as end, and column 2 as content.
+</p>
 
 <h3>Fields</h3>
 
@@ -297,7 +307,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
         <td>group</td>
         <td>any type</td>
         <td>no</td>
-        <td>This column is optional. When the group column is provided,
+        <td>This field is optional. When the group column is provided,
             all events with the same group are placed on one line.
             A vertical axis is displayed showing the groups.
             Grouping events can be useful for example when showing availability of multiple
@@ -312,7 +322,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
         <td>className</td>
         <td>String</td>
         <td>no</td>
-        <td>This column is optional. A className can be used to give events
+        <td>This field is optional. A className can be used to give events
             and individual css style. For example, when an event has className
             'red', one can define a css style
             <code>
@@ -326,6 +336,18 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
             (class <code>timeline-event-selected</code>).
             More details on how to style events can be found in the section
             <a href="#Styles">Styles</a>.
+        </td>
+    </tr>
+    <tr>
+        <td>editable</td>
+        <td>Boolean</td>
+        <td>no</td>
+        <td>This field is optional. By providing the field editable, events
+            can be made editable or read-only on an individual basis.
+            If editable is true, the event can be edited and deleted.
+            The editable setting of an individual event overwrites the global
+            setting options.editable. So when the Timeline as a whole is
+            read-only, individual events may be made editable, and vice versa.
         </td>
     </tr>
 </table>
@@ -383,6 +405,19 @@ var options = {
 </tr>
 
 <tr>
+    <td>cluster</td>
+    <td>boolean</td>
+    <td>false</td>
+    <td>If true, events will be clustered together when zooming out.
+        This keeps the Timeline clear and fast also with a larger amount of
+        events.
+        <br><span style="background-color: orangered; color: white; padding: 3px; border-radius: 3px; font-size: 80%;"
+                  title="This feature is currently in an experimental phase, and not yet suitable for a production environment."
+                >experimental</span>
+    </td>
+</tr>
+
+<tr>
     <td>box.align</td>
     <td>String</td>
     <td>"center"</td>
@@ -407,6 +442,10 @@ var options = {
         Events can only be editable when th option <code>selectable</code> is true
         (default). When editable is true, the Timeline can fire events
         <code>change</code>, <code>edit</code>, <code>add</code>, <code>delete</code>.
+        <br>
+        This global setting editable can be overwritten for individual events
+        by providing the events with a field editable,
+        as described in section <a href="#Data_Format">Data Format.</a>
     </td>
 </tr>
 
@@ -523,7 +562,7 @@ var options = {
 </tr>
 <tr>
     <td>scale</td>
-    <td>links.StepDate.SCALE</td>
+    <td>links.Timeline.StepDate.SCALE</td>
     <td>none</td>
     <td>Set a custom scale. Automatic scaling will be disabled.
         Both options <code>scale</code> and <code>step</code> must be set.
@@ -531,8 +570,9 @@ var options = {
         For example scale=SCALE.MINUTES and step=5 will result in minor steps of
         5 minutes, and major steps of an hour.
         Available scales: <code>MILLISECOND</code>, <code>SECOND</code>,
-        <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>,
-        <code>YEAR</code>. As step size, choose for example 1, 2, 5, or 10.
+        <code>MINUTE</code>, <code>HOUR</code>, <code>WEEKDAY</code>,
+        <code>DAY</code>, <code>MONTH</code>, <code>YEAR</code>.
+        As step size, choose for example 1, 2, 5, or 10.
     </td>
 </tr>
 <tr>
@@ -582,7 +622,9 @@ var options = {
     <td>"box"</td>
     <td>Specifies the style for the timeline events.
         Choose from "dot" or "box".
-        Note that the content of the events may contain additional html formatting.</td>
+        Note that the content of the events may contain additional html formatting.
+        It is possible to implement custom styles using the method <code>addItemType</code>.
+    </td>
 </tr>
 
 <tr>
@@ -629,12 +671,19 @@ var options = {
 </tr>
 
 <tr>
+    <td>showButtonNew</td>
+    <td>boolean</td>
+    <td>false</td>
+    <td>Show the button "Create new event" in the a navigation menu. </td>
+</tr>
+<tr>
     <td>showNavigation</td>
     <td>boolean</td>
     <td>false</td>
     <td>Show a navigation menu with buttons to move and zoom the timeline.
     </td>
 </tr>
+
 <tr>
     <td>zoomable</td>
     <td>boolean</td>
@@ -675,6 +724,26 @@ var options = {
         Parameters <code>end</code> and <code>group</code> are optional.
     </td>
 </tr>
+<tr>
+    <td>addItemType(typeName, typeFactory)</td>
+    <td>none</td>
+    <td>Add a custom item type to the Timeline, extending the built-in types
+        "box" and "dot".
+        Parameter <code>typeName</code> is a String,
+        and <code>typeFactory</code> is a constructor implementing the abstract
+        prototype <code>links.Timeline.Item</code>. To use a custom type,
+        specify the option <code>style</code> with the name of the custom type.
+        <br>
+
+        See
+        <a href="../examples/example25_new_item_type.html">example25_new_item_type.html</a>
+        for an example, or study the implementations of <code>links.Timeline.ItemBox</code>,
+        <code>links.Timeline.ItemRange</code>,
+        and <code>links.Timeline.ItemDot</code> in the sourcecode of the Timeline.
+    </td>
+</tr>
+
+
 
 <tr>
     <td>cancelAdd()</td>
@@ -730,10 +799,11 @@ var options = {
 </tr>
 
 <tr>
-    <td>deleteItem(index)</td>
+    <td>deleteItem(index, preventRender)</td>
     <td>none</td>
     <td>Delete an existing item.
         <code>index</code> (Number) is the index of the item.
+        <code>preventRender</code> (Boolean) is optional parameter to prevent re-render timeline immediately after delete (for multiple deletions). Default is false.
     </td>
 </tr>
 
@@ -860,8 +930,9 @@ var options = {
         For example setScale(SCALE.MINUTES, 5) will result in minor steps of
         5 minutes, and major steps of an hour.
         Available scales: <code>MILLISECOND</code>, <code>SECOND</code>,
-        <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>,
-        <code>YEAR</code>. As step size, choose for example 1, 2, 5, or 10.
+        <code>MINUTE</code>, <code>HOUR</code>, <code>WEEKDAY</code>,
+        <code>DAY</code>, <code>MONTH</code>, <code>YEAR</code>.
+        As step size, choose for example 1, 2, 5, or 10.
     </td>
 </tr>
 

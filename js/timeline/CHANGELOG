@@ -1,6 +1,37 @@
 CHAP Links Library - Timeline
 
 
+2012-02-26, version 2.4.0
+
+- Added a new scale "WEEKDAY", which shows the weekday in the minor label.
+- Implemented clustering of items.
+- Implemented support for custom item types (besides the built in types box,
+  range, and dot). See example 25. Thanks Alexander Parshin.
+- events can be made editable/read-only on an individual basis by providing
+  them with a field "editable".
+- changed: data can now have custom fields (like an id).
+- changed: method addItem has a second, optional parameter "preventRedraw",
+  which can be used to prevent redrawing the timeline after every addItem.
+- changed: option showButtonAdd renamed to showButtonNew, and is now false by
+  default.
+- changed: new items created via a double-click or the "Add" button are now
+  rendered after add trigger (which can cancel the create action).
+- fixed: issues with dates on millisecond scale or with negative years
+  (issues #19 and #54).
+- fixed: options scale and step did not work (method setScale worked correctly
+  though).
+- fixed: alignment of the delete button for selected events with style box,
+  when the option box.align was "left" or "right" instead of the default
+  "center".
+- fixed: DataTable columns may now have their name defined as label or id,
+  and the first three columns can have any order now. More robust and flexible.
+- fixed: when deleting an item via deleteItem, the currently selection is
+  maintained instead of unselected (issue #47).
+- fixed: When dragging the edges of a range, it was possible to move the range
+  to another group.
+- fixed: non reachable event 'ready" (issue #69).
+
+
 2012-09-18, version 2.3.2
 
 - fixed mouseover/dragging of the vertical lines with current time and custom
