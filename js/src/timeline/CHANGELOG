@@ -16,6 +16,8 @@ CHAP Links Library - Timeline
   default.
 - changed: new items created via a double-click or the "Add" button are now
   rendered after add trigger (which can cancel the create action).
+- fixed: issues with dates on millisecond scale or with negative years
+  (issues #19 and #54).
 - fixed: options scale and step did not work (method setScale worked correctly
   though).
 - fixed: alignment of the delete button for selected events with style box,
@@ -27,8 +29,7 @@ CHAP Links Library - Timeline
   maintained instead of unselected (issue #47).
 - fixed: When dragging the edges of a range, it was possible to move the range
   to another group.
-- fixed: non-working option dragAreaWidth.
-- fixed: non reachable event ready (issue #69(.
+- fixed: non reachable event 'ready" (issue #69).
 
 
 2012-09-18, version 2.3.2

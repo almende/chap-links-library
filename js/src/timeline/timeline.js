@@ -3672,13 +3672,16 @@ links.Timeline.ItemBox.prototype.showDOM = function (container) {
 links.Timeline.ItemBox.prototype.hideDOM = function () {
     var dom = this.dom;
     if (dom) {
-        var parent = dom.parentNode;
-        if (parent) {
-            parent.removeChild(dom);
-            parent.removeChild(dom.line);
-            parent.removeChild(dom.dot);
-            this.rendered = false;
+        if (dom.parentNode) {
+            dom.parentNode.removeChild(dom);
         }
+        if (dom.line && dom.line.parentNode) {
+            dom.line.parentNode.removeChild(dom.line);
+        }
+        if (dom.dot && dom.dot.parentNode) {
+            dom.dot.parentNode.removeChild(dom.dot);
+        }
+        this.rendered = false;
     }
 };
 
@@ -3909,11 +3912,10 @@ links.Timeline.ItemRange.prototype.showDOM = function (container) {
 links.Timeline.ItemRange.prototype.hideDOM = function () {
     var dom = this.dom;
     if (dom) {
-        var parent = dom.parentNode;
-        if (parent) {
-            parent.removeChild(dom);
-            this.rendered = false;
+        if (dom.parentNode) {
+            dom.parentNode.removeChild(dom);
         }
+        this.rendered = false;
     }
 };
 
@@ -4136,11 +4138,10 @@ links.Timeline.ItemDot.prototype.showDOM = function (container) {
 links.Timeline.ItemDot.prototype.hideDOM = function () {
     var dom = this.dom;
     if (dom) {
-        var parent = dom.parentNode;
-        if (parent) {
-            parent.removeChild(dom);
-            this.rendered = false;
+        if (dom.parentNode) {
+            dom.parentNode.removeChild(dom);
         }
+        this.rendered = false;
     }
 };
 
