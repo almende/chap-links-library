@@ -1615,13 +1615,7 @@ links.Timeline.prototype.repaintItems = function() {
         (queue.show.length > 0) ||
         (queue.update.length > 0) ||
         (queue.hide.length > 0);   // TODO: reflow needed on hide of items?
-    /* TODO: cleanup
-    console.log(
-        'show=', queue.show.length,
-        'hide=', queue.show.length,
-        'update=', queue.show.length
-    );
-    */
+
     while (item = queue.show.shift()) {
         item.showDOM(frame);
         item.getImageUrls(newImageUrls);
@@ -1642,7 +1636,6 @@ links.Timeline.prototype.repaintItems = function() {
             renderedItems.splice(index, 1);
         }
     }
-    // console.log('renderedItems=', renderedItems.length); // TODO: cleanup
 
     // reposition all visible items
     renderedItems.forEach(function (item) {
@@ -2156,13 +2149,13 @@ links.Timeline.prototype.repaintNavigation = function () {
 
                 var content = "New";
                 var group = timeline.groups.length ? timeline.groups[0].content : undefined;
-
+                var preventRender = true;
                 timeline.addItem({
                     'start': xstart,
                     'end': xend,
                     'content': content,
                     'group': group
-                });
+                }, preventRender);
                 var index = (timeline.items.length - 1);
                 timeline.selectItem(index);
 
@@ -2173,7 +2166,12 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // this listener calls the method cancelAdd().
                 timeline.trigger('add');
 
-                if (!timeline.applyAdd) {
+                if (timeline.applyAdd) {
+                    // render and select the item
+                    timeline.render({animate: false});
+                    timeline.selectItem(index);
+                }
+                else {
                     // undo an add
                     timeline.deleteItem(index);
                 }
@@ -2978,12 +2976,13 @@ links.Timeline.prototype.onDblClick = function (event) {
 
             var content = "New";
             var group = this.getGroupFromHeight(y);   // (group may be undefined)
+            var preventRender = true;
             this.addItem({
                 'start': xstart,
                 'end': xend,
                 'content': content,
                 'group': this.getGroupName(group)
-            });
+            }, preventRender);
             params.itemIndex = (this.items.length - 1);
             this.selectItem(params.itemIndex);
 
@@ -2994,7 +2993,12 @@ links.Timeline.prototype.onDblClick = function (event) {
             // this listener calls the method cancelAdd().
             this.trigger('add');
 
-            if (!this.applyAdd) {
+            if (this.applyAdd) {
+                // render and select the item
+                this.render({animate: false});
+                this.selectItem(params.itemIndex);
+            }
+            else {
                 // undo an add
                 this.deleteItem(params.itemIndex);
             }
@@ -3050,32 +3054,9 @@ links.Timeline.prototype.onMouseWheel = function(event) {
             // fire a rangechange and a rangechanged event
             timeline.trigger("rangechange");
             timeline.trigger("rangechanged");
-
-            /* TODO: smooth scrolling on FF
-             timeline.zooming = false;
-
-             if (timeline.zoomingQueue) {
-             setTimeout(timeline.zoomingQueue, 100);
-             timeline.zoomingQueue = undefined;
-             }
-
-             timeline.zoomCount = (timeline.zoomCount || 0) + 1;
-             console.log('zoomCount', timeline.zoomCount)
-             */
         };
 
         zoom();
-
-        /* TODO: smooth scrolling on FF
-         if (!timeline.zooming || true) {
-
-         timeline.zooming = true;
-         setTimeout(zoom, 100);
-         }
-         else {
-         timeline.zoomingQueue = zoom;
-         }
-         //*/
     }
 
     // Prevent default actions caused by mouse wheel.
@@ -4288,13 +4269,14 @@ links.Timeline.prototype.getItem = function (index) {
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional)
+ * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
-links.Timeline.prototype.addItem = function (itemData) {
+links.Timeline.prototype.addItem = function (itemData, preventRender) {
     var itemsData = [
         itemData
     ];
 
-    this.addItems(itemsData);
+    this.addItems(itemsData, preventRender);
 };
 
 /**
@@ -4305,8 +4287,9 @@ links.Timeline.prototype.addItem = function (itemData) {
  *                            {Date} end,
  *                            {String} content with text or HTML code,
  *                            {String} group
+ * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
-links.Timeline.prototype.addItems = function (itemsData) {
+links.Timeline.prototype.addItems = function (itemsData, preventRender) {
     var timeline = this,
         items = this.items;
 
@@ -4326,9 +4309,11 @@ links.Timeline.prototype.addItems = function (itemsData) {
         this.clusterGenerator.updateData();
     }
 
-    this.render({
-        animate: false
-    });
+    if (!preventRender) {
+        this.render({
+            animate: false
+        });
+    }
 };
 
 /**
@@ -4377,8 +4362,9 @@ links.Timeline.prototype.createItem = function(itemData) {
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional)
+ * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
-links.Timeline.prototype.changeItem = function (index, itemData) {
+links.Timeline.prototype.changeItem = function (index, itemData, preventRender) {
     var oldItem = this.items[index];
     if (!oldItem) {
         throw "Cannot change item, index out of range";
@@ -4406,12 +4392,14 @@ links.Timeline.prototype.changeItem = function (index, itemData) {
         this.clusterGenerator.updateData();
     }
 
-    // redraw timeline
-    this.render({
-        animate: false
-    });
+    if (!preventRender) {
+        // redraw timeline
+        this.render({
+            animate: false
+        });
 
-    newItem.select();
+        newItem.select();
+    }
 };
 
 /**
@@ -4577,15 +4565,16 @@ links.Timeline.prototype.selectItem = function(index) {
             domItem = item.dom;
 
         this.selection = {
-            'index': index,
-            'item': domItem
+            'index': index
         };
 
-        // TODO: move adjusting the domItem to the item itself
-        if (this.isEditable(item)) {
-            domItem.style.cursor = 'move';
+        if (item && item.dom) {
+            // TODO: move adjusting the domItem to the item itself
+            if (this.isEditable(item)) {
+                item.dom.style.cursor = 'move';
+            }
+            item.select();
         }
-        item.select();
         this.repaintDeleteButton();
         this.repaintDragAreas();
     }
@@ -5125,8 +5114,6 @@ links.Timeline.ClusterGenerator.prototype.filterData = function () {
             });
         }
     }
-
-    console.log('filterData', groups);
 
     this.dataChanged = false;
 };
