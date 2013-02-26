@@ -1,7 +1,7 @@
 CHAP Links Library - Timeline
 
 
-<not yet released>, version 2.4.0
+2012-02-26, version 2.4.0
 
 - Added a new scale "WEEKDAY", which shows the weekday in the minor label.
 - Implemented clustering of items.

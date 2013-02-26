@@ -3534,6 +3534,16 @@ links.Timeline.Item.prototype.getRight = function (timeline) {
     return 0;
 };
 
+/**
+ * Calculate the width of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} width
+ */
+links.Timeline.Item.prototype.getWidth = function (timeline) {
+    // Should be implemented by sub-prototype
+    return this.width || 0; // last rendered width
+};
+
 
 /**
  * @constructor links.Timeline.ItemBox
@@ -4016,6 +4026,16 @@ links.Timeline.ItemRange.prototype.setPosition = function (left, right) {
  */
 links.Timeline.ItemRange.prototype.getRight = function (timeline) {
     return timeline.timeToScreen(this.end);
+};
+
+/**
+ * Calculate the width of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} width
+ * @override
+ */
+links.Timeline.ItemRange.prototype.getWidth = function (timeline) {
+    return timeline.timeToScreen(this.end) - timeline.timeToScreen(this.start);
 };
 
 /**
@@ -4737,7 +4757,7 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
             top,
             bottom,
             height = item.height,
-            width = item.width,
+            width = item.getWidth(this),
             right = item.getRight(this),
             left = right - width;
 
