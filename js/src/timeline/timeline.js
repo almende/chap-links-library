@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2012-11-02
- * @version 2.4.1
+ * @date    2013-02-26
+ * @version 2.4.0
  */
 
 /*
@@ -108,10 +108,10 @@ if (!Array.prototype.forEach) {
  */
 links.Timeline = function(container) {
     if (!container) {
-      // this call was probably only for inheritance, no constructor-code is required
-      return;
+        // this call was probably only for inheritance, no constructor-code is required
+        return;
     }
-    
+
     // create variables and set default values
     this.dom = {};
     this.conversion = {};
@@ -214,7 +214,7 @@ links.Timeline = function(container) {
 
     // create a step for drawing the axis
     this.step = new links.Timeline.StepDate();
-    
+
     // add standard item types
     this.itemTypes = {
         box:   links.Timeline.ItemBox,
@@ -333,7 +333,7 @@ links.Timeline.mapColumnIds = function (dataTable) {
         var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
         cols[id] = col;
         if (id == 'start' || id == 'end' || id == 'content' ||
-                id == 'group' || id == 'className' || id == 'editable') {
+            id == 'group' || id == 'className' || id == 'editable') {
             allUndefined = false;
         }
     }
@@ -567,7 +567,7 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
             }
             else {
                 // 7 days before the end
-                start = new Date(end);
+                start = new Date(end.valueOf());
                 start.setDate(start.getDate() - 7);
             }
         }
@@ -585,26 +585,26 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
         }
         else {
             // 7 days after start
-            end = new Date(start);
+            end = new Date(start.valueOf());
             end.setDate(end.getDate() + 7);
         }
     }
 
     // prevent start Date <= end Date
-    if (end.valueOf() <= start.valueOf()) {
-        end = new Date(start);
+    if (end <= start) {
+        end = new Date(start.valueOf());
         end.setDate(end.getDate() + 7);
     }
 
     // limit to the allowed range (don't let this do by applyRange,
     // because that method will try to maintain the interval (end-start)
-    var min = this.options.min ? this.options.min.valueOf() : undefined;
-    if (min != undefined && start.valueOf() < min) {
-        start = new Date(min);
+    var min = this.options.min ? this.options.min : undefined; // date
+    if (min != undefined && start.valueOf() < min.valueOf()) {
+        start = new Date(min.valueOf()); // date
     }
-    var max = this.options.max ? this.options.max.valueOf() : undefined;
-    if (max != undefined && end.valueOf() > max) {
-        end = new Date(max);
+    var max = this.options.max ? this.options.max : undefined; // date
+    if (max != undefined && end.valueOf() > max.valueOf()) {
+        end = new Date(max.valueOf()); // date
     }
 
     this.applyRange(start, end);
@@ -624,9 +624,7 @@ links.Timeline.prototype.setVisibleChartRange = function(start, end, redraw) {
  * Change the visible chart range such that all items become visible
  */
 links.Timeline.prototype.setVisibleChartRangeAuto = function() {
-    var range = this.getDataRange(true),
-        start = undefined,
-        end = undefined;
+    var range = this.getDataRange(true);
     this.setVisibleChartRange(range.min, range.max);
 };
 
@@ -637,10 +635,10 @@ links.Timeline.prototype.setVisibleChartRangeAuto = function() {
 links.Timeline.prototype.setVisibleChartRangeNow = function() {
     var now = new Date();
 
-    var diff = (this.end.getTime() - this.start.getTime());
+    var diff = (this.end.valueOf() - this.start.valueOf());
 
-    var startNew = new Date(now.getTime() - diff/2);
-    var endNew = new Date(startNew.getTime() + diff);
+    var startNew = new Date(now.valueOf() - diff/2);
+    var endNew = new Date(startNew.valueOf() + diff);
     this.setVisibleChartRange(startNew, endNew);
 };
 
@@ -651,8 +649,8 @@ links.Timeline.prototype.setVisibleChartRangeNow = function() {
  */
 links.Timeline.prototype.getVisibleChartRange = function() {
     return {
-        'start': new Date(this.start),
-        'end': new Date(this.end)
+        'start': new Date(this.start.valueOf()),
+        'end': new Date(this.end.valueOf())
     };
 };
 
@@ -668,17 +666,17 @@ links.Timeline.prototype.getVisibleChartRange = function() {
  */
 links.Timeline.prototype.getDataRange = function (withMargin) {
     var items = this.items,
-        min = undefined,
-        max = undefined;
+        min = undefined, // number
+        max = undefined; // number
 
     if (items) {
         for (var i = 0, iMax = items.length; i < iMax; i++) {
             var item = items[i],
-                start = item.start ? item.start.valueOf() : undefined,
-                end = item.end ? item.end.valueOf() : start;
+                start = item.start != undefined ? item.start.valueOf() : undefined,
+                end   = item.end != undefined   ? item.end.valueOf() : start;
 
             if (min != undefined && start != undefined) {
-                min = Math.min(min, start);
+                min = Math.min(min.valueOf(), start.valueOf());
             }
             else {
                 min = start;
@@ -695,9 +693,9 @@ links.Timeline.prototype.getDataRange = function (withMargin) {
 
     if (min && max && withMargin) {
         // zoom out 5% such that you have a little white space on the left and right
-        var diff = (max.valueOf() - min.valueOf());
-        min = new Date(min.valueOf() - diff * 0.05);
-        max = new Date(max.valueOf() + diff * 0.05);
+        var diff = (max - min);
+        min = min - diff * 0.05;
+        max = max + diff * 0.05;
     }
 
     return {
@@ -816,8 +814,8 @@ links.Timeline.prototype.repaintFrame = function() {
     }
 
     var height = options.autoHeight ?
-            (size.actualHeight + "px") :
-            (options.height || "100%");
+        (size.actualHeight + "px") :
+        (options.height || "100%");
     var width  = options.width || "100%";
     needsReflow = needsReflow || (dom.frame.style.height != height);
     needsReflow = needsReflow || (dom.frame.style.width != width);
@@ -992,9 +990,8 @@ links.Timeline.prototype.repaintAxis = function() {
 
     // calculate minimum step (in milliseconds) based on character size
     if (size.axis.characterMinorWidth) {
-        this.minimumStep =
-            this.screenToTime(size.axis.characterMinorWidth * 6).valueOf() -
-            this.screenToTime(0).valueOf();
+        this.minimumStep = this.screenToTime(size.axis.characterMinorWidth * 6) -
+            this.screenToTime(0);
 
         step.setRange(start, end, this.minimumStep);
     }
@@ -1023,7 +1020,7 @@ links.Timeline.prototype.repaintAxis = function() {
 
         if (isMajor && options.showMajorLabels) {
             if (x > 0) {
-                if (xFirstMajorLabel === undefined) {
+                if (xFirstMajorLabel == undefined) {
                     xFirstMajorLabel = x;
                 }
                 this.repaintAxisMajorText(x, step.getLabelMajor());
@@ -1043,7 +1040,7 @@ links.Timeline.prototype.repaintAxis = function() {
             leftText = this.step.getLabelMajor(leftTime),
             width = leftText.length * size.axis.characterMajorWidth + 10; // upper bound estimation
 
-        if (xFirstMajorLabel === undefined || width < xFirstMajorLabel) {
+        if (xFirstMajorLabel == undefined || width < xFirstMajorLabel) {
             this.repaintAxisMajorText(0, leftText, leftTime);
         }
     }
@@ -1926,7 +1923,7 @@ links.Timeline.prototype.repaintCurrentTime = function() {
     }
 
     var now = new Date();
-    var nowOffset = new Date(now.getTime() + this.clientTimeOffset);
+    var nowOffset = new Date(now.valueOf() + this.clientTimeOffset);
     var x = this.timeToScreen(nowOffset);
 
     var visible = (x > -size.contentWidth && x < 2 * size.contentWidth);
@@ -2070,7 +2067,7 @@ links.Timeline.prototype.repaintDragAreas = function () {
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item) &&
-            (item instanceof links.Timeline.ItemRange)) {
+        (item instanceof links.Timeline.ItemRange)) {
         var left = this.timeToScreen(item.start),
             right = this.timeToScreen(item.end),
             top = item.top,
@@ -2257,7 +2254,7 @@ links.Timeline.prototype.repaintNavigation = function () {
  */
 links.Timeline.prototype.setCurrentTime = function(time) {
     var now = new Date();
-    this.clientTimeOffset = time.getTime() - now.getTime();
+    this.clientTimeOffset = (time.valueOf() - now.valueOf());
 
     this.repaintCurrentTime();
 };
@@ -2269,7 +2266,7 @@ links.Timeline.prototype.setCurrentTime = function(time) {
  */
 links.Timeline.prototype.getCurrentTime = function() {
     var now = new Date();
-    return new Date(now.getTime() + this.clientTimeOffset);
+    return new Date(now.valueOf() + this.clientTimeOffset);
 };
 
 
@@ -2279,7 +2276,7 @@ links.Timeline.prototype.getCurrentTime = function() {
  * @param {Date} time
  */
 links.Timeline.prototype.setCustomTime = function(time) {
-    this.customTime = new Date(time);
+    this.customTime = new Date(time.valueOf());
     this.repaintCustomTime();
 };
 
@@ -2288,7 +2285,7 @@ links.Timeline.prototype.setCustomTime = function(time) {
  * @return {Date} customTime
  */
 links.Timeline.prototype.getCustomTime = function() {
-    return new Date(this.customTime);
+    return new Date(this.customTime.valueOf());
 };
 
 /**
@@ -2362,9 +2359,9 @@ links.Timeline.prototype.isEditable = function (item) {
  * timeToScreen can be used.
  */
 links.Timeline.prototype.recalcConversion = function() {
-    this.conversion.offset = parseFloat(this.start.valueOf());
-    this.conversion.factor = parseFloat(this.size.contentWidth) /
-        parseFloat(this.end.valueOf() - this.start.valueOf());
+    this.conversion.offset = this.start.valueOf();
+    this.conversion.factor = this.size.contentWidth /
+        (this.end.valueOf() - this.start.valueOf());
 };
 
 
@@ -2376,9 +2373,8 @@ links.Timeline.prototype.recalcConversion = function() {
  * @return {Date}   time The datetime the corresponds with given position x
  */
 links.Timeline.prototype.screenToTime = function(x) {
-    var conversion = this.conversion,
-        time = new Date(parseFloat(x) / conversion.factor + conversion.offset);
-    return time;
+    var conversion = this.conversion;
+    return new Date(x / conversion.factor + conversion.offset);
 };
 
 /**
@@ -2391,8 +2387,7 @@ links.Timeline.prototype.screenToTime = function(x) {
  */
 links.Timeline.prototype.timeToScreen = function(time) {
     var conversion = this.conversion;
-    var x = (time.valueOf() - conversion.offset) * conversion.factor;
-    return x;
+    return (time.valueOf() - conversion.offset) * conversion.factor;
 };
 
 
@@ -2424,27 +2419,27 @@ links.Timeline.prototype.onTouchStart = function(event) {
     }
 
     /* TODO
-    // check for double tap event
-    var delta = 500; // ms
-    var doubleTapStart = (new Date()).getTime();
-    var target = links.Timeline.getTarget(event);
-    var doubleTapItem = this.getItemIndex(target);
-    if (params.doubleTapStart &&
-            (doubleTapStart - params.doubleTapStart) < delta &&
-            doubleTapItem == params.doubleTapItem) {
-        delete params.doubleTapStart;
-        delete params.doubleTapItem;
-        me.onDblClick(event);
-        params.touchDown = false;
-    }
-    params.doubleTapStart = doubleTapStart;
-    params.doubleTapItem = doubleTapItem;
-    */
+     // check for double tap event
+     var delta = 500; // ms
+     var doubleTapStart = (new Date()).valueOf();
+     var target = links.Timeline.getTarget(event);
+     var doubleTapItem = this.getItemIndex(target);
+     if (params.doubleTapStart &&
+     (doubleTapStart - params.doubleTapStart) < delta &&
+     doubleTapItem == params.doubleTapItem) {
+     delete params.doubleTapStart;
+     delete params.doubleTapItem;
+     me.onDblClick(event);
+     params.touchDown = false;
+     }
+     params.doubleTapStart = doubleTapStart;
+     params.doubleTapItem = doubleTapItem;
+     */
     // store timing for double taps
     var target = links.Timeline.getTarget(event);
     var item = this.getItemIndex(target);
     params.doubleTapStartPrev = params.doubleTapStart;
-    params.doubleTapStart = (new Date()).getTime();
+    params.doubleTapStart = (new Date()).valueOf();
     params.doubleTapItemPrev = params.doubleTapItem;
     params.doubleTapItem = item;
 
@@ -2514,7 +2509,7 @@ links.Timeline.prototype.onTouchEnd = function(event) {
 
     // check for double tap event
     var delta = 500; // ms
-    var doubleTapEnd = (new Date()).getTime();
+    var doubleTapEnd = (new Date()).valueOf();
     var target = links.Timeline.getTarget(event);
     var doubleTapItem = this.getItemIndex(target);
     if (params.doubleTapStartPrev &&
@@ -2556,16 +2551,16 @@ links.Timeline.prototype.onMouseDown = function(event) {
         params.mouseX = event.targetTouches[0].clientX;
         params.mouseY = event.targetTouches[0].clientY;
     }
-    if (params.mouseX === undefined) {params.mouseX = 0;}
-    if (params.mouseY === undefined) {params.mouseY = 0;}
+    if (params.mouseX == undefined) {params.mouseX = 0;}
+    if (params.mouseY == undefined) {params.mouseY = 0;}
     params.frameLeft = links.Timeline.getAbsoluteLeft(this.dom.content);
     params.frameTop = links.Timeline.getAbsoluteTop(this.dom.content);
     params.previousLeft = 0;
     params.previousOffset = 0;
 
     params.moved = false;
-    params.start = new Date(this.start);
-    params.end = new Date(this.end);
+    params.start = new Date(this.start.valueOf());
+    params.end = new Date(this.end.valueOf());
 
     params.target = links.Timeline.getTarget(event);
     var dragLeft = (dom.items && dom.items.dragLeft) ? dom.items.dragLeft : undefined;
@@ -2595,7 +2590,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
         if (options.snapEvents) {
             this.step.snap(xstart);
         }
-        var xend = new Date(xstart);
+        var xend = new Date(xstart.valueOf());
         var content = "New";
         var group = this.getGroupFromHeight(y);
         this.addItem({
@@ -2664,18 +2659,18 @@ links.Timeline.prototype.onMouseMove = function (event) {
         mouseX = event.targetTouches[0].clientX;
         mouseY = event.targetTouches[0].clientY;
     }
-    if (mouseX === undefined) {mouseX = 0;}
-    if (mouseY === undefined) {mouseY = 0;}
+    if (mouseX == undefined) {mouseX = 0;}
+    if (mouseY == undefined) {mouseY = 0;}
 
-    if (params.mouseX === undefined) {
+    if (params.mouseX == undefined) {
         params.mouseX = mouseX;
     }
-    if (params.mouseY === undefined) {
+    if (params.mouseY == undefined) {
         params.mouseY = mouseY;
     }
 
-    var diffX = parseFloat(mouseX) - params.mouseX;
-    var diffY = parseFloat(mouseY) - params.mouseY;
+    var diffX = mouseX - params.mouseX;
+    var diffY = mouseY - params.mouseY;
 
     // if mouse movement is big enough, register it as a "moved" event
     if (Math.abs(diffX) >= 1) {
@@ -2768,12 +2763,11 @@ links.Timeline.prototype.onMouseMove = function (event) {
     }
     else if (options.moveable) {
         var interval = (params.end.valueOf() - params.start.valueOf());
-        var diffMillisecs = Math.round(parseFloat(-diffX) / size.contentWidth * interval);
+        var diffMillisecs = Math.round((-diffX) / size.contentWidth * interval);
         var newStart = new Date(params.start.valueOf() + diffMillisecs);
         var newEnd = new Date(params.end.valueOf() + diffMillisecs);
         this.applyRange(newStart, newEnd);
-
-        // if the applied range is moved due to a fixed min or max, 
+        // if the applied range is moved due to a fixed min or max,
         // change the diffMillisecs accordingly
         var appliedDiff = (this.start.valueOf() - newStart.valueOf());
         if (appliedDiff) {
@@ -2912,7 +2906,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
             }
             else if (options.selectable) {
                 // select/unselect item
-                if (params.itemIndex !== undefined) {
+                if (params.itemIndex != undefined) {
                     if (!this.isSelected(params.itemIndex)) {
                         this.selectItem(params.itemIndex);
                         this.trigger('select');
@@ -2948,7 +2942,7 @@ links.Timeline.prototype.onDblClick = function (event) {
         size = this.size;
     event = event || window.event;
 
-    if (params.itemIndex !== undefined) {
+    if (params.itemIndex != undefined) {
         var item = this.items[params.itemIndex];
         if (item && this.isEditable(item)) {
             // fire the edit event
@@ -2964,8 +2958,8 @@ links.Timeline.prototype.onDblClick = function (event) {
                 params.mouseX = event.clientX;
                 params.mouseY = event.clientY;
             }
-            if (params.mouseX === undefined) {params.mouseX = 0;}
-            if (params.mouseY === undefined) {params.mouseY = 0;}
+            if (params.mouseX == undefined) {params.mouseX = 0;}
+            if (params.mouseY == undefined) {params.mouseY = 0;}
             var x = params.mouseX - links.Timeline.getAbsoluteLeft(dom.content);
             var y = params.mouseY - links.Timeline.getAbsoluteTop(dom.content);
 
@@ -3100,18 +3094,26 @@ links.Timeline.prototype.zoom = function(zoomFactor, zoomAroundDate) {
     }
 
     // zoom start Date and end Date relative to the zoomAroundDate
-    var startDiff = parseFloat(this.start.valueOf() - zoomAroundDate.valueOf());
-    var endDiff = parseFloat(this.end.valueOf() - zoomAroundDate.valueOf());
+    var startDiff = (this.start.valueOf() - zoomAroundDate);
+    var endDiff = (this.end.valueOf() - zoomAroundDate);
 
     // calculate new dates
     var newStart = new Date(this.start.valueOf() - startDiff * zoomFactor);
     var newEnd   = new Date(this.end.valueOf() - endDiff * zoomFactor);
 
-    this.applyRange(newStart, newEnd, zoomAroundDate);
-
-    this.render({
-        animate: this.options.animate && this.options.animateZoom
-    });
+    // only zoom in when interval is larger than minimum interval (to prevent
+    // sliding to left/right when having reached the minimum zoom level)
+    var interval = (newEnd.valueOf() - newStart.valueOf());
+    var intervalMin = Number(this.options.intervalMin) || 10;
+    if (intervalMin < 10) {
+        intervalMin = 10;
+    }
+    if (interval >= intervalMin) {
+        this.applyRange(newStart, newEnd, zoomAroundDate);
+        this.render({
+            animate: this.options.animate && this.options.animateZoom
+        });
+    }
 };
 
 /**
@@ -3123,7 +3125,7 @@ links.Timeline.prototype.zoom = function(zoomFactor, zoomAroundDate) {
  */
 links.Timeline.prototype.move = function(moveFactor) {
     // zoom start Date and end Date relative to the zoomAroundDate
-    var diff = parseFloat(this.end.valueOf() - this.start.valueOf());
+    var diff = (this.end.valueOf() - this.start.valueOf());
 
     // apply new dates
     var newStart = new Date(this.start.valueOf() + diff * moveFactor);
@@ -3142,8 +3144,8 @@ links.Timeline.prototype.move = function(moveFactor) {
  */
 links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     // calculate new start and end value
-    var startValue = start.valueOf();
-    var endValue = end.valueOf();
+    var startValue = start.valueOf(); // number
+    var endValue = end.valueOf();     // number
     var interval = (endValue - startValue);
 
     // determine maximum and minimum interval
@@ -3162,8 +3164,8 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     }
 
     // determine min and max date value
-    var min = options.min ? options.min.valueOf() : undefined;
-    var max = options.max ? options.max.valueOf() : undefined;
+    var min = options.min ? options.min.valueOf() : undefined; // number
+    var max = options.max ? options.max.valueOf() : undefined; // number
     if (min != undefined && max != undefined) {
         if (min >= max) {
             // empty range
@@ -3384,9 +3386,9 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
 links.Timeline.Item = function (data, options) {
     if (data) {
         /* TODO: use parseJSONDate as soon as it is tested and working (in two directions)
-        this.start = links.Timeline.parseJSONDate(data.start);
-        this.end = links.Timeline.parseJSONDate(data.end);
-        */
+         this.start = links.Timeline.parseJSONDate(data.start);
+         this.end = links.Timeline.parseJSONDate(data.end);
+         */
         this.start = data.start;
         this.end = data.end;
         this.content = data.content;
@@ -3562,9 +3564,9 @@ links.Timeline.ItemBox.prototype.reflow = function () {
         lineWidth = dom.line.offsetWidth,
         resized = (
             (this.dotHeight != dotHeight) ||
-            (this.dotWidth != dotWidth) ||
-            (this.lineWidth != lineWidth)
-        );
+                (this.dotWidth != dotWidth) ||
+                (this.lineWidth != lineWidth)
+            );
 
     this.dotHeight = dotHeight;
     this.dotWidth = dotWidth;
@@ -3951,7 +3953,7 @@ links.Timeline.ItemRange.prototype.updateDOM = function () {
 links.Timeline.ItemRange.prototype.updatePosition = function (timeline) {
     var dom = this.dom;
     if (dom) {
-            var contentWidth = timeline.size.contentWidth,
+        var contentWidth = timeline.size.contentWidth,
             left = timeline.timeToScreen(this.start),
             right = timeline.timeToScreen(this.end);
 
@@ -4043,9 +4045,9 @@ links.Timeline.ItemDot.prototype.reflow = function () {
         contentHeight = dom.content.offsetHeight,
         resized = (
             (this.dotHeight != dotHeight) ||
-            (this.dotWidth != dotWidth) ||
-            (this.contentHeight != contentHeight)
-        );
+                (this.dotWidth != dotWidth) ||
+                (this.contentHeight != contentHeight)
+            );
 
     this.dotHeight = dotHeight;
     this.dotWidth = dotWidth;
@@ -4253,9 +4255,9 @@ links.Timeline.prototype.getItem = function (index) {
     var item = this.items[index];
 
     var properties = {};
-    properties.start = new Date(item.start);
+    properties.start = new Date(item.start.valueOf());
     if (item.end) {
-        properties.end = new Date(item.end);
+        properties.end = new Date(item.end.valueOf());
     }
     properties.content = item.content;
     if (item.group) {
@@ -4379,7 +4381,7 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
         'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
         'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
         'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
-		'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className
+        'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className
     });
     this.items[index] = newItem;
 
@@ -4516,15 +4518,15 @@ links.Timeline.prototype.setSelection = function(selection) {
                 // move the visible chart range to the selected event.
                 var start = item.start;
                 var end = item.end;
-                var middle;
+                var middle; // number
                 if (end != undefined) {
-                    middle = new Date((end.valueOf() + start.valueOf()) / 2);
+                    middle = (end.valueOf() + start.valueOf()) / 2;
                 } else {
-                    middle = new Date(start);
+                    middle = start.valueOf();
                 }
                 var diff = (this.end.valueOf() - this.start.valueOf()),
-                    newStart = new Date(middle.valueOf() - diff/2),
-                    newEnd = new Date(middle.valueOf() + diff/2);
+                    newStart = new Date(middle - diff/2),
+                    newEnd = new Date(middle + diff/2);
 
                 this.setVisibleChartRange(newStart, newEnd);
 
@@ -4563,7 +4565,7 @@ links.Timeline.prototype.selectItem = function(index) {
 
     this.selection = undefined;
 
-    if (this.items[index] !== undefined) {
+    if (this.items[index] != undefined) {
         var item = this.items[index],
             domItem = item.dom;
 
@@ -4589,7 +4591,7 @@ links.Timeline.prototype.selectItem = function(index) {
  * @return {boolean} true if row is selected, else false
  */
 links.Timeline.prototype.isSelected = function (index) {
-    return (this.selection && this.selection.index === index);
+    return (this.selection && this.selection.index == index);
 };
 
 /**
@@ -4644,7 +4646,7 @@ links.Timeline.prototype.stackItems = function(animate) {
         var timeline = this;
         var step = function () {
             var arrived = timeline.stackMoveOneStep(stack.sortedItems,
-                    stack.finalItems);
+                stack.finalItems);
 
             timeline.repaint();
 
@@ -4681,7 +4683,7 @@ links.Timeline.prototype.stackCancelAnimation = function() {
  * Order the items in the array this.items. The default order is determined via:
  * - Ranges go before boxes and dots.
  * - The item with the oldest start time goes first
- * If a custom function has been provided via the stackorder option, then this will be used. 
+ * If a custom function has been provided via the stackorder option, then this will be used.
  * @param {Array} items        Array with items
  * @return {Array} sortedItems Array with sorted items
  */
@@ -4691,20 +4693,19 @@ links.Timeline.prototype.stackOrder = function(items) {
 
     //if a customer stack order function exists, use it. 
     var f = this.options.customStackOrder && (typeof this.options.customStackOrder === 'function') ? this.options.customStackOrder : function (a, b)
-        {
-            if ((a instanceof links.Timeline.ItemRange) &&
-                    !(b instanceof links.Timeline.ItemRange)) {
-                return -1;
-            }
+    {
+        if ((a instanceof links.Timeline.ItemRange) &&
+            !(b instanceof links.Timeline.ItemRange)) {
+            return -1;
+        }
 
-            if (!(a instanceof links.Timeline.ItemRange) &&
-                    (b instanceof links.Timeline.ItemRange)) {
-                return 1;
-            }
+        if (!(a instanceof links.Timeline.ItemRange) &&
+            (b instanceof links.Timeline.ItemRange)) {
+            return 1;
+        }
 
-
-            return (a.left - b.left);
-        };
+        return (a.left - b.left);
+    };
 
     sortedItems.sort(f);
 
@@ -4864,7 +4865,7 @@ links.Timeline.prototype.stackMoveToFinal = function(currentItems, finalItems) {
  * @return {Object}          colliding item, or undefined when no collisions
  */
 links.Timeline.prototype.stackItemsCheckOverlap = function(items, itemIndex,
-                                                            itemStart, itemEnd) {
+                                                           itemStart, itemEnd) {
     var eventMargin = this.options.eventMargin,
         collision = this.collision;
 
@@ -4920,15 +4921,15 @@ links.Timeline.prototype.trigger = function (event) {
         case 'rangechange':
         case 'rangechanged':
             properties = {
-                'start': new Date(this.start),
-                'end': new Date(this.end)
+                'start': new Date(this.start.valueOf()),
+                'end': new Date(this.end.valueOf())
             };
             break;
 
         case 'timechange':
         case 'timechanged':
             properties = {
-                'time': new Date(this.customTime)
+                'time': new Date(this.customTime.valueOf())
             };
             break;
     }
@@ -4987,7 +4988,7 @@ links.Timeline.prototype.clusterItems = function () {
  */
 links.Timeline.prototype.filterItems = function () {
     var queue = this.renderQueue,
-        window = this.end.valueOf() - this.start.valueOf(),
+        window = (this.end - this.start),
         start = new Date(this.start.valueOf() - window),
         end = new Date(this.end.valueOf() + window);
 
@@ -5174,8 +5175,7 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
 
                     // loop through items left from the current item
                     var j = i - 1;
-                    while (j >= 0 &&
-                            (item.center - items[j].center) < timeWindow / 2) {
+                    while (j >= 0 && (item.center - items[j].center) < timeWindow / 2) {
                         if (!items[j].cluster) {
                             neighbors++;
                         }
@@ -5184,16 +5184,14 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
 
                     // loop through items right from the current item
                     var k = i + 1;
-                    while (k < items.length &&
-                            (items[k].center - item.center) < timeWindow / 2) {
+                    while (k < items.length && (items[k].center - item.center) < timeWindow / 2) {
                         neighbors++;
                         k++;
                     }
 
                     // loop through the created clusters
                     var l = clusters.length - 1;
-                    while (l >= 0 &&
-                            (item.center - clusters[l].center) < timeWindow / 2) {
+                    while (l >= 0 && (item.center - clusters[l].center) < timeWindow / 2) {
                         if (item.group == clusters[l].group) {
                             neighbors++;
                         }
@@ -5208,9 +5206,9 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
 
                         // append the items to the cluster,
                         // and calculate the average start for the cluster
-                        var avg = undefined;  // average of all start dates
-                        var min = undefined;  // minimum of all start dates
-                        var max = undefined;  // maximum of all start and end dates
+                        var avg = undefined;  // number. average of all start dates
+                        var min = undefined;  // number. minimum of all start dates
+                        var max = undefined;  // number. maximum of all start and end dates
                         var containsRanges = false;
                         var count = 0;
                         var m = i;
@@ -5466,13 +5464,13 @@ links.Timeline.StepDate.SCALE = {
  * @param {int}  minimumStep  Optional. Minimum step size in milliseconds
  */
 links.Timeline.StepDate.prototype.setRange = function(start, end, minimumStep) {
-    if (isNaN(start) || isNaN(end)) {
+    if (!(start instanceof Date) || !(end instanceof Date)) {
         //throw  "No legal start or end date in method setRange";
         return;
     }
 
-    this._start = (start != undefined) ? new Date(start) : new Date();
-    this._end = (end != undefined) ? new Date(end) : new Date();
+    this._start = (start != undefined) ? new Date(start.valueOf()) : new Date();
+    this._end = (end != undefined) ? new Date(end.valueOf()) : new Date();
 
     if (this.autoScale) {
         this.setMinimumStep(minimumStep);
@@ -5483,7 +5481,7 @@ links.Timeline.StepDate.prototype.setRange = function(start, end, minimumStep) {
  * Set the step iterator to the start date.
  */
 links.Timeline.StepDate.prototype.start = function() {
-    this.current = new Date(this._start);
+    this.current = new Date(this._start.valueOf());
     this.roundToMinor();
 };
 
@@ -5528,14 +5526,14 @@ links.Timeline.StepDate.prototype.roundToMinor = function() {
  * @return {boolean}  true if the current date has passed the end date
  */
 links.Timeline.StepDate.prototype.end = function () {
-    return (this.current.getTime() > this._end.getTime());
+    return (this.current.valueOf() > this._end.valueOf());
 };
 
 /**
  * Do the next step
  */
 links.Timeline.StepDate.prototype.next = function() {
-    var prev = this.current.getTime();
+    var prev = this.current.valueOf();
 
     // Two cases, needed to prevent issues with switching daylight savings 
     // (end of March and end of October)
@@ -5543,11 +5541,11 @@ links.Timeline.StepDate.prototype.next = function() {
         switch (this.scale) {
             case links.Timeline.StepDate.SCALE.MILLISECOND:
 
-                this.current = new Date(this.current.getTime() + this.step); break;
-            case links.Timeline.StepDate.SCALE.SECOND:       this.current = new Date(this.current.getTime() + this.step * 1000); break;
-            case links.Timeline.StepDate.SCALE.MINUTE:       this.current = new Date(this.current.getTime() + this.step * 1000 * 60); break;
+                this.current = new Date(this.current.valueOf() + this.step); break;
+            case links.Timeline.StepDate.SCALE.SECOND:       this.current = new Date(this.current.valueOf() + this.step * 1000); break;
+            case links.Timeline.StepDate.SCALE.MINUTE:       this.current = new Date(this.current.valueOf() + this.step * 1000 * 60); break;
             case links.Timeline.StepDate.SCALE.HOUR:
-                this.current = new Date(this.current.getTime() + this.step * 1000 * 60 * 60);
+                this.current = new Date(this.current.valueOf() + this.step * 1000 * 60 * 60);
                 // in case of skipping an hour for daylight savings, adjust the hour again (else you get: 0h 5h 9h ... instead of 0h 4h 8h ...)
                 var h = this.current.getHours();
                 this.current.setHours(h - (h % this.step));
@@ -5561,7 +5559,7 @@ links.Timeline.StepDate.prototype.next = function() {
     }
     else {
         switch (this.scale) {
-            case links.Timeline.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.getTime() + this.step); break;
+            case links.Timeline.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.valueOf() + this.step); break;
             case links.Timeline.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() + this.step); break;
             case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() + this.step); break;
             case links.Timeline.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() + this.step); break;
@@ -5589,8 +5587,8 @@ links.Timeline.StepDate.prototype.next = function() {
     }
 
     // safety mechanism: if current time is still unchanged, move to the end
-    if (this.current.getTime() == prev) {
-        this.current = new Date(this._end);
+    if (this.current.valueOf() == prev) {
+        this.current = new Date(this._end.valueOf());
     }
 };
 
@@ -5716,7 +5714,7 @@ links.Timeline.StepDate.prototype.snap = function(date) {
         date.setMilliseconds(0);
     }
     else if (this.scale == links.Timeline.StepDate.SCALE.DAY ||
-             this.scale == links.Timeline.StepDate.SCALE.WEEKDAY) {
+        this.scale == links.Timeline.StepDate.SCALE.WEEKDAY) {
         switch (this.step) {
             case 5:
             case 2:
@@ -6126,7 +6124,7 @@ links.Timeline.getTarget = function (event) {
         target = event.srcElement;
     }
 
-    if (target.nodeType !== undefined && target.nodeType == 3) {
+    if (target.nodeType != undefined && target.nodeType == 3) {
         // defeat Safari bug
         target = target.parentNode;
     }
