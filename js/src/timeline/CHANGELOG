@@ -28,6 +28,7 @@ CHAP Links Library - Timeline
 - fixed: When dragging the edges of a range, it was possible to move the range
   to another group.
 - fixed: non-working option dragAreaWidth.
+- fixed: non reachable event ready (issue #69(.
 
 
 2012-09-18, version 2.3.2

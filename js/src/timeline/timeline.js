@@ -233,7 +233,10 @@ links.Timeline = function(container) {
     this.render();
 
     // fire the ready event
-    this.trigger('ready');
+    var me = this;
+    setTimeout(function () {
+        me.trigger('ready');
+    }, 0);
 };
 
 
