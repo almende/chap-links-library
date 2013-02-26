@@ -23,6 +23,9 @@ CHAP Links Library - Timeline
   and the first three columns can have any order now. More robust and flexible.
 - fixed: when deleting an item via deleteItem, the currently selection is
   maintained instead of unselected (issue #47).
+- fixed: When dragging the edges of a range, it was possible to move the range
+  to another group.
+- fixed: non-working option dragAreaWidth
 
 
 2012-09-18, version 2.3.2

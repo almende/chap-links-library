@@ -108,7 +108,7 @@ if (!Array.prototype.forEach) {
  */
 links.Timeline = function(container) {
     if (!container) {
-      // this call was propably only for inheritance, no constructor-code is required
+      // this call was probably only for inheritance, no constructor-code is required
       return;
     }
     
@@ -733,31 +733,7 @@ links.Timeline.prototype.render = function(options) {
     this.stackItems(animate);
 
     this.recalcItems();
-/* TODO: use or cleanup
-    // re-cluster when the actualHeight is changed
-    if (this.options.cluster && this.size.actualHeight != this.size.prevActualHeight) {
-        // console.log('actualHeight changed. reclustering...'); // TODO: cleanup
 
-        // remove current clusters
-        this.unclusterItems();
-
-        // TODO: improve efficiency here (when unclustering, update the visibility of the affected items)
-
-        // filter and stack the unclustered items
-        this.filterItems();
-        this.stackItems(animate);
-
-        // apply clustering
-        this.clusterItems();
-        if (this.currentClusters && this.currentClusters.length) {
-            this.filterItems();
-            this.stackItems(animate);
-        }
-
-        this.size.prevActualHeight = this.size.actualHeight;
-    }
-    // }
-*/
     // TODO: only repaint when resized or when filterItems or stackItems gave a change?
     var needsReflow = this.repaint();
 
@@ -1402,7 +1378,6 @@ links.Timeline.prototype.reflowItems = function() {
         i,
         iMax,
         group,
-        dom = this.dom,
         groups = this.groups,
         renderedItems = this.renderedItems;
 
@@ -2078,7 +2053,6 @@ links.Timeline.prototype.repaintDragAreas = function () {
     if (!dragLeft) {
         dragLeft = document.createElement("DIV");
         dragLeft.className="timeline-event-range-drag-left";
-        dragLeft.style.width = options.dragAreaWidth + "px";
         dragLeft.style.position = "absolute";
 
         frame.appendChild(dragLeft);
@@ -2090,7 +2064,6 @@ links.Timeline.prototype.repaintDragAreas = function () {
     if (!dragRight) {
         dragRight = document.createElement("DIV");
         dragRight.className="timeline-event-range-drag-right";
-        dragRight.style.width = options.dragAreaWidth + "px";
         dragRight.style.position = "absolute";
 
         frame.appendChild(dragRight);
@@ -2109,6 +2082,7 @@ links.Timeline.prototype.repaintDragAreas = function () {
 
         dragLeft.style.left = left + 'px';
         dragLeft.style.top = top + 'px';
+        dragLeft.style.width = options.dragAreaWidth + "px";
         dragLeft.style.height = height + 'px';
         dragLeft.style.display = '';
         frame.removeChild(dragLeft);
@@ -2116,6 +2090,7 @@ links.Timeline.prototype.repaintDragAreas = function () {
 
         dragRight.style.left = (right - options.dragAreaWidth) + 'px';
         dragRight.style.top = top + 'px';
+        dragRight.style.width = options.dragAreaWidth + "px";
         dragRight.style.height = height + 'px';
         dragRight.style.display = '';
         frame.removeChild(dragRight);
@@ -2769,12 +2744,8 @@ links.Timeline.prototype.onMouseMove = function (event) {
 
         item.setPosition(left, right);
 
-        if (this.groups.length == 0) {
-            // TODO: does not work well in FF, forces redraw with every mouse move it seems
-            this.render(); // TODO: optimize, only redraw the items?
-            // Note: when animate==true, no redraw is needed here, its done by stackItems animation
-        }
-        else {
+        var dragging = params.itemDragLeft || params.itemDragRight;
+        if (this.groups.length && !dragging) {
             // move item from one group to another when needed
             var y = mouseY - params.frameTop;
             var group = this.getGroupFromHeight(y);
@@ -2787,6 +2758,11 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 this.repaintDeleteButton();
                 this.repaintDragAreas();
             }
+        }
+        else {
+            // TODO: does not work well in FF, forces redraw with every mouse move it seems
+            this.render(); // TODO: optimize, only redraw the items?
+            // Note: when animate==true, no redraw is needed here, its done by stackItems animation
         }
     }
     else if (options.moveable) {
@@ -2913,6 +2889,11 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     // TODO: original group should be restored too
                     item.setPosition(params.itemLeft, params.itemRight);
                 }
+            }
+
+            // prepare data for clustering, by filtering and sorting by type
+            if (this.options.cluster) {
+                this.clusterGenerator.updateData();
             }
 
             this.render();
@@ -3325,6 +3306,11 @@ links.Timeline.prototype.deleteItem = function(index, preventRender) {
         }
     }
 
+    // prepare data for clustering, by filtering and sorting by type
+    if (this.options.cluster) {
+        this.clusterGenerator.updateData();
+    }
+
     if (!preventRender) {
         this.render();
     }
@@ -3357,6 +3343,11 @@ links.Timeline.prototype.deleteAllItems = function() {
         }
     }
 
+    // prepare data for clustering, by filtering and sorting by type
+    if (this.options.cluster) {
+        this.clusterGenerator.updateData();
+    }
+
     this.render();
 };
 
@@ -3372,7 +3363,7 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
         group,
         groups = this.groups;
 
-    if (groups) {
+    if (groups.length) {
         if (this.options.axisOnTop) {
             for (i = groups.length - 1; i >= 0; i--) {
                 group = groups[i];
@@ -3418,17 +3409,6 @@ links.Timeline.Item = function (data, options) {
         this.className = data.className;
         this.editable = data.editable;
         this.group = data.group;
-
-        if (this.start) {
-            if (this.end) {
-                // range
-                this.center = (this.start.valueOf() + this.end.valueOf()) / 2;
-            }
-            else {
-                // box, dot
-                this.center = this.start.valueOf();
-            }
-        }
     }
     this.top = 0;
     this.left = 0;
@@ -4341,6 +4321,11 @@ links.Timeline.prototype.addItems = function (itemsData) {
         // filtered again.
     });
 
+    // prepare data for clustering, by filtering and sorting by type
+    if (this.options.cluster) {
+        this.clusterGenerator.updateData();
+    }
+
     this.render({
         animate: false
     });
@@ -4416,6 +4401,11 @@ links.Timeline.prototype.changeItem = function (index, itemData) {
     // update the original data table
     this.updateData(index, itemData);
 
+    // prepare data for clustering, by filtering and sorting by type
+    if (this.options.cluster) {
+        this.clusterGenerator.updateData();
+    }
+
     // redraw timeline
     this.render({
         animate: false
@@ -4445,7 +4435,7 @@ links.Timeline.prototype.getGroup = function (groupName) {
         groupObj = undefined;
 
     var groupIndex = groupIndexes[groupName];
-    if (groupIndex === undefined && groupName !== undefined) {
+    if (groupIndex == undefined && groupName != undefined) { // not null or undefined
         groupObj = {
             'content': groupName,
             'labelTop': 0,
@@ -4479,13 +4469,13 @@ links.Timeline.prototype.getGroup = function (groupName) {
 
 /**
  * Get the group name from a group object.
- * @param {Object} groupObject
+ * @param {Object} groupObj
  * @return {String} groupName   the name of the group, or undefined when group
  *                              was not provided
  */
 links.Timeline.prototype.getGroupName = function (groupObj) {
     return groupObj ? groupObj.content : undefined;
-}
+};
 
 /**
  * Cancel a change item
@@ -5085,6 +5075,15 @@ links.Timeline.ClusterGenerator.prototype.setData = function (items, options) {
 };
 
 /**
+ * Update the current data set: clear cache, and recalculate the clustering for
+ * the current level
+ */
+links.Timeline.ClusterGenerator.prototype.updateData = function () {
+    this.dataChanged = true;
+    this.applyOnChangedLevel = false;
+};
+
+/**
  * Filter the items per group.
  * @private
  */
@@ -5096,6 +5095,7 @@ links.Timeline.ClusterGenerator.prototype.filterData = function () {
 
     // split the items per group
     items.forEach(function (item) {
+        // put the item in the correct group
         var groupName = item.group ? item.group.content : '';
         var group = groups[groupName];
         if (!group) {
@@ -5103,6 +5103,18 @@ links.Timeline.ClusterGenerator.prototype.filterData = function () {
             groups[groupName] = group;
         }
         group.push(item);
+
+        // calculate the center of the item
+        if (item.start) {
+            if (item.end) {
+                // range
+                item.center = (item.start.valueOf() + item.end.valueOf()) / 2;
+            }
+            else {
+                // box, dot
+                item.center = item.start.valueOf();
+            }
+        }
     });
 
     // sort the items per group
@@ -5113,6 +5125,8 @@ links.Timeline.ClusterGenerator.prototype.filterData = function () {
             });
         }
     }
+
+    console.log('filterData', groups);
 
     this.dataChanged = false;
 };
