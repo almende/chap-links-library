@@ -1,5 +1,11 @@
 CHAP Links Library - Graph
 
+
+<not yet released>, version 1.2.5
+
+- fixed: issues with dates on millisecond scale or with negative years.
+
+
 2013-01-18, version 1.2.4
 
 - Fixed touch events not handled correctly in case of multiple simultaneous

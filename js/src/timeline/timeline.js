@@ -5439,7 +5439,7 @@ links.events = links.events || {
  * The class step has scales ranging from milliseconds, seconds, minutes, hours,
  * days, to years.
  *
- * Version: 1.1
+ * Version: 1.2
  *
  * @param {Date} start          The start date, for example new Date(2010, 9, 21)
  *                              or new Date(2010, 9, 21, 23, 45, 00)
@@ -5513,6 +5513,7 @@ links.Timeline.StepDate.prototype.start = function() {
 links.Timeline.StepDate.prototype.roundToMinor = function() {
     // round to floor
     // IMPORTANT: we have no breaks in this switch! (this is no bug)
+    //noinspection FallthroughInSwitchStatementJS
     switch (this.scale) {
         case links.Timeline.StepDate.SCALE.YEAR:
             this.current.setFullYear(this.step * Math.floor(this.current.getFullYear() / this.step));
