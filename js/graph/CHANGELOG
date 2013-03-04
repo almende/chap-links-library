@@ -1,5 +1,13 @@
 CHAP Links Library - Graph
 
+
+2013-03-04, version 1.2.5
+
+- Fixed: issues with dates on millisecond scale or with negative years.
+- Fixed: issue with calculating absolute positions of mouse and elements in
+  scrolled elements or body.
+
+
 2013-01-18, version 1.2.4
 
 - Fixed touch events not handled correctly in case of multiple simultaneous
