@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-02-26
- * @version 2.4.0
+ * @date    2013-03-04
+ * @version 2.4.1
  */
 
 /*
@@ -2526,7 +2526,7 @@ links.Timeline.prototype.onTouchEnd = function(event) {
 
 /**
  * Start a moving operation inside the provided parent element
- * @param {event} event       The event that occurred (required for
+ * @param {Event} event       The event that occurred (required for
  *                             retrieving the  mouse position)
  */
 links.Timeline.prototype.onMouseDown = function(event) {
@@ -2543,16 +2543,8 @@ links.Timeline.prototype.onMouseDown = function(event) {
     }
 
     // get mouse position
-    if (!params.touchDown) {
-        params.mouseX = event.clientX;
-        params.mouseY = event.clientY;
-    }
-    else {
-        params.mouseX = event.targetTouches[0].clientX;
-        params.mouseY = event.targetTouches[0].clientY;
-    }
-    if (params.mouseX == undefined) {params.mouseX = 0;}
-    if (params.mouseY == undefined) {params.mouseY = 0;}
+    params.mouseX = links.Timeline.getPageX(event);
+    params.mouseY = links.Timeline.getPageY(event);
     params.frameLeft = links.Timeline.getAbsoluteLeft(this.dom.content);
     params.frameTop = links.Timeline.getAbsoluteTop(this.dom.content);
     params.previousLeft = 0;
@@ -2639,7 +2631,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
 /**
  * Perform moving operating.
  * This function activated from within the funcion links.Timeline.onMouseDown().
- * @param {event}   event  Well, eehh, the event
+ * @param {Event}   event  Well, eehh, the event
  */
 links.Timeline.prototype.onMouseMove = function (event) {
     event = event || window.event;
@@ -2650,17 +2642,8 @@ links.Timeline.prototype.onMouseMove = function (event) {
         options = this.options;
 
     // calculate change in mouse position
-    var mouseX, mouseY;
-    if (!params.touchDown) {
-        mouseX = event.clientX;
-        mouseY = event.clientY;
-    }
-    else {
-        mouseX = event.targetTouches[0].clientX;
-        mouseY = event.targetTouches[0].clientY;
-    }
-    if (mouseX == undefined) {mouseX = 0;}
-    if (mouseY == undefined) {mouseY = 0;}
+    var mouseX = links.Timeline.getPageX(event);
+    var mouseY = links.Timeline.getPageY(event);
 
     if (params.mouseX == undefined) {
         params.mouseX = mouseX;
@@ -2933,7 +2916,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
 
 /**
  * Double click event occurred for an item
- * @param {event}  event
+ * @param {Event}  event
  */
 links.Timeline.prototype.onDblClick = function (event) {
     var params = this.eventParams,
@@ -2954,12 +2937,8 @@ links.Timeline.prototype.onDblClick = function (event) {
             // create a new item
 
             // get mouse position
-            if (!params.touchDown) {
-                params.mouseX = event.clientX;
-                params.mouseY = event.clientY;
-            }
-            if (params.mouseX == undefined) {params.mouseX = 0;}
-            if (params.mouseY == undefined) {params.mouseY = 0;}
+            params.mouseX = links.Timeline.getPageX(event);
+            params.mouseY = links.Timeline.getPageY(event);
             var x = params.mouseX - links.Timeline.getAbsoluteLeft(dom.content);
             var y = params.mouseY - links.Timeline.getAbsoluteTop(dom.content);
 
@@ -3009,7 +2988,7 @@ links.Timeline.prototype.onDblClick = function (event) {
 /**
  * Event handler for mouse wheel event, used to zoom the timeline
  * Code from http://adomas.org/javascript-mouse-wheel/
- * @param {event}  event   The event
+ * @param {Event}  event   The event
  */
 links.Timeline.prototype.onMouseWheel = function(event) {
     if (!this.options.zoomable)
@@ -3041,9 +3020,10 @@ links.Timeline.prototype.onMouseWheel = function(event) {
             // perform the zoom action. Delta is normally 1 or -1
             var zoomFactor = delta / 5.0;
             var frameLeft = links.Timeline.getAbsoluteLeft(timeline.dom.content);
+            var mouseX = links.Timeline.getPageX(event);
             var zoomAroundDate =
-                (event.clientX != undefined && frameLeft != undefined) ?
-                    timeline.screenToTime(event.clientX - frameLeft) :
+                (mouseX != undefined && frameLeft != undefined) ?
+                    timeline.screenToTime(mouseX - frameLeft) :
                     undefined;
 
             timeline.zoom(zoomFactor, zoomAroundDate);
@@ -6193,15 +6173,15 @@ links.Timeline.preventDefault = function (event) {
  *                              in the browser page.
  */
 links.Timeline.getAbsoluteLeft = function(elem) {
-    var left = 0;
-    while( elem != null ) {
-        left += elem.offsetLeft;
-        left -= elem.scrollLeft;
-        elem = elem.offsetParent;
-    }
-    if (!document.body.scrollLeft && window.pageXOffset) {
-        // FF
-        left -= window.pageXOffset;
+    var doc = document.documentElement;
+    var body = document.body;
+
+    var left = elem.offsetLeft;
+    var e = elem.offsetParent;
+    while (e != null && e != body && e != doc) {
+        left += e.offsetLeft;
+        left -= e.scrollLeft;
+        e = e.offsetParent;
     }
     return left;
 };
@@ -6213,17 +6193,69 @@ links.Timeline.getAbsoluteLeft = function(elem) {
  *                              in the browser page.
  */
 links.Timeline.getAbsoluteTop = function(elem) {
-    var top = 0;
-    while( elem != null ) {
-        top += elem.offsetTop;
-        top -= elem.scrollTop;
-        elem = elem.offsetParent;
-    }
-    if (!document.body.scrollTop && window.pageYOffset) {
-        // FF
-        top -= window.pageYOffset;
+    var doc = document.documentElement;
+    var body = document.body;
+
+    var top = elem.offsetTop;
+    var e = elem.offsetParent;
+    while (e != null && e != body && e != doc) {
+        top += e.offsetTop;
+        top -= e.scrollTop;
+        e = e.offsetParent;
     }
     return top;
+};
+
+/**
+ * Get the absolute, vertical mouse position from an event.
+ * @param {Event} event
+ * @return {Number} pageY
+ */
+links.Timeline.getPageY = function (event) {
+    if ('pageY' in event) {
+        return event.pageY;
+    }
+    else {
+        var clientY;
+        if (('targetTouches' in event) && event.targetTouches.length) {
+            clientY = event.targetTouches[0].clientY;
+        }
+        else {
+            clientY = event.clientY;
+        }
+
+        var doc = document.documentElement;
+        var body = document.body;
+        return clientY +
+            ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
+            ( doc && doc.clientTop || body && body.clientTop || 0 );
+    }
+};
+
+/**
+ * Get the absolute, horizontal mouse position from an event.
+ * @param {Event} event
+ * @return {Number} pageX
+ */
+links.Timeline.getPageX = function (event) {
+    if ('pageY' in event) {
+        return event.pageX;
+    }
+    else {
+        var clientX;
+        if (('targetTouches' in event) && event.targetTouches.length) {
+            clientX = event.targetTouches[0].clientX;
+        }
+        else {
+            clientX = event.clientX;
+        }
+
+        var doc = document.documentElement;
+        var body = document.body;
+        return clientX +
+            ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
+            ( doc && doc.clientLeft || body && body.clientLeft || 0 );
+    }
 };
 
 /**

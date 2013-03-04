@@ -28,7 +28,7 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-02-28
+ * @date    2013-03-04
  * @version 1.2.5
  */
 
@@ -2630,8 +2630,8 @@ links.Graph.prototype._onMouseDown = function(event) {
     this._checkSize();
 
     // get mouse position
-    this.startMouseX = links.Graph._getClientX(event);
-    this.startMouseY = links.Graph._getClientY(event);
+    this.startMouseX = links.Graph._getPageX(event);
+    this.startMouseY = links.Graph._getPageY(event);
 
     this.startStart = new Date(this.start.valueOf());
     this.startEnd = new Date(this.end.valueOf());
@@ -2666,8 +2666,8 @@ links.Graph.prototype._onMouseDown = function(event) {
 links.Graph.prototype._onMouseMove = function (event) {
     event = event || window.event;
 
-    var mouseX = links.Graph._getClientX(event);
-    var mouseY = links.Graph._getClientY(event);
+    var mouseX = links.Graph._getPageX(event);
+    var mouseY = links.Graph._getPageY(event);
 
     // calculate change in mouse position
     var diffX = mouseX - this.startMouseX;
@@ -2767,8 +2767,8 @@ links.Graph.prototype._onMouseHover = function (event) {
         return;
     }
 
-    var mouseX = links.Graph._getClientX(event);
-    var mouseY = links.Graph._getClientY(event);
+    var mouseX = links.Graph._getPageX(event);
+    var mouseY = links.Graph._getPageY(event);
     var offsetX = links.Graph._getAbsoluteLeft(this.frame.canvas);
     var offsetY = links.Graph._getAbsoluteTop(this.frame.canvas);
 
@@ -2948,82 +2948,95 @@ links.Graph.prototype._onWheel = function(event) {
 
 /**
  * Retrieve the absolute left value of a DOM element
- * @param {Element} elem    A dom element, for example a div
+ * @param {Element} elem        A dom element, for example a div
  * @return {number} left        The absolute left position of this element
  *                              in the browser page.
  */
 links.Graph._getAbsoluteLeft = function(elem) {
-    var left = 0;
-    while( elem != null ) {
-        left += elem.offsetLeft;
-        left -= elem.scrollLeft;
-        elem = elem.offsetParent;
-    }
-    if (!document.body.scrollLeft && window.pageXOffset) {
-        // FF
-        left -= window.pageXOffset;
+    var doc = document.documentElement;
+    var body = document.body;
+
+    var left = elem.offsetLeft;
+    var e = elem.offsetParent;
+    while (e != null && e != body && e != doc) {
+        left += e.offsetLeft;
+        left -= e.scrollLeft;
+        e = e.offsetParent;
     }
     return left;
 };
 
 /**
  * Retrieve the absolute top value of a DOM element
- * @param {Element} elem    A dom element, for example a div
- * @return {number} top         The absolute top position of this element
+ * @param {Element} elem        A dom element, for example a div
+ * @return {number} top        The absolute top position of this element
  *                              in the browser page.
  */
 links.Graph._getAbsoluteTop = function(elem) {
-    var top = 0;
-    while( elem != null ) {
-        top += elem.offsetTop;
-        top -= elem.scrollTop;
-        elem = elem.offsetParent;
-    }
-    if (!document.body.scrollTop && window.pageYOffset) {
-        // FF
-        top -= window.pageYOffset;
+    var doc = document.documentElement;
+    var body = document.body;
+
+    var top = elem.offsetTop;
+    var e = elem.offsetParent;
+    while (e != null && e != body && e != doc) {
+        top += e.offsetTop;
+        top -= e.scrollTop;
+        e = e.offsetParent;
     }
     return top;
 };
 
 /**
- * Get the horizontal mouse or touch position from given event.
- * The method will first read event.clientX, and if not available,
- * read the touch location
+ * Get the absolute, vertical mouse position from an event.
  * @param {Event} event
- * @return {Number | undefined} clientX
- * @private
+ * @return {Number} pageY
  */
-links.Graph._getClientX = function(event) {
-    if (event.clientX != undefined) {
-        return event.clientX
+links.Graph._getPageY = function (event) {
+    if ('pageY' in event) {
+        return event.pageY;
     }
-    if (event.targetTouches && event.targetTouches[0]) {
-        return event.targetTouches[0].clientX;
-    }
+    else {
+        var clientY;
+        if (('targetTouches' in event) && event.targetTouches.length) {
+            clientY = event.targetTouches[0].clientY;
+        }
+        else {
+            clientY = event.clientY;
+        }
 
-    return undefined;
+        var doc = document.documentElement;
+        var body = document.body;
+        return clientY +
+            ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
+            ( doc && doc.clientTop || body && body.clientTop || 0 );
+    }
 };
 
 /**
- * Get the vertical mouse or touch position from given event.
- * The method will first read event.clientX, and if not available,
- * read the touch location
+ * Get the absolute, horizontal mouse position from an event.
  * @param {Event} event
- * @return {Number | undefined} clientX
- * @private
+ * @return {Number} pageX
  */
-links.Graph._getClientY = function(event) {
-    if (event.clientY != undefined) {
-        return event.clientY
+links.Graph._getPageX = function (event) {
+    if ('pageY' in event) {
+        return event.pageX;
     }
-    if (event.targetTouches && event.targetTouches[0]) {
-        return event.targetTouches[0].clientY;
-    }
+    else {
+        var clientX;
+        if (('targetTouches' in event) && event.targetTouches.length) {
+            clientX = event.targetTouches[0].clientX;
+        }
+        else {
+            clientX = event.clientX;
+        }
 
-    return undefined;
+        var doc = document.documentElement;
+        var body = document.body;
+        return clientX +
+            ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
+            ( doc && doc.clientLeft || body && body.clientLeft || 0 );
+    }
 };
-
 
 /**
  * Set a new value for the visible range int the Graph.

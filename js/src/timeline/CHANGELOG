@@ -1,7 +1,13 @@
 CHAP Links Library - Timeline
 
 
-2012-02-26, version 2.4.0
+2013-03-04, version 2.4.1
+
+- Fixed: issue with calculating absolute positions of mouse and elements in
+  scrolled elements or body.
+
+
+2013-02-26, version 2.4.0
 
 - Added a new scale "WEEKDAY", which shows the weekday in the minor label.
 - Implemented clustering of items.
