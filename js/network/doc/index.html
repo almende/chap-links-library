@@ -35,6 +35,7 @@
     <li><a href="#Example">Example</a></li>
     <li><a href="#Loading">Loading</a></li>
     <li><a href="#Data_Format">Data Format</a></li>
+    <li><a href="#Data_Import">Data Import</a></li>
     <li><a href="#Dynamic_Data">Dynamic Data</a></li>
     <li><a href="#Configuration_Options">Configuration Options</a></li>
     <li><a href="#Methods">Methods</a></li>
@@ -224,11 +225,6 @@ JSON format. Both <code>links</code> and <code>packages</code> are optional.
 
     Note that the Google API is only available online and cannot be used in an
     offline environment.
-</p>
-
-<p>
-    Note that the column labels must match the names listed below,
-    though the order of the columns may differ.
 </p>
 
 <h3>Nodes</h3>
@@ -561,6 +557,31 @@ linksTable.addRow({
     </tr>
 
     <tr>
+        <td>fontColor</td>
+        <td>String</td>
+        <td>"black"</td>
+        <td>Font color for the text label of the link.
+        Only applicable when "text" is defined.</td>
+    </tr>
+
+    <tr>
+        <td>fontFace</td>
+        <td>String</td>
+        <td>"sans"</td>
+        <td>Font face for the text label of the link,
+            for example "verdana" or "arial".
+            Only applicable when "text" is defined.</td>
+    </tr>
+
+    <tr>
+        <td>fontSize</td>
+        <td>Number</td>
+        <td>14</td>
+        <td>Font size in pixels for the text label of the link.
+            Only applicable when "text" is defined.</td>
+    </tr>
+
+    <tr>
         <td>from</td>
         <td>*</td>
         <td>yes</td>
@@ -582,8 +603,16 @@ linksTable.addRow({
         <td>no</td>
         <td>Define a drawing style for the link.
             Choose from <code>line</code> (default), <code>arrow</code>,
-            <code>moving-arrows</code>, or <code>dash-line</code>.
+            <code>arrow-end</code>, <code>moving-arrows</code>,
+            or <code>dash-line</code>.
         </td>
+    </tr>
+
+    <tr>
+        <td>text</td>
+        <td>string</td>
+        <td>no</td>
+        <td>Text to be displayed halfway the link.</td>
     </tr>
 
     <tr>
@@ -843,6 +872,59 @@ packagesTable.addRow({
     </tr>
 
 </table>
+
+<h2><a name="Data_Import"></a>Data Import</h2>
+
+<p>
+    Network contains parser to import data in the
+    <a href="http://en.wikipedia.org/wiki/DOT_language" target="_blank">DOT language</a>.
+    There following methods are available:
+</p>
+
+
+<table>
+<tr>
+    <th>Method</th>
+    <th>Return Type</th>
+    <th>Description</th>
+</tr>
+<tr>
+    <td>links.Network.util.parseDOT(data)</td>
+    <td>Object</td>
+    <td>
+        Parse a string containing data in DOT language into a JSON object.
+        The returned object contains two arrays, <code>nodes</code>,
+        <code>edges</code>, containing the parsed nodes and edges.
+    </td>
+</tr>
+    <tr>
+        <td>links.Network.util.DOTToNetwork(data)</td>
+        <td>Object</td>
+        <td>
+            Convert a string containing a graph in DOT language into a map
+            containing with nodes and edges in the format of Network.
+            The returned object contains parameters <code>nodes</code>,
+            <code>edges</code>, and <code>options</code>, which can be used
+            directly to draw a network using <code>draw(nodes, edges, options)</code>.
+        </td>
+    </tr>
+</table>
+
+<p>
+Example usage:
+</p>
+
+<pre class="prettyprint lang-js">
+    // create a network view
+    var network = new links.Network(container);
+
+    // parse data in DOT-notation
+    var dot = 'digraph {1 -> 1 -> 2; 2 -> 3; 2 -- 4; 2 -> 1 }';
+    data = links.Network.util.DOTToNetwork(dot);
+
+    // draw the data
+    network.draw(data.nodes, data.edges, data.options);
+</pre>
 
 
 <h2><a name="Configuration_Options"></a>Configuration Options</h2>

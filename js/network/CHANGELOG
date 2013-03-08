@@ -1,6 +1,15 @@
 CHAP Links Library - Network
 
 
+2013-03-08, version 1.4
+
+- Implemented a new link style: 'arrow-end', which shows the arrow at the end
+  of the link instead of in the middle.
+- Implemented support for links from a node to itself (a loop.
+- Implemented text for links, which is displayed halfway the link.
+- Added link properties fontColor, fontFace, and fontSize for the text of links.
+
+
 2013-01-18, version 1.3
 
 - New: added dashed line style (thanks David Jordan).
