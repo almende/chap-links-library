@@ -29,9 +29,14 @@
  *
  * Copyright (c) 2011-2012 Almende B.V.
  *
- * @author 	Jos de Jong, <jos@almende.org>
+ * @author     Jos de Jong, <jos@almende.org>
  * @date    2013-03-04
- * @version 2.4.1
+ * @version 2.4.1-i18n
+ */
+
+/*
+ * i18n mods by github user iktuz (https://gist.github.com/iktuz/3749287/)
+ * added to v2.4.1 with da_DK language by @bjarkebech
  */
 
 /*
@@ -200,7 +205,23 @@ links.Timeline = function(container) {
         'animateZoom': true,
         'cluster': false,
         'style': 'box',
-        'customStackOrder': false //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
+        'customStackOrder': false, //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
+        
+        'lang': 'en_US',
+        'i18n': {
+           'en_US' : {
+               'MONTHS_SHORT' : new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+               'MONTHS' : new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+               'DAYS' : new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
+               'DAYS_SHORT' : new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+           },
+           'da_DK' : {
+               'MONTHS_SHORT' : new Array("jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"),
+               'MONTHS' : new Array("januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"),
+               'DAYS' : new Array("søndag", "mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag"),
+               'DAYS_SHORT' : new Array("søn", "man", "tir", "ons", "tor", "fre", "lør")
+           }
+        }
     };
 
     this.clientTimeOffset = 0;    // difference between client time and the time
@@ -1015,7 +1036,7 @@ links.Timeline.prototype.repaintAxis = function() {
             isMajor = step.isMajor();
 
         if (options.showMinorLabels) {
-            this.repaintAxisMinorText(x, step.getLabelMinor());
+            this.repaintAxisMinorText(x, step.getLabelMinor(options));
         }
 
         if (isMajor && options.showMajorLabels) {
@@ -1023,7 +1044,7 @@ links.Timeline.prototype.repaintAxis = function() {
                 if (xFirstMajorLabel == undefined) {
                     xFirstMajorLabel = x;
                 }
-                this.repaintAxisMajorText(x, step.getLabelMajor());
+                this.repaintAxisMajorText(x, step.getLabelMajor(options));
             }
             this.repaintAxisMajorLine(x);
         }
@@ -1037,7 +1058,7 @@ links.Timeline.prototype.repaintAxis = function() {
     // create a major label on the left when needed
     if (options.showMajorLabels) {
         var leftTime = this.screenToTime(0),
-            leftText = this.step.getLabelMajor(leftTime),
+            leftText = this.step.getLabelMajor(options, leftTime),
             width = leftText.length * size.axis.characterMajorWidth + 10; // upper bound estimation
 
         if (xFirstMajorLabel == undefined || width < xFirstMajorLabel) {
@@ -5805,14 +5826,7 @@ links.Timeline.StepDate.prototype.isMajor = function() {
  * formatted as "hh:mm".
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
-links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
-    var MONTHS_SHORT = ["Jan", "Feb", "Mar",
-        "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec"];
-    var DAYS_SHORT = ["Sun", "Mon", "Tue",
-        "Wed", "Thu", "Fri", "Sat"];
-
+links.Timeline.StepDate.prototype.getLabelMinor = function(options, date) {
     if (date == undefined) {
         date = this.current;
     }
@@ -5824,9 +5838,9 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.HOUR:
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
-        case links.Timeline.StepDate.SCALE.WEEKDAY:      return DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
+        case links.Timeline.StepDate.SCALE.WEEKDAY:      return options.i18n[options.lang].DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
         case links.Timeline.StepDate.SCALE.DAY:          return String(date.getDate());
-        case links.Timeline.StepDate.SCALE.MONTH:        return MONTHS_SHORT[date.getMonth()];   // month is zero based
+        case links.Timeline.StepDate.SCALE.MONTH:        return options.i18n[options.lang].MONTHS_SHORT[date.getMonth()];   // month is zero based
         case links.Timeline.StepDate.SCALE.YEAR:         return String(date.getFullYear());
         default:                                         return "";
     }
@@ -5839,14 +5853,7 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
  * hours, and the hour will be formatted as "hh".
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
-links.Timeline.StepDate.prototype.getLabelMajor = function(date) {
-    var MONTHS = ["January", "February", "March",
-        "April", "May", "June",
-        "July", "August", "September",
-        "October", "November", "December"];
-    var DAYS = ["Sunday", "Monday", "Tuesday",
-        "Wednesday", "Thursday", "Friday", "Saturday"];
-
+links.Timeline.StepDate.prototype.getLabelMajor = function(options, date) {
     if (date == undefined) {
         date = this.current;
     }
@@ -5858,22 +5865,22 @@ links.Timeline.StepDate.prototype.getLabelMajor = function(date) {
                 this.addZeros(date.getSeconds(), 2);
         case links.Timeline.StepDate.SCALE.SECOND:
             return  date.getDate() + " " +
-                MONTHS[date.getMonth()] + " " +
+                options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
                 this.addZeros(date.getHours(), 2) + ":" +
                 this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.MINUTE:
-            return  DAYS[date.getDay()] + " " +
+            return  options.i18n[options.lang].DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
-                MONTHS[date.getMonth()] + " " +
+                options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.HOUR:
-            return  DAYS[date.getDay()] + " " +
+            return  options.i18n[options.lang].DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
-                MONTHS[date.getMonth()] + " " +
+                options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.WEEKDAY:
         case links.Timeline.StepDate.SCALE.DAY:
-            return  MONTHS[date.getMonth()] + " " +
+            return  options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.MONTH:
             return String(date.getFullYear());
