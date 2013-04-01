@@ -4246,7 +4246,8 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
  *                              {Date} start (required),
  *                              {Date} end (optional),
  *                              {String} content (required),
- *                              {String} group (optional)
+ *                              {String} group (optional),
+ *                              {boolean} editable (optional)
  */
 links.Timeline.prototype.getItem = function (index) {
     if (index >= this.items.length) {
@@ -4263,6 +4264,9 @@ links.Timeline.prototype.getItem = function (index) {
     properties.content = item.content;
     if (item.group) {
         properties.group = this.getGroupName(item.group);
+    }
+    if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
+        properties.editable = item.editable;
     }
 
     return properties;
