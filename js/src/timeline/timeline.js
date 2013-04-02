@@ -340,6 +340,7 @@ links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
  *         content: 2,
  *         group: undefined,
  *         className: undefined
+ *         editable: undefined
  *     }
  * @param {google.visualization.DataTable} dataTable
  * @type {Object} map
@@ -4268,6 +4269,7 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional),
+ *                              {String} className (optional)
  *                              {boolean} editable (optional)
  */
 links.Timeline.prototype.getItem = function (index) {
@@ -4285,6 +4287,9 @@ links.Timeline.prototype.getItem = function (index) {
     properties.content = item.content;
     if (item.group) {
         properties.group = this.getGroupName(item.group);
+    }
+    if ('className' in item) {
+        properties.className = this.getGroupName(item.className);
     }
     if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
         properties.editable = item.editable;
@@ -4407,7 +4412,8 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
         'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
         'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
         'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
-        'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className
+        'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className,
+        'editable': itemData.hasOwnProperty('editable') ? itemData.editable : oldItem.editable
     });
     this.items[index] = newItem;
 
