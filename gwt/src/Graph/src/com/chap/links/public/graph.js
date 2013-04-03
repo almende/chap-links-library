@@ -28,8 +28,8 @@
  * Copyright © 2010-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-01-18
- * @version 1.2.4
+ * @date    2013-03-04
+ * @version 1.2.5
  */
 
 
@@ -188,8 +188,8 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.end != undefined)           this.end = options.end;
         if (options.min != undefined)           this.min = options.min;
         if (options.max != undefined)           this.max = options.max;
-        if (options.intervalMin != undefined)   this.intervalMin = options.intervalMin;
-        if (options.intervalMax != undefined)   this.intervalMax = options.intervalMax;
+        if (options.zoomMin != undefined)       this.zoomMin = options.zoomMin;
+        if (options.zoomMax != undefined)       this.zoomMax = options.zoomMax;
         if (options.scale != undefined)         this.scale = options.scale;
         if (options.step != undefined)          this.step = options.step;
         if (options.autoDataStep != undefined)  this.autoDataStep = options.autoDataStep;
@@ -209,6 +209,16 @@ links.Graph.prototype.draw = function(data, options) {
 
         if (options.legend != undefined)        this.legend = options.legend;  // can contain legend.width
         if (options.tooltip != undefined)       this.showTooltip = options.tooltip;
+
+        // check for deprecated options
+        if (options.intervalMin != undefined) {
+            this.zoomMin = options.intervalMin;
+            console.log('WARNING: Option intervalMin is deprecated. Use zoomMin instead');
+        }
+        if (options.intervalMax != undefined) {
+            this.zoomMax = options.intervalMax;
+            console.log('WARNING: Option intervalMax is deprecated. Use zoomMax instead');
+        }
 
         // TODO: add options to set the horizontal and vertical range
     }
@@ -285,7 +295,6 @@ links.Graph.prototype._readData = function(data) {
     }
 };
 
-
 /**
  * @constructor  links.Graph.StepDate
  * The class StepDate is an iterator for dates. You provide a start date and an
@@ -305,7 +314,7 @@ links.Graph.prototype._readData = function(data) {
  * The class step has scales ranging from milliseconds, seconds, minutes, hours,
  * days, to years.
  *
- * Version: 1.1
+ * Version: 1.2
  *
  * @param {Date} start          The start date, for example new Date(2010, 9, 21)
  *                              or new Date(2010, 9, 21, 23, 45, 00)
@@ -351,13 +360,13 @@ links.Graph.StepDate.SCALE = {
  * @param {int}  minimumStep  Optional. Minimum step size in milliseconds
  */
 links.Graph.StepDate.prototype.setRange = function(start, end, minimumStep) {
-    if (isNaN(start) || isNaN(end)) {
+    if (!(start instanceof Date) || !(end instanceof Date)) {
         //throw  "No legal start or end date in method setRange";
         return;
     }
 
-    this._start = (start != undefined) ? new Date(start) : new Date();
-    this._end = (end != undefined) ? new Date(end) : new Date();
+    this._start = (start != undefined) ? new Date(start.valueOf()) : new Date();
+    this._end = (end != undefined) ? new Date(end.valueOf()) : new Date();
 
     if (this.autoScale) {
         this.setMinimumStep(minimumStep);
@@ -368,7 +377,7 @@ links.Graph.StepDate.prototype.setRange = function(start, end, minimumStep) {
  * Set the step iterator to the start date.
  */
 links.Graph.StepDate.prototype.start = function() {
-    this.current = new Date(this._start);
+    this.current = new Date(this._start.valueOf());
     this.roundToMinor();
 };
 
@@ -379,6 +388,7 @@ links.Graph.StepDate.prototype.start = function() {
 links.Graph.StepDate.prototype.roundToMinor = function() {
     // round to floor
     // IMPORTANT: we have no breaks in this switch! (this is no bug)
+    //noinspection FallthroughInSwitchStatementJS
     switch (this.scale) {
         case links.Graph.StepDate.SCALE.YEAR:
             this.current.setFullYear(this.step * Math.floor(this.current.getFullYear() / this.step));
@@ -413,14 +423,14 @@ links.Graph.StepDate.prototype.roundToMinor = function() {
  * @return {boolean}  true if the current date has passed the end date
  */
 links.Graph.StepDate.prototype.end = function () {
-    return (this.current.getTime() > this._end.getTime());
+    return (this.current.valueOf() > this._end.valueOf());
 };
 
 /**
  * Do the next step
  */
 links.Graph.StepDate.prototype.next = function() {
-    var prev = this.current.getTime();
+    var prev = this.current.valueOf();
 
     // Two cases, needed to prevent issues with switching daylight savings
     // (end of March and end of October)
@@ -428,11 +438,11 @@ links.Graph.StepDate.prototype.next = function() {
         switch (this.scale) {
             case links.Graph.StepDate.SCALE.MILLISECOND:
 
-                this.current = new Date(this.current.getTime() + this.step); break;
-            case links.Graph.StepDate.SCALE.SECOND:       this.current = new Date(this.current.getTime() + this.step * 1000); break;
-            case links.Graph.StepDate.SCALE.MINUTE:       this.current = new Date(this.current.getTime() + this.step * 1000 * 60); break;
+                this.current = new Date(this.current.valueOf() + this.step); break;
+            case links.Graph.StepDate.SCALE.SECOND:       this.current = new Date(this.current.valueOf() + this.step * 1000); break;
+            case links.Graph.StepDate.SCALE.MINUTE:       this.current = new Date(this.current.valueOf() + this.step * 1000 * 60); break;
             case links.Graph.StepDate.SCALE.HOUR:
-                this.current = new Date(this.current.getTime() + this.step * 1000 * 60 * 60);
+                this.current = new Date(this.current.valueOf() + this.step * 1000 * 60 * 60);
                 // in case of skipping an hour for daylight savings, adjust the hour again (else you get: 0h 5h 9h ... instead of 0h 4h 8h ...)
                 var h = this.current.getHours();
                 this.current.setHours(h - (h % this.step));
@@ -446,7 +456,7 @@ links.Graph.StepDate.prototype.next = function() {
     }
     else {
         switch (this.scale) {
-            case links.Graph.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.getTime() + this.step); break;
+            case links.Graph.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.valueOf() + this.step); break;
             case links.Graph.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() + this.step); break;
             case links.Graph.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() + this.step); break;
             case links.Graph.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() + this.step); break;
@@ -474,8 +484,8 @@ links.Graph.StepDate.prototype.next = function() {
     }
 
     // safety mechanism: if current time is still unchanged, move to the end
-    if (this.current.getTime() == prev) {
-        this.current = new Date(this._end);
+    if (this.current.valueOf() == prev) {
+        this.current = new Date(this._end.valueOf());
     }
 };
 
@@ -979,9 +989,9 @@ links.Graph.px = function(x) {
  * timeToScreen can be used.
  */
 links.Graph.prototype._calcConversionFactor = function() {
-    this.ttsOffset = parseFloat(this.start.valueOf());
-    this.ttsFactor = parseFloat(this.frame.clientWidth) /
-        parseFloat(this.end.valueOf() - this.start.valueOf());
+    this.ttsOffset = this.start.valueOf();
+    this.ttsFactor = this.frame.clientWidth /
+        (this.end.valueOf() - this.start.valueOf());
 };
 
 
@@ -993,8 +1003,7 @@ links.Graph.prototype._calcConversionFactor = function() {
  * @return {Date}   time The datetime the corresponds with given position x
  */
 links.Graph.prototype._screenToTime = function(x) {
-    var time = new Date(parseFloat(x) / this.ttsFactor + this.ttsOffset);
-    return time;
+    return new Date(x / this.ttsFactor + this.ttsOffset);
 };
 
 /**
@@ -1006,8 +1015,7 @@ links.Graph.prototype._screenToTime = function(x) {
  *                      with the given date.
  */
 links.Graph.prototype.timeToScreen = function(time) {
-    var x = (time.valueOf() - this.ttsOffset) * this.ttsFactor;
-    return x;
+    return (time.valueOf() - this.ttsOffset) * this.ttsFactor;
 };
 
 /**
@@ -1183,12 +1191,19 @@ links.Graph.prototype._zoom = function(zoomFactor, zoomAroundDate) {
      this.end = newEnd;
      */
 
-    // apply new dates
-    this._applyRange(newStart, newEnd, zoomAroundDate);
+    var interval = (newEnd.valueOf() - newStart.valueOf());
+    var zoomMin = Number(this.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
+    }
+    if (interval >= zoomMin) {
+        // apply new dates
+        this._applyRange(newStart, newEnd, zoomAroundDate);
 
-    this._redrawHorizontalAxis();
-    this._redrawData();
-    this._redrawDataTooltip();
+        this._redrawHorizontalAxis();
+        this._redrawData();
+        this._redrawDataTooltip();
+    }
 };
 
 /**
@@ -1230,16 +1245,16 @@ links.Graph.prototype._applyRange = function (start, end, zoomAroundDate) {
 
     // determine maximum and minimum interval
     var year = 1000 * 60 * 60 * 24 * 365;
-    var intervalMin = Number(this.intervalMin) || 10;
-    if (intervalMin < 10) {
-        intervalMin = 10;
+    var zoomMin = Number(this.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
     }
-    var intervalMax = Number(this.intervalMax) || 10000 * year;
-    if (intervalMax > 10000 * year) {
-        intervalMax = 10000 * year;
+    var zoomMax = Number(this.zoomMax) || 10000 * year;
+    if (zoomMax > 10000 * year) {
+        zoomMax = 10000 * year;
     }
-    if (intervalMax < intervalMin) {
-        intervalMax = intervalMin;
+    if (zoomMax < zoomMin) {
+        zoomMax = zoomMin;
     }
 
     // determine min and max date value
@@ -1251,11 +1266,11 @@ links.Graph.prototype._applyRange = function (start, end, zoomAroundDate) {
             var day = 1000 * 60 * 60 * 24;
             max = min + day;
         }
-        if (intervalMax > (max - min)) {
-            intervalMax = (max - min);
+        if (zoomMax > (max - min)) {
+            zoomMax = (max - min);
         }
-        if (intervalMin > (max - min)) {
-            intervalMin = (max - min);
+        if (zoomMin > (max - min)) {
+            zoomMin = (max - min);
         }
     }
 
@@ -1266,16 +1281,16 @@ links.Graph.prototype._applyRange = function (start, end, zoomAroundDate) {
 
     // prevent too small scale
     // TODO: IE has problems with milliseconds
-    if (interval < intervalMin) {
-        var diff = (intervalMin - interval);
+    if (interval < zoomMin) {
+        var diff = (zoomMin - interval);
         var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
         startValue -= Math.round(diff * f);
         endValue   += Math.round(diff * (1 - f));
     }
 
     // prevent too large scale
-    if (interval > intervalMax) {
-        var diff = (interval - intervalMax);
+    if (interval > zoomMax) {
+        var diff = (interval - zoomMax);
         var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
         startValue += Math.round(diff * f);
         endValue   -= Math.round(diff * (1 - f));
@@ -1332,7 +1347,7 @@ links.Graph.prototype._zoomVertical = function(zoomFactor, zoomAroundValue) {
     var startDiff = (this.vStart - zoomAroundValue);
     var endDiff = (this.vEnd - zoomAroundValue);
 
-    // calculate new dates
+    // calculate start and end
     var newStart = (this.vStart - startDiff * zoomFactor);
     var newEnd   = (this.vEnd - endDiff * zoomFactor);
 
@@ -1460,7 +1475,7 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
     while (this.frame.canvas.axis.hasChildNodes()) {
         this.frame.canvas.axis.removeChild(this.frame.canvas.axis.lastChild);
     }
-    this.majorLabels = new Array();
+    this.majorLabels = [];
 
     // resize the horizontal axis
     this.frame.style.left = links.Graph.px(this.main.axisLeft.clientWidth + this.mainPadding);
@@ -2172,7 +2187,7 @@ links.Graph.prototype._average = function(data, start, length) {
     for (var row = start, end = Math.min(start+length, data.length); row < end; row++) {
         var d = data[row];
         if (d.date != undefined) {
-            sumDate += d.date.getTime();
+            sumDate += d.date.valueOf();
             countDate += 1;
         }
         if (d.value != undefined) {
@@ -2377,31 +2392,27 @@ links.Graph.prototype._getRowRange = function(data) {
     }
 
     var rowRange = {
-        "min": new Date(),
-        "max": new Date()
+        'min': undefined,  // number
+        'max': undefined   // number
     };
 
     if (data.length > 0) {
-        rowRange.min = data[0].date;
-        rowRange.max = data[0].date;
-    }
+        rowRange.min = data[0].date.valueOf();
+        rowRange.max = data[0].date.valueOf();
 
-    for (var row = 0, rows = data.length; row < rows; row++) {
-        var d = data[row].date;
-        if (d != undefined) {
-            rowRange.min = Math.min(d, rowRange.min);
-            rowRange.max = Math.max(d, rowRange.max);
+        for (var row = 1, rows = data.length; row < rows; row++) {
+            var d = data[row].date;
+            if (d != undefined) {
+                rowRange.min = Math.min(d.valueOf(), rowRange.min);
+                rowRange.max = Math.max(d.valueOf(), rowRange.max);
+            }
         }
     }
 
-    if (rowRange.min != undefined) {
-        rowRange.min = new Date(rowRange.min);
-    }
-    if (rowRange.max != undefined) {
-        rowRange.max = new Date(rowRange.max);
-    }
-
-    return rowRange;
+    return {
+        min: (rowRange.min != undefined) ? new Date(rowRange.min) : undefined,
+        max: (rowRange.max != undefined) ? new Date(rowRange.max) : undefined
+    };
 };
 
 /**
@@ -2629,11 +2640,11 @@ links.Graph.prototype._onMouseDown = function(event) {
     this._checkSize();
 
     // get mouse position
-    this.startMouseX = links.Graph._getClientX(event);
-    this.startMouseY = links.Graph._getClientY(event);
+    this.startMouseX = links.Graph._getPageX(event);
+    this.startMouseY = links.Graph._getPageY(event);
 
-    this.startStart = new Date(this.start);
-    this.startEnd = new Date(this.end);
+    this.startStart = new Date(this.start.valueOf());
+    this.startEnd = new Date(this.end.valueOf());
     this.startVStart = this.vStart;
     this.startVEnd = this.vEnd;
     this.startGraphLeft = parseFloat(this.frame.canvas.graph.style.left);
@@ -2665,17 +2676,17 @@ links.Graph.prototype._onMouseDown = function(event) {
 links.Graph.prototype._onMouseMove = function (event) {
     event = event || window.event;
 
-    var mouseX = links.Graph._getClientX(event);
-    var mouseY = links.Graph._getClientY(event);
+    var mouseX = links.Graph._getPageX(event);
+    var mouseY = links.Graph._getPageY(event);
 
     // calculate change in mouse position
-    var diffX = parseFloat(mouseX) - this.startMouseX;
-    //var diffY = parseFloat(mouseY) - this.startMouseY;
+    var diffX = mouseX - this.startMouseX;
+    //var diffY = mouseY - this.startMouseY;
     var diffY = this.screenToY(this.startMouseY) - this.screenToY(mouseY);
     var diffYs = mouseY - this.startMouseY;
 
     // FIXME: on millisecond scale this.start needs to be rounded to integer milliseconds.
-    var diffMillisecs = parseFloat(-diffX) / this.frame.clientWidth *
+    var diffMillisecs = (-diffX) / this.frame.clientWidth *
         (this.startEnd.valueOf() - this.startStart.valueOf());
 
     var newStart = new Date(this.startStart.valueOf() + Math.round(diffMillisecs));
@@ -2737,8 +2748,10 @@ links.Graph.prototype._onMouseMove = function (event) {
     this._redrawDataTooltip();
 
     // fire a rangechange event
-    var properties = {'start': new Date(this.start),
-        'end':   new Date(this.end)};
+    var properties = {
+        'start': new Date(this.start.valueOf()),
+        'end':   new Date(this.end.valueOf())
+    };
     this.trigger('rangechange', properties);
 
     links.Graph.preventDefault(event);
@@ -2764,8 +2777,8 @@ links.Graph.prototype._onMouseHover = function (event) {
         return;
     }
 
-    var mouseX = links.Graph._getClientX(event);
-    var mouseY = links.Graph._getClientY(event);
+    var mouseX = links.Graph._getPageX(event);
+    var mouseY = links.Graph._getPageY(event);
     var offsetX = links.Graph._getAbsoluteLeft(this.frame.canvas);
     var offsetY = links.Graph._getAbsoluteTop(this.frame.canvas);
 
@@ -2794,8 +2807,10 @@ links.Graph.prototype._onMouseUp = function (event) {
     this._redrawData();
 
     // fire a rangechanged event
-    var properties = {'start': new Date(this.start),
-        'end':   new Date(this.end)};
+    var properties = {
+        'start': new Date(this.start.valueOf()),
+        'end':   new Date(this.end.valueOf())
+    };
     this.trigger('rangechanged', properties);
 
     // remove event listeners
@@ -2910,8 +2925,10 @@ links.Graph.prototype._onWheel = function(event) {
             this._zoom(zoomFactor, zoomAroundDate);
 
             // fire a rangechange event
-            var properties = {'start': new Date(this.start),
-                'end': new Date(this.end)};
+            var properties = {
+                'start': new Date(this.start.valueOf()),
+                'end': new Date(this.end.valueOf())
+            };
             this.trigger('rangechange', properties);
             this.trigger('rangechanged', properties);
         }
@@ -2941,82 +2958,95 @@ links.Graph.prototype._onWheel = function(event) {
 
 /**
  * Retrieve the absolute left value of a DOM element
- * @param {Element} elem    A dom element, for example a div
+ * @param {Element} elem        A dom element, for example a div
  * @return {number} left        The absolute left position of this element
  *                              in the browser page.
  */
 links.Graph._getAbsoluteLeft = function(elem) {
-    var left = 0;
-    while( elem != null ) {
-        left += elem.offsetLeft;
-        left -= elem.scrollLeft;
-        elem = elem.offsetParent;
-    }
-    if (!document.body.scrollLeft && window.pageXOffset) {
-        // FF
-        left -= window.pageXOffset;
+    var doc = document.documentElement;
+    var body = document.body;
+
+    var left = elem.offsetLeft;
+    var e = elem.offsetParent;
+    while (e != null && e != body && e != doc) {
+        left += e.offsetLeft;
+        left -= e.scrollLeft;
+        e = e.offsetParent;
     }
     return left;
 };
 
 /**
  * Retrieve the absolute top value of a DOM element
- * @param {Element} elem    A dom element, for example a div
- * @return {number} top         The absolute top position of this element
+ * @param {Element} elem        A dom element, for example a div
+ * @return {number} top        The absolute top position of this element
  *                              in the browser page.
  */
 links.Graph._getAbsoluteTop = function(elem) {
-    var top = 0;
-    while( elem != null ) {
-        top += elem.offsetTop;
-        top -= elem.scrollTop;
-        elem = elem.offsetParent;
-    }
-    if (!document.body.scrollTop && window.pageYOffset) {
-        // FF
-        top -= window.pageYOffset;
+    var doc = document.documentElement;
+    var body = document.body;
+
+    var top = elem.offsetTop;
+    var e = elem.offsetParent;
+    while (e != null && e != body && e != doc) {
+        top += e.offsetTop;
+        top -= e.scrollTop;
+        e = e.offsetParent;
     }
     return top;
 };
 
 /**
- * Get the horizontal mouse or touch position from given event.
- * The method will first read event.clientX, and if not available,
- * read the touch location
+ * Get the absolute, vertical mouse position from an event.
  * @param {Event} event
- * @return {Number | undefined} clientX
- * @private
+ * @return {Number} pageY
  */
-links.Graph._getClientX = function(event) {
-    if (event.clientX != undefined) {
-        return event.clientX
+links.Graph._getPageY = function (event) {
+    if ('pageY' in event) {
+        return event.pageY;
     }
-    if (event.targetTouches && event.targetTouches[0]) {
-        return event.targetTouches[0].clientX;
-    }
+    else {
+        var clientY;
+        if (('targetTouches' in event) && event.targetTouches.length) {
+            clientY = event.targetTouches[0].clientY;
+        }
+        else {
+            clientY = event.clientY;
+        }
 
-    return undefined;
+        var doc = document.documentElement;
+        var body = document.body;
+        return clientY +
+            ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
+            ( doc && doc.clientTop || body && body.clientTop || 0 );
+    }
 };
 
 /**
- * Get the vertical mouse or touch position from given event.
- * The method will first read event.clientX, and if not available,
- * read the touch location
+ * Get the absolute, horizontal mouse position from an event.
  * @param {Event} event
- * @return {Number | undefined} clientX
- * @private
+ * @return {Number} pageX
  */
-links.Graph._getClientY = function(event) {
-    if (event.clientY != undefined) {
-        return event.clientY
+links.Graph._getPageX = function (event) {
+    if ('pageY' in event) {
+        return event.pageX;
     }
-    if (event.targetTouches && event.targetTouches[0]) {
-        return event.targetTouches[0].clientY;
-    }
+    else {
+        var clientX;
+        if (('targetTouches' in event) && event.targetTouches.length) {
+            clientX = event.targetTouches[0].clientX;
+        }
+        else {
+            clientX = event.clientX;
+        }
 
-    return undefined;
+        var doc = document.documentElement;
+        var body = document.body;
+        return clientX +
+            ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
+            ( doc && doc.clientLeft || body && body.clientLeft || 0 );
+    }
 };
-
 
 /**
  * Set a new value for the visible range int the Graph.
@@ -3033,40 +3063,50 @@ links.Graph._getClientY = function(event) {
 links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
     // TODO: rewrite this method for the new data format
     if (start != null) {
-        this.start = start;
+        this.start = new Date(start.valueOf());
     } else {
         // use earliest date from the data
-        var startValue = null;
+        var startValue = null;  // number
         for (var col = 0, cols = this.data.length; col < cols; col++) {
             var d = this.data[col].rowRange.min;
 
-            if (startValue)
-                startValue = Math.min(startValue, d);
-            else
-                startValue = d;
+            if (d != undefined) {
+                if (startValue != undefined) {
+                    startValue = Math.min(startValue, d.valueOf());
+                }
+                else {
+                    startValue = d.valueOf();
+                }
+            }
         }
 
-        if (startValue)
+        if (startValue != undefined) {
             this.start = new Date(startValue);
-        else
+        }
+        else {
             this.start = new Date();
+        }
     }
 
     if (end != null) {
-        this.end = end;
+        this.end = new Date(end.valueOf());
     } else {
         // use lastest date from the data
         var endValue = null;
         for (var col = 0, cols = this.data.length; col < cols; col++) {
             var d = this.data[col].rowRange.max;
 
-            if (endValue)
-                endValue = Math.max(endValue, d);
-            else
-                endValue = d;
+            if (d != undefined) {
+                if (endValue != undefined) {
+                    endValue = Math.max(endValue, d.valueOf());
+                }
+                else {
+                    endValue = d;
+                }
+            }
         }
 
-        if (endValue) {
+        if (endValue != undefined) {
             this.end = new Date(endValue);
         } else {
             this.end = new Date();
@@ -3076,7 +3116,7 @@ links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
 
     // prevent start Date <= end Date
     if (this.end.valueOf() <= this.start.valueOf()) {
-        this.end = new Date(this.start);
+        this.end = new Date(this.start.valueOf());
         this.end.setDate(this.end.getDate() + 20);
     }
 
@@ -3099,15 +3139,15 @@ links.Graph.prototype.setVisibleChartRangeAuto = function() {
 
 /**
  * Adjust the visible range such that the current time is located in the center
- * of the timeline
+ * of the graph
  */
 links.Graph.prototype.setVisibleChartRangeNow = function() {
     var now = new Date();
 
-    var diff = (this.end.getTime() - this.start.getTime());
+    var diff = (this.end.valueOf() - this.start.valueOf());
 
-    var startNew = new Date(now.getTime() - diff/2);
-    var endNew = new Date(startNew.getTime() + diff);
+    var startNew = new Date(now.valueOf() - diff/2);
+    var endNew = new Date(startNew.valueOf() + diff);
     this.setVisibleChartRange(startNew, endNew);
 };
 
@@ -3116,11 +3156,10 @@ links.Graph.prototype.setVisibleChartRangeNow = function() {
  * @return {Object} An object with start and end properties
  */
 links.Graph.prototype.getVisibleChartRange = function() {
-    var range = {
-        'start': new Date(this.start),
-        'end': new Date(this.end)
+    return {
+        'start': new Date(this.start.valueOf()),
+        'end': new Date(this.end.valueOf())
     };
-    return range;
 };
 
 /**

@@ -79,15 +79,15 @@ public class Graph extends Visualization<Graph.Options> {
 		 */
 		protected Options() {
 		}
-		
+
 		/**
-		 * If autoDataStep is set to true (default), intermediate data points 
-		 * will be skipped in case of much data. This makes drawing large 
-		 * amounts of data much faster. For example, when the data contains 
-		 * 10000 points, and the width of the graph is 1000 pixels, every tenth 
+		 * If autoDataStep is set to true (default), intermediate data points
+		 * will be skipped in case of much data. This makes drawing large
+		 * amounts of data much faster. For example, when the data contains
+		 * 10000 points, and the width of the graph is 1000 pixels, every tenth
 		 * datapoint will be drawn and the rest will be skipped.
 		 * 
-		 * @param autoDataStep   
+		 * @param autoDataStep
 		 */
 		public final native void setAutoDataStep(boolean autoDataStep) /*-{
 			this.autoDataStep = autoDataStep;
@@ -161,11 +161,12 @@ public class Graph extends Visualization<Graph.Options> {
 			this.end = new $wnd.Date(end);
 		}-*/;
 
-
 		/**
-		 * Set a minimum Date for the visible range. 
-		 * It will not be possible to move beyond this minimum.
-		 * @param min    Minimum date
+		 * Set a minimum Date for the visible range. It will not be possible to
+		 * move beyond this minimum.
+		 * 
+		 * @param min
+		 *            Minimum date
 		 */
 		public final void setMin(Date min) {
 			nativeSetMin(min.getTime());
@@ -176,9 +177,11 @@ public class Graph extends Visualization<Graph.Options> {
 		}-*/;
 
 		/**
-		 * Set a maximum Date for the visible range. 
-		 * It will not be possible to move beyond this maximum.
-		 * @param max	Maximum date
+		 * Set a maximum Date for the visible range. It will not be possible to
+		 * move beyond this maximum.
+		 * 
+		 * @param max
+		 *            Maximum date
 		 */
 		public final void setMax(Date max) {
 			nativeSetMax(max.getTime());
@@ -189,32 +192,63 @@ public class Graph extends Visualization<Graph.Options> {
 		}-*/;
 
 		/**
-		 * Set a minimum interval for the visible range in milliseconds. 
-		 * It will not be possible to zoom in further than this minimum.
-		 * @param intervalMin	Minimum interval in milliseconds (default is 10)
+		 * Set a minimum interval for the visible range in milliseconds. It will
+		 * not be possible to zoom in further than this minimum.
+		 * 
+		 * @param intervalMin
+		 *            Minimum interval in milliseconds (default is 10)
+		 * @Deprecated. Use setZoomMin instead.
 		 */
+		@Deprecated
 		public final void setIntervalMin(long intervalMin) {
-			nativeSetIntervalMin(String.valueOf(intervalMin));
+			nativeSetZoomMin(String.valueOf(intervalMin));
 		};
 
-		private final native void nativeSetIntervalMin(String intervalMin) /*-{
-			this.intervalMin = Number(intervalMin);
+		/**
+		 * Set a minimum zoom interval for the visible range in milliseconds. It
+		 * will not be possible to zoom in further than this minimum.
+		 * 
+		 * @param zoomMin
+		 *            Minimum interval in milliseconds (default is 10)
+		 */
+		public final void setZoomMin(long zoomMin) {
+			nativeSetZoomMin(String.valueOf(zoomMin));
+		};
+
+		private final native void nativeSetZoomMin(String zoomMin) /*-{
+			this.zoomMin = Number(zoomMin);
 		}-*/;
 
 		/**
-		 * Set a maximum interval for the visible range in milliseconds. 
-		 * It will not be possible to zoom out further than this maximum.
-		 * Default value equals about 10000 years.
-		 * @param intervalMax	Maximum interval in milliseconds
+		 * Set a maximum interval for the visible range in milliseconds. It will
+		 * not be possible to zoom out further than this maximum. Default value
+		 * equals about 10000 years.
+		 * 
+		 * @param intervalMax
+		 *            Maximum interval in milliseconds
+		 * @Deprecated. Use setZoomMax instead.
 		 */
+		@Deprecated
 		public final void setIntervalMax(long intervalMax) {
-			nativeSetIntervalMax(String.valueOf(intervalMax));
+			nativeSetZoomMax(String.valueOf(intervalMax));
 		};
 
-		private final native void nativeSetIntervalMax(String intervalMax) /*-{
-			this.intervalMax = Number(intervalMax);
+		/**
+		 * Set a maximum zoom interval for the visible range in milliseconds. It
+		 * will not be possible to zoom out further than this maximum. Default
+		 * value equals about 10000 years.
+		 * 
+		 * @param zoomMax
+		 *            Maximum zoom interval in milliseconds
+		 */
+		public final void setZoomMax(long zoomMax) {
+			nativeSetZoomMax(String.valueOf(zoomMax));
+		};
+
+		private final native void nativeSetZoomMax(String zoomMax) /*-{
+			this.zoomMax = Number(zoomMax);
 		}-*/;
-		
+
 		public enum SCALE {
 			MILLISECOND, SECOND, MINUTE, HOUR, DAY, MONTH, YEAR
 		};
@@ -282,7 +316,7 @@ public class Graph extends Visualization<Graph.Options> {
 		public final native void setVerticalStep(double step) /*-{
 			this.vStep = step;
 		}-*/;
-		
+
 		/**
 		 * Set the minimum value of the vertical axis.
 		 * 
@@ -324,7 +358,7 @@ public class Graph extends Visualization<Graph.Options> {
 		}-*/;
 
 		/**
-		 * Show a tooltip containing date and value when hovering over a 
+		 * Show a tooltip containing date and value when hovering over a
 		 * function. True by default.
 		 * 
 		 * @param showTooltip
@@ -660,7 +694,7 @@ public class Graph extends Visualization<Graph.Options> {
 		 * 
 		 * @param visible
 		 *            If true, the lines will be visible. Default: true
-		 *            
+		 * 
 		 * @deprecated Use setLineVisible(visible) instead
 		 */
 		public final void setLineVisibe(boolean visible) {
@@ -668,11 +702,10 @@ public class Graph extends Visualization<Graph.Options> {
 		}
 	}
 
-
 	private AbstractDataTable dataTable = null;
 	private JavaScriptObject dataArray = null;
 	private Options options = null;
-	
+
 	/**
 	 * DateRange contains a start date and an end date
 	 */
@@ -698,7 +731,7 @@ public class Graph extends Visualization<Graph.Options> {
 		private Date start_;
 		private Date end_;
 	}
-	
+
 	/**
 	 * ValueRange contains a start and end number
 	 */
@@ -734,14 +767,13 @@ public class Graph extends Visualization<Graph.Options> {
 		super();
 	}
 
-
 	/**
 	 * Constructor
 	 * 
 	 * @param data
 	 *            A google visualisation datatable containing the data. The
-	 *            table has two or more columns: date (type DATETIME), 
-	 *            value (type NUMBER), ...
+	 *            table has two or more columns: date (type DATETIME), value
+	 *            (type NUMBER), ...
 	 * @param options
 	 *            A name/value map containing settings for the graph. See the
 	 *            class Network.Options for all available options
@@ -755,23 +787,22 @@ public class Graph extends Visualization<Graph.Options> {
 	/**
 	 * Constructor <br>
 	 * <br>
-	 * example data:
-     *   String json = <br>
-     *   	"[{ " + <br>
-     *   	"	  \"label\" : \"Dataset A\", " + <br>
-     *   	"	  \"data\" : [" + <br>
-     *   	"    {\"date\": 1281823200000, \"value\" : 12.5}," + <br>
-     *   	"	    {\"date\": 1281909600000, \"value\" : 3.5}" + <br>
-     *   	"	  ]" + <br>
-     *   	"	}," + <br>
-     *   	"	{" + <br>
-     *   	"	  \"label\" : \"Dataset B\"," + <br>  
-     *   	"	  \"data\" : [" + <br>
-     *   	"	    {\"date\": 1281823200000, \"value\" : 3.2}," + <br>
-     *   	"	    {\"date\": 1281996000000, \"value\" : 6.1}" + <br>
-     *   	"	  ]" + <br>
-     *  	"	}]"; <br>
-     *   JavaScriptObject data = JsonUtils.safeEval(json);	 <br>
+	 * example data: String json = <br>
+	 * "[{ " + <br>
+	 * "	  \"label\" : \"Dataset A\", " + <br>
+	 * "	  \"data\" : [" + <br>
+	 * "    {\"date\": 1281823200000, \"value\" : 12.5}," + <br>
+	 * "	    {\"date\": 1281909600000, \"value\" : 3.5}" + <br>
+	 * "	  ]" + <br>
+	 * "	}," + <br>
+	 * "	{" + <br>
+	 * "	  \"label\" : \"Dataset B\"," + <br>
+	 * "	  \"data\" : [" + <br>
+	 * "	    {\"date\": 1281823200000, \"value\" : 3.2}," + <br>
+	 * "	    {\"date\": 1281996000000, \"value\" : 6.1}" + <br>
+	 * "	  ]" + <br>
+	 * "	}]"; <br>
+	 * JavaScriptObject data = JsonUtils.safeEval(json); <br>
 	 * 
 	 * @param data
 	 *            A JavaScriptObject containing the data
@@ -803,23 +834,25 @@ public class Graph extends Visualization<Graph.Options> {
 	}-*/;
 
 	/**
-	 * Add a changerange handler. The changerange event is fired repeatedly while
-	 * the visible range is being changed by user interaction (moving or zooming),
-	 * but not after a call to the setVisibleChartRange method. The new range
-	 * can be retrieved by calling getVisibleChartRange method.
+	 * Add a changerange handler. The changerange event is fired repeatedly
+	 * while the visible range is being changed by user interaction (moving or
+	 * zooming), but not after a call to the setVisibleChartRange method. The
+	 * new range can be retrieved by calling getVisibleChartRange method.
 	 * 
 	 * @param handler
 	 *            A select handler
 	 */
-	public final void addRangeChangeHandler(com.google.gwt.visualization.client.events.RangeChangeHandler handler) {
-		com.google.gwt.visualization.client.events.RangeChangeHandler.addHandler(this, "rangechange", handler);
+	public final void addRangeChangeHandler(
+			com.google.gwt.visualization.client.events.RangeChangeHandler handler) {
+		com.google.gwt.visualization.client.events.RangeChangeHandler
+				.addHandler(this, "rangechange", handler);
 	}
 
 	/**
-	 * Add a changerange handler. The changerange event is fired repeatedly while
-	 * the visible range is being changed by user interaction (moving or zooming),
-	 * but not after a call to the setVisibleChartRange method. The new range
-	 * can be retrieved by calling getVisibleChartRange method.
+	 * Add a changerange handler. The changerange event is fired repeatedly
+	 * while the visible range is being changed by user interaction (moving or
+	 * zooming), but not after a call to the setVisibleChartRange method. The
+	 * new range can be retrieved by calling getVisibleChartRange method.
 	 * 
 	 * @param handler
 	 *            A select handler
@@ -829,10 +862,10 @@ public class Graph extends Visualization<Graph.Options> {
 	}
 
 	/**
-	 * Add a changeranged handler. The changeranged event is fired once after the
-	 * visible range has been changed by user interaction (moving or zooming), 
-	 * but not after a call to the setVisibleChartRange method. The new range 
-	 * can be retrieved by calling getVisibleChartRange method.
+	 * Add a changeranged handler. The changeranged event is fired once after
+	 * the visible range has been changed by user interaction (moving or
+	 * zooming), but not after a call to the setVisibleChartRange method. The
+	 * new range can be retrieved by calling getVisibleChartRange method.
 	 * 
 	 * @param handler
 	 *            A select handler
@@ -848,8 +881,10 @@ public class Graph extends Visualization<Graph.Options> {
 	 * @param handler
 	 *            A ready handler
 	 */
-	public final void addReadyHandler(com.google.gwt.visualization.client.events.ReadyHandler handler) {
-		com.google.gwt.visualization.client.events.ReadyHandler.addHandler(this, "ready", handler);
+	public final void addReadyHandler(
+			com.google.gwt.visualization.client.events.ReadyHandler handler) {
+		com.google.gwt.visualization.client.events.ReadyHandler.addHandler(
+				this, "ready", handler);
 	}
 
 	/**
@@ -867,11 +902,11 @@ public class Graph extends Visualization<Graph.Options> {
 	 * Retrieve the (vertical) value range.
 	 */
 	public ValueRange getValueRange() {
-		ValueRange range = new ValueRange((long)nativeGetStartValue(getJso()),
-				(long)nativeGetEndValue(getJso()));
+		ValueRange range = new ValueRange((long) nativeGetStartValue(getJso()),
+				(long) nativeGetEndValue(getJso()));
 		return range;
 	}
-	
+
 	/**
 	 * returns the current value of the startDate
 	 * 
@@ -916,8 +951,8 @@ public class Graph extends Visualization<Graph.Options> {
 	 * @param end
 	 *            the end value
 	 */
-	private native void nativeSetValueRange(JavaScriptObject jso,
-			double start, double end) /*-{
+	private native void nativeSetValueRange(JavaScriptObject jso, double start,
+			double end) /*-{
 		jso.setValueRange(start, end);
 	}-*/;
 
@@ -927,7 +962,7 @@ public class Graph extends Visualization<Graph.Options> {
 	public void setValueRangeAuto() {
 		nativeSetValueRangeAuto(getJso());
 	}
-	
+
 	/**
 	 * Adjust the (vertical) value range to fit all data.
 	 * 
@@ -966,12 +1001,16 @@ public class Graph extends Visualization<Graph.Options> {
 			double start, double end) /*-{
 		jso.setVisibleChartRange(new $wnd.Date(start), new $wnd.Date(end));
 	}-*/;
+
 	/**
 	 * Move the visible range such that all loaded events are within the visible
 	 * range. This method does not trigger a rangechange event.
-	 * @param start		 A Date object containing the start date.
-	 * @param end			 A Date object containing the end date.
-	 */	
+	 * 
+	 * @param start
+	 *            A Date object containing the start date.
+	 * @param end
+	 *            A Date object containing the end date.
+	 */
 	public void setVisibleChartRangeAuto() {
 		nativeSetVisibleChartRangeAuto(getJso());
 	}
@@ -979,29 +1018,36 @@ public class Graph extends Visualization<Graph.Options> {
 	/**
 	 * Move the visible range such that all loaded events are within the visible
 	 * range. This method does not trigger a rangechange event.
-	 * @param jso			 The javascriptobject pointing to the js instance of 
-	 *									the timeline
-	 */	
+	 * 
+	 * @param jso
+	 *            The javascriptobject pointing to the js instance of the
+	 *            timeline
+	 */
 	private native void nativeSetVisibleChartRangeAuto(JavaScriptObject jso) /*-{
 		jso.setVisibleChartRangeAuto();
 	}-*/;
 
 	/**
-	 * Move the visible range such that the current time is located in the center 
-	 * of the timeline. This method does not trigger a rangechange event.
-	 * @param start		 A Date object containing the start date.
-	 * @param end			 A Date object containing the end date.
-	 */	
+	 * Move the visible range such that the current time is located in the
+	 * center of the timeline. This method does not trigger a rangechange event.
+	 * 
+	 * @param start
+	 *            A Date object containing the start date.
+	 * @param end
+	 *            A Date object containing the end date.
+	 */
 	public void setVisibleChartRangeNow() {
 		nativeSetVisibleChartRangeNow(getJso());
 	}
 
 	/**
-	 * Move the visible range such that the current time is located in the center 
-	 * of the timeline. This method does not trigger a rangechange event.
-	 * @param jso			 The javascriptobject pointing to the js instance of 
-	 *									the timeline
-	 */	
+	 * Move the visible range such that the current time is located in the
+	 * center of the timeline. This method does not trigger a rangechange event.
+	 * 
+	 * @param jso
+	 *            The javascriptobject pointing to the js instance of the
+	 *            timeline
+	 */
 	private native void nativeSetVisibleChartRangeNow(JavaScriptObject jso) /*-{
 		jso.setVisibleChartRangeNow();
 	}-*/;
@@ -1124,23 +1170,22 @@ public class Graph extends Visualization<Graph.Options> {
 	/**
 	 * Draws the visualization providing a Javascript array with data
 	 * 
-	 * example data:
-     *   String json = <br>
-     *   	"[{ " + <br>
-     *   	"	  \"label\" : \"Dataset A\", " + <br>
-     *   	"	  \"data\" : [" + <br>
-     *   	"    {\"date\": 1281823200000, \"value\" : 12.5}," + <br>
-     *   	"	    {\"date\": 1281909600000, \"value\" : 3.5}" + <br>
-     *   	"	  ]" + <br>
-     *   	"	}," + <br>
-     *   	"	{" + <br>
-     *   	"	  \"label\" : \"Dataset B\"," + <br>  
-     *   	"	  \"data\" : [" + <br>
-     *   	"	    {\"date\": 1281823200000, \"value\" : 3.2}," + <br>
-     *   	"	    {\"date\": 1281996000000, \"value\" : 6.1}" + <br>
-     *   	"	  ]" + <br>
-     *  	"	}]"; <br>
-     *   JavaScriptObject data = JsonUtils.safeEval(json);	 <br>
+	 * example data: String json = <br>
+	 * "[{ " + <br>
+	 * "	  \"label\" : \"Dataset A\", " + <br>
+	 * "	  \"data\" : [" + <br>
+	 * "    {\"date\": 1281823200000, \"value\" : 12.5}," + <br>
+	 * "	    {\"date\": 1281909600000, \"value\" : 3.5}" + <br>
+	 * "	  ]" + <br>
+	 * "	}," + <br>
+	 * "	{" + <br>
+	 * "	  \"label\" : \"Dataset B\"," + <br>
+	 * "	  \"data\" : [" + <br>
+	 * "	    {\"date\": 1281823200000, \"value\" : 3.2}," + <br>
+	 * "	    {\"date\": 1281996000000, \"value\" : 6.1}" + <br>
+	 * "	  ]" + <br>
+	 * "	}]"; <br>
+	 * JavaScriptObject data = JsonUtils.safeEval(json); <br>
 	 * 
 	 * @param data
 	 *            The data, as a Javascript Array
@@ -1150,38 +1195,37 @@ public class Graph extends Visualization<Graph.Options> {
 	public void draw(JavaScriptObject data, Options options) {
 		nativeDraw(getJso(), data, options);
 	}
-	
+
 	/**
 	 * Draws the visualization providing a Javascript Array as data
 	 * 
-	 * example data:
-     *   String json = <br>
-     *   	"[{ " + <br>
-     *   	"	  \"label\" : \"Dataset A\", " + <br>
-     *   	"	  \"data\" : [" + <br>
-     *   	"    {\"date\": 1281823200000, \"value\" : 12.5}," + <br>
-     *   	"	    {\"date\": 1281909600000, \"value\" : 3.5}" + <br>
-     *   	"	  ]" + <br>
-     *   	"	}," + <br>
-     *   	"	{" + <br>
-     *   	"	  \"label\" : \"Dataset B\"," + <br>  
-     *   	"	  \"data\" : [" + <br>
-     *   	"	    {\"date\": 1281823200000, \"value\" : 3.2}," + <br>
-     *   	"	    {\"date\": 1281996000000, \"value\" : 6.1}" + <br>
-     *   	"	  ]" + <br>
-     *  	"	}]"; <br>
-     *   JavaScriptObject data = JsonUtils.safeEval(json);	 <br>
+	 * example data: String json = <br>
+	 * "[{ " + <br>
+	 * "	  \"label\" : \"Dataset A\", " + <br>
+	 * "	  \"data\" : [" + <br>
+	 * "    {\"date\": 1281823200000, \"value\" : 12.5}," + <br>
+	 * "	    {\"date\": 1281909600000, \"value\" : 3.5}" + <br>
+	 * "	  ]" + <br>
+	 * "	}," + <br>
+	 * "	{" + <br>
+	 * "	  \"label\" : \"Dataset B\"," + <br>
+	 * "	  \"data\" : [" + <br>
+	 * "	    {\"date\": 1281823200000, \"value\" : 3.2}," + <br>
+	 * "	    {\"date\": 1281996000000, \"value\" : 6.1}" + <br>
+	 * "	  ]" + <br>
+	 * "	}]"; <br>
+	 * JavaScriptObject data = JsonUtils.safeEval(json); <br>
 	 * 
 	 * @param data
 	 *            The DataTable with the nodes.
 	 * @param options
 	 *            The options for drawing this visualization.
 	 */
-	private native void nativeDraw(JavaScriptObject jso, 
-			JavaScriptObject data, Options options) /*-{
+	private native void nativeDraw(JavaScriptObject jso, JavaScriptObject data,
+			Options options) /*-{
 		jso.draw(data, options);
 	}-*/;
-	
+
 	@Override
 	protected native JavaScriptObject createJso(Element parent) /*-{
 		var jso = new $wnd.links.Graph(parent);
