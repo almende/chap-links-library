@@ -1,6 +1,12 @@
 CHAP Links Library - Graph
 
 
+<not yet released>, version 1.2.6
+
+- Changed: renamed option intervalMin to zoomMin and intervalMax to zoomMax
+  (Thanks Oleg Varaksin).
+
+
 2013-03-04, version 1.2.5
 
 - Fixed: issues with dates on millisecond scale or with negative years.

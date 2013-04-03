@@ -182,8 +182,8 @@ links.Timeline = function(container) {
 
         'min': undefined,
         'max': undefined,
-        'intervalMin': 10,     // milliseconds
-        'intervalMax': 1000 * 60 * 60 * 24 * 365 * 10000, // milliseconds
+        'zoomMin': 10,     // milliseconds
+        'zoomMax': 1000 * 60 * 60 * 24 * 365 * 10000, // milliseconds
 
         'moveable': true,
         'zoomable': true,
@@ -311,6 +311,14 @@ links.Timeline.prototype.setOptions = function(options) {
         if (options.showButtonAdd != undefined) {
             this.options.showButtonNew = options.showButtonAdd;
             console.log('WARNING: Option showButtonAdd is deprecated. Use showButtonNew instead');
+        }
+        if (options.intervalMin != undefined) {
+            this.options.zoomMin = options.intervalMin;
+            console.log('WARNING: Option intervalMin is deprecated. Use zoomMin instead');
+        }
+        if (options.intervalMax != undefined) {
+            this.options.zoomMax = options.intervalMax;
+            console.log('WARNING: Option intervalMax is deprecated. Use zoomMax instead');
         }
 
         if (options.scale && options.step) {
@@ -3112,11 +3120,11 @@ links.Timeline.prototype.zoom = function(zoomFactor, zoomAroundDate) {
     // only zoom in when interval is larger than minimum interval (to prevent
     // sliding to left/right when having reached the minimum zoom level)
     var interval = (newEnd.valueOf() - newStart.valueOf());
-    var intervalMin = Number(this.options.intervalMin) || 10;
-    if (intervalMin < 10) {
-        intervalMin = 10;
+    var zoomMin = Number(this.options.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
     }
-    if (interval >= intervalMin) {
+    if (interval >= zoomMin) {
         this.applyRange(newStart, newEnd, zoomAroundDate);
         this.render({
             animate: this.options.animate && this.options.animateZoom
@@ -3159,16 +3167,16 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     // determine maximum and minimum interval
     var options = this.options;
     var year = 1000 * 60 * 60 * 24 * 365;
-    var intervalMin = Number(options.intervalMin) || 10;
-    if (intervalMin < 10) {
-        intervalMin = 10;
+    var zoomMin = Number(options.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
     }
-    var intervalMax = Number(options.intervalMax) || 10000 * year;
-    if (intervalMax > 10000 * year) {
-        intervalMax = 10000 * year;
+    var zoomMax = Number(options.zoomMax) || 10000 * year;
+    if (zoomMax > 10000 * year) {
+        zoomMax = 10000 * year;
     }
-    if (intervalMax < intervalMin) {
-        intervalMax = intervalMin;
+    if (zoomMax < zoomMin) {
+        zoomMax = zoomMin;
     }
 
     // determine min and max date value
@@ -3180,11 +3188,11 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
             var day = 1000 * 60 * 60 * 24;
             max = min + day;
         }
-        if (intervalMax > (max - min)) {
-            intervalMax = (max - min);
+        if (zoomMax > (max - min)) {
+            zoomMax = (max - min);
         }
-        if (intervalMin > (max - min)) {
-            intervalMin = (max - min);
+        if (zoomMin > (max - min)) {
+            zoomMin = (max - min);
         }
     }
 
@@ -3195,16 +3203,16 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
 
     // prevent too small scale
     // TODO: IE has problems with milliseconds
-    if (interval < intervalMin) {
-        var diff = (intervalMin - interval);
+    if (interval < zoomMin) {
+        var diff = (zoomMin - interval);
         var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
         startValue -= Math.round(diff * f);
         endValue   += Math.round(diff * (1 - f));
     }
 
     // prevent too large scale
-    if (interval > intervalMax) {
-        var diff = (interval - intervalMax);
+    if (interval > zoomMax) {
+        var diff = (interval - zoomMax);
         var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
         startValue += Math.round(diff * f);
         endValue   -= Math.round(diff * (1 - f));

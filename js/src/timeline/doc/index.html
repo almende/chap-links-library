@@ -507,25 +507,6 @@ var options = {
 </tr>
 
 <tr>
-    <td>intervalMax</td>
-    <td>Number</td>
-    <td>315360000000000</td>
-    <td>Set a maximum interval for the visible range in milliseconds.
-        It will not be possible to zoom out further than this maximum.
-        Default value equals about 10000 years.
-    </td>
-</tr>
-
-<tr>
-    <td>intervalMin</td>
-    <td>Number</td>
-    <td>10</td>
-    <td>Set a minimum interval for the visible range in milliseconds.
-        It will not be possible to zoom in further than this minimum.
-    </td>
-</tr>
-
-<tr>
     <td>max</td>
     <td>Date</td>
     <td>none</td>
@@ -688,6 +669,13 @@ var options = {
 </tr>
 
 <tr>
+    <td>width</td>
+    <td>string</td>
+    <td>"100%"</td>
+    <td>The width of the timeline in pixels or as a percentage.</td>
+</tr>
+
+<tr>
     <td>zoomable</td>
     <td>boolean</td>
     <td>true</td>
@@ -697,11 +685,24 @@ var options = {
 </tr>
 
 <tr>
-    <td>width</td>
-    <td>string</td>
-    <td>"100%"</td>
-    <td>The width of the timeline in pixels or as a percentage.</td>
+    <td>zoomMax</td>
+    <td>Number</td>
+    <td>315360000000000</td>
+    <td>Set a maximum zoom interval for the visible range in milliseconds.
+        It will not be possible to zoom out further than this maximum.
+        Default value equals about 10000 years.
+    </td>
 </tr>
+
+<tr>
+    <td>zoomMin</td>
+    <td>Number</td>
+    <td>10</td>
+    <td>Set a minimum zoom interval for the visible range in milliseconds.
+        It will not be possible to zoom in further than this minimum.
+    </td>
+</tr>
+
 
 </table>
 
