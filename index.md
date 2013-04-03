@@ -20,6 +20,9 @@ Sourcecode can be found at the
 [Github project chap-links-library](https://github.com/almende/chap-links-library).
 Issues and feature requests can be submitted via the Github project too.
 
+The library is open source and is licensed under the
+[Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
+
 The library contains the following components:
 
 <table width="100%">
