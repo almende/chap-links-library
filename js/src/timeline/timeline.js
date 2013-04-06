@@ -207,21 +207,18 @@ links.Timeline = function(container) {
         'style': 'box',
         'customStackOrder': false, //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
         
-        'lang': 'en_US',
-        'i18n': {
-           'en_US' : {
-               'MONTHS_SHORT' : new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
-               'MONTHS' : new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
-               'DAYS' : new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
-               'DAYS_SHORT' : new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-           },
-           'da_DK' : {
-               'MONTHS_SHORT' : new Array("jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"),
-               'MONTHS' : new Array("januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"),
-               'DAYS' : new Array("søndag", "mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag"),
-               'DAYS_SHORT' : new Array("søn", "man", "tir", "ons", "tor", "fre", "lør")
-           }
-        }
+        // i18n: Timeline only has built-in English text per default. Include timeline-locales.js to support more localized text.
+        'locale': 'en',
+        'MONTHS': new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+        'MONTHS_SHORT': new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+        'DAYS': new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
+        'DAYS_SHORT': new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"),
+        'ZOOM_IN': "Zoom in",
+        'ZOOM_OUT': "Zoom out",
+        'MOVE_LEFT': "Move left",
+        'MOVE_RIGHT': "Move right",
+        'NEW': "New",
+        'CREATE_NEW_EVENT': "Create new event"
     };
 
     this.clientTimeOffset = 0;    // difference between client time and the time
@@ -304,6 +301,18 @@ links.Timeline.prototype.setOptions = function(options) {
         for (var i in options) {
             if (options.hasOwnProperty(i)) {
                 this.options[i] = options[i];
+            }
+        }
+        
+        // prepare i18n dependent on set locale
+        if (typeof links.locales !== 'undefined' && this.options.locale !== 'en') {
+            var localeOpts = links.locales[this.options.locale];
+            if(localeOpts) {
+                for (var l in localeOpts) {
+                    if (localeOpts.hasOwnProperty(l)) {
+                        this.options[l] = localeOpts[l];
+                    }
+                }
             }
         }
 
@@ -2164,7 +2173,7 @@ links.Timeline.prototype.repaintNavigation = function () {
             navBar.addButton = document.createElement("DIV");
             navBar.addButton.className = "timeline-navigation-new";
 
-            navBar.addButton.title = "Create new event";
+            navBar.addButton.title = options.CREATE_NEW_EVENT;
             var onAdd = function(event) {
                 links.Timeline.preventDefault(event);
                 links.Timeline.stopPropagation(event);
@@ -2179,7 +2188,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                     timeline.step.snap(xend);
                 }
 
-                var content = "New";
+                var content = options.NEW;
                 var group = timeline.groups.length ? timeline.groups[0].content : undefined;
                 var preventRender = true;
                 timeline.addItem({
@@ -2223,7 +2232,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // create a zoom in button
                 navBar.zoomInButton = document.createElement("DIV");
                 navBar.zoomInButton.className = "timeline-navigation-zoom-in";
-                navBar.zoomInButton.title = "Zoom in";
+                navBar.zoomInButton.title = this.options.ZOOM_IN;
                 var onZoomIn = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2237,7 +2246,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // create a zoom out button
                 navBar.zoomOutButton = document.createElement("DIV");
                 navBar.zoomOutButton.className = "timeline-navigation-zoom-out";
-                navBar.zoomOutButton.title = "Zoom out";
+                navBar.zoomOutButton.title = this.options.ZOOM_OUT;
                 var onZoomOut = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2253,7 +2262,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // create a move left button
                 navBar.moveLeftButton = document.createElement("DIV");
                 navBar.moveLeftButton.className = "timeline-navigation-move-left";
-                navBar.moveLeftButton.title = "Move left";
+                navBar.moveLeftButton.title = this.options.MOVE_LEFT;
                 var onMoveLeft = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2267,7 +2276,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // create a move right button
                 navBar.moveRightButton = document.createElement("DIV");
                 navBar.moveRightButton.className = "timeline-navigation-move-right";
-                navBar.moveRightButton.title = "Move right";
+                navBar.moveRightButton.title = this.options.MOVE_RIGHT;
                 var onMoveRight = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2619,7 +2628,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
             this.step.snap(xstart);
         }
         var xend = new Date(xstart.valueOf());
-        var content = "New";
+        var content = options.NEW;
         var group = this.getGroupFromHeight(y);
         this.addItem({
             'start': xstart,
@@ -2986,7 +2995,7 @@ links.Timeline.prototype.onDblClick = function (event) {
                 this.step.snap(xend);
             }
 
-            var content = "New";
+            var content = options.NEW;
             var group = this.getGroupFromHeight(y);   // (group may be undefined)
             var preventRender = true;
             this.addItem({
@@ -5848,6 +5857,7 @@ links.Timeline.StepDate.prototype.isMajor = function() {
  * Returns formatted text for the minor axislabel, depending on the current
  * date and the scale. For example when scale is MINUTE, the current time is
  * formatted as "hh:mm".
+ * @param {Object} options
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
 links.Timeline.StepDate.prototype.getLabelMinor = function(options, date) {
@@ -5862,9 +5872,9 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(options, date) {
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.HOUR:
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
-        case links.Timeline.StepDate.SCALE.WEEKDAY:      return options.i18n[options.lang].DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
+        case links.Timeline.StepDate.SCALE.WEEKDAY:      return options.DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
         case links.Timeline.StepDate.SCALE.DAY:          return String(date.getDate());
-        case links.Timeline.StepDate.SCALE.MONTH:        return options.i18n[options.lang].MONTHS_SHORT[date.getMonth()];   // month is zero based
+        case links.Timeline.StepDate.SCALE.MONTH:        return options.MONTHS_SHORT[date.getMonth()];   // month is zero based
         case links.Timeline.StepDate.SCALE.YEAR:         return String(date.getFullYear());
         default:                                         return "";
     }
@@ -5875,6 +5885,7 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(options, date) {
  * Returns formatted text for the major axislabel, depending on the current
  * date and the scale. For example when scale is MINUTE, the major scale is
  * hours, and the hour will be formatted as "hh".
+ * @param {Object} options
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
 links.Timeline.StepDate.prototype.getLabelMajor = function(options, date) {
@@ -5889,22 +5900,22 @@ links.Timeline.StepDate.prototype.getLabelMajor = function(options, date) {
                 this.addZeros(date.getSeconds(), 2);
         case links.Timeline.StepDate.SCALE.SECOND:
             return  date.getDate() + " " +
-                options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
+                options.MONTHS[date.getMonth()] + " " +
                 this.addZeros(date.getHours(), 2) + ":" +
                 this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.MINUTE:
-            return  options.i18n[options.lang].DAYS[date.getDay()] + " " +
+            return  options.DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
-                options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
+                options.MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.HOUR:
-            return  options.i18n[options.lang].DAYS[date.getDay()] + " " +
+            return  options.DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
-                options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
+                options.MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.WEEKDAY:
         case links.Timeline.StepDate.SCALE.DAY:
-            return  options.i18n[options.lang].MONTHS[date.getMonth()] + " " +
+            return  options.MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.MONTH:
             return String(date.getFullYear());
