@@ -188,6 +188,7 @@ links.Timeline = function(container) {
         'moveable': true,
         'zoomable': true,
         'selectable': true,
+        'unselectable': false,
         'editable': false,
         'snapEvents': true,
         'groupChangeable': true,
@@ -2941,8 +2942,10 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     }
                 }
                 else {
-                    this.unselectItem();
-                    this.trigger('select');
+                    if (!options.unselectable) {
+                        this.unselectItem();
+                        this.trigger('select');
+                    }
                 }
             }
         }
