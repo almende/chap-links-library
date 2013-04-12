@@ -1462,12 +1462,12 @@ links.Network.prototype._createNode = function(properties) {
 
         index = this._findNode(id);
         if (index !== undefined) {
-            oldNode = this.nodes.splice(index, 1);
-
+            oldNode = this.nodes[index];
             // remove selection of old node
             if (oldNode.selected) {
                 this._unselectNodes([{'row': index}], false);
             }
+            this.nodes.splice(index, 1);
         }
         else {
             throw "Node with id " + id + " not found";
