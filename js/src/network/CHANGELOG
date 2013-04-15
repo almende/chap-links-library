@@ -1,6 +1,11 @@
 CHAP Links Library - Network
 
 
+<not yet released>, version 1.4.1
+
+- Fixed deleted nodes not being unselected.
+
+
 2013-03-08, version 1.4
 
 - Implemented a new link style: 'arrow-end', which shows the arrow at the end
