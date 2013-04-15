@@ -3,6 +3,7 @@ CHAP Links Library - Graph
 
 <not yet released>, version 1.2.6
 
+- Implemented colored background ranges.
 - Changed: renamed option intervalMin to zoomMin and intervalMax to zoomMax
   (Thanks Oleg Varaksin).
 
