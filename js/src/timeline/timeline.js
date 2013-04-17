@@ -1751,6 +1751,7 @@ links.Timeline.prototype.reflowGroups = function() {
  */
 links.Timeline.prototype.repaintGroups = function() {
     var dom = this.dom,
+        timeline = this,
         options = this.options,
         size = this.size,
         groups = this.groups;
