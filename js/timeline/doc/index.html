@@ -507,21 +507,21 @@ var options = {
 </tr>
 
 <tr>
-    <td>intervalMax</td>
-    <td>Number</td>
-    <td>315360000000000</td>
-    <td>Set a maximum interval for the visible range in milliseconds.
-        It will not be possible to zoom out further than this maximum.
-        Default value equals about 10000 years.
-    </td>
-</tr>
+    <td>locale</td>
+    <td>string</td>
+    <td>"en"</td>
+    <td>Choose locale for the Timeline.
+        The Built-in locale is english (<code>en</code>).
+        More locales are available in the file <code>timeline-locales.js</code>:
 
-<tr>
-    <td>intervalMin</td>
-    <td>Number</td>
-    <td>10</td>
-    <td>Set a minimum interval for the visible range in milliseconds.
-        It will not be possible to zoom in further than this minimum.
+        <ul>
+            <li>English, <code>en</code> (aliases: <code>en_US</code>, <code>en_UK</code>)</li>
+            <li>Catalan, <code>ca</code> (aliases: <code>ca_ES</code></li>
+            <li>German, <code>de</code> (aliases: <code>de_DE</code>, <code>de_CH</code>)</li>
+            <li>Danish, <code>da</code> (aliases: <code>da_DK</code>)</li>
+            <li>Russian, <code>ru</code> (aliases: <code>ru_RU</code>)</li>
+            <li>Spanish, <code>es</code> (aliases: <code>es_ES</code>)</li>
+        </ul>
     </td>
 </tr>
 
@@ -674,14 +674,24 @@ var options = {
     <td>showButtonNew</td>
     <td>boolean</td>
     <td>false</td>
-    <td>Show the button "Create new event" in the a navigation menu. </td>
+    <td>Show the button "Create new event" in the a navigation menu.
+    Only applicable when option `editable` is true.</td>
 </tr>
 <tr>
     <td>showNavigation</td>
     <td>boolean</td>
     <td>false</td>
     <td>Show a navigation menu with buttons to move and zoom the timeline.
+        The zoom buttons are only visible when option `zoomable` is true,
+        and and move buttons are only visible when option `moveable` is true.
     </td>
+</tr>
+
+<tr>
+    <td>width</td>
+    <td>string</td>
+    <td>"100%"</td>
+    <td>The width of the timeline in pixels or as a percentage.</td>
 </tr>
 
 <tr>
@@ -694,11 +704,24 @@ var options = {
 </tr>
 
 <tr>
-    <td>width</td>
-    <td>string</td>
-    <td>"100%"</td>
-    <td>The width of the timeline in pixels or as a percentage.</td>
+    <td>zoomMax</td>
+    <td>Number</td>
+    <td>315360000000000</td>
+    <td>Set a maximum zoom interval for the visible range in milliseconds.
+        It will not be possible to zoom out further than this maximum.
+        Default value equals about 10000 years.
+    </td>
 </tr>
+
+<tr>
+    <td>zoomMin</td>
+    <td>Number</td>
+    <td>10</td>
+    <td>Set a minimum zoom interval for the visible range in milliseconds.
+        It will not be possible to zoom in further than this minimum.
+    </td>
+</tr>
+
 
 </table>
 

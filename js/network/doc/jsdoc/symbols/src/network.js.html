@@ -41,8 +41,8 @@
 <span class='line'> 34</span>  * Copyright (c) 2011-2012 Almende B.V.
 <span class='line'> 35</span>  *
 <span class='line'> 36</span>  * @author 	Jos de Jong, &lt;jos@almende.org>
-<span class='line'> 37</span>  * @date    2013-03-08
-<span class='line'> 38</span>  * @version 1.4
+<span class='line'> 37</span>  * @date    2013-04-18
+<span class='line'> 38</span>  * @version 1.4.1
 <span class='line'> 39</span>  */</span><span class="WHIT">
 <span class='line'> 40</span> 
 <span class='line'> 41</span> </span><span class="COMM">/*
@@ -1469,12 +1469,12 @@
 <span class='line'>1462</span> 
 <span class='line'>1463</span> </span><span class="WHIT">        </span><span class="NAME">index</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this._findNode</span><span class="PUNC">(</span><span class="NAME">id</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>1464</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">index</span><span class="WHIT"> </span><span class="PUNC">!==</span><span class="WHIT"> </span><span class="NAME">undefined</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='line'>1465</span> </span><span class="WHIT">            </span><span class="NAME">oldNode</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.nodes.splice</span><span class="PUNC">(</span><span class="NAME">index</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='line'>1466</span> 
-<span class='line'>1467</span> </span><span class="WHIT">            </span><span class="COMM">// remove selection of old node</span><span class="WHIT">
-<span class='line'>1468</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">oldNode.selected</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='line'>1469</span> </span><span class="WHIT">                </span><span class="NAME">this._unselectNodes</span><span class="PUNC">(</span><span class="PUNC">[</span><span class="PUNC">{</span><span class="STRN">'row'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">index</span><span class="PUNC">}</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='line'>1470</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>1465</span> </span><span class="WHIT">            </span><span class="NAME">oldNode</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.nodes</span><span class="PUNC">[</span><span class="NAME">index</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>1466</span> </span><span class="WHIT">            </span><span class="COMM">// remove selection of old node</span><span class="WHIT">
+<span class='line'>1467</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">oldNode.selected</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>1468</span> </span><span class="WHIT">                </span><span class="NAME">this._unselectNodes</span><span class="PUNC">(</span><span class="PUNC">[</span><span class="PUNC">{</span><span class="STRN">'row'</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">index</span><span class="PUNC">}</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>1469</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>1470</span> </span><span class="WHIT">            </span><span class="NAME">this.nodes.splice</span><span class="PUNC">(</span><span class="NAME">index</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>1471</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
 <span class='line'>1472</span> </span><span class="WHIT">        </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
 <span class='line'>1473</span> </span><span class="WHIT">            </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="STRN">"Node with id "</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">id</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">" not found"</span><span class="PUNC">;</span><span class="WHIT">

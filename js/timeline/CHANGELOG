@@ -1,6 +1,16 @@
 CHAP Links Library - Timeline
 
 
+2012-04-18, version 2.4.2
+
+- Implemented localization. (Thanks bjarkebech and José Renato).
+- Changed: renamed option intervalMin to zoomMin and intervalMax to zoomMax
+  (Thanks Oleg Varaksin).
+- Fixed: could not change an items field editable using method changeItem.
+- Fixed: fields editable and className could not be retrieved from method
+  getItem (Thanks Oleg Varaksin).
+
+
 2013-03-04, version 2.4.1
 
 - Fixed: issue with calculating absolute positions of mouse and elements in

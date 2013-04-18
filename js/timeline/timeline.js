@@ -27,11 +27,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (c) 2011-2012 Almende B.V.
+ * Copyright (c) 2011-2013 Almende B.V.
  *
- * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-03-04
- * @version 2.4.1
+ * @author     Jos de Jong, <jos@almende.org>
+ * @date    2013-04-18
+ * @version 2.4.2
+ */
+
+/*
+ * i18n mods by github user iktuz (https://gist.github.com/iktuz/3749287/)
+ * added to v2.4.1 with da_DK language by @bjarkebech
  */
 
 /*
@@ -177,8 +182,8 @@ links.Timeline = function(container) {
 
         'min': undefined,
         'max': undefined,
-        'intervalMin': 10,     // milliseconds
-        'intervalMax': 1000 * 60 * 60 * 24 * 365 * 10000, // milliseconds
+        'zoomMin': 10,     // milliseconds
+        'zoomMax': 1000 * 60 * 60 * 24 * 365 * 10000, // milliseconds
 
         'moveable': true,
         'zoomable': true,
@@ -200,7 +205,20 @@ links.Timeline = function(container) {
         'animateZoom': true,
         'cluster': false,
         'style': 'box',
-        'customStackOrder': false //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
+        'customStackOrder': false, //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
+        
+        // i18n: Timeline only has built-in English text per default. Include timeline-locales.js to support more localized text.
+        'locale': 'en',
+        'MONTHS': new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+        'MONTHS_SHORT': new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+        'DAYS': new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
+        'DAYS_SHORT': new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"),
+        'ZOOM_IN': "Zoom in",
+        'ZOOM_OUT': "Zoom out",
+        'MOVE_LEFT': "Move left",
+        'MOVE_RIGHT': "Move right",
+        'NEW': "New",
+        'CREATE_NEW_EVENT': "Create new event"
     };
 
     this.clientTimeOffset = 0;    // difference between client time and the time
@@ -285,11 +303,31 @@ links.Timeline.prototype.setOptions = function(options) {
                 this.options[i] = options[i];
             }
         }
+        
+        // prepare i18n dependent on set locale
+        if (typeof links.locales !== 'undefined' && this.options.locale !== 'en') {
+            var localeOpts = links.locales[this.options.locale];
+            if(localeOpts) {
+                for (var l in localeOpts) {
+                    if (localeOpts.hasOwnProperty(l)) {
+                        this.options[l] = localeOpts[l];
+                    }
+                }
+            }
+        }
 
         // check for deprecated options
         if (options.showButtonAdd != undefined) {
             this.options.showButtonNew = options.showButtonAdd;
             console.log('WARNING: Option showButtonAdd is deprecated. Use showButtonNew instead');
+        }
+        if (options.intervalMin != undefined) {
+            this.options.zoomMin = options.intervalMin;
+            console.log('WARNING: Option intervalMin is deprecated. Use zoomMin instead');
+        }
+        if (options.intervalMax != undefined) {
+            this.options.zoomMax = options.intervalMax;
+            console.log('WARNING: Option intervalMax is deprecated. Use zoomMax instead');
         }
 
         if (options.scale && options.step) {
@@ -319,6 +357,7 @@ links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
  *         content: 2,
  *         group: undefined,
  *         className: undefined
+ *         editable: undefined
  *     }
  * @param {google.visualization.DataTable} dataTable
  * @type {Object} map
@@ -1015,7 +1054,7 @@ links.Timeline.prototype.repaintAxis = function() {
             isMajor = step.isMajor();
 
         if (options.showMinorLabels) {
-            this.repaintAxisMinorText(x, step.getLabelMinor());
+            this.repaintAxisMinorText(x, step.getLabelMinor(options));
         }
 
         if (isMajor && options.showMajorLabels) {
@@ -1023,7 +1062,7 @@ links.Timeline.prototype.repaintAxis = function() {
                 if (xFirstMajorLabel == undefined) {
                     xFirstMajorLabel = x;
                 }
-                this.repaintAxisMajorText(x, step.getLabelMajor());
+                this.repaintAxisMajorText(x, step.getLabelMajor(options));
             }
             this.repaintAxisMajorLine(x);
         }
@@ -1037,7 +1076,7 @@ links.Timeline.prototype.repaintAxis = function() {
     // create a major label on the left when needed
     if (options.showMajorLabels) {
         var leftTime = this.screenToTime(0),
-            leftText = this.step.getLabelMajor(leftTime),
+            leftText = this.step.getLabelMajor(options, leftTime),
             width = leftText.length * size.axis.characterMajorWidth + 10; // upper bound estimation
 
         if (xFirstMajorLabel == undefined || width < xFirstMajorLabel) {
@@ -1712,6 +1751,7 @@ links.Timeline.prototype.reflowGroups = function() {
  */
 links.Timeline.prototype.repaintGroups = function() {
     var dom = this.dom,
+        timeline = this,
         options = this.options,
         size = this.size,
         groups = this.groups;
@@ -2106,7 +2146,9 @@ links.Timeline.prototype.repaintNavigation = function () {
         navBar = dom.navBar;
 
     if (!navBar) {
-        if (options.showNavigation || options.showButtonNew) {
+        var showButtonNew = options.showButtonNew && options.editable;
+        var showNavigation = options.showNavigation && (options.zoomable || options.moveable);
+        if (showNavigation || showButtonNew) {
             // create a navigation bar containing the navigation buttons
             navBar = document.createElement("DIV");
             navBar.style.position = "absolute";
@@ -2127,12 +2169,12 @@ links.Timeline.prototype.repaintNavigation = function () {
             frame.appendChild(navBar);
         }
 
-        if (options.editable && options.showButtonNew) {
+        if (showButtonNew) {
             // create a new in button
             navBar.addButton = document.createElement("DIV");
             navBar.addButton.className = "timeline-navigation-new";
 
-            navBar.addButton.title = "Create new event";
+            navBar.addButton.title = options.CREATE_NEW_EVENT;
             var onAdd = function(event) {
                 links.Timeline.preventDefault(event);
                 links.Timeline.stopPropagation(event);
@@ -2147,7 +2189,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                     timeline.step.snap(xend);
                 }
 
-                var content = "New";
+                var content = options.NEW;
                 var group = timeline.groups.length ? timeline.groups[0].content : undefined;
                 var preventRender = true;
                 timeline.addItem({
@@ -2180,68 +2222,72 @@ links.Timeline.prototype.repaintNavigation = function () {
             navBar.appendChild(navBar.addButton);
         }
 
-        if (options.editable && options.showButtonNew && options.showNavigation) {
+        if (showButtonNew && showNavigation) {
             // create a separator line
             navBar.addButton.style.borderRightWidth = "1px";
             navBar.addButton.style.borderRightStyle = "solid";
         }
 
-        if (options.showNavigation) {
-            // create a zoom in button
-            navBar.zoomInButton = document.createElement("DIV");
-            navBar.zoomInButton.className = "timeline-navigation-zoom-in";
-            navBar.zoomInButton.title = "Zoom in";
-            var onZoomIn = function(event) {
-                links.Timeline.preventDefault(event);
-                links.Timeline.stopPropagation(event);
-                timeline.zoom(0.4);
-                timeline.trigger("rangechange");
-                timeline.trigger("rangechanged");
-            };
-            links.Timeline.addEventListener(navBar.zoomInButton, "mousedown", onZoomIn);
-            navBar.appendChild(navBar.zoomInButton);
+        if (showNavigation) {
+            if (options.zoomable) {
+                // create a zoom in button
+                navBar.zoomInButton = document.createElement("DIV");
+                navBar.zoomInButton.className = "timeline-navigation-zoom-in";
+                navBar.zoomInButton.title = this.options.ZOOM_IN;
+                var onZoomIn = function(event) {
+                    links.Timeline.preventDefault(event);
+                    links.Timeline.stopPropagation(event);
+                    timeline.zoom(0.4);
+                    timeline.trigger("rangechange");
+                    timeline.trigger("rangechanged");
+                };
+                links.Timeline.addEventListener(navBar.zoomInButton, "mousedown", onZoomIn);
+                navBar.appendChild(navBar.zoomInButton);
 
-            // create a zoom out button
-            navBar.zoomOutButton = document.createElement("DIV");
-            navBar.zoomOutButton.className = "timeline-navigation-zoom-out";
-            navBar.zoomOutButton.title = "Zoom out";
-            var onZoomOut = function(event) {
-                links.Timeline.preventDefault(event);
-                links.Timeline.stopPropagation(event);
-                timeline.zoom(-0.4);
-                timeline.trigger("rangechange");
-                timeline.trigger("rangechanged");
-            };
-            links.Timeline.addEventListener(navBar.zoomOutButton, "mousedown", onZoomOut);
-            navBar.appendChild(navBar.zoomOutButton);
+                // create a zoom out button
+                navBar.zoomOutButton = document.createElement("DIV");
+                navBar.zoomOutButton.className = "timeline-navigation-zoom-out";
+                navBar.zoomOutButton.title = this.options.ZOOM_OUT;
+                var onZoomOut = function(event) {
+                    links.Timeline.preventDefault(event);
+                    links.Timeline.stopPropagation(event);
+                    timeline.zoom(-0.4);
+                    timeline.trigger("rangechange");
+                    timeline.trigger("rangechanged");
+                };
+                links.Timeline.addEventListener(navBar.zoomOutButton, "mousedown", onZoomOut);
+                navBar.appendChild(navBar.zoomOutButton);
+            }
 
-            // create a move left button
-            navBar.moveLeftButton = document.createElement("DIV");
-            navBar.moveLeftButton.className = "timeline-navigation-move-left";
-            navBar.moveLeftButton.title = "Move left";
-            var onMoveLeft = function(event) {
-                links.Timeline.preventDefault(event);
-                links.Timeline.stopPropagation(event);
-                timeline.move(-0.2);
-                timeline.trigger("rangechange");
-                timeline.trigger("rangechanged");
-            };
-            links.Timeline.addEventListener(navBar.moveLeftButton, "mousedown", onMoveLeft);
-            navBar.appendChild(navBar.moveLeftButton);
+            if (options.moveable) {
+                // create a move left button
+                navBar.moveLeftButton = document.createElement("DIV");
+                navBar.moveLeftButton.className = "timeline-navigation-move-left";
+                navBar.moveLeftButton.title = this.options.MOVE_LEFT;
+                var onMoveLeft = function(event) {
+                    links.Timeline.preventDefault(event);
+                    links.Timeline.stopPropagation(event);
+                    timeline.move(-0.2);
+                    timeline.trigger("rangechange");
+                    timeline.trigger("rangechanged");
+                };
+                links.Timeline.addEventListener(navBar.moveLeftButton, "mousedown", onMoveLeft);
+                navBar.appendChild(navBar.moveLeftButton);
 
-            // create a move right button
-            navBar.moveRightButton = document.createElement("DIV");
-            navBar.moveRightButton.className = "timeline-navigation-move-right";
-            navBar.moveRightButton.title = "Move right";
-            var onMoveRight = function(event) {
-                links.Timeline.preventDefault(event);
-                links.Timeline.stopPropagation(event);
-                timeline.move(0.2);
-                timeline.trigger("rangechange");
-                timeline.trigger("rangechanged");
-            };
-            links.Timeline.addEventListener(navBar.moveRightButton, "mousedown", onMoveRight);
-            navBar.appendChild(navBar.moveRightButton);
+                // create a move right button
+                navBar.moveRightButton = document.createElement("DIV");
+                navBar.moveRightButton.className = "timeline-navigation-move-right";
+                navBar.moveRightButton.title = this.options.MOVE_RIGHT;
+                var onMoveRight = function(event) {
+                    links.Timeline.preventDefault(event);
+                    links.Timeline.stopPropagation(event);
+                    timeline.move(0.2);
+                    timeline.trigger("rangechange");
+                    timeline.trigger("rangechanged");
+                };
+                links.Timeline.addEventListener(navBar.moveRightButton, "mousedown", onMoveRight);
+                navBar.appendChild(navBar.moveRightButton);
+            }
         }
     }
 };
@@ -2583,7 +2629,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
             this.step.snap(xstart);
         }
         var xend = new Date(xstart.valueOf());
-        var content = "New";
+        var content = options.NEW;
         var group = this.getGroupFromHeight(y);
         this.addItem({
             'start': xstart,
@@ -2950,7 +2996,7 @@ links.Timeline.prototype.onDblClick = function (event) {
                 this.step.snap(xend);
             }
 
-            var content = "New";
+            var content = options.NEW;
             var group = this.getGroupFromHeight(y);   // (group may be undefined)
             var preventRender = true;
             this.addItem({
@@ -3084,11 +3130,11 @@ links.Timeline.prototype.zoom = function(zoomFactor, zoomAroundDate) {
     // only zoom in when interval is larger than minimum interval (to prevent
     // sliding to left/right when having reached the minimum zoom level)
     var interval = (newEnd.valueOf() - newStart.valueOf());
-    var intervalMin = Number(this.options.intervalMin) || 10;
-    if (intervalMin < 10) {
-        intervalMin = 10;
+    var zoomMin = Number(this.options.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
     }
-    if (interval >= intervalMin) {
+    if (interval >= zoomMin) {
         this.applyRange(newStart, newEnd, zoomAroundDate);
         this.render({
             animate: this.options.animate && this.options.animateZoom
@@ -3131,16 +3177,16 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
     // determine maximum and minimum interval
     var options = this.options;
     var year = 1000 * 60 * 60 * 24 * 365;
-    var intervalMin = Number(options.intervalMin) || 10;
-    if (intervalMin < 10) {
-        intervalMin = 10;
+    var zoomMin = Number(options.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
     }
-    var intervalMax = Number(options.intervalMax) || 10000 * year;
-    if (intervalMax > 10000 * year) {
-        intervalMax = 10000 * year;
+    var zoomMax = Number(options.zoomMax) || 10000 * year;
+    if (zoomMax > 10000 * year) {
+        zoomMax = 10000 * year;
     }
-    if (intervalMax < intervalMin) {
-        intervalMax = intervalMin;
+    if (zoomMax < zoomMin) {
+        zoomMax = zoomMin;
     }
 
     // determine min and max date value
@@ -3152,11 +3198,11 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
             var day = 1000 * 60 * 60 * 24;
             max = min + day;
         }
-        if (intervalMax > (max - min)) {
-            intervalMax = (max - min);
+        if (zoomMax > (max - min)) {
+            zoomMax = (max - min);
         }
-        if (intervalMin > (max - min)) {
-            intervalMin = (max - min);
+        if (zoomMin > (max - min)) {
+            zoomMin = (max - min);
         }
     }
 
@@ -3167,16 +3213,16 @@ links.Timeline.prototype.applyRange = function (start, end, zoomAroundDate) {
 
     // prevent too small scale
     // TODO: IE has problems with milliseconds
-    if (interval < intervalMin) {
-        var diff = (intervalMin - interval);
+    if (interval < zoomMin) {
+        var diff = (zoomMin - interval);
         var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
         startValue -= Math.round(diff * f);
         endValue   += Math.round(diff * (1 - f));
     }
 
     // prevent too large scale
-    if (interval > intervalMax) {
-        var diff = (interval - intervalMax);
+    if (interval > zoomMax) {
+        var diff = (interval - zoomMax);
         var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
         startValue += Math.round(diff * f);
         endValue   -= Math.round(diff * (1 - f));
@@ -4246,7 +4292,9 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
  *                              {Date} start (required),
  *                              {Date} end (optional),
  *                              {String} content (required),
- *                              {String} group (optional)
+ *                              {String} group (optional),
+ *                              {String} className (optional)
+ *                              {boolean} editable (optional)
  */
 links.Timeline.prototype.getItem = function (index) {
     if (index >= this.items.length) {
@@ -4263,6 +4311,12 @@ links.Timeline.prototype.getItem = function (index) {
     properties.content = item.content;
     if (item.group) {
         properties.group = this.getGroupName(item.group);
+    }
+    if ('className' in item) {
+        properties.className = this.getGroupName(item.className);
+    }
+    if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
+        properties.editable = item.editable;
     }
 
     return properties;
@@ -4382,7 +4436,8 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
         'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
         'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
         'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
-        'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className
+        'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className,
+        'editable': itemData.hasOwnProperty('editable') ? itemData.editable : oldItem.editable
     });
     this.items[index] = newItem;
 
@@ -5803,16 +5858,10 @@ links.Timeline.StepDate.prototype.isMajor = function() {
  * Returns formatted text for the minor axislabel, depending on the current
  * date and the scale. For example when scale is MINUTE, the current time is
  * formatted as "hh:mm".
+ * @param {Object} options
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
-links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
-    var MONTHS_SHORT = ["Jan", "Feb", "Mar",
-        "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec"];
-    var DAYS_SHORT = ["Sun", "Mon", "Tue",
-        "Wed", "Thu", "Fri", "Sat"];
-
+links.Timeline.StepDate.prototype.getLabelMinor = function(options, date) {
     if (date == undefined) {
         date = this.current;
     }
@@ -5824,9 +5873,9 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.HOUR:
             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
-        case links.Timeline.StepDate.SCALE.WEEKDAY:      return DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
+        case links.Timeline.StepDate.SCALE.WEEKDAY:      return options.DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
         case links.Timeline.StepDate.SCALE.DAY:          return String(date.getDate());
-        case links.Timeline.StepDate.SCALE.MONTH:        return MONTHS_SHORT[date.getMonth()];   // month is zero based
+        case links.Timeline.StepDate.SCALE.MONTH:        return options.MONTHS_SHORT[date.getMonth()];   // month is zero based
         case links.Timeline.StepDate.SCALE.YEAR:         return String(date.getFullYear());
         default:                                         return "";
     }
@@ -5837,16 +5886,10 @@ links.Timeline.StepDate.prototype.getLabelMinor = function(date) {
  * Returns formatted text for the major axislabel, depending on the current
  * date and the scale. For example when scale is MINUTE, the major scale is
  * hours, and the hour will be formatted as "hh".
+ * @param {Object} options
  * @param {Date} [date] custom date. if not provided, current date is taken
  */
-links.Timeline.StepDate.prototype.getLabelMajor = function(date) {
-    var MONTHS = ["January", "February", "March",
-        "April", "May", "June",
-        "July", "August", "September",
-        "October", "November", "December"];
-    var DAYS = ["Sunday", "Monday", "Tuesday",
-        "Wednesday", "Thursday", "Friday", "Saturday"];
-
+links.Timeline.StepDate.prototype.getLabelMajor = function(options, date) {
     if (date == undefined) {
         date = this.current;
     }
@@ -5858,22 +5901,22 @@ links.Timeline.StepDate.prototype.getLabelMajor = function(date) {
                 this.addZeros(date.getSeconds(), 2);
         case links.Timeline.StepDate.SCALE.SECOND:
             return  date.getDate() + " " +
-                MONTHS[date.getMonth()] + " " +
+                options.MONTHS[date.getMonth()] + " " +
                 this.addZeros(date.getHours(), 2) + ":" +
                 this.addZeros(date.getMinutes(), 2);
         case links.Timeline.StepDate.SCALE.MINUTE:
-            return  DAYS[date.getDay()] + " " +
+            return  options.DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
-                MONTHS[date.getMonth()] + " " +
+                options.MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.HOUR:
-            return  DAYS[date.getDay()] + " " +
+            return  options.DAYS[date.getDay()] + " " +
                 date.getDate() + " " +
-                MONTHS[date.getMonth()] + " " +
+                options.MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.WEEKDAY:
         case links.Timeline.StepDate.SCALE.DAY:
-            return  MONTHS[date.getMonth()] + " " +
+            return  options.MONTHS[date.getMonth()] + " " +
                 date.getFullYear();
         case links.Timeline.StepDate.SCALE.MONTH:
             return String(date.getFullYear());

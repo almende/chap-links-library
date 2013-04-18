@@ -237,17 +237,41 @@ data.addRow([new Date(2010,7,15), 12.5, 34.6]);
     </tr>
 </table>
 
-<h3>Javascript Array</h3>
+<h3>JavaScript Array</h3>
 <p>
     The Graph requires a Javascript Array with at least one dataset.
     A dataset is an Javascript Object containing two parameters: <code>label</code>
     and <code>data</code>. The label is displayed in the legend of the Graph,
-    and the data parameter contains an Array with Objects,
-    each containing two parameters: <code>date</code> and <code>value</code>.
+    and the data parameter contains an Array with Objects.
+    Optionally, a <code>type</code> parameter can be provided to the dataset,
+    denoting the type of the data.
+    Unlike the Google DataTable, a JavaScript dataset can contain different
+    data types: <code>line</code> (default) or <code>area</code>.
 </p>
 
-<pre class="prettyprint lang-js">
+<ul>
+    <li><code>line</code>.
+        The default type of dataset.
+        The default type of a dataset is <code>line</code>. Graph will display
+        the dataset as a line, a dotted line, or dots, depending on the line style.
+        The data consists of an array with datapoints, each containing two
+        parameters: <code>date</code> and <code>value</code>.
+    </li>
+    <li><code>area</code>.
+        Data will be displayed as colored background ranges. The data consists
+        of an array with ranges, each range containing date parameters
+        <code>start</code> and <code>end</code>, and optionally a string
+        parameter <code>color</code> containing a valid HTML color for an
+        individual range. If an area has no color defined, the color will
+        be read from the configuration parameter <code>lines[].color</code>.
+        Typically, the color for a background area will be an rgba color with
+        transparency, for example <code>rgba(51, 102, 204, 0.1)</code>.
+    </li>
+</ul>
 
+
+<pre class="prettyprint lang-js">
+// a line graph
 var dataset1 = {
   "label" : "Dataset A",
   "data" : [
@@ -257,6 +281,7 @@ var dataset1 = {
   ]
 };
 
+// another line graph
 var dataset2 = {
   "label" : "Dataset B",
   "data" : [
@@ -266,12 +291,23 @@ var dataset2 = {
   ]
 };
 
-var data = [dataset1, dataset2];
+// background areas
+var dataset3 = {
+  "type": "area"
+  "label" : "Background",
+  "data" : [
+    {"start": new Date(2010,7,15), "end" : new Date(2010,7,17) },
+    {"start": new Date(2010,7,19), "end" : new Date(2010,7,24), "color": "rgba(51, 102, 204, 0.1)"},
+    // ...
+  ]
+};
+
+// put all datasets in one array
+var data = [dataset1, dataset2, dataset3];
 </pre>
 
+
 <p>
-
-
 </p>
 
 <h2><a name="Configuration_Options" id="Configuration_Options"></a>Configuration Options</h2>
@@ -338,25 +374,6 @@ var options = {
     <td>string</td>
     <td>"300px"</td>
     <td>The height of the graph in pixels or as a percentage.</td>
-</tr>
-
-<tr>
-    <td>intervalMax</td>
-    <td>Number</td>
-    <td>315360000000000</td>
-    <td>Set a maximum interval for the visible range in milliseconds.
-        It will not be possible to zoom out further than this maximum.
-        Default value equals about 10000 years.
-    </td>
-</tr>
-
-<tr>
-    <td>intervalMin</td>
-    <td>Number</td>
-    <td>10</td>
-    <td>Set a minimum interval for the visible range in milliseconds.
-        It will not be possible to zoom in further than this minimum.
-    </td>
 </tr>
 
 <tr>
@@ -523,6 +540,25 @@ var options = {
     <td>true</td>
     <td>If true, the graph is zoomable.
         When the graph is zoomed, the <code>rangechange</code> event is fired.
+    </td>
+</tr>
+
+<tr>
+    <td>zoomMax</td>
+    <td>Number</td>
+    <td>315360000000000</td>
+    <td>Set a maximum zoom interval for the visible range in milliseconds.
+        It will not be possible to zoom out further than this maximum.
+        Default value equals about 10000 years.
+    </td>
+</tr>
+
+<tr>
+    <td>zoomMin</td>
+    <td>Number</td>
+    <td>10</td>
+    <td>Set a minimum zoom interval for the visible range in milliseconds.
+        It will not be possible to zoom in further than this minimum.
     </td>
 </tr>
 
