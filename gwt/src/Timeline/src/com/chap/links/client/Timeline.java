@@ -173,6 +173,15 @@ public class Timeline extends Visualization<Timeline.Options> implements
 		}-*/;
 
 		/**
+		 * Set the locale for the timeline.
+		 * 
+		 * @param locale     Available locales: "en", "ca", "de", "da", "ru", "es"
+		 */
+		public final native void setLocale(String locale) /*-{
+			this.locale = locale;
+		}-*/;
+
+		/**
 		 * Set the start date for the timeline
 		 * 
 		 * @param start

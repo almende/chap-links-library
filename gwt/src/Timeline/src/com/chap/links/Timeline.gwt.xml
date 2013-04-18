@@ -27,6 +27,7 @@
   <!-- these files should be located in the subfolder             -->
   <!--   com/chap/links/timeline/public                           -->
   <script src="timeline-min.js"></script>
+  <script src="timeline-locales.js"></script>
   <stylesheet src="timeline.css"></stylesheet>
 
 </module>

@@ -2,7 +2,7 @@
  * GWT wrapper for the Network visualization
  * 
  * @author Jos de Jong, Almende BV
- * @date 2013-01-18
+ * @date 2013-04-18
  */
 
 package com.chap.links.client;

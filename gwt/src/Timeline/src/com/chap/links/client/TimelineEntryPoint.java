@@ -145,8 +145,8 @@ public class TimelineEntryPoint implements EntryPoint {
 		
 		options.setMin(dtf.parse("2012-01-01"));         // lower limit of visible range
 		options.setMax(dtf.parse("2012-12-31"));         // upper limit of visible range
-        options.setIntervalMin(1000L * 60L * 60L * 24L); // one day in milliseconds
-        options.setIntervalMax(1000L * 60L * 60L * 24L * 31L * 3L);  // about three months in milliseconds
+        options.setZoomMin(1000L * 60L * 60L * 24L); // one day in milliseconds
+        options.setZoomMax(1000L * 60L * 60L * 24L * 31L * 3L);  // about three months in milliseconds
         
         // create the timeline, with data and options
 		timeline = new Timeline(data, options);

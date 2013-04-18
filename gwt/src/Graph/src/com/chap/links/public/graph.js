@@ -25,11 +25,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright © 2010-2012 Almende B.V.
+ * Copyright © 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-03-04
- * @version 1.2.5
+ * @date    2013-04-18
+ * @version 1.2.6
  */
 
 
@@ -226,6 +226,7 @@ links.Graph.prototype.draw = function(data, options) {
     // apply size and time range
     var redrawNow = false;
     this.setSize(this.width, this.height);
+
     this.setVisibleChartRange(this.start, this.end, redrawNow);
 
     if (this.scale && this.step) {
@@ -271,6 +272,7 @@ links.Graph.prototype._readData = function(data) {
 
             var graph = {
                 "label": data.getColumnLabel(col),
+                "type": undefined,
                 "dataRange": undefined,
                 "rowRange": undefined,
                 "visibleRowRange": undefined,
@@ -290,8 +292,13 @@ links.Graph.prototype._readData = function(data) {
     for (var i = 0, len = this.data.length; i < len; i++) {
         var graph = this.data[i];
 
+        var fields = ['date'];
+        if (graph.type == 'area') {
+            fields = ['start', 'end'];
+        }
+
         graph.dataRange = this._getDataRange(graph.data);
-        graph.rowRange = this._getRowRange(graph.data);
+        graph.rowRange = this._getRowRange(graph.data, fields);
     }
 };
 
@@ -1440,11 +1447,23 @@ links.Graph.prototype._initSize = function() {
     // retrieve the data range (this can take some time for large amounts of data)
     //this.dataRange = this._getDataRange(this.data[0]); // TODO
     if (this.data.length > 0) {
-        this.verticalRange = this.data[0].dataRange;
-        for (var i = 0, len = this.data.length; i < len; i++) {
-            this.verticalRange.min = Math.min(this.verticalRange.min, this.data[i].dataRange.min);
-            this.verticalRange.max = Math.max(this.verticalRange.max, this.data[i].dataRange.max);
+        var verticalRange = null;
+        for (var i = 0, imax = this.data.length; i < imax; i++) {
+            var dataRange = this.data[i].dataRange;
+            if (dataRange) {
+                if (verticalRange) {
+                    verticalRange.min = Math.min(verticalRange.min, dataRange.min);
+                    verticalRange.max = Math.max(verticalRange.max, dataRange.max);
+                }
+                else {
+                    verticalRange = {
+                        min: dataRange.min,
+                        max: dataRange.max
+                    };
+                }
+            }
         }
+        this.verticalRange = verticalRange || {"min" : -10, "max" : 10};
     }
     else {
         this.verticalRange = {"min" : -10, "max" : 10};
@@ -1839,14 +1858,12 @@ links.Graph.prototype._redrawVerticalAxis = function () {
  * Draw all events that are provided in the data on the graph
  */
 links.Graph.prototype._redrawData = function() {
-    var testStart = new Date(); // TODO: cleanup
-
     this._calcConversionFactor();
 
     // determine the size of the graph
     var start = this._screenToTime(-this.axisMargin);
     var end = this._screenToTime(this.frame.clientWidth + this.axisMargin);
-    var width = this.frame.clientWidth + 2*this.axisMargin;
+    //var width = this.frame.clientWidth + 2*this.axisMargin;
     /*
      // TODO: use axisMargin?
      var start = this._screenToTime(0);
@@ -1865,11 +1882,11 @@ links.Graph.prototype._redrawData = function() {
     // resize the graph element
     var left = this.timeToScreen(start);
     var right = this.timeToScreen(end);
-    var width = right - left;
+    var graphWidth = right - left;
     var height = this.axisOffset;
 
     graph.style.left = links.Graph.px(left);
-    graph.width = width;
+    graph.width = graphWidth;
     graph.height = height;
 
     var offset = parseFloat(graph.style.left);
@@ -1881,83 +1898,100 @@ links.Graph.prototype._redrawData = function() {
         var width = this._getLineWidth(col);
         var radius = this._getLineRadius(col);
         var visible = this._getLineVisible(col);
+        var type = this.data[col].type || 'line';
         var data = this.data[col].data;
 
         // determine the first and last row inside the visible area
-        var rowRange = this._getVisbleRowRange(data, start, end,
+        var rowRange = this._getVisbleRowRange(data, start, end, type,
             this.data[col].visibleRowRange);
         this.data[col].visibleRowRange = rowRange;
         var rowStep = this._calculateRowStep(rowRange);
 
         if (visible) {
-            if (style == "line" || style == "dot-line") {
-                // draw line
-                ctx.strokeStyle = color;
-                ctx.lineWidth = width;
+            switch (type) {
+                case 'line':
+                    if (style == "line" || style == "dot-line") {
+                        // draw line
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = width;
 
-                ctx.beginPath();
-                var row = rowRange.start;
-                while (row <= rowRange.end) {
-                    // find the first data row with a non-null value
-                    while (row <= rowRange.end && data[row].value == null) {
-                        row += rowStep;
-                    }
-                    if (row <= rowRange.end) {
-                        // move to the first non-null data point
-                        value = data[row].value;
-                        var x = this.timeToScreen(data[row].date) - offset;
-                        var y = this.yToScreen(value);
-                        ctx.moveTo(x, y);
+                        ctx.beginPath();
+                        var row = rowRange.start;
+                        while (row <= rowRange.end) {
+                            // find the first data row with a non-null value
+                            while (row <= rowRange.end && data[row].value == null) {
+                                row += rowStep;
+                            }
+                            if (row <= rowRange.end) {
+                                // move to the first non-null data point
+                                value = data[row].value;
+                                var x = this.timeToScreen(data[row].date) - offset;
+                                var y = this.yToScreen(value);
+                                ctx.moveTo(x, y);
+
+                                /* TODO: implement fill style
+                                 ctx.moveTo(x, this.yToScreen(0));
+                                 ctx.lineTo(x, y);
+                                 */
+                                row += rowStep;
+                            }
+
+                            // draw lines as long as data values are not null
+                            while (row <= rowRange.end && (value = data[row].value) != null) {
+                                x = this.timeToScreen(data[row].date) - offset;
+                                y = this.yToScreen(value);
+                                ctx.lineTo(x, y);
+                                row += rowStep;
+                            }
+
+                            /* TODO: implement fill style
+                             ctx.lineTo(x, this.yToScreen(0));
+                             */
+                        }
 
                         /* TODO: implement fill style
-                         ctx.moveTo(x, this.yToScreen(0));
-                         ctx.lineTo(x, y);
+                         ctx.fillStyle = "rgba(255,255,0, 0.5)";
+                         ctx.fill();
                          */
-                        row += rowStep;
+
+                        ctx.stroke();
                     }
 
-                    // draw lines as long as data values are not null
-                    while (row <= rowRange.end && (value = data[row].value) != null) {
-                        x = this.timeToScreen(data[row].date) - offset;
-                        y = this.yToScreen(value);
-                        ctx.lineTo(x, y);
-                        row += rowStep;
+                    if (type == 'line' && (style == "dot" || style == "dot-line")) {
+                        // draw dots
+                        var diameter = 2 * radius;
+                        ctx.fillStyle = color;
+
+                        for (row = rowRange.start; row <= rowRange.end; row += rowStep) {
+                            var value = data[row].value;
+                            if (value != null) {
+                                x = this.timeToScreen(data[row].date) - offset;
+                                y = this.yToScreen(value);
+                                ctx.fillRect(x - radius, y - radius, diameter, diameter);
+                            }
+                        }
+                    }
+                    break;
+
+                case 'area':
+                    // draw background area
+                    for (row = rowRange.start; row <= rowRange.end; row += rowStep) {
+                        var d = data[row];
+                        ctx.fillStyle = d.color || color;
+
+                        var xStart = this.timeToScreen(d.start) - offset;
+                        var yStart = this.timeToScreen(d.end) - offset;
+                        ctx.fillRect(xStart, 0, yStart - xStart, height);
                     }
 
-                    /* TODO: implement fill style
-                     ctx.lineTo(x, this.yToScreen(0));
-                     */
-                }
+                    break;
 
-                /* TODO: implement fill style
-                 ctx.fillStyle = "rgba(255,255,0, 0.5)";
-                 ctx.fill();
-                 */
-
-                ctx.stroke();
-            }
-
-            if (style == "dot" || style == "dot-line") {
-                // draw dots
-                var diameter = 2 * radius;
-                ctx.fillStyle = color;
-
-                ctx.beginPath();
-                for (row = rowRange.start; row <= rowRange.end; row += rowStep) {
-                    var value = data[row].value;
-                    if (value != null) {
-                        x = this.timeToScreen(data[row].date) - offset;
-                        y = this.yToScreen(value);
-                        ctx.fillRect(x - radius, y - radius, diameter, diameter);
-                    }
-                }
-                ctx.stroke();
+                default:
+                    throw new Error('Unknown type of dataset "' + type + '". ' +
+                        'Choose "line" or "area"');
             }
         }
     }
-
-    var testEnd = new Date(); // TODO: cleanup
-    // console.log("redraw took " + (testEnd - testStart) + " milliseconds"); // TODO: cleanup
 };
 
 /**
@@ -2323,18 +2357,27 @@ links.Graph.prototype._redrawLegend = function() {
 
 /**
  * Determines
- * @param data {Array}      An array containing objects with parameters
- *                          d (datetime) and v (value)
- * @param start {Date}      The start date of the visible range
- * @param end {Date}        The end date of the visible range
+ * @param {Array} data       An array containing objects with parameters
+ *                           d (datetime) and v (value)
+ * @param {Date} start       The start date of the visible range
+ * @param {Date} end         The end date of the visible range
+ * @param {String} type      Type of data. 'line' (default) or 'area'
+ * @param {Object} oldRowRange  previous row range, can serve as start
+ *                                to find the current visible range faster.
  * @return {object}         Range object containing start row and end row
  *                            range.start {int}  row number of first visible row
  *                            range.end   {int}  row number of last visible row +1
  *                                               (this can be the rowcount +1)
  */
-links.Graph.prototype._getVisbleRowRange = function(data, start, end, oldRowRange) {
+links.Graph.prototype._getVisbleRowRange = function(data, start, end, type, oldRowRange) {
     if (!data) {
         data = [];
+    }
+    var fieldStart = 'date';
+    var fieldEnd = 'date';
+    if (type == 'area') {
+        fieldStart = 'start';
+        fieldEnd = 'end';
     }
     var rowCount = data.length;
 
@@ -2356,21 +2399,21 @@ links.Graph.prototype._getVisbleRowRange = function(data, start, end, oldRowRang
 
     // find the first visible row. Start searching at the previous first visible row
     while (rowRange.start > 0 &&
-        data[rowRange.start].date.valueOf() > start.valueOf()) {
+        data[rowRange.start][fieldStart].valueOf() > start.valueOf()) {
         rowRange.start--;
     }
     while (rowRange.start < rowCount-1 &&
-        data[rowRange.start].date.valueOf() < start.valueOf()) {
+        data[rowRange.start][fieldStart].valueOf() < start.valueOf()) {
         rowRange.start++;
     }
 
     // find the last visible row. Start searching at the previous last visible row
     while (rowRange.end > rowRange.start &&
-        data[rowRange.end].date.valueOf() > end.valueOf()) {
+        data[rowRange.end][fieldEnd].valueOf() > end.valueOf()) {
         rowRange.end--;
     }
     while (rowRange.end < rowCount-1 &&
-        data[rowRange.end].date.valueOf() < end.valueOf()) {
+        data[rowRange.end][fieldEnd].valueOf() < end.valueOf()) {
         rowRange.end++;
     }
 
@@ -2380,15 +2423,22 @@ links.Graph.prototype._getVisbleRowRange = function(data, start, end, oldRowRang
 
 /**
  * Determines the row range of a datatable
- * @param data {Array}      An array containing objects with parameters
- *                          d (datetime) and v (value)
- * @return {object}         Range object containing start row and end row
- *                            range.start {Date} first date in the data
- *                            range.end   {Date} last date in the data
+ * @param data {Array}          An array containing objects with parameters
+ *                              d (datetime) and v (value)
+ * @param {String[]} [fields]   Optional array with field names to be read
+ *                              for min/max. These fields must contain Date
+ *                              objects. If fields is undefined, the data will
+ *                              be searched for ['date'].
+ * @return {object}             Range object containing start row and end row
+ *                                  range.start {Date} first date in the data
+ *                                  range.end   {Date} last date in the data
  */
-links.Graph.prototype._getRowRange = function(data) {
+links.Graph.prototype._getRowRange = function(data, fields) {
     if (!data) {
         data = [];
+    }
+    if (!fields) {
+        fields = ['date'];
     }
 
     var rowRange = {
@@ -2397,14 +2447,18 @@ links.Graph.prototype._getRowRange = function(data) {
     };
 
     if (data.length > 0) {
-        rowRange.min = data[0].date.valueOf();
-        rowRange.max = data[0].date.valueOf();
+        for (var f = 0; f < fields.length; f++) {
+            var field = fields[f];
 
-        for (var row = 1, rows = data.length; row < rows; row++) {
-            var d = data[row].date;
-            if (d != undefined) {
-                rowRange.min = Math.min(d.valueOf(), rowRange.min);
-                rowRange.max = Math.max(d.valueOf(), rowRange.max);
+            rowRange.min = data[0][field].valueOf();
+            rowRange.max = data[0][field].valueOf();
+
+            for (var row = 1, rows = data.length; row < rows; row++) {
+                var d = data[row][field];
+                if (d != undefined) {
+                    rowRange.min = Math.min(d.valueOf(), rowRange.min);
+                    rowRange.max = Math.max(d.valueOf(), rowRange.max);
+                }
             }
         }
     }
@@ -2427,22 +2481,22 @@ links.Graph.prototype._getDataRange = function(data) {
         data = [];
     }
 
-    var dataRange = {
-        "min": -10,
-        "max": 10
-    };
-
-    // initialize min and max
-    if (data.length > 0) {
-        dataRange.min = data[0].value;
-        dataRange.max = data[0].value;
-    }
-
-    for (var row = 1, rows = data.length; row < rows; row++) {
+    var dataRange = null;
+    for (var row = 0, rows = data.length; row < rows; row++) {
         var value = data[row].value;
         if (value != undefined) {
-            dataRange.min = Math.min(value, dataRange.min);
-            dataRange.max = Math.max(value, dataRange.max);
+            if (dataRange) {
+                // find max/min
+                dataRange.min = Math.min(value, dataRange.min);
+                dataRange.max = Math.max(value, dataRange.max);
+            }
+            else {
+                // first defined value
+                dataRange = {
+                    min: value,
+                    max: value
+                }
+            }
         }
     }
 

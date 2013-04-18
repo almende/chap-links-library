@@ -126,7 +126,7 @@ public class GraphEntryPoint implements EntryPoint {
         options.setVerticalMax(1);
         options.setMin(dtf.parse("2010-08-22"));
         options.setMax(dtf.parse("2010-08-24"));
-        options.setIntervalMin(1000L * 60L * 60L);
+        options.setZoomMin(1000L * 60L * 60L);
         
 /*
         String json =       

@@ -15,8 +15,8 @@
  Copyright ? 2010-2013 Almende B.V.
 
  @author 	Jos de Jong, <jos@almende.org>
- @date    2013-04-15
- @version 1.2.6-SNAPSHOT
+ @date    2013-04-18
+ @version 1.2.6
 */
 typeof links==="undefined"&&(links={});typeof google==="undefined"&&(google=void 0);
 links.Graph=function(a){this.containerElement=a;this.width="100%";this.height="300px";this.end=this.start=null;this.redrawWhileMoving=this.showTooltip=this.zoomable=this.moveable=this.autoDataStep=!0;this.legend=void 0;this.line={};this.lines=[];this.defaultColors="#3366CC,#DC3912,#FF9900,#109618,#990099,#0099C6,#DD4477,#66AA00,#B82E2E,#316395,#994499,#22AA99,#AAAA11,#6633CC,#E67300,#8B0707".split(",");this.axisMargin=800;this.mainPadding=8;this.data=[];this._create()};

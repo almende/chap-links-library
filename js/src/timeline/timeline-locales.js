@@ -6,7 +6,7 @@ if (typeof links === 'undefined') {
 }
 
 // English ===================================================
-links.locales['en_US'] = {
+links.locales['en'] = {
     'MONTHS': new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
     'MONTHS_SHORT': new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
     'DAYS': new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
@@ -19,7 +19,8 @@ links.locales['en_US'] = {
     'CREATE_NEW_EVENT': "Create new event"
 };
 
-links.locales['en_UK'] = links.locales['en_US'];
+links.locales['en_US'] = links.locales['en'];
+links.locales['en_UK'] = links.locales['en'];
 
 // Catalan ===================================================
 links.locales['ca'] = {
@@ -34,6 +35,7 @@ links.locales['ca'] = {
     'NEW': "Nou",
     'CREATE_NEW_EVENT': "Crear nou event"
 };
+links.locales['ca_ES'] = links.locales['ca'];
 
 // German ===================================================
 links.locales['de'] = {
@@ -53,7 +55,7 @@ links.locales['de_DE'] = links.locales['de'];
 links.locales['de_CH'] = links.locales['de'];
 
 // Danish ===================================================
-links.locales['da_DK'] = {
+links.locales['da'] = {
     'MONTHS': new Array("januar", "februar", "marts", "april", "maj", "juni", "juli", "august", "september", "oktober", "november", "december"),
     'MONTHS_SHORT': new Array("jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"),
     'DAYS': new Array("søndag", "mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag"),
@@ -65,6 +67,7 @@ links.locales['da_DK'] = {
     'NEW': "New",
     'CREATE_NEW_EVENT': "Create new event"
 };
+links.locales['da_DK'] = links.locales['da'];
 
 // Russian ===================================================
 links.locales['ru'] = {
@@ -79,6 +82,7 @@ links.locales['ru'] = {
     'NEW': "Новый",
     'CREATE_NEW_EVENT': "Создать новоe событиe"
 };
+links.locales['ru_RU'] = links.locales['ru'];
 
 // Spanish ===================================================
 links.locales['es'] = {
