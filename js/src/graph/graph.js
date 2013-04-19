@@ -25,11 +25,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright © 2010-2013 Almende B.V.
+ * Copyright (C) 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
  * @date    2013-04-18
- * @version 1.2.6
+ * @version 1.2.7-SNAPSHOT
  */
 
 
@@ -49,13 +49,10 @@
  enable highlighting one of the graphs (select one graph)
 
  BUGS
- when redrawing while moving the graph, the axis and graph do not move exactly wit the same speed
  when zooming in on on line segment, it is not drawn correctly (disappears)
- IE: problems when zooming into the millisecond range (round off errors somehow?)
- IE:
- unstable for >10000 datapoints. Maybe due to conversion to VML by excanvas? Or a bug in my code?
+ IE: unstable for >10000 datapoints. Maybe due to conversion to VML by excanvas? Or a bug in my code?
 
- Safari:
+ Safari, old IE:
  sometimes, the canvas is not cleared completely (which is fixed after another redraw)
  --> test if fixed now (by clearing before resizing)
 
@@ -227,8 +224,9 @@ links.Graph.prototype.draw = function(data, options) {
     var redrawNow = false;
     this.setSize(this.width, this.height);
 
-    this.setVisibleChartRange(this.start, this.end, redrawNow);
+    console.log(this.start, this.end)
 
+    this.setVisibleChartRange(this.start, this.end, redrawNow);
     if (this.scale && this.step) {
         this.hStep.setScale(this.scale, this.step);
     }
@@ -1022,7 +1020,7 @@ links.Graph.prototype._screenToTime = function(x) {
  *                      with the given date.
  */
 links.Graph.prototype.timeToScreen = function(time) {
-    return (time.valueOf() - this.ttsOffset) * this.ttsFactor;
+    return (time.valueOf() - this.ttsOffset) * this.ttsFactor || null;
 };
 
 /**
@@ -1543,7 +1541,9 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
     this.frame.canvas.appendChild(this.leftMajorLabel);
 
     this.hStep.start();
-    while (!this.hStep.end()) {
+    var count = 0;
+    while (!this.hStep.end() && count < 100) {
+        count++;
         var x = this.timeToScreen(this.hStep.getCurrent());
         var hvline = this.hStep.isMajor() ? this.frame.clientHeight :
             (this.axisOffset + this.axisTextMinorHeight);
@@ -1759,10 +1759,10 @@ links.Graph.prototype._redrawVerticalAxis = function () {
         // TODO: make a more neat solution for this.yToScreen()
     }
     else {
-        this.yToScreen = function (y) {
+        this.yToScreen = function () {
             return 0;
         };
-        this.screenToY = function (ys) {
+        this.screenToY = function () {
             return 0;
         };
     }
@@ -1774,7 +1774,9 @@ links.Graph.prototype._redrawVerticalAxis = function () {
         this.vStep.next();
     }
 
-    while(!this.vStep.end()) {
+    var count = 0;
+    while(!this.vStep.end() && count < 100) {
+        count++;
         var y = this.vStep.getCurrent();
         var yScreen = this.yToScreen(y);
 
@@ -1907,7 +1909,7 @@ links.Graph.prototype._redrawData = function() {
         this.data[col].visibleRowRange = rowRange;
         var rowStep = this._calculateRowStep(rowRange);
 
-        if (visible) {
+        if (visible && rowRange) {
             switch (type) {
                 case 'line':
                     if (style == "line" || style == "dot-line") {
@@ -2147,10 +2149,10 @@ links.Graph.prototype._findClosestDataPoint = function (date, value) {
 
     for (var col = 0, colCount = this.data.length; col < colCount; col++) {
         var visible = this._getLineVisible(col);
+        var rowRange = this.data[col].visibleRowRange;
+        var data = this.data[col].data;
 
-        if (visible) {
-            var rowRange = this.data[col].visibleRowRange;
-            var data = this.data[col].data;
+        if (visible && rowRange) {
             var rowStep = this._calculateRowStep(rowRange);
             var row = rowRange.start;
 
@@ -2382,8 +2384,11 @@ links.Graph.prototype._getVisbleRowRange = function(data, start, end, type, oldR
     var rowCount = data.length;
 
     // initialize
-    var rowRange = {"start": 0, "end": (rowCount-1)};
-    if (oldRowRange != undefined) {
+    var rowRange = {
+        start: 0,
+        end: (rowCount-1)
+    };
+    if (oldRowRange != null) {
         rowRange.start = oldRowRange.start;
         rowRange.end = oldRowRange.end;
     }
@@ -2442,8 +2447,8 @@ links.Graph.prototype._getRowRange = function(data, fields) {
     }
 
     var rowRange = {
-        'min': undefined,  // number
-        'max': undefined   // number
+        min: undefined,  // number
+        max: undefined   // number
     };
 
     if (data.length > 0) {
@@ -2463,10 +2468,14 @@ links.Graph.prototype._getRowRange = function(data, fields) {
         }
     }
 
-    return {
-        min: (rowRange.min != undefined) ? new Date(rowRange.min) : undefined,
-        max: (rowRange.max != undefined) ? new Date(rowRange.max) : undefined
-    };
+    if (rowRange.min != null && !isNaN(rowRange.min) &&
+        rowRange.max != null && !isNaN(rowRange.max)) {
+        return {
+            min: new Date(rowRange.min),
+            max: new Date(rowRange.max)
+        };
+    }
+    return null;
 };
 
 /**
@@ -2500,7 +2509,12 @@ links.Graph.prototype._getDataRange = function(data) {
         }
     }
 
-    return dataRange;
+    if (dataRange &&
+        dataRange.min != null && !isNaN(dataRange.min) &&
+        dataRange.max != null && !isNaN(dataRange.max)) {
+        return dataRange;
+    }
+    return null;
 };
 
 
@@ -3115,21 +3129,26 @@ links.Graph._getPageX = function (event) {
  *                             automatically redrawn after the range is changed
  */
 links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
+    var col, cols, rowRange, d;
+
     // TODO: rewrite this method for the new data format
     if (start != null) {
         this.start = new Date(start.valueOf());
     } else {
         // use earliest date from the data
         var startValue = null;  // number
-        for (var col = 0, cols = this.data.length; col < cols; col++) {
-            var d = this.data[col].rowRange.min;
+        for (col = 0, cols = this.data.length; col < cols; col++) {
+            rowRange = this.data[col].rowRange;
+            if (rowRange) {
+                d = rowRange.min;
 
-            if (d != undefined) {
-                if (startValue != undefined) {
-                    startValue = Math.min(startValue, d.valueOf());
-                }
-                else {
-                    startValue = d.valueOf();
+                if (d != undefined) {
+                    if (startValue != undefined) {
+                        startValue = Math.min(startValue, d.valueOf());
+                    }
+                    else {
+                        startValue = d.valueOf();
+                    }
                 }
             }
         }
@@ -3147,15 +3166,18 @@ links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
     } else {
         // use lastest date from the data
         var endValue = null;
-        for (var col = 0, cols = this.data.length; col < cols; col++) {
-            var d = this.data[col].rowRange.max;
+        for (col = 0, cols = this.data.length; col < cols; col++) {
+            rowRange = this.data[col].rowRange;
+            if (rowRange) {
+                d = rowRange.max;
 
-            if (d != undefined) {
-                if (endValue != undefined) {
-                    endValue = Math.max(endValue, d.valueOf());
-                }
-                else {
-                    endValue = d;
+                if (d != undefined) {
+                    if (endValue != undefined) {
+                        endValue = Math.max(endValue, d.valueOf());
+                    }
+                    else {
+                        endValue = d;
+                    }
                 }
             }
         }

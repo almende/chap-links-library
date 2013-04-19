@@ -1,6 +1,12 @@
 CHAP Links Library - Graph
 
 
+<not yet released>, version 1.2.7
+
+- Robustness improvements against invalid data.
+- Fixed a non-working example16 (invalid dates)
+
+
 2013-04-18, version 1.2.6
 
 - Implemented colored background ranges.
