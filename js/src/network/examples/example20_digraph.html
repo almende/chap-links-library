@@ -22,12 +22,8 @@
         var network = new links.Network(document.getElementById('network'));
 
         // parse data in DOT-notation
-        var dot = 'digraph {1 -> 1 -> 2; 2 -> 3; 2 -- 4; 2 -> 1 }';
-        data = links.Network.util.DOTToNetwork(dot);
-
-        // set some options
-        data.options.backgroundColor = 'white';
-        data.options.nodes.style = 'circle';
+        var dot = 'digraph {node[shape=circle]; 1 -> 1 -> 2; 2 -> 3; 2 -- 4; 2 -> 1 }';
+        var data = links.Network.util.DOTToNetwork(dot);
 
         // draw the data
         network.draw(data.nodes, data.edges, data.options);
