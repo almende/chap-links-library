@@ -273,6 +273,10 @@ links.Timeline = function(container) {
  */
 links.Timeline.prototype.draw = function(data, options) {
     this.setOptions(options);
+    
+    if (this.options.selectable) {
+        links.Timeline.addClassName(this.dom.frame, "timeline-selectable");
+    }
 
     // read the data
     this.setData(data);
@@ -845,7 +849,7 @@ links.Timeline.prototype.repaintFrame = function() {
     // main frame
     if (!dom.frame) {
         dom.frame = document.createElement("DIV");
-        dom.frame.className = "timeline-frame";
+        dom.frame.className = "timeline-frame ui-widget ui-widget-content ui-corner-all";
         dom.frame.style.position = "relative";
         dom.frame.style.overflow = "hidden";
         dom.container.appendChild(dom.frame);
@@ -1868,10 +1872,8 @@ links.Timeline.prototype.repaintGroups = function() {
     labels.splice(needed, current - needed);
     labelLines.splice(needed, current - needed);
     itemLines.splice(needed, current - needed);
-
-    frame.style.borderStyle = options.groupsOnRight ?
-        "none none none solid" :
-        "none solid none none";
+    
+    links.Timeline.addClassName(frame, options.groupsOnRight ? 'timeline-groups-axis-onright' : 'timeline-groups-axis-onleft');
 
     // position the groups
     for (var i = 0, iMax = groups.length; i < iMax; i++) {
@@ -2152,7 +2154,7 @@ links.Timeline.prototype.repaintNavigation = function () {
             // create a navigation bar containing the navigation buttons
             navBar = document.createElement("DIV");
             navBar.style.position = "absolute";
-            navBar.className = "timeline-navigation";
+            navBar.className = "timeline-navigation ui-widget ui-state-highlight ui-corner-all";
             if (options.groupsOnRight) {
                 navBar.style.left = '10px';
             }
@@ -2173,8 +2175,11 @@ links.Timeline.prototype.repaintNavigation = function () {
             // create a new in button
             navBar.addButton = document.createElement("DIV");
             navBar.addButton.className = "timeline-navigation-new";
-
             navBar.addButton.title = options.CREATE_NEW_EVENT;
+            var addIconSpan = document.createElement("SPAN");
+            addIconSpan.className = "ui-icon ui-icon-circle-plus";            
+            navBar.addButton.appendChild(addIconSpan);
+            
             var onAdd = function(event) {
                 links.Timeline.preventDefault(event);
                 links.Timeline.stopPropagation(event);
@@ -2224,8 +2229,7 @@ links.Timeline.prototype.repaintNavigation = function () {
 
         if (showButtonNew && showNavigation) {
             // create a separator line
-            navBar.addButton.style.borderRightWidth = "1px";
-            navBar.addButton.style.borderRightStyle = "solid";
+            links.Timeline.addClassName(navBar.addButton, 'timeline-navigation-new-line');
         }
 
         if (showNavigation) {
@@ -2234,6 +2238,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.zoomInButton = document.createElement("DIV");
                 navBar.zoomInButton.className = "timeline-navigation-zoom-in";
                 navBar.zoomInButton.title = this.options.ZOOM_IN;
+                var ziIconSpan = document.createElement("SPAN");
+                ziIconSpan.className = "ui-icon ui-icon-circle-zoomin";
+                navBar.zoomInButton.appendChild(ziIconSpan);
+                
                 var onZoomIn = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2248,6 +2256,11 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.zoomOutButton = document.createElement("DIV");
                 navBar.zoomOutButton.className = "timeline-navigation-zoom-out";
                 navBar.zoomOutButton.title = this.options.ZOOM_OUT;
+                navBar.zoomOutButton.title = "Zoom out";
+                var zoIconSpan = document.createElement("SPAN");
+                zoIconSpan.className = "ui-icon ui-icon-circle-zoomout";
+                navBar.zoomOutButton.appendChild(zoIconSpan);
+                
                 var onZoomOut = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2264,6 +2277,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.moveLeftButton = document.createElement("DIV");
                 navBar.moveLeftButton.className = "timeline-navigation-move-left";
                 navBar.moveLeftButton.title = this.options.MOVE_LEFT;
+                var mlIconSpan = document.createElement("SPAN");
+                mlIconSpan.className = "ui-icon ui-icon-circle-arrow-w";
+                navBar.moveLeftButton.appendChild(mlIconSpan);
+                
                 var onMoveLeft = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2278,6 +2295,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.moveRightButton = document.createElement("DIV");
                 navBar.moveRightButton.className = "timeline-navigation-move-right";
                 navBar.moveRightButton.title = this.options.MOVE_RIGHT;
+                var mrIconSpan = document.createElement("SPAN");
+                mrIconSpan.className = "ui-icon ui-icon-circle-arrow-e";
+                navBar.moveRightButton.appendChild(mrIconSpan);
+                
                 var onMoveRight = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -3617,9 +3638,9 @@ links.Timeline.ItemBox.prototype.reflow = function () {
  */
 links.Timeline.ItemBox.prototype.select = function () {
     var dom = this.dom;
-    links.Timeline.addClassName(dom, 'timeline-event-selected');
-    links.Timeline.addClassName(dom.line, 'timeline-event-selected');
-    links.Timeline.addClassName(dom.dot, 'timeline-event-selected');
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
+    links.Timeline.addClassName(dom.line, 'timeline-event-selected ui-state-active');
+    links.Timeline.addClassName(dom.dot, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3628,9 +3649,9 @@ links.Timeline.ItemBox.prototype.select = function () {
  */
 links.Timeline.ItemBox.prototype.unselect = function () {
     var dom = this.dom;
-    links.Timeline.removeClassName(dom, 'timeline-event-selected');
-    links.Timeline.removeClassName(dom.line, 'timeline-event-selected');
-    links.Timeline.removeClassName(dom.dot, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
+    links.Timeline.removeClassName(dom.line, 'timeline-event-selected ui-state-active');
+    links.Timeline.removeClassName(dom.dot, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3736,14 +3757,14 @@ links.Timeline.ItemBox.prototype.updateDOM = function () {
         divBox.firstChild.innerHTML = this.content;
 
         // update class
-        divBox.className = "timeline-event timeline-event-box";
-        divLine.className = "timeline-event timeline-event-line";
-        divDot.className  = "timeline-event timeline-event-dot";
+        divBox.className = "timeline-event timeline-event-box ui-widget ui-state-default";
+        divLine.className = "timeline-event timeline-event-line ui-widget ui-state-default";
+        divDot.className  = "timeline-event timeline-event-dot ui-widget ui-state-default";
 
         if (this.isCluster) {
-            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
-            links.Timeline.addClassName(divLine, 'timeline-event-cluster');
-            links.Timeline.addClassName(divDot, 'timeline-event-cluster');
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
+            links.Timeline.addClassName(divLine, 'timeline-event-cluster ui-widget-header');
+            links.Timeline.addClassName(divDot, 'timeline-event-cluster ui-widget-header');
         }
 
         // add item specific class name when provided
@@ -3883,7 +3904,7 @@ links.Timeline.ItemRange.prototype = new links.Timeline.Item();
  */
 links.Timeline.ItemRange.prototype.select = function () {
     var dom = this.dom;
-    links.Timeline.addClassName(dom, 'timeline-event-selected');
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3892,7 +3913,7 @@ links.Timeline.ItemRange.prototype.select = function () {
  */
 links.Timeline.ItemRange.prototype.unselect = function () {
     var dom = this.dom;
-    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3967,10 +3988,10 @@ links.Timeline.ItemRange.prototype.updateDOM = function () {
         divBox.firstChild.innerHTML = this.content;
 
         // update class
-        divBox.className = "timeline-event timeline-event-range";
+        divBox.className = "timeline-event timeline-event-range ui-widget ui-state-default";
 
         if (this.isCluster) {
-            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
         }
 
         // add item specific class name when provided
@@ -4110,7 +4131,7 @@ links.Timeline.ItemDot.prototype.reflow = function () {
  */
 links.Timeline.ItemDot.prototype.select = function () {
     var dom = this.dom;
-    links.Timeline.addClassName(dom, 'timeline-event-selected');
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -4119,7 +4140,7 @@ links.Timeline.ItemDot.prototype.select = function () {
  */
 links.Timeline.ItemDot.prototype.unselect = function () {
     var dom = this.dom;
-    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -4204,12 +4225,13 @@ links.Timeline.ItemDot.prototype.updateDOM = function () {
         // update contents
         divBox.firstChild.innerHTML = this.content;
 
-        // update class
-        divDot.className  = "timeline-event timeline-event-dot";
+        // update classes
+        divBox.className = "timeline-event-dot-container";
+        divDot.className  = "timeline-event timeline-event-dot ui-widget ui-state-default";
 
         if (this.isCluster) {
-            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
-            links.Timeline.addClassName(divDot, 'timeline-event-cluster');
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
+            links.Timeline.addClassName(divDot, 'timeline-event-cluster ui-widget-header');
         }
 
         // add item specific class name when provided
@@ -6302,28 +6324,46 @@ links.Timeline.getPageX = function (event) {
 };
 
 /**
- * add a className to the given elements style
+ * Adds one or more className's to the given elements style
  * @param {Element} elem
  * @param {String} className
  */
 links.Timeline.addClassName = function(elem, className) {
     var classes = elem.className.split(' ');
-    if (classes.indexOf(className) == -1) {
-        classes.push(className); // add the class to the array
+    var classesToAdd = className.split(' ');
+    
+    var added = false;
+    for (var i=0; i<classesToAdd.length; i++) {
+        if (classes.indexOf(classesToAdd[i]) == -1) {
+            classes.push(classesToAdd[i]); // add the class to the array
+            added = true;
+        }
+    }
+    
+    if (added) {
         elem.className = classes.join(' ');
     }
 };
 
 /**
- * add a className to the given elements style
+ * Removes one or more className's from the given elements style
  * @param {Element} elem
  * @param {String} className
  */
 links.Timeline.removeClassName = function(elem, className) {
     var classes = elem.className.split(' ');
-    var index = classes.indexOf(className);
-    if (index != -1) {
-        classes.splice(index, 1); // remove the class from the array
+    var classesToRemove = className.split(' ');
+    
+    var removed = false;
+    for (var i=0; i<classesToRemove.length; i++) {
+        var index = classes.indexOf(classesToRemove[i]);
+        if (index != -1) {
+            classes.splice(index, 1); // remove the class from the array
+            removed = true;
+        }
+    }
+    
+    if (removed) {
         elem.className = classes.join(' ');
     }
 };
