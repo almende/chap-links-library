@@ -84,7 +84,6 @@ div.timeline-event-range-drag-right {
     z-index: 1000;
 }
 
-
 div.timeline-event-line {
     border-left-width: 1px;
     border-left-style: solid;
@@ -100,6 +99,15 @@ div.timeline-groups-axis {
     border-color: #BEBEBE;
     border-width: 1px;
 }
+
+div.timeline-groups-axis-onleft {
+    border-style: none solid none none;
+}
+
+div.timeline-groups-axis-onright {
+    border-style: none none none solid;
+}
+
 div.timeline-groups-text {
     color: #4D4D4D;
     padding-left: 10px;
@@ -144,6 +152,10 @@ div.timeline-navigation-move-left, div.timeline-navigation-move-right {
 
 div.timeline-navigation-new {
     background: url('img/16/new.png') no-repeat center;
+}
+
+div.timeline-navigation-new-line {
+    border-right: solid 1px;
 }
 
 div.timeline-navigation-delete {
