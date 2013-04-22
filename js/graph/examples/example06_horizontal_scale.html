@@ -1,117 +1,116 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
+<head>
     <title>Graph demo</title>
 
-    <style>
-		  body {font: 10pt verdana;}
-
-		</style>
+    <style type="text/css">
+        body {font: 10pt verdana;}
+    </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
-      google.load("visualization", "1");
-      
-      // Set callback to run when API is loaded
-      google.setOnLoadCallback(drawVisualization); 
-      
-      var graph;
-      
-      // Called when the Visualization API is loaded.
-      function drawVisualization() {
-        // Create and populate a data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'time');
-        data.addColumn('number', 'Custom Function');
+        google.load("visualization", "1");
 
-        function customFunction(x) {
-          return Math.sin(x/20) * 5 + Math.cos(x / 7) * 10 ;
-        }
-        
-        // create data
-        var d = new Date(2010, 9, 23);
-        for (i = 0; i < 100; i++) {
-          data.addRow([new Date(d), customFunction(i)]);
-          d.setDate(d.getDate() + 1);
-        }
-        
-        // specify options
-        options = {width:  "100%", 
-                   height: "300px",
-                   lines: [{color: "forestgreen", style: "dot-line", radius:2, legend: false}],
-                   vStep: 2   // custom step for vertical axis
-                   };
+        // Set callback to run when API is loaded
+        google.setOnLoadCallback(drawVisualization);
 
-        // Instantiate our graph object.
-        graph = new links.Graph(document.getElementById('mygraph'));
+        var graph;
 
-        // Draw our graph with the created data and options 
-        graph.draw(data, options);
-        
-        setScale();
-      }
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // Create and populate a data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'time');
+            data.addColumn('number', 'Custom Function');
 
-      function setScale() {
-        var auto = document.getElementById("radAuto").checked;
-        
-        if (auto) {
-          graph.setAutoScale(true);
-          graph.redraw();
-        }
-        else {
-          var scale = eval(document.getElementById("selScale").value);
-          var step = eval(document.getElementById("selStep").value);
-          
-          graph.setScale(scale, step);
-          graph.redraw();
+            function customFunction(x) {
+                return Math.sin(x/20) * 5 + Math.cos(x / 7) * 10 ;
+            }
+
+            // create data
+            var d = new Date(2010, 9, 23);
+            for (var i = 0; i < 100; i++) {
+                data.addRow([new Date(d), customFunction(i)]);
+                d.setDate(d.getDate() + 1);
+            }
+
+            // specify options
+            var options = {width:  "100%",
+                height: "300px",
+                lines: [{color: "forestgreen", style: "dot-line", radius:2, legend: false}],
+                vStep: 2   // custom step for vertical axis
+            };
+
+            // Instantiate our graph object.
+            graph = new links.Graph(document.getElementById('mygraph'));
+
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
+
+            setScale();
         }
 
-        enableControls();
-      }
-      
-      function enableControls() {
-        var auto = document.getElementById("radAuto").checked;
-        
-        document.getElementById("selScale").disabled = auto;
-        document.getElementById("selStep").disabled = auto;        
-      }
-   </script>
-   
-  </head>
+        function setScale() {
+            var auto = document.getElementById("radAuto").checked;
 
-  <body>
-    <p>This page demonstrates the graph visualization.</p>
-    <p>Click and drag to move the graph, scroll to zoom the timeline.</p>
-    <p>
-      <input type="radio" id="radAuto" name="autoScale" value="auto" onchange="setScale();"> Auto scale
-    </p>
-    <p>
-      <input type="radio" id="radCustom" name="autoScale" value="custom" checked onchange="setScale();"> Custom
-        <select id="selScale" onchange="setScale();">
-          <option value="links.Graph.StepDate.SCALE.MILLISECOND">MILLISECOND</option>
-          <option value="links.Graph.StepDate.SCALE.SECOND">SECOND</option>
-          <option value="links.Graph.StepDate.SCALE.MINUTE">MINUTE</option>
-          <option value="links.Graph.StepDate.SCALE.HOUR">HOUR</option>
-          <option value="links.Graph.StepDate.SCALE.DAY" selected>DAY</option>
-          <option value="links.Graph.StepDate.SCALE.MONTH">MONTH</option>
-          <option value="links.Graph.StepDate.SCALE.YEAR">YEAR</option>
-        </select>      
-        <select id="selStep" onchange="setScale();">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="5">5</option>
-          <option value="10">10</option>
-        </select>           
-        <font style="font-style:italic; color:gray;">(be careful: do not choose a scale that is too small with respect to the currently visible range) </font>
-    </p>
-    
-    <div id="mygraph"></div>
+            if (auto) {
+                graph.setAutoScale(true);
+                graph.redraw();
+            }
+            else {
+                var scale = eval(document.getElementById("selScale").value);
+                var step = eval(document.getElementById("selStep").value);
 
-    <br>  
-    <div id="info"></div>
-  </body>
+                graph.setScale(scale, step);
+                graph.redraw();
+            }
+
+            enableControls();
+        }
+
+        function enableControls() {
+            var auto = document.getElementById("radAuto").checked;
+
+            document.getElementById("selScale").disabled = auto;
+            document.getElementById("selStep").disabled = auto;
+        }
+    </script>
+
+</head>
+
+<body>
+<p>This page demonstrates the graph visualization.</p>
+<p>Click and drag to move the graph, scroll to zoom the timeline.</p>
+<p>
+    <input type="radio" id="radAuto" name="autoScale" value="auto" onchange="setScale();"> Auto scale
+</p>
+<p>
+    <input type="radio" id="radCustom" name="autoScale" value="custom" checked onchange="setScale();"> Custom
+    <select id="selScale" onchange="setScale();">
+        <option value="links.Graph.StepDate.SCALE.MILLISECOND">MILLISECOND</option>
+        <option value="links.Graph.StepDate.SCALE.SECOND">SECOND</option>
+        <option value="links.Graph.StepDate.SCALE.MINUTE">MINUTE</option>
+        <option value="links.Graph.StepDate.SCALE.HOUR">HOUR</option>
+        <option value="links.Graph.StepDate.SCALE.DAY" selected>DAY</option>
+        <option value="links.Graph.StepDate.SCALE.MONTH">MONTH</option>
+        <option value="links.Graph.StepDate.SCALE.YEAR">YEAR</option>
+    </select>
+    <select id="selStep" onchange="setScale();">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+    </select>
+    <font style="font-style:italic; color:gray;">(be careful: do not choose a scale that is too small with respect to the currently visible range) </font>
+</p>
+
+<div id="mygraph"></div>
+
+<br>
+<div id="info"></div>
+</body>
 </html>

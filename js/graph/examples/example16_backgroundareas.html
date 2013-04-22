@@ -3,17 +3,28 @@
 <head>
     <title>Graph background areas</title>
 
-    <style>
+    <style type="text/css">
         body {font: 10pt arial;}
+        p {max-width: 600px;}
     </style>
 
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
 </head>
 
 <body>
 <h1>Graph background areas</h1>
+
+<p>
+    Graph supports colored background areas.
+</p>
+<p>
+    Please note that this example is not supported by IE8 and older,
+    as IE8 does not support RGB and RGBA colors (for transparent colors) in canvas/excanvas.
+    If compatibility with IE8 and older is required, please use HEX colors.
+    <a href="javascript: safeHexColors();">Show with HEX colors</a>.
+</p>
 
 <div id="mygraph"></div>
 
@@ -28,17 +39,17 @@
 
     var aMin = -10;
     var bMax = 70;
-    var i, imax = 100, d;
+    var i, imax = 100, d, value, date, start;
 
     // Create and populate dataset with function A
     var dataA = {
         'label': 'Function A',
         'data': []
     };
-    d = new Date('2010-09-23 20:00:00');
+    d = new Date(2010, 9, 23, 20, 0, 0);
     for (i = 0; i < imax; i++) {
         dataA.data.push({
-            'date': new Date(d),
+            'date': new Date(d.valueOf()),
             'value': functionA(i)
         });
         d.setMinutes(d.getMinutes() + 1);
@@ -49,84 +60,106 @@
         'label': 'Function B',
         'data': []
     };
-    d = new Date('2010-09-23 20:00:00');
+    d = new Date(2010, 9, 23, 20, 0, 0);
     for (i = 0; i < imax; i++) {
         dataB.data.push({
-            'date': new Date(d),
+            'date': new Date(d.valueOf()),
             'value': functionB(i)
         });
         d.setMinutes(d.getMinutes() + 1);
+    }
+
+    /**
+     * Create background ranges from a given dataset, where the data values
+     * are above given threshold value.
+     * @param {{date: Date, value: Number}[]} data  A set of objects containing
+     *                                              properties date and value
+     * @param {Number} threshold                    A threshold value
+     * @returns {{start: Date, end: Date}[]}        A set of ranges, containing
+     *                                              properties start and end.
+     */
+    function createRangesAboveThreshold(data, threshold) {
+        var ranges = [];
+        var date, value;
+        var start = null;
+        for (var i = 0, imax = data.length; i < imax; i++) {
+            date = data[i].date;
+            value = data[i].value;
+            if (!start) {
+                if (value > threshold) {
+                    start = new Date(date.valueOf());
+                }
+            }
+            else {
+                if (value < threshold || i == imax - 1) {
+                    var end = new Date(date.valueOf());
+                    ranges.push({
+                        'start': start,
+                        'end': end
+                    });
+                    start = null;
+                }
+            }
+        }
+
+        return ranges;
+    }
+
+    /**
+     * Create background ranges from a given dataset, where the data values
+     * are below given threshold value.
+     * @param {{date: Date, value: Number}[]} data  A set of objects containing
+     *                                              properties date and value
+     * @param {Number} threshold                    A threshold value
+     * @returns {{start: Date, end: Date}[]}        A set of ranges, containing
+     *                                              properties start and end.
+     */
+    function createRangesBelowThreshold(data, threshold) {
+        var ranges = [];
+        var date, value;
+        var start = null;
+        for (var i = 0, imax = data.length; i < imax; i++) {
+            date = data[i].date;
+            value = data[i].value;
+            if (!start) {
+                if (value < threshold) {
+                    start = new Date(date.valueOf());
+                }
+            }
+            else {
+                if (value > threshold || i == imax - 1) {
+                    var end = new Date(date.valueOf());
+                    ranges.push({
+                        'start': start,
+                        'end': end
+                    });
+                    start = null;
+                }
+            }
+        }
+
+        return ranges;
     }
 
     // Create and populate thresholdA with background areas where function A < aMin
     var thresholdA = {
         'label': 'A < ' + aMin,
         'type': 'area',
-        'data': []
+        'data': createRangesBelowThreshold(dataA.data, aMin)
     };
-    d = new Date('2010-09-23 20:00:00');
-    var start = null;
-    for (i = 0; i < imax; i++) {
-        var value = dataA.data[i].value;
-        if (!start) {
-            if (value < aMin) {
-                start = new Date(d);
-            }
-        }
-        else {
-            if (value > aMin || i == imax - 1) {
-                var end = new Date(d);
-                thresholdA.data.push({
-                    'start': start,
-                    'end': end
-                });
-                start = null;
-            }
-        }
-        d.setMinutes(d.getMinutes() + 1);
-    }
 
     // Create and populate thresholdB with background areas where function B > bMax
     var thresholdB = {
         'label': 'B > ' + bMax,
         'type': 'area',
-        'data': []
+        'data': createRangesAboveThreshold(dataB.data, bMax)
     };
-    d = new Date('2010-09-23 20:00:00');
-    var start = null;
-    for (i = 0; i < imax; i++) {
-        var value = dataB.data[i].value;
-        if (!start) {
-            if (value > bMax) {
-                start = new Date(d);
-            }
-        }
-        else {
-            if (value < bMax || i == imax - 1) {
-                var end = new Date(d);
-                thresholdB.data.push({
-                    'start': start,
-                    'end': end
-                });
-                start = null;
-            }
-        }
-        d.setMinutes(d.getMinutes() + 1);
-    }
 
     // specify options
     var options = {
         'width':  '100%',
         'height': '350px',
         lines: [
-            {
-                // Function A
-                color: 'rgb(51, 102, 204)'
-            },
-            {
-                // Function B
-                color: 'rgb(220, 57, 18)'
-            },
             {
                 // Threshold A
                 //legend: false,
@@ -136,6 +169,14 @@
                 // Threshold B
                 //legend: false,
                 color: 'rgba(220, 57, 18, 0.1)'
+            },
+            {
+                // Function A
+                color: 'rgb(51, 102, 204)'
+            },
+            {
+                // Function B
+                color: 'rgb(220, 57, 18)'
             }
         ]
     };
@@ -144,7 +185,16 @@
     var graph = new links.Graph(document.getElementById('mygraph'));
 
     // Draw our graph with the created data and options
-    graph.draw([dataA, dataB, thresholdA, thresholdB], options);
+    graph.draw([thresholdA, thresholdB, dataA, dataB], options);
+
+    // Draw but with safe (non-transparent) hex colors
+    function safeHexColors() {
+        options.lines[0].color = '#e4eaf8';
+        options.lines[1].color = '#f8e6e2';
+        options.lines[2].color = '#3366cc';
+        options.lines[3].color = '#dc3912';
+        graph.draw([thresholdA, thresholdB, dataA, dataB], options);
+    }
 </script>
 
 </body>

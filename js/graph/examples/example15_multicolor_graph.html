@@ -3,12 +3,12 @@
 <head>
     <title>Graph demo</title>
 
-    <style>
+    <style type="text/css">
         body {font: 10pt arial;}
     </style>
 
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
 
     <script type="text/javascript">
@@ -16,7 +16,7 @@
          * Split given dataset in two datasets. The first
          * @param {Object[]} data     Array with objects, each object has
          *                            a parameter date and value
-         * @param {Number} treshold   Threshold value
+         * @param {Number} threshold   Threshold value
          * @return {Object} splitted  An object containing data sets 'lower'
          *                           'threshold', and 'upper'
          */
@@ -43,7 +43,7 @@
                     var fraction = (threshold - dPrev.value) / (d.value - dPrev.value);
                     var dateAvg = new Date(Math.round(
                             dPrev.date.valueOf() +
-                            (d.date.valueOf() - dPrev.date.valueOf()) * fraction));
+                                    (d.date.valueOf() - dPrev.date.valueOf()) * fraction));
                     var valueAvg = dPrev.value + (d.value - dPrev.value) * fraction;
 
                     if (prevIsLower) {

@@ -1,106 +1,106 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html>
-  <head>
+<head>
     <title>Graph demo</title>
 
-    <style>
-		  body {font: 10pt verdana;}
-		</style>
+    <style type="text/css">
+        body {font: 10pt verdana;}
+    </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
-      google.load("visualization", "1");
-      
-      // Set callback to run when API is loaded
-      google.setOnLoadCallback(drawVisualization); 
-      
-      var graph;
-      
-      // Called when the Visualization API is loaded.
-      function drawVisualization() {
-        // Create and populate a data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'time');
-        data.addColumn('number', 'Function A');
+        google.load("visualization", "1");
 
-        function functionA(x) {
-          return Math.sin(x/20) * 5 + Math.cos(x / 7) * 10 ;
+        // Set callback to run when API is loaded
+        google.setOnLoadCallback(drawVisualization);
+
+        var graph;
+
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // Create and populate a data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'time');
+            data.addColumn('number', 'Function A');
+
+            function functionA(x) {
+                return Math.sin(x/20) * 5 + Math.cos(x / 7) * 10 ;
+            }
+
+            // create data
+            var d = new Date(2010, 9, 23);
+            for (var i = 0; i < 100; i++) {
+                data.addRow([new Date(d), functionA(i)]);
+                d.setDate(d.getDate() + 1);
+            }
+
+            // specify options
+            var options = {
+                "width":  "100%",
+                "height": "300px",
+                "vMin": -20,
+                "vMax": 20
+            };
+
+            // Instantiate our graph object.
+            graph = new links.Graph(document.getElementById('mygraph'));
+
+            function onrangechange() {
+                // adjust the values of startDate and endDate
+                var range = graph.getVisibleChartRange();
+                document.getElementById('startDate').value = dateFormat(range.start);
+                document.getElementById('endDate').value   = dateFormat(range.end);
+            }
+
+            // Add event listeners
+            google.visualization.events.addListener(graph, 'rangechange', onrangechange);
+
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
+            onrangechange();
         }
-        
-        // create data
-        var d = new Date(2010, 9, 23);
-        for (i = 0; i < 100; i++) {
-          data.addRow([new Date(d), functionA(i)]);
-          d.setDate(d.getDate() + 1);
+
+        // adjust start and end time.
+        function setTime() {
+            if (!graph) return;
+
+            var newStartDate = new Date(document.getElementById('startDate').value);
+            var newEndDate   = new Date(document.getElementById('endDate').value);
+            graph.setVisibleChartRange(newStartDate, newEndDate);
+            graph.redraw();
         }
-        
-        // specify options
-        var options = {
-          "width":  "100%", 
-          "height": "300px",
-          "vMin": -20,
-          "vMax": 20
-        };
 
-        // Instantiate our graph object.
-        graph = new links.Graph(document.getElementById('mygraph'));
-
-        function onrangechange() {
-          // adjust the values of startDate and endDate
-          var range = graph.getVisibleChartRange();
-          document.getElementById('startDate').value = dateFormat(range.start);
-          document.getElementById('endDate').value   = dateFormat(range.end);
+        // Format given date as "yyyy-mm-dd hh:ii:ss"
+        // @param datetime   A Date object.
+        function dateFormat(date) {
+            datetime =   date.getFullYear() + "-" +
+                    ((date.getMonth()   <  9) ? "0" : "") + (date.getMonth() + 1) + "-" +
+                    ((date.getDate()    < 10) ? "0" : "") +  date.getDate() + " " +
+                    ((date.getHours()   < 10) ? "0" : "") +  date.getHours() + ":" +
+                    ((date.getMinutes() < 10) ? "0" : "") +  date.getMinutes() + ":" +
+                    ((date.getSeconds() < 10) ? "0" : "") +  date.getSeconds()
+            return datetime;
         }
-        
-        // Add event listeners
-        google.visualization.events.addListener(graph, 'rangechange', onrangechange);
+    </script>
 
-        // Draw our graph with the created data and options 
-        graph.draw(data, options);
-        onrangechange();
-      }
-      
-      // adjust start and end time.
-      function setTime() {
-        if (!graph) return;
-        
-        var newStartDate = new Date(document.getElementById('startDate').value);
-        var newEndDate   = new Date(document.getElementById('endDate').value);
-        graph.setVisibleChartRange(newStartDate, newEndDate);
-        graph.redraw();        
-      }
+</head>
 
-      // Format given date as "yyyy-mm-dd hh:ii:ss"
-      // @param datetime   A Date object.
-      function dateFormat(date) {
-        datetime =   date.getFullYear() + "-" + 
-                   ((date.getMonth()   <  9) ? "0" : "") + (date.getMonth() + 1) + "-" +
-                   ((date.getDate()    < 10) ? "0" : "") +  date.getDate() + " " +
-                   ((date.getHours()   < 10) ? "0" : "") +  date.getHours() + ":" + 
-                   ((date.getMinutes() < 10) ? "0" : "") +  date.getMinutes() + ":" + 
-                   ((date.getSeconds() < 10) ? "0" : "") +  date.getSeconds()
-        return datetime;
-      }      
-   </script>
-   
-  </head>
+<body>
+<p>This page demonstrates the graph visualization.</p>
+<p>Click and drag to move the graph, scroll to zoom the timeline.</p>
+<p>
+    Starttime: <input type="text" id="startDate" value="">
+    Endtime:   <input type="text" id="endDate" value="">
+    <input type="button" id="setStartDate" value="set" onclick="setTime();">
+</p>
 
-  <body>
-    <p>This page demonstrates the graph visualization.</p>
-    <p>Click and drag to move the graph, scroll to zoom the timeline.</p>
-    <p>
-      Starttime: <input type="text" id="startDate" value="">
-      Endtime:   <input type="text" id="endDate" value="">
-      <input type="button" id="setStartDate" value="set" onclick="setTime();">
-    </p>
-    
-    <div id="mygraph"></div>
+<div id="mygraph"></div>
 
-    <br>  
-    <div id="info"></div>
-  </body>
+<br>
+<div id="info"></div>
+</body>
 </html>

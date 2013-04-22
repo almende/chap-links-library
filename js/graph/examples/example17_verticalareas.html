@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Graph vertical background areas</title>
+
+    <style type="text/css">
+        body {font: 10pt arial;}
+        p {max-width: 600px;}
+
+        /* styles for the vertical background areas */
+        div.red {
+            background-color: red;
+            filter: alpha(opacity=20);
+            opacity: 0.2;
+        }
+        div.yellow {
+            background-color: gold;
+            filter: alpha(opacity=20);
+            opacity: 0.2;
+        }
+
+    </style>
+
+    <script type="text/javascript" src="../graph.js"></script>
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
+    <link rel="stylesheet" type="text/css" href="../graph.css">
+
+
+    <script type="text/javascript">
+        function functionA(x) {
+            return Math.sin(x / 25) * Math.cos(x / 25) * 50 + (Math.random()-0.5) * 10;
+        }
+
+        function functionB(x) {
+            return Math.sin(x / 50) *50 + Math.cos(x / 7) * 75 + (Math.random()-0.5) * 20 + 20;
+        }
+
+        function draw() {
+            var i, imax = 100, d;
+
+            // Create and populate dataset with function A
+            var dataA = {
+                'label': 'Function A',
+                'data': []
+            };
+            d = new Date(2010, 9, 23, 20, 0, 0);
+            for (i = 0; i < imax; i++) {
+                dataA.data.push({
+                    'date': new Date(d.valueOf()),
+                    'value': functionA(i)
+                });
+                d.setMinutes(d.getMinutes() + 1);
+            }
+
+            // Create and populate dataset with function B
+            var dataB = {
+                'label': 'Function B',
+                'data': []
+            };
+            d = new Date(2010, 9, 23, 20, 0, 0);
+            for (i = 0; i < imax; i++) {
+                dataB.data.push({
+                    'date': new Date(d.valueOf()),
+                    'value': functionB(i)
+                });
+                d.setMinutes(d.getMinutes() + 1);
+            }
+
+            // specify options
+            var options = {
+                'width':  '100%',
+                'height': '350px',
+                'vAreas': [
+                    // background areas can have the following properties:
+                    // start, end, className, and color
+                    {
+                        end: 0,
+                        className: 'red'
+                    },
+                    {
+                        start: 0,
+                        end: 100,
+                        className: 'yellow'
+                    },
+                    {
+                        start: 100,
+                        color: '#cce6cc'
+                    }
+                ]
+            };
+
+            // Instantiate our graph object.
+            var graph = new links.Graph(document.getElementById('mygraph'));
+
+            // Draw our graph with the created data and options
+            graph.draw([dataA, dataB], options);
+        }
+
+    </script>
+
+</head>
+
+<body onload="draw()">
+<h1>Graph vertical background areas</h1>
+
+<p>
+    Vertical background ranges can be created with a custom start, end, className, and color.
+</p>
+
+<div id="mygraph"></div>
+
+</body>
+</html>

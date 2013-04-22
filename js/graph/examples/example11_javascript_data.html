@@ -1,84 +1,84 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
+<head>
     <title>Graph demo - javascript data</title>
 
-    <style>
-      body {font: 10pt arial;}
+    <style type="text/css">
+        body {font: 10pt arial;}
     </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
-      var data;
-      google.load("visualization", "1");
-      
-      // Set callback to run when API is loaded
-      google.setOnLoadCallback(drawVisualization); 
+        var data;
+        google.load("visualization", "1");
 
-      function functionA(x) {
-        return -Math.sin(x / 10) * Math.cos(x / 5) * 50;
-      }
+        // Set callback to run when API is loaded
+        google.setOnLoadCallback(drawVisualization);
 
-      function functionB(x) {
-        return Math.sin(x/5) *45 + Math.cos(x / 10) * 75;
-      }
-      
-      // Called when the Visualization API is loaded.
-      function drawVisualization() {
-        // Create and populate a data table.
-        
+        function functionA(x) {
+            return -Math.sin(x / 10) * Math.cos(x / 5) * 50;
+        }
 
-        // create data for graph1
-        var dataset = [];
-        var d = new Date(2010, 9, 28, 20, 0, 0);
-        for (i = 0; i < 50; i++) {
-          var datapoint = {
-            "date": new Date(d), 
-            "value" : (functionA(i) / 200) + ""
-          };
-          dataset.push(datapoint);
-          d.setHours(d.getHours() + 5);
-        }        
-        var graph1 = {"label": "Dataset A", "data" : dataset};
+        function functionB(x) {
+            return Math.sin(x/5) *45 + Math.cos(x / 10) * 75;
+        }
 
-        // create data for graph2
-        var dataset = [];
-        var d = new Date(2010, 9, 30, 16, 0, 0);
-        for (i = 0; i < 30; i++) {
-          var datapoint = {
-            "date": new Date(d), 
-            "value" : (functionB(i) / 200)
-          };
-          dataset.push(datapoint);
-          d.setHours(d.getHours() + 5);
-        }        
-        var graph2 = {"label": "Dataset B", "data" : dataset};
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // Create and populate a data table.
+            var dataset, datapoint, d, i;
 
-        // put all datasets in one array
-        data = [graph1, graph2];
+            // create data for graph1
+            dataset = [];
+            d = new Date(2010, 9, 28, 20, 0, 0);
+            for (i = 0; i < 50; i++) {
+                datapoint = {
+                    "date": new Date(d),
+                    "value" : (functionA(i) / 200) + ""
+                };
+                dataset.push(datapoint);
+                d.setHours(d.getHours() + 5);
+            }
+            var graph1 = {"label": "Dataset A", "data" : dataset};
 
-        // specify options
-        options = {width:  "100%", 
-                   height: "350px",
-                   lines: [
-                    {color: "#2B7CE9", style: "dot", radius: 1.5}, 
+            // create data for graph2
+            dataset = [];
+            d = new Date(2010, 9, 30, 16, 0, 0);
+            for (i = 0; i < 30; i++) {
+                datapoint = {
+                    "date": new Date(d),
+                    "value" : (functionB(i) / 200)
+                };
+                dataset.push(datapoint);
+                d.setHours(d.getHours() + 5);
+            }
+            var graph2 = {"label": "Dataset B", "data" : dataset};
+
+            // put all datasets in one array
+            data = [graph1, graph2];
+
+            // specify options
+            var options = {width:  "100%",
+                height: "350px",
+                lines: [
+                    {color: "#2B7CE9", style: "dot", radius: 1.5},
                     {color: "#97C2FC", width: 2}]
-                   };
+            };
 
-        // Instantiate our graph object.
-        var graph = new links.Graph(document.getElementById('mygraph'));
-        
-        // Draw our graph with the created data and options 
-        graph.draw(data, options);
-      }
-   </script>
-  </head>
+            // Instantiate our graph object.
+            var graph = new links.Graph(document.getElementById('mygraph'));
 
-  <body>
-    <div id="mygraph"></div>
-  </body>
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
+        }
+    </script>
+</head>
+
+<body>
+<div id="mygraph"></div>
+</body>
 </html>

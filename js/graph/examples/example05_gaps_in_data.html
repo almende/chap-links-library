@@ -1,75 +1,76 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
+<head>
     <title>Graph demo</title>
 
-    <style>
-      body {font: 10pt arial;}
+    <style type="text/css">
+        body {font: 10pt arial;}
     </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
-      google.load("visualization", "1");
-      
-      // Set callback to run when API is loaded
-      google.setOnLoadCallback(drawVisualization); 
+        google.load("visualization", "1");
 
-      // Called when the Visualization API is loaded.
-      function drawVisualization() {
-        // Create and populate a data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'time');
-        data.addColumn('number', 'Function with gaps in data');
+        // Set callback to run when API is loaded
+        google.setOnLoadCallback(drawVisualization);
 
-        function functionA(x) {
-          return Math.sin(x / 10) * Math.cos(x / 5) * 50;
-        }        
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // Create and populate a data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'time');
+            data.addColumn('number', 'Function with gaps in data');
 
-        // create a set of dates
-        var d = new Date(2010, 9, 23, 20, 0, 0);
-        for (i = 0; i < 100; i++) {
-          data.addRow();
-          data.setValue(i, 0, new Date(d));
-          d.setMinutes(d.getMinutes() + 1);
+            function functionA(x) {
+                return Math.sin(x / 10) * Math.cos(x / 5) * 50;
+            }
+
+            // create a set of dates
+            var i;
+            var d = new Date(2010, 9, 23, 20, 0, 0);
+            for (i = 0; i < 100; i++) {
+                data.addRow();
+                data.setValue(i, 0, new Date(d));
+                d.setMinutes(d.getMinutes() + 1);
+            }
+
+            // create data with gaps for function A
+            for (i = 0; i < 40; i++) {
+                data.setValue(i, 1, functionA(i));
+            }
+            // rows 40 to 49 remain undefined...
+            for (i = 50; i < 75; i++) {
+                data.setValue(i, 1, functionA(i));
+            }
+            // rows 75 to 89 remain undefined...
+            for (i = 90; i < 100; i++) {
+                data.setValue(i, 1, functionA(i));
+            }
+
+            // specify options
+            var options = {width:  "100%",
+                height: "350px",
+                lines: [{style: "dot-line",
+                    width: 1,
+                    radius: 2}]
+            };
+
+            // Instantiate our graph object.
+            var graph = new links.Graph(document.getElementById('mygraph'));
+
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
         }
+    </script>
+</head>
 
-        // create data with gaps for function A
-        for (i = 0; i < 40; i++) {
-          data.setValue(i, 1, functionA(i));
-        }
-        // rows 40 to 49 remain undefined...
-        for (i = 50; i < 75; i++) {
-          data.setValue(i, 1, functionA(i));
-        }
-        // rows 75 to 89 remain undefined...  
-        for (i = 90; i < 100; i++) {
-          data.setValue(i, 1, functionA(i));
-        }
+<body>
+<div id="mygraph"></div>
 
-        // specify options
-        options = {width:  "100%", 
-                   height: "350px",
-                   lines: [{style: "dot-line", 
-                            width: 1, 
-                            radius: 2}]
-                  };
-
-        // Instantiate our graph object.
-        var graph = new links.Graph(document.getElementById('mygraph'));
-        
-        // Draw our graph with the created data and options 
-        graph.draw(data, options);
-      }
-   </script>
-  </head>
-
-  <body>
-    <div id="mygraph"></div>
-    
-    <div id="info"></div>
-  </body>
+<div id="info"></div>
+</body>
 </html>
