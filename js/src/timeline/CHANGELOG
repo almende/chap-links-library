@@ -1,11 +1,11 @@
 CHAP Links Library - Timeline
 
-<not yet released>, version 2.5.0
+2013-04-22, version 2.5.0
 
 - Integration with jQuery Themeroller. Thanks Oleg Varaksin.
 
 
-2012-04-18, version 2.4.2
+2013-04-18, version 2.4.2
 
 - Implemented localization. (Thanks bjarkebech and José Renato).
 - Changed: renamed option intervalMin to zoomMin and intervalMax to zoomMax
