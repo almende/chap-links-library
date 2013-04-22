@@ -982,7 +982,7 @@ links.Graph.prototype.setAutoScale = function(enable) {
  * @return {string} the string value of x, followed by the suffix "px"
  */
 links.Graph.px = function(x) {
-    return x + "px";
+    return Math.round(x) + "px";
 };
 
 
@@ -2669,7 +2669,7 @@ links.Graph.prototype._setLineVisible = function(column, visible) {
         return;
 
     if (!this.lines)
-        this.lines = new Array();
+        this.lines = [];
 
     if (!this.lines[column])
         this.lines[column] = {};

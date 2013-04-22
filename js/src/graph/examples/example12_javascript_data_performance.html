@@ -1,149 +1,149 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
+<head>
     <title>Graph demo - JSON input</title>
 
-    <style>
-      body {font: 10pt arial;}
+    <style type="text/css">
+        body {font: 10pt arial;}
     </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
-      google.load("visualization", "1");
-      
-      // Set callback to run when API is loaded
-      var initialized = false;
-      var data;
-      var graph;
-      google.setOnLoadCallback(initialize); 
-      
-      
-      function initialize() {
-        initialized = true;
-        draw();
-      }
+        google.load("visualization", "1");
 
-      // Called when the Visualization API is loaded.
-      function draw() {
-        if (!initialized) {
-          alert("One moment please, I'm still busy loading the google API");
-          return;
+        // Set callback to run when API is loaded
+        var initialized = false;
+        var data;
+        var graph;
+        google.setOnLoadCallback(initialize);
+
+
+        function initialize() {
+            initialized = true;
+            draw();
         }
-        
-        var title = document.getElementById("title").value;
-        var f = document.getElementById("function").value;
-        var x = document.getElementById("variable").value;
-        var n = parseInt(document.getElementById("datapoints").value);
-        
-        var str = "customFunction=function(" + x + ") {return " + f + ";}";
-        eval(str)
-        
-        var start = (new Date()).getTime();
-      
-        // Create and populate a data table.
-        data = [];
 
-        var dataset = [];
-        var d = new Date(2010, 9, 23);
-        for (i = 0; i < n; i++) {
-          dataset.push({"date": new Date(d), "value": customFunction(i)});
-          if (d.getMonth() < 6) {  // reckon with daylight savings
-            d.setTime(d.getTime() + 1 * 60 * 1000);
-          }
-          else {
-            d.setMinutes(d.getMinutes() + 1);
-          }
+        // Called when the Visualization API is loaded.
+        function draw() {
+            if (!initialized) {
+                alert("One moment please, I'm still busy loading the google API");
+                return;
+            }
+
+            var title = document.getElementById("title").value;
+            var f = document.getElementById("function").value;
+            var x = document.getElementById("variable").value;
+            var n = parseInt(document.getElementById("datapoints").value);
+
+            var str = "customFunction=function(" + x + ") {return " + f + ";}";
+            eval(str);
+
+            var start = (new Date()).getTime();
+
+            // Create and populate a data table.
+            data = [];
+
+            var dataset = [];
+            var d = new Date(2010, 9, 23);
+            for (var i = 0; i < n; i++) {
+                dataset.push({"date": new Date(d), "value": customFunction(i)});
+                if (d.getMonth() < 6) {  // reckon with daylight savings
+                    d.setTime(d.getTime() + 1 * 60 * 1000);
+                }
+                else {
+                    d.setMinutes(d.getMinutes() + 1);
+                }
+            }
+            graph = {"label": "x-axis", "data": dataset};
+            data.push(graph);
+
+            /* Optionally add more lines...
+             var dataset = [];
+             var d = new Date(2010, 9, 23);
+             for (i = 0; i < n; i++) {
+             dataset.push({"date": new Date(d), "value": customFunction(i + 1000) / 2});
+             d.setMinutes(d.getMinutes() + 2);
+             }
+             graph = {"label": "y-axis", "data": dataset};
+             data.push(graph);
+
+             var dataset = [];
+             var d = new Date(2010, 9, 23);
+             for (i = 0; i < n; i++) {
+             dataset.push({"date": new Date(d), "value": customFunction(i + 2000) / 5});
+             d.setSeconds(d.getSeconds() + 30);
+             }
+             graph = {"label": "z-axis", "data": dataset};
+             data.push(graph);
+             */
+
+            var middle = (new Date()).getTime();
+
+            // specify options
+            var autoDataStep = document.getElementById("autoDataStep").checked;
+            var options = {"width":  "100%",
+                "height": "400px",
+                "autoDataStep": autoDataStep
+            };
+
+            // Instantiate our graph object.
+            graph = new links.Graph(document.getElementById('mygraph'));
+
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
+            graph.setVisibleChartRange(); // this will auto set the range
+            graph.redraw();
+
+            var end = (new Date()).getTime();
+
+            // console.log("Data generation took " + (middle-start) + " milliseconds");
+            // console.log("Initializing and drawing the graph took " + (end-middle) + " milliseconds");
         }
-        graph = {"label": "x-axis", "data": dataset};
-        data.push(graph);
+    </script>
+</head>
 
-        /* Optionally add more lines...
-        var dataset = [];
-        var d = new Date(2010, 9, 23);
-        for (i = 0; i < n; i++) {
-          dataset.push({"date": new Date(d), "value": customFunction(i + 1000) / 2});
-          d.setMinutes(d.getMinutes() + 2);
-        }
-        graph = {"label": "y-axis", "data": dataset};
-        data.push(graph);
-        
-        var dataset = [];
-        var d = new Date(2010, 9, 23);
-        for (i = 0; i < n; i++) {
-          dataset.push({"date": new Date(d), "value": customFunction(i + 2000) / 5});
-          d.setSeconds(d.getSeconds() + 30);
-        }
-        graph = {"label": "z-axis", "data": dataset};
-        data.push(graph);
-        */
-
-        var middle = (new Date()).getTime();
-
-        // specify options
-        var autoDataStep = document.getElementById("autoDataStep").checked;
-        var options = {"width":  "100%", 
-                       "height": "400px",
-                       "autoDataStep": autoDataStep
-                       };
-
-        // Instantiate our graph object.
-        graph = new links.Graph(document.getElementById('mygraph'));
-        
-        // Draw our graph with the created data and options 
-        graph.draw(data, options);   
-        graph.setVisibleChartRange(); // this will auto set the range
-        graph.redraw();
-        
-        var end = (new Date()).getTime();
-        
-        // console.log("Data generation took " + (middle-start) + " milliseconds");
-        // console.log("Initializing and drawing the graph took " + (end-middle) + " milliseconds");
-      }
-   </script>
-  </head>
-
-  <body>
-    <h1>Test performance (javascript array as input)</h1>
-    <div style="background-color: #E5E5E5; border: 1px solid lightgray; padding: 10px; margin: 10px 0; display: inline-block;">
-      <table style="font:inherit;">
+<body>
+<h1>Test performance (javascript array as input)</h1>
+<div style="background-color: #E5E5E5; border: 1px solid lightgray; padding: 10px; margin: 10px 0; display: inline-block;">
+    <table style="font:inherit;">
         <tr>
-          <td>Title</td>
-          <td><input type="text" id="title" value="Custom function" style="width:200px;"></td>
+            <td>Title</td>
+            <td><input type="text" id="title" value="Custom function" style="width:200px;"></td>
         </tr>
 
         <tr>
-          <td>Function</td>
-          <td><input type="text" id="function" value="Math.sin(x/100) * Math.cos(x/50) * 50 + Math.sin(x/1000) * 50" style="width:500px;"></td>
+            <td>Function</td>
+            <td><input type="text" id="function" value="Math.sin(x/100) * Math.cos(x/50) * 50 + Math.sin(x/1000) * 50" style="width:500px;"></td>
         </tr>
 
         <tr>
-          <td>variable</td>
-          <td><input type="text" id="variable" value="x" style="width:100px;"></td>
+            <td>variable</td>
+            <td><input type="text" id="variable" value="x" style="width:100px;"></td>
         </tr>
 
         <tr>
-          <td>Number of datapoints</td>
-          <td><input type="text" id="datapoints" value="10000" style="width:100px;"></td>
+            <td>Number of datapoints</td>
+            <td><input type="text" id="datapoints" value="10000" style="width:100px;"></td>
         </tr>
 
         <tr>
-          <td>Automatic data step</td>
-          <td><input type="checkbox" id="autoDataStep" checked > <span style="color: gray;">(if true, intermediate data points will be skipped in case of much data)</span></td>
+            <td>Automatic data step</td>
+            <td><input type="checkbox" id="autoDataStep" checked > <span style="color: gray;">(if true, intermediate data points will be skipped in case of much data)</span></td>
         </tr>
-        
+
         <tr>
-          <td><input type="button" value="Draw" onclick="javascript: draw();"></td>
-          <td></td>
+            <td><input type="button" value="Draw" onclick="javascript: draw();"></td>
+            <td></td>
         </tr>
-      </table>
-    </div>
-    
-    <div id="mygraph"></div>
-    
-    <div id="info"></div>
-  </body>
+    </table>
+</div>
+
+<div id="mygraph"></div>
+
+<div id="info"></div>
+</body>
 </html>

@@ -1,80 +1,80 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
+<head>
     <title>Graph demo</title>
 
-    <style>
-      body {font: 10pt arial;}
+    <style type="text/css">
+        body {font: 10pt arial;}
     </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
-      google.load("visualization", "1");
-      
-      // Set callback to run when API is loaded
-      google.setOnLoadCallback(drawVisualization); 
+        google.load("visualization", "1");
 
-      // Called when the Visualization API is loaded.
-      function drawVisualization() {
-        // Create and populate a data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'time');
-        data.addColumn('number', 'Function A');
-        data.addColumn('number', 'Function B');
-        data.addColumn('number', 'Function C');
+        // Set callback to run when API is loaded
+        google.setOnLoadCallback(drawVisualization);
 
-        function functionA(x) {
-          return Math.sin(x / 10) * 5 ;
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // Create and populate a data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'time');
+            data.addColumn('number', 'Function A');
+            data.addColumn('number', 'Function B');
+            data.addColumn('number', 'Function C');
+
+            function functionA(x) {
+                return Math.sin(x / 10) * 5 ;
+            }
+
+            function functionB(x) {
+                return Math.sin(x/20) * 5 + Math.cos(x / 7) * 10 ;
+            }
+            function functionC(x) {
+                return Math.cos(x/10) * Math.exp(x/50) ;
+            }
+
+            // create data
+            var d = new Date(2010, 9, 23);
+            for (var i = 0; i < 100; i++) {
+                data.addRow([new Date(d),
+                    functionA(i),
+                    functionB(i),
+                    functionC(i)]);
+                d.setMinutes(d.getMinutes() + 1);
+            }
+
+            // specify options
+            var options = {width:  "100%",
+                height: "400px",
+                lines: [{style: "dot",
+                    radius: 2,
+                    color: "cornflowerblue",
+                    legend: false},
+                    {style: "dot-line",
+                        radius: 2,
+                        color: "navy"},
+                    {style: "line",
+                        width: 2,
+                        color: "lightblue"}]
+            };
+
+            // Instantiate our graph object.
+            var graph = new links.Graph(document.getElementById('mygraph'));
+
+            // Draw our graph with the created data and options
+            graph.draw(data, options);
         }
+    </script>
+</head>
 
-        function functionB(x) {
-          return Math.sin(x/20) * 5 + Math.cos(x / 7) * 10 ;
-        }
-        function functionC(x) {
-          return Math.cos(x/10) * Math.exp(x/50) ;
-        }
-        
-        // create data
-        var d = new Date(2010, 9, 23);
-        for (i = 0; i < 100; i++) {
-          data.addRow([new Date(d), 
-                       functionA(i), 
-                       functionB(i),
-                       functionC(i)]);
-          d.setMinutes(d.getMinutes() + 1);
-        }
+<body>
+<div id="mygraph"></div>
 
-        // specify options
-        options = {width:  "100%",
-                   height: "400px", 
-                   lines: [{style: "dot",
-                            radius: 2,
-                            color: "cornflowerblue",
-                            legend: false},
-                           {style: "dot-line",
-                            radius: 2,
-                            color: "navy"},
-                           {style: "line",
-                            width: 2,
-                            color: "lightblue"}]
-                  };
-
-        // Instantiate our graph object.
-        var graph = new links.Graph(document.getElementById('mygraph'));
-        
-        // Draw our graph with the created data and options 
-        graph.draw(data, options);
-      }
-   </script>
-  </head>
-
-  <body>
-    <div id="mygraph"></div>
-    
-    <div id="info"></div>
-  </body>
+<div id="info"></div>
+</body>
 </html>

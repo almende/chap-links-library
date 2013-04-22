@@ -3,13 +3,13 @@
 <head>
     <title>Graph demo</title>
 
-    <style>
+    <style type="text/css">
         body {font: 10pt arial;}
     </style>
 
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript" src="../graph.js"></script>
-    <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
 
     <script type="text/javascript">
@@ -50,7 +50,7 @@
 
             // create data
             var d = new Date(2010, 9, 23);
-            for (i = 0; i < n; i++) {
+            for (var i = 0; i < n; i++) {
                 data.addRow([new Date(d), customFunction(i)]);
                 if (d.getMonth() < 6) {  // reckon with daylight savings
                     d.setTime(d.getTime() + 1 * 60 * 1000);

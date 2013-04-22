@@ -5,7 +5,8 @@ CHAP Links Library - Graph
 
 - Implemented vertical background areas
 - Robustness improvements against invalid data.
-- Fixed a non-working example16 (invalid dates)
+- Fixed a non-working example16 (invalid dates).
+- Fixed a rendering bug on IE8 and older.
 
 
 2013-04-18, version 1.2.6
