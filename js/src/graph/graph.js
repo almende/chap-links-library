@@ -29,7 +29,7 @@
  *
  * @author 	Jos de Jong, <jos@almende.org>
  * @date    2013-04-18
- * @version 1.2.7-SNAPSHOT
+ * @version 1.3.0-SNAPSHOT
  */
 
 
@@ -203,6 +203,7 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.vMax != undefined)          this.vMaxFixed = options.vMax;
         if (options.vStep != undefined)         this.vStepSize = options.vStep;
         if (options.vPrettyStep != undefined)   this.vPrettyStep = options.vPrettyStep;
+        if (options.vAreas != undefined)        this.vAreas = options.vAreas;
 
         if (options.legend != undefined)        this.legend = options.legend;  // can contain legend.width
         if (options.tooltip != undefined)       this.showTooltip = options.tooltip;
@@ -223,8 +224,6 @@ links.Graph.prototype.draw = function(data, options) {
     // apply size and time range
     var redrawNow = false;
     this.setSize(this.width, this.height);
-
-    console.log(this.start, this.end)
 
     this.setVisibleChartRange(this.start, this.end, redrawNow);
     if (this.scale && this.step) {
@@ -827,7 +826,7 @@ links.Graph.StepDate.prototype.addZeros = function(value, len) {
 links.Graph.StepNumber = function (start, end, step, prettyStep) {
     this._start = 0;
     this._end = 0;
-    this.step_ = 1;
+    this._step = 1;
     this.prettyStep = true;
     this.precision = 5;
 
@@ -863,12 +862,12 @@ links.Graph.StepNumber.prototype.setStep = function(step, prettyStep) {
 
     this.prettyStep = prettyStep;
     if (this.prettyStep == true)
-        this.step_ = links.Graph.StepNumber._calculatePrettyStep(step);
+        this._step = links.Graph.StepNumber._calculatePrettyStep(step);
     else
-        this.step_ = step;
+        this._step = step;
 
 
-    if (this._end / this.step_ > Math.pow(10, this.precision)) {
+    if (this._end / this._step > Math.pow(10, this.precision)) {
         this.precision = undefined;
     }
 };
@@ -919,7 +918,7 @@ links.Graph.StepNumber.prototype.getCurrent = function () {
  * @return {number} current step size
  */
 links.Graph.StepNumber.prototype.getStep = function () {
-    return this.step_;
+    return this._step;
 };
 
 /**
@@ -928,7 +927,7 @@ links.Graph.StepNumber.prototype.getStep = function () {
  */
 links.Graph.StepNumber.prototype.start = function() {
     if (this.prettyStep)
-        this._current = this._start - this._start % this.step_;
+        this._current = this._start - this._start % this._step;
     else
         this._current = this._start;
 };
@@ -937,7 +936,7 @@ links.Graph.StepNumber.prototype.start = function() {
  * Do a step, add the step size to the current value
  */
 links.Graph.StepNumber.prototype.next = function () {
-    this._current += this.step_;
+    this._current += this._step;
 };
 
 /**
@@ -1051,13 +1050,13 @@ links.Graph.prototype._create = function () {
     this.main.appendChild(this.frame);
 
     // create a canvas background, which can be used to give the canvas a colored background
-    this.frame.canvasBackground = document.createElement("DIV");
-    this.frame.canvasBackground.className = "graph-canvas";
-    this.frame.canvasBackground.style.position = "relative";
-    this.frame.canvasBackground.style.left = links.Graph.px(0);
-    this.frame.canvasBackground.style.top = links.Graph.px(0);
-    this.frame.canvasBackground.style.width = "100%";
-    this.frame.appendChild(this.frame.canvasBackground);
+    this.frame.background = document.createElement("DIV");
+    this.frame.background.className = "graph-canvas";
+    this.frame.background.style.position = "relative";
+    this.frame.background.style.left = links.Graph.px(0);
+    this.frame.background.style.top = links.Graph.px(0);
+    this.frame.background.style.width = "100%";
+    this.frame.appendChild(this.frame.background);
 
     // create a div to contain the grid lines of the vertical axis
     this.frame.vgrid = document.createElement("DIV");
@@ -1084,7 +1083,7 @@ links.Graph.prototype._create = function () {
     this.frame.canvas.axis.style.left = links.Graph.px(0);
     this.frame.canvas.axis.style.top = links.Graph.px(0);
     this.frame.canvas.appendChild(this.frame.canvas.axis);
-    this.majorLabels = new Array();
+    this.majorLabels = [];
 
     // create the graph canvas (HTML canvas element)
     this.frame.canvas.graph = document.createElement( "canvas" );
@@ -1505,7 +1504,7 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
 
     this.frame.canvas.style.width = links.Graph.px(this.frame.clientWidth);
     this.frame.canvas.style.height = links.Graph.px(this.axisOffset);
-    this.frame.canvasBackground.style.height = links.Graph.px(this.axisOffset);
+    this.frame.background.style.height = links.Graph.px(this.axisOffset);
 
     this._calcConversionFactor();
 
@@ -1667,7 +1666,8 @@ links.Graph.prototype._redrawAxisLeftMajorLabel = function() {
  * Draw the vertical axis in the graph
  */
 links.Graph.prototype._redrawVerticalAxis = function () {
-    var testStart = new Date(); // TODO: cleanup
+    //var testStart = new Date(); // TODO: cleanup
+    var i;
 
     if (!this.main.axisLeft) {
         // create the left vertical axis
@@ -1767,14 +1767,41 @@ links.Graph.prototype._redrawVerticalAxis = function () {
         };
     }
 
-    var maxWidth = 0;
-    this.vStep.start();
+    if (this.vAreas && !this.frame.background.childNodes.length) {
+        // create vertical background areas
+        for (i = 0; i < this.vAreas.length; i++) {
+            var area = this.vAreas[i];
+            var divArea = document.createElement('DIV');
+            divArea.className = 'graph-background-area';
+            divArea.start = (area.start != null) ? Number(area.start) : null;
+            divArea.end = (area.end != null) ? Number(area.end) : null;
+            if (area.className) {
+                divArea.className += ' ' + area.className;
+            }
+            if (area.color) {
+                divArea.style.backgroundColor = area.color;
+            }
+            this.frame.background.appendChild(divArea);
+        }
+    }
+    if (this.frame.background.childNodes.length) {
+        // reposition vertical background areas
+        var childs = this.frame.background.childNodes;
+        for (i = 0; i < childs.length; i++) {
+            var child = childs[i];
+            var areaStart = this.yToScreen(child.start != null ? Math.max(child.start, this.vStart) : this.vStart);
+            var areaEnd = this.yToScreen(child.end != null ? Math.min(child.end, this.vEnd) : this.vEnd);
+            child.style.top = areaEnd + 'px';
+            child.style.height = Math.max(areaStart - areaEnd, 0) + 'px';
+        }
+    }
 
+    var maxWidth = 0;
+    var count = 0;
+    this.vStep.start();
     if ( this.yToScreen(this.vStep.getCurrent()) > this.axisOffset) {
         this.vStep.next();
     }
-
-    var count = 0;
     while(!this.vStep.end() && count < 100) {
         count++;
         var y = this.vStep.getCurrent();
@@ -1833,7 +1860,6 @@ links.Graph.prototype._redrawVerticalAxis = function () {
 
     // right align all elements
     maxWidth += this.main.zoomButtons.clientWidth; // append width of the zoom buttons
-    var maxWidthPx = links.Graph.px(maxWidth);
     for (i = 0; i < this.main.axisLeft.childNodes.length; i++) {
         this.main.axisLeft.childNodes[i].style.left =
             links.Graph.px(maxWidth - this.main.axisLeft.childNodes[i].offsetWidth);
@@ -1850,8 +1876,7 @@ links.Graph.prototype._redrawVerticalAxis = function () {
     this.main.axisRight.style.top = links.Graph.px(this.mainPadding);
     this.main.axisRight.style.height = links.Graph.px(this.axisOffset + 1);
 
-
-    var testEnd = new Date(); // TODO: cleanup
+    //var testEnd = new Date(); // TODO: cleanup
     //document.title += " v:" +(testEnd - testStart) + "ms"; // TODO: cleanup
 };
 
