@@ -25,11 +25,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright © 2010-2013 Almende B.V.
+ * Copyright (C) 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-04-18
- * @version 1.2.6
+ * @date    2013-04-22
+ * @version 1.3.0
  */
 
 
@@ -49,13 +49,10 @@
  enable highlighting one of the graphs (select one graph)
 
  BUGS
- when redrawing while moving the graph, the axis and graph do not move exactly wit the same speed
  when zooming in on on line segment, it is not drawn correctly (disappears)
- IE: problems when zooming into the millisecond range (round off errors somehow?)
- IE:
- unstable for >10000 datapoints. Maybe due to conversion to VML by excanvas? Or a bug in my code?
+ IE: unstable for >10000 datapoints. Maybe due to conversion to VML by excanvas? Or a bug in my code?
 
- Safari:
+ Safari, old IE:
  sometimes, the canvas is not cleared completely (which is fixed after another redraw)
  --> test if fixed now (by clearing before resizing)
 
@@ -206,6 +203,7 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.vMax != undefined)          this.vMaxFixed = options.vMax;
         if (options.vStep != undefined)         this.vStepSize = options.vStep;
         if (options.vPrettyStep != undefined)   this.vPrettyStep = options.vPrettyStep;
+        if (options.vAreas != undefined)        this.vAreas = options.vAreas;
 
         if (options.legend != undefined)        this.legend = options.legend;  // can contain legend.width
         if (options.tooltip != undefined)       this.showTooltip = options.tooltip;
@@ -228,7 +226,6 @@ links.Graph.prototype.draw = function(data, options) {
     this.setSize(this.width, this.height);
 
     this.setVisibleChartRange(this.start, this.end, redrawNow);
-
     if (this.scale && this.step) {
         this.hStep.setScale(this.scale, this.step);
     }
@@ -829,7 +826,7 @@ links.Graph.StepDate.prototype.addZeros = function(value, len) {
 links.Graph.StepNumber = function (start, end, step, prettyStep) {
     this._start = 0;
     this._end = 0;
-    this.step_ = 1;
+    this._step = 1;
     this.prettyStep = true;
     this.precision = 5;
 
@@ -865,12 +862,12 @@ links.Graph.StepNumber.prototype.setStep = function(step, prettyStep) {
 
     this.prettyStep = prettyStep;
     if (this.prettyStep == true)
-        this.step_ = links.Graph.StepNumber._calculatePrettyStep(step);
+        this._step = links.Graph.StepNumber._calculatePrettyStep(step);
     else
-        this.step_ = step;
+        this._step = step;
 
 
-    if (this._end / this.step_ > Math.pow(10, this.precision)) {
+    if (this._end / this._step > Math.pow(10, this.precision)) {
         this.precision = undefined;
     }
 };
@@ -921,7 +918,7 @@ links.Graph.StepNumber.prototype.getCurrent = function () {
  * @return {number} current step size
  */
 links.Graph.StepNumber.prototype.getStep = function () {
-    return this.step_;
+    return this._step;
 };
 
 /**
@@ -930,7 +927,7 @@ links.Graph.StepNumber.prototype.getStep = function () {
  */
 links.Graph.StepNumber.prototype.start = function() {
     if (this.prettyStep)
-        this._current = this._start - this._start % this.step_;
+        this._current = this._start - this._start % this._step;
     else
         this._current = this._start;
 };
@@ -939,7 +936,7 @@ links.Graph.StepNumber.prototype.start = function() {
  * Do a step, add the step size to the current value
  */
 links.Graph.StepNumber.prototype.next = function () {
-    this._current += this.step_;
+    this._current += this._step;
 };
 
 /**
@@ -985,7 +982,7 @@ links.Graph.prototype.setAutoScale = function(enable) {
  * @return {string} the string value of x, followed by the suffix "px"
  */
 links.Graph.px = function(x) {
-    return x + "px";
+    return Math.round(x) + "px";
 };
 
 
@@ -1022,7 +1019,7 @@ links.Graph.prototype._screenToTime = function(x) {
  *                      with the given date.
  */
 links.Graph.prototype.timeToScreen = function(time) {
-    return (time.valueOf() - this.ttsOffset) * this.ttsFactor;
+    return (time.valueOf() - this.ttsOffset) * this.ttsFactor || null;
 };
 
 /**
@@ -1053,13 +1050,13 @@ links.Graph.prototype._create = function () {
     this.main.appendChild(this.frame);
 
     // create a canvas background, which can be used to give the canvas a colored background
-    this.frame.canvasBackground = document.createElement("DIV");
-    this.frame.canvasBackground.className = "graph-canvas";
-    this.frame.canvasBackground.style.position = "relative";
-    this.frame.canvasBackground.style.left = links.Graph.px(0);
-    this.frame.canvasBackground.style.top = links.Graph.px(0);
-    this.frame.canvasBackground.style.width = "100%";
-    this.frame.appendChild(this.frame.canvasBackground);
+    this.frame.background = document.createElement("DIV");
+    this.frame.background.className = "graph-canvas";
+    this.frame.background.style.position = "relative";
+    this.frame.background.style.left = links.Graph.px(0);
+    this.frame.background.style.top = links.Graph.px(0);
+    this.frame.background.style.width = "100%";
+    this.frame.appendChild(this.frame.background);
 
     // create a div to contain the grid lines of the vertical axis
     this.frame.vgrid = document.createElement("DIV");
@@ -1086,7 +1083,7 @@ links.Graph.prototype._create = function () {
     this.frame.canvas.axis.style.left = links.Graph.px(0);
     this.frame.canvas.axis.style.top = links.Graph.px(0);
     this.frame.canvas.appendChild(this.frame.canvas.axis);
-    this.majorLabels = new Array();
+    this.majorLabels = [];
 
     // create the graph canvas (HTML canvas element)
     this.frame.canvas.graph = document.createElement( "canvas" );
@@ -1507,7 +1504,7 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
 
     this.frame.canvas.style.width = links.Graph.px(this.frame.clientWidth);
     this.frame.canvas.style.height = links.Graph.px(this.axisOffset);
-    this.frame.canvasBackground.style.height = links.Graph.px(this.axisOffset);
+    this.frame.background.style.height = links.Graph.px(this.axisOffset);
 
     this._calcConversionFactor();
 
@@ -1543,7 +1540,9 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
     this.frame.canvas.appendChild(this.leftMajorLabel);
 
     this.hStep.start();
-    while (!this.hStep.end()) {
+    var count = 0;
+    while (!this.hStep.end() && count < 100) {
+        count++;
         var x = this.timeToScreen(this.hStep.getCurrent());
         var hvline = this.hStep.isMajor() ? this.frame.clientHeight :
             (this.axisOffset + this.axisTextMinorHeight);
@@ -1667,7 +1666,8 @@ links.Graph.prototype._redrawAxisLeftMajorLabel = function() {
  * Draw the vertical axis in the graph
  */
 links.Graph.prototype._redrawVerticalAxis = function () {
-    var testStart = new Date(); // TODO: cleanup
+    //var testStart = new Date(); // TODO: cleanup
+    var i;
 
     if (!this.main.axisLeft) {
         // create the left vertical axis
@@ -1759,22 +1759,51 @@ links.Graph.prototype._redrawVerticalAxis = function () {
         // TODO: make a more neat solution for this.yToScreen()
     }
     else {
-        this.yToScreen = function (y) {
+        this.yToScreen = function () {
             return 0;
         };
-        this.screenToY = function (ys) {
+        this.screenToY = function () {
             return 0;
         };
+    }
+
+    if (this.vAreas && !this.frame.background.childNodes.length) {
+        // create vertical background areas
+        for (i = 0; i < this.vAreas.length; i++) {
+            var area = this.vAreas[i];
+            var divArea = document.createElement('DIV');
+            divArea.className = 'graph-background-area';
+            divArea.start = (area.start != null) ? Number(area.start) : null;
+            divArea.end = (area.end != null) ? Number(area.end) : null;
+            if (area.className) {
+                divArea.className += ' ' + area.className;
+            }
+            if (area.color) {
+                divArea.style.backgroundColor = area.color;
+            }
+            this.frame.background.appendChild(divArea);
+        }
+    }
+    if (this.frame.background.childNodes.length) {
+        // reposition vertical background areas
+        var childs = this.frame.background.childNodes;
+        for (i = 0; i < childs.length; i++) {
+            var child = childs[i];
+            var areaStart = this.yToScreen(child.start != null ? Math.max(child.start, this.vStart) : this.vStart);
+            var areaEnd = this.yToScreen(child.end != null ? Math.min(child.end, this.vEnd) : this.vEnd);
+            child.style.top = areaEnd + 'px';
+            child.style.height = Math.max(areaStart - areaEnd, 0) + 'px';
+        }
     }
 
     var maxWidth = 0;
+    var count = 0;
     this.vStep.start();
-
     if ( this.yToScreen(this.vStep.getCurrent()) > this.axisOffset) {
         this.vStep.next();
     }
-
-    while(!this.vStep.end()) {
+    while(!this.vStep.end() && count < 100) {
+        count++;
         var y = this.vStep.getCurrent();
         var yScreen = this.yToScreen(y);
 
@@ -1831,7 +1860,6 @@ links.Graph.prototype._redrawVerticalAxis = function () {
 
     // right align all elements
     maxWidth += this.main.zoomButtons.clientWidth; // append width of the zoom buttons
-    var maxWidthPx = links.Graph.px(maxWidth);
     for (i = 0; i < this.main.axisLeft.childNodes.length; i++) {
         this.main.axisLeft.childNodes[i].style.left =
             links.Graph.px(maxWidth - this.main.axisLeft.childNodes[i].offsetWidth);
@@ -1848,8 +1876,7 @@ links.Graph.prototype._redrawVerticalAxis = function () {
     this.main.axisRight.style.top = links.Graph.px(this.mainPadding);
     this.main.axisRight.style.height = links.Graph.px(this.axisOffset + 1);
 
-
-    var testEnd = new Date(); // TODO: cleanup
+    //var testEnd = new Date(); // TODO: cleanup
     //document.title += " v:" +(testEnd - testStart) + "ms"; // TODO: cleanup
 };
 
@@ -1907,7 +1934,7 @@ links.Graph.prototype._redrawData = function() {
         this.data[col].visibleRowRange = rowRange;
         var rowStep = this._calculateRowStep(rowRange);
 
-        if (visible) {
+        if (visible && rowRange) {
             switch (type) {
                 case 'line':
                     if (style == "line" || style == "dot-line") {
@@ -2147,10 +2174,10 @@ links.Graph.prototype._findClosestDataPoint = function (date, value) {
 
     for (var col = 0, colCount = this.data.length; col < colCount; col++) {
         var visible = this._getLineVisible(col);
+        var rowRange = this.data[col].visibleRowRange;
+        var data = this.data[col].data;
 
-        if (visible) {
-            var rowRange = this.data[col].visibleRowRange;
-            var data = this.data[col].data;
+        if (visible && rowRange) {
             var rowStep = this._calculateRowStep(rowRange);
             var row = rowRange.start;
 
@@ -2382,8 +2409,11 @@ links.Graph.prototype._getVisbleRowRange = function(data, start, end, type, oldR
     var rowCount = data.length;
 
     // initialize
-    var rowRange = {"start": 0, "end": (rowCount-1)};
-    if (oldRowRange != undefined) {
+    var rowRange = {
+        start: 0,
+        end: (rowCount-1)
+    };
+    if (oldRowRange != null) {
         rowRange.start = oldRowRange.start;
         rowRange.end = oldRowRange.end;
     }
@@ -2442,8 +2472,8 @@ links.Graph.prototype._getRowRange = function(data, fields) {
     }
 
     var rowRange = {
-        'min': undefined,  // number
-        'max': undefined   // number
+        min: undefined,  // number
+        max: undefined   // number
     };
 
     if (data.length > 0) {
@@ -2463,10 +2493,14 @@ links.Graph.prototype._getRowRange = function(data, fields) {
         }
     }
 
-    return {
-        min: (rowRange.min != undefined) ? new Date(rowRange.min) : undefined,
-        max: (rowRange.max != undefined) ? new Date(rowRange.max) : undefined
-    };
+    if (rowRange.min != null && !isNaN(rowRange.min) &&
+        rowRange.max != null && !isNaN(rowRange.max)) {
+        return {
+            min: new Date(rowRange.min),
+            max: new Date(rowRange.max)
+        };
+    }
+    return null;
 };
 
 /**
@@ -2500,7 +2534,12 @@ links.Graph.prototype._getDataRange = function(data) {
         }
     }
 
-    return dataRange;
+    if (dataRange &&
+        dataRange.min != null && !isNaN(dataRange.min) &&
+        dataRange.max != null && !isNaN(dataRange.max)) {
+        return dataRange;
+    }
+    return null;
 };
 
 
@@ -2630,7 +2669,7 @@ links.Graph.prototype._setLineVisible = function(column, visible) {
         return;
 
     if (!this.lines)
-        this.lines = new Array();
+        this.lines = [];
 
     if (!this.lines[column])
         this.lines[column] = {};
@@ -3115,21 +3154,26 @@ links.Graph._getPageX = function (event) {
  *                             automatically redrawn after the range is changed
  */
 links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
+    var col, cols, rowRange, d;
+
     // TODO: rewrite this method for the new data format
     if (start != null) {
         this.start = new Date(start.valueOf());
     } else {
         // use earliest date from the data
         var startValue = null;  // number
-        for (var col = 0, cols = this.data.length; col < cols; col++) {
-            var d = this.data[col].rowRange.min;
+        for (col = 0, cols = this.data.length; col < cols; col++) {
+            rowRange = this.data[col].rowRange;
+            if (rowRange) {
+                d = rowRange.min;
 
-            if (d != undefined) {
-                if (startValue != undefined) {
-                    startValue = Math.min(startValue, d.valueOf());
-                }
-                else {
-                    startValue = d.valueOf();
+                if (d != undefined) {
+                    if (startValue != undefined) {
+                        startValue = Math.min(startValue, d.valueOf());
+                    }
+                    else {
+                        startValue = d.valueOf();
+                    }
                 }
             }
         }
@@ -3147,15 +3191,18 @@ links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
     } else {
         // use lastest date from the data
         var endValue = null;
-        for (var col = 0, cols = this.data.length; col < cols; col++) {
-            var d = this.data[col].rowRange.max;
+        for (col = 0, cols = this.data.length; col < cols; col++) {
+            rowRange = this.data[col].rowRange;
+            if (rowRange) {
+                d = rowRange.max;
 
-            if (d != undefined) {
-                if (endValue != undefined) {
-                    endValue = Math.max(endValue, d.valueOf());
-                }
-                else {
-                    endValue = d;
+                if (d != undefined) {
+                    if (endValue != undefined) {
+                        endValue = Math.max(endValue, d.valueOf());
+                    }
+                    else {
+                        endValue = d;
+                    }
                 }
             }
         }

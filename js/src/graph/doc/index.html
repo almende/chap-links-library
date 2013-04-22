@@ -42,7 +42,7 @@
     <li><a href="#Data_Policy">Data Policy</a></li>
 </ul>
 
-<h2><a name="Overview" id="Overview"></a>Overview</h2>
+<h2 id="Overview">Overview</h2>
 <p>
     The Graph is an interactive visualization chart to draw (measurement) data in time.
     You can freely move and zoom in the graph by dragging and scrolling in the
@@ -70,7 +70,7 @@
 </p>
 
 
-<h2><a name="Example" id="Example"></a>Example</h2>
+<h2 id="Example">Example</h2>
 <p>
     Here a graph example. Click and drag to move the graph, scroll to zoom the graph.
 </p>
@@ -119,7 +119,7 @@
 
         // create data
         var d = new Date(2010, 9, 23, 20, 0, 0);
-        for (i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
           data.addRow([new Date(d), functionA(i), functionB(i)]);
           d.setMinutes(d.getMinutes() + 1);
         }
@@ -148,7 +148,7 @@
 </pre>
 
 
-<h2><a name="Loading" id="Loading"></a>Loading</h2>
+<h2 id="Loading">Loading</h2>
 <p>
     To load the Graph, download the file
     <a href="http://almende.github.com/chap-links-library/downloads.html"><code>graph.zip</code></a>,
@@ -184,7 +184,7 @@ provided with data and options.
 where data is a Google <code>DataTable</code> or a <code>JSON Object</code>,
 and options is a name-value map in the JSON format.
 
-<h2><a name="Data_Format" id="Data_Format"></a>Data Format</h2>
+<h2 id="Data_Format">Data Format</h2>
 
 <p>
     The Graph can be fed with two types of data: a Google DataTable, or a
@@ -258,10 +258,10 @@ data.addRow([new Date(2010,7,15), 12.5, 34.6]);
         parameters: <code>date</code> and <code>value</code>.
     </li>
     <li><code>area</code>.
-        Data will be displayed as colored background ranges. The data consists
-        of an array with ranges, each range containing date parameters
-        <code>start</code> and <code>end</code>, and optionally a string
-        parameter <code>color</code> containing a valid HTML color for an
+        Data will be displayed as colored, horizontal background ranges.
+        The  data consists of an array with ranges, each range containing date
+        parameters <code>start</code> and <code>end</code>, and optionally a
+        string parameter <code>color</code> containing a valid HTML color for an
         individual range. If an area has no color defined, the color will
         be read from the configuration parameter <code>lines[].color</code>.
         Typically, the color for a background area will be an rgba color with
@@ -310,7 +310,7 @@ var data = [dataset1, dataset2, dataset3];
 <p>
 </p>
 
-<h2><a name="Configuration_Options" id="Configuration_Options"></a>Configuration Options</h2>
+<h2 id="Configuration_Options">Configuration Options</h2>
 
 <p>
     Options can be used to customize the graph. Options are defined as a JSON object.
@@ -408,7 +408,7 @@ var options = {
     <td>{ }</td>
     <td>An object with styles applied to all lines: color, width,
         radius, style, legend.
-        See the table below.</td>
+        See the <a href="#Line">table Line</a>.</td>
 </tr>
 <tr>
     <td>lines</td>
@@ -417,7 +417,7 @@ var options = {
     <td>An array with specific styles for the individual lines: color, width,
         radius, style, legend. These styles override the styles set in the option
         <code>line</code>.
-        See the table below.</td>
+        See the <a href="#Line">table Line</a>.</td>
 </tr>
 
 <tr>
@@ -487,6 +487,16 @@ var options = {
     <td>Show a tooltip containing date and value when hovering over a function.</td>
 </tr>
 
+<tr>
+    <td>vAreas</td>
+    <td>Array with objects</td>
+    <td>none</td>
+    <td>
+        Create vertical colored background areas. The areas fill the full width
+        of the graph, and are vertically limited between a provided start and
+        end. See <a href="#Background_areas">table Background Area</a>.
+    </td>
+</tr>
 <tr>
     <td>vEnd</td>
     <td>number</td>
@@ -564,6 +574,7 @@ var options = {
 
 </table>
 
+<h3 id="Line">Line</h3>
 <p>
     With the options <code>line</code> and <code>lines</code>, styles can be
     specified for respectively all lines and individual lines.
@@ -629,8 +640,55 @@ var options = {
     </tr>
 </table>
 
+<h3 id="Background_areas">Background areas</h3>
+<p>
+    With the option <code>vAreas</code>, vertical colored background areas can
+    be created. The areas fill the full width of the graph, and are vertically
+    limited between a provided start and end.
+    The following styles are available:
+</p>
 
-<h2><a name="Methods" id="Methods"></a>Methods</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>className</td>
+        <td>string</td>
+        <td>none</td>
+        <td>A class name which can be used to give a background area custom css
+            styling.</td>
+    </tr>
+    <tr>
+        <td>color</td>
+        <td>string</td>
+        <td>none</td>
+        <td>A string with an HTML color, for example <code>red</code>,
+            <code>#FF0000</code>, or <code>rgba(255,0,0,0.1)</code>.
+    </tr>
+    <tr>
+        <td>start</td>
+        <td>number</td>
+        <td>null</td>
+        <td>The start of the background area on the vertical axis. If null
+            (default), the background area will be drawn from the bottom of the
+            graph to the end of the background area.</td>
+    </tr>
+    <tr>
+        <td>end</td>
+        <td>number</td>
+        <td>null</td>
+        <td>The end of the background area on the vertical axis. If null
+            (default), the background area will be drawn from the start of the
+            background area to the top of the graph.</td>
+    </tr>
+</table>
+
+
+<h2 id="Methods">Methods</h2>
 <p>
     The Graph supports the following methods.
 </p>
@@ -736,21 +794,22 @@ var options = {
         <td>none</td>
         <td>Move the visible range such that the current time is located in the
             center of the graph.
-            This method does not trigger a <code>rangechange</code> event.</td>
+            This method does not trigger a <code>rangechange</code> event.
+        </td>
     </tr>
 
     <tr>
         <td>setVisibleChartRangeAuto()</td>
         <td>none</td>
         <td>Adjust the visible time range to fit all data.
-            This method does not trigger a <code>rangechange</code> event.</td>
+            This method does not trigger a <code>rangechange</code> event.
         </td>
     </tr>
 
 
 </table>
 
-<h2><a name="Events" id="Events"></a>Events</h2>
+<h2 id="Events">Events</h2>
 
 <p>
     The Graph fires events after the visible range changed.
@@ -829,7 +888,7 @@ google.visualization.events.addListener(mygraph, 'rangechange', onrangechange);
     </tr>
 </table>
 
-<h2><a name="Styles" id="Styles"></a>Styles</h2>
+<h2 id="Styles">Styles</h2>
 
 <p>
     All parts of the Graph have a class name and a default css style.
@@ -905,7 +964,9 @@ div.graph-canvas {
         <td>The axis has two grid lines: minor and major. When the scale is in days,
             each day gets a minor grid line, and each month a major grid line.</td>
         <td>
-            border-color: #e5e5e5;
+            border-color: #999999;<br>
+            filter: alpha(opacity=25);<br>
+            opacity: 0.25;<br>
         </td>
     </tr>
 
@@ -913,7 +974,9 @@ div.graph-canvas {
         <td>div.graph-axis-grid-major</td>
         <td>See <code>div.graph-axis-grid-major</code></td>
         <td>
-            border-color: #bfbfbf;
+            border-color: black;<br>
+            filter: alpha(opacity=25);<br>
+            opacity: 0.25;<br>
         </td>
     </tr>
 
@@ -921,10 +984,11 @@ div.graph-canvas {
         <td>div.graph-axis-grid-vertical</td>
         <td>The grid lines on the vertical axis.</td>
         <td>
-            border-color: #bfbfbf;
+            border-color: black;<br>
+            filter: alpha(opacity=25);<br>
+            opacity: 0.25;<br>
         </td>
     </tr>
-
 
     <tr>
         <td>div.graph-axis-button-menu</td>
@@ -955,6 +1019,20 @@ div.graph-canvas {
         <td>The zoom buttons when hovered</td>
         <td>
             background-color: gray;
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>div.graph-background-area</td>
+        <td>A vertical background area, created using option
+            <code>vAreas</code>.</td>
+        <td>
+            position: absolute;<br>
+            left: 0;<br>
+            top: 0;<br>
+            width: 100%;<br>
+            height: 0;<br>
         </td>
     </tr>
 
@@ -1063,7 +1141,7 @@ div.graph-canvas {
     </tr>
 </table>
 
-<h2><a name="Data_Policy" id="Data_Policy"></a>Data Policy</h2>
+<h2 id="Data_Policy">Data Policy</h2>
 <p>
     All code and data are processed and rendered in the browser. No data is sent to any server.
 </p>

@@ -1,67 +1,81 @@
 div.graph-frame {
-  border: 1px solid lightgray;
+    border: 1px solid lightgray;
 }
-  
+
 div.graph-canvas {
 }
 
 div.graph-axis {
-  border-color: #bfbfbf;
-  border-width: 1px;
-}  
+    border-color: #bfbfbf;
+    border-width: 1px;
+}
 div.graph-axis-vertical {
 }
 div.graph-axis-grid {
-  border-width: 1px;
-}  
+    border-width: 1px;
+}
 div.graph-axis-grid-minor {
-  border-color: #e5e5e5;
-}  
+    border-color: #999999;
+    filter: alpha(opacity=25);
+    opacity: 0.25;
+}
 div.graph-axis-grid-major {
-  border-color: #bfbfbf;
-}  
+    border-color: black;
+    filter: alpha(opacity=25);
+    opacity: 0.25;
+}
 div.graph-axis-grid-vertical {
-  border-color: #bfbfbf;
+    border-color: black;
+    filter: alpha(opacity=25);
+    opacity: 0.25;
 }
 div.graph-axis-button-menu {
-  left: 10px;
-  top: 10px;
+    left: 10px;
+    top: 10px;
 }
 div.graph-axis-button {
-  color: white;
-  background-color: lightgray;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-  font-size: 13px;
-  border-radius: 2px;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  cursor: pointer;
+    color: white;
+    background-color: lightgray;
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    font-size: 13px;
+    border-radius: 2px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
 }
 div.graph-axis-button:hover {
-  background-color: gray;
+    background-color: gray;
+}
+
+div.graph-background-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0;
 }
 
 div.graph-axis-text {
-  padding: 3px;
-  color: #4D4D4D;
+    padding: 3px;
+    color: #4D4D4D;
 }
 
 div.graph-axis-text-minor {
-} 
+}
 div.graph-axis-text-major {
 }
 div.graph-axis-text-vertical {
-  padding-right: 10px;
-} 
+    padding-right: 10px;
+}
 
 div.graph-legend {
-  border: 1px solid #bfbfbf;
+    border: 1px solid #bfbfbf;
 }
 div.graph-legend-item {
-  color: #4D4D4D;
-  margin: 5px;
+    color: #4D4D4D;
+    margin: 5px;
 }
 
 div.graph-tooltip-dot {
