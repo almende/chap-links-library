@@ -718,18 +718,12 @@ links.Timeline.prototype.getDataRange = function (withMargin) {
                 start = item.start != undefined ? item.start.valueOf() : undefined,
                 end   = item.end != undefined   ? item.end.valueOf() : start;
 
-            if (min != undefined && start != undefined) {
-                min = Math.min(min.valueOf(), start.valueOf());
-            }
-            else {
-                min = start;
+            if (start != undefined) {
+                min = (min != undefined) ? Math.min(min.valueOf(), start.valueOf()) : start;
             }
 
-            if (max != undefined && end != undefined) {
-                max = Math.max(max, end);
-            }
-            else {
-                max = end;
+            if (end != undefined) {
+                max = (max != undefined) ? Math.max(max.valueOf(), end.valueOf()) : end;
             }
         }
     }
