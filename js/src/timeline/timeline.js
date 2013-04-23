@@ -2256,7 +2256,6 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.zoomOutButton = document.createElement("DIV");
                 navBar.zoomOutButton.className = "timeline-navigation-zoom-out";
                 navBar.zoomOutButton.title = this.options.ZOOM_OUT;
-                navBar.zoomOutButton.title = "Zoom out";
                 var zoIconSpan = document.createElement("SPAN");
                 zoIconSpan.className = "ui-icon ui-icon-circle-zoomout";
                 navBar.zoomOutButton.appendChild(zoIconSpan);
