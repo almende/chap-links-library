@@ -2,7 +2,10 @@ CHAP Links Library - Timeline
 
 2013-04-22, version 2.5.0
 
+- Added French localization. Thanks sp0ken.
 - Integration with jQuery Themeroller. Thanks Oleg Varaksin.
+- Improved: Timeline is more robust against invalid data (data without
+  start and end fields). Thanks Roberto Tyley.
 
 
 2013-04-18, version 2.4.2
