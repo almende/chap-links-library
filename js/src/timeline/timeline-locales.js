@@ -22,6 +22,24 @@ links.locales['en'] = {
 links.locales['en_US'] = links.locales['en'];
 links.locales['en_UK'] = links.locales['en'];
 
+// French ===================================================
+links.locales['fr'] = {
+    'MONTHS': new Array("Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"),
+    'MONTHS_SHORT': new Array("Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"),
+    'DAYS': new Array("Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"),
+    'DAYS_SHORT': new Array("Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"),
+    'ZOOM_IN': "Zoomer",
+    'ZOOM_OUT': "Dézoomer",
+    'MOVE_LEFT': "Déplacer à gauche",
+    'MOVE_RIGHT': "Déplacer à droite",
+    'NEW': "Nouveau",
+    'CREATE_NEW_EVENT': "Créer un nouvel évènement"
+};
+
+links.locales['fr_FR'] = links.locales['fr'];
+links.locales['fr_BE'] = links.locales['fr'];
+links.locales['fr_CA'] = links.locales['fr'];
+
 // Catalan ===================================================
 links.locales['ca'] = {
     'MONTHS': new Array("Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Setembre", "Octubre", "Novembre", "Desembre"),
