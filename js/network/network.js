@@ -34,8 +34,8 @@
  * Copyright (c) 2011-2012 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-04-18
- * @version 1.4.1
+ * @date    2013-04-26
+ * @version 1.5.0
  */
 
 /*
@@ -1674,7 +1674,7 @@ links.Network.prototype._filterLinks = function(timestamp) {
  */
 links.Network.prototype._createLink = function(properties) {
     var action = properties.action ? properties.action : "create";
-    var id, index, link;
+    var id, index, link, oldLink, newLink;
 
     if (action === "create") {
         // create the link, or replace it if already existing
@@ -1684,12 +1684,17 @@ links.Network.prototype._createLink = function(properties) {
 
         if (index !== undefined) {
             // replace existing link
+            oldLink = this.links[index];
+            oldLink.from.detachLink(oldLink);
+            oldLink.to.detachLink(oldLink);
             this.links[index] = link;
         }
         else {
             // add new link
             this.links.push(link);
         }
+        link.from.attachLink(link);
+        link.to.attachLink(link);
 
         if (link.isMoving()) {
             this.hasMovingLinks = true;
@@ -1706,11 +1711,18 @@ links.Network.prototype._createLink = function(properties) {
         if (index !== undefined) {
             // update link
             link = this.links[index];
+            link.from.detachLink(link);
+            link.to.detachLink(link);
+
             link.setProperties(properties, this.constants);
+            link.from.attachLink(link);
+            link.to.attachLink(link);
         }
         else {
             // add new link
             link = new links.Network.Link(properties, this, this.constants);
+            link.from.attachLink(link);
+            link.to.attachLink(link);
             this.links.push(link);
             if (link.isMoving()) {
                 this.hasMovingLinks = true;
@@ -1726,6 +1738,9 @@ links.Network.prototype._createLink = function(properties) {
 
         index = this._findLink(id);
         if (index !== undefined) {
+            oldLink = this.links[id];
+            link.from.detachLink(oldLink);
+            link.to.detachLink(oldLink);
             this.links.splice(index, 1);
         }
         else {
@@ -2937,6 +2952,7 @@ links.Network._getAbsoluteTop = function(elem) {
 links.Network.Node = function (properties, imagelist, grouplist, constants) {
     this.selected = false;
 
+    this.links = []; // all links connected to this node
     this.group = constants.nodes.group;
 
     this.fontSize = constants.nodes.fontSize;
@@ -2966,15 +2982,44 @@ links.Network.Node = function (properties, imagelist, grouplist, constants) {
     this.setProperties(properties, constants);
 
     // mass, force, velocity
-    this.mass = 50;  // kg
+    this.mass = 50;  // kg (mass is adjusted for the number of connected edges)
     this.fx = 0.0;  // external force x
     this.fy = 0.0;  // external force y
     this.vx = 0.0;  // velocity x
     this.vy = 0.0;  // velocity y
     this.minForce = constants.minForce;
-    this.damping = 0.9; // damping factor   TODO: choose better damping factor?
+    this.damping = 0.9; // damping factor
 };
 
+/**
+ * Attach a link to the node
+ * @param {links.Network.Link} link
+ */
+links.Network.Node.prototype.attachLink = function(link) {
+    this.links.push(link);
+    this._updateMass();
+};
+
+/**
+ * Detach a link from the node
+ * @param {links.Network.Link} link
+ */
+links.Network.Node.prototype.detachLink = function(link) {
+    var index = this.links.indexOf(link);
+    if (index != -1) {
+        this.links.splice(index, 1);
+    }
+    this._updateMass();
+};
+
+/**
+ * Update the nodes mass, which is determined by the number of edges connecting
+ * to it (more edges -> heavier node).
+ * @private
+ */
+links.Network.Node.prototype._updateMass = function() {
+    this.mass = 50 + 20 * this.links.length; // kg
+};
 
 /**
  * Set or overwrite properties for the node
@@ -3845,7 +3890,7 @@ links.Network._dist = function (x1,y1, x2,y2, x3,y3) { // x3,y3 is the point
 links.Network.Link.prototype._drawLine = function(ctx) {
     // set style
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = this.width;
+    ctx.lineWidth = this._getLineWidth();
 
     var point;
     if (this.from != this.to) {
@@ -3876,6 +3921,21 @@ links.Network.Link.prototype._drawLine = function(ctx) {
         this._circle(ctx, x, y, radius);
         point = this._pointOnCircle(x, y, radius, 0.5);
         this._text(ctx, this.text, point.x, point.y);
+    }
+};
+
+/**
+ * Get the line width of the link. Depends on width and whether one of the
+ * connected nodes is selected.
+ * @return {Number} width
+ * @private
+ */
+links.Network.Link.prototype._getLineWidth = function() {
+    if (this.from.selected || this.to.selected) {
+        return Math.min(this.width * 2, this.widthMax);
+    }
+    else {
+        return this.width;
     }
 };
 
@@ -3917,7 +3977,8 @@ links.Network.Link.prototype._circle = function (ctx, x, y, radius) {
 links.Network.Link.prototype._text = function (ctx, text, x, y) {
     if (text) {
         // TODO: cache the calculated size
-        ctx.font = this.fontSize + "px " + this.fontFace;
+        ctx.font = ((this.from.selected || this.to.selected) ? "bold " : "") +
+            this.fontSize + "px " + this.fontFace;
         ctx.fillStyle = 'white';
         var width = ctx.measureText(this.text).width;
         var height = this.fontSize;
@@ -3976,7 +4037,7 @@ if (CP && CP.lineTo){
 links.Network.Link.prototype._drawDashLine = function(ctx) {
     // set style
     ctx.strokeStyle = this.color;
-    ctx.lineWidth = this.width;
+    ctx.lineWidth = this._getLineWidth();
 
     // draw dashed line
     ctx.beginPath();
@@ -4060,7 +4121,7 @@ links.Network.Link.prototype._drawMovingDot = function(ctx) {
     // set style
     ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
-    ctx.lineWidth = this.width;
+    ctx.lineWidth = this._getLineWidth();
 
     // draw line
     var point;
@@ -4100,7 +4161,7 @@ links.Network.Link.prototype._drawArrow = function(ctx) {
     // set style
     ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
-    ctx.lineWidth = this.width;
+    ctx.lineWidth = this._getLineWidth();
 
     if (this.from != this.to) {
         // draw line
@@ -4174,7 +4235,7 @@ links.Network.Link.prototype._drawArrowEnd = function(ctx) {
     // set style
     ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
-    ctx.lineWidth = this.width;
+    ctx.lineWidth = this._getLineWidth();
 
     // draw line
     var angle, length;
