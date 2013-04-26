@@ -3977,7 +3977,8 @@ links.Network.Link.prototype._circle = function (ctx, x, y, radius) {
 links.Network.Link.prototype._text = function (ctx, text, x, y) {
     if (text) {
         // TODO: cache the calculated size
-        ctx.font = this.fontSize + "px " + this.fontFace;
+        ctx.font = ((this.from.selected || this.to.selected) ? "bold " : "") +
+            this.fontSize + "px " + this.fontFace;
         ctx.fillStyle = 'white';
         var width = ctx.measureText(this.text).width;
         var height = this.fontSize;
