@@ -4474,7 +4474,9 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
             animate: false
         });
 
-        newItem.select();
+        if (this.selection && this.selection.index == index) {
+            newItem.select();
+        }
     }
 };
 
