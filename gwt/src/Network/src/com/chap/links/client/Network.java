@@ -2,7 +2,8 @@
  * GWT wrapper for the Network visualization
  * 
  * @author Jos de Jong, Almende BV
- * @date 2013-04-18
+ * @version 1.5.0
+ * @date 2013-04-26
  */
 
 package com.chap.links.client;
