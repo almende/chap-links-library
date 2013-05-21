@@ -117,3 +117,20 @@ links.locales['es'] = {
 };
 
 links.locales['es_ES'] = links.locales['es'];
+
+// Dutch =====================================================
+links.locales['nl'] = {
+    'MONTHS': new Array("januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"),
+    'MONTHS_SHORT': new Array("jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"),
+    'DAYS': new Array("zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"),
+    'DAYS_SHORT': new Array("zo", "ma", "di", "wo", "do", "vr", "za"),
+    'ZOOM_IN': "Inzoomen",
+    'ZOOM_OUT': "Uitzoomen",
+    'MOVE_LEFT': "Naar links",
+    'MOVE_RIGHT': "Naar rechts",
+    'NEW': "Nieuw",
+    'CREATE_NEW_EVENT': "Nieuwe gebeurtenis maken"
+};
+
+links.locales['nl_NL'] = links.locales['nl'];
+links.locales['nl_BE'] = links.locales['nl'];
