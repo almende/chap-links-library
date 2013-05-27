@@ -44,7 +44,7 @@ div.graph-axis-button {
     margin-right: 5px;
     margin-bottom: 5px;
     cursor: pointer;
-    line-height: 13px;
+    line-height: 16px;
 }
 div.graph-axis-button:hover {
     background-color: gray;
