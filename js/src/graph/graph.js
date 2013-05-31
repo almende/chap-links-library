@@ -206,7 +206,12 @@ links.Graph.prototype.draw = function(data, options) {
         if (options.vAreas != undefined)        this.vAreas = options.vAreas;
 
         if (options.legend != undefined)        this.legend = options.legend;  // can contain legend.width
-        if (options.tooltip != undefined)       this.showTooltip = options.tooltip;
+        if (options.tooltip != undefined) {
+            this.showTooltip = (options.tooltip != false);
+            if (typeof options.tooltip === 'function') {
+                this.tooltipFormatter = options.tooltip;
+            }
+        }
 
         // check for deprecated options
         if (options.intervalMin != undefined) {
@@ -2103,10 +2108,16 @@ links.Graph.prototype._redrawDataTooltip = function () {
             dot.style.marginLeft = -radius + 'px';
             dot.style.marginTop = -radius + 'px';
 
-            label.innerHTML = '<table>' +
-                '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
-                '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>' +
-                '</table>';
+            if (this.tooltipFormatter) {
+                // custom format function
+                label.innerHTML = this.tooltipFormatter(dataPoint);
+            }
+            else {
+                label.innerHTML = '<table>' +
+                    '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
+                    '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>' +
+                    '</table>';
+            }
             label.style.color = color;
 
             var width = label.clientWidth;
@@ -2208,12 +2219,12 @@ links.Graph.prototype._findClosestDataPoint = function (date, value) {
                                     dateDistance: dateDistance,
                                     valueDistance: valueDistance,
                                     eucledianDistance: eucledianDistance,
-                                    col: col,
                                     dataPoint: {
                                         date: dataPoint.date,
                                         value: dataPoint.value,
                                         color: color,
-                                        radius: radius
+                                        radius: radius,
+                                        line: col
                                     }
                                 };
                             }

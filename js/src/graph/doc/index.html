@@ -482,9 +482,16 @@ var options = {
 
 <tr>
     <td>tooltip</td>
-    <td>boolean</td>
+    <td>boolean | function</td>
     <td>true</td>
-    <td>Show a tooltip containing date and value when hovering over a function.</td>
+    <td>Show a tooltip containing date and value when hovering over a function.
+        The contents of the tooltip can be customized by providing a callback
+        function as <code>tooltip</code>. In this case the function is called
+        with an object containing parameters <code>date</code>,
+        <code>text</code>, <code>line</code>, <code>color</code>,
+        <code>radius</code> as argument,
+        and must return a string which may contain HTML.
+    </td>
 </tr>
 
 <tr>

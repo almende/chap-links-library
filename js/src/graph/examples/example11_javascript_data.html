@@ -14,6 +14,7 @@
 
     <script type="text/javascript">
         var data;
+        var graph;
         google.load("visualization", "1");
 
         // Set callback to run when API is loaded
@@ -38,7 +39,7 @@
             for (i = 0; i < 50; i++) {
                 datapoint = {
                     "date": new Date(d),
-                    "value" : (functionA(i) / 200) + ""
+                    "value" : (functionA(i) / 200)
                 };
                 dataset.push(datapoint);
                 d.setHours(d.getHours() + 5);
@@ -66,11 +67,16 @@
                 height: "350px",
                 lines: [
                     {color: "#2B7CE9", style: "dot", radius: 1.5},
-                    {color: "#97C2FC", width: 2}]
+                    {color: "#97C2FC", width: 2}
+                ],
+                tooltip: function (point) {
+                    return data[point.line].label + '<br>'  +
+                            point.value.toPrecision(6);
+                }
             };
 
             // Instantiate our graph object.
-            var graph = new links.Graph(document.getElementById('mygraph'));
+            graph = new links.Graph(document.getElementById('mygraph'));
 
             // Draw our graph with the created data and options
             graph.draw(data, options);
