@@ -1548,7 +1548,7 @@ links.Graph.prototype._redrawHorizontalAxis = function () {
 
     this.hStep.start();
     var count = 0;
-    while (!this.hStep.end() && count < 100) {
+    while (!this.hStep.end() && count < 200) {
         count++;
         var x = this.timeToScreen(this.hStep.getCurrent());
         var hvline = this.hStep.isMajor() ? this.frame.clientHeight :
@@ -2113,12 +2113,11 @@ links.Graph.prototype._redrawDataTooltip = function () {
                 label.innerHTML = this.tooltipFormatter(dataPoint);
             }
             else {
-                label.innerHTML = '<table>' +
+                label.innerHTML = '<table style="color: ' + color + '">' +
                     '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
                     '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>' +
                     '</table>';
             }
-            label.style.color = color;
 
             var width = label.clientWidth;
             var graphWidth = this.timeToScreen(this.end) - this.timeToScreen(this.start);
