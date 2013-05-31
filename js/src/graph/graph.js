@@ -28,8 +28,8 @@
  * Copyright (C) 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-04-22
- * @version 1.3.0
+ * @date    2013-05-31
+ * @version 1.3.1-SNAPSHOT
  */
 
 
@@ -1239,7 +1239,9 @@ links.Graph.prototype._move = function(moveFactor) {
  * range.
  * @param {Date} start
  * @param {Date} end
- * @param {Date}   zoomAroundDate  Optional. Date around which will be zoomed.
+ * @param {Date}   zoomAroundDate   Optional. Date around which will be zoomed
+ *                                  When needed to satisfy a min/max zoom level
+ *                                  or range.
  */
 links.Graph.prototype._applyRange = function (start, end, zoomAroundDate) {
     // calculate new start and end value
@@ -3158,7 +3160,8 @@ links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
 
     // TODO: rewrite this method for the new data format
     if (start != null) {
-        this.start = new Date(start.valueOf());
+        // clone the value
+        start = new Date(start.valueOf());
     } else {
         // use earliest date from the data
         var startValue = null;  // number
@@ -3179,15 +3182,16 @@ links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
         }
 
         if (startValue != undefined) {
-            this.start = new Date(startValue);
+            start = new Date(startValue);
         }
         else {
-            this.start = new Date();
+            start = new Date();
         }
     }
 
     if (end != null) {
-        this.end = new Date(end.valueOf());
+        // clone the value
+        end = new Date(end.valueOf());
     } else {
         // use lastest date from the data
         var endValue = null;
@@ -3208,18 +3212,21 @@ links.Graph.prototype.setVisibleChartRange = function(start, end, redrawNow) {
         }
 
         if (endValue != undefined) {
-            this.end = new Date(endValue);
+            end = new Date(endValue);
         } else {
-            this.end = new Date();
-            this.end.setDate(this.end.getDate() + 20);
+            end = new Date();
+            end.setDate(this.end.getDate() + 20);
         }
     }
 
     // prevent start Date <= end Date
-    if (this.end.valueOf() <= this.start.valueOf()) {
-        this.end = new Date(this.start.valueOf());
-        this.end.setDate(this.end.getDate() + 20);
+    if (end.valueOf() <= start.valueOf()) {
+        end = new Date(start.valueOf());
+        end.setDate(end.getDate() + 20);
     }
+
+    // apply new start and end
+    this._applyRange(start, end);
 
     this._calcConversionFactor();
 
