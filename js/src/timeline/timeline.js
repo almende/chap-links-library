@@ -6396,6 +6396,15 @@ links.Timeline.parseJSONDate = function (date) {
         return date;
     }
 
+    //
+    // First trying if the date is ISO formatted (yyyy-MM-dd'T'HH:mm:ss'Z')
+    //
+    a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(date);
+    if (a) {
+        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+            +a[5], +a[6]));
+    }
+
     // test for MS format.
     // FIXME: will fail on a Number
     var m = date.match(/\/Date\((-?\d+)([-\+]?\d{2})?(\d{2})?\)\//i);
