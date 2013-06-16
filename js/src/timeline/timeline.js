@@ -3450,6 +3450,7 @@ links.Timeline.Item = function (data, options) {
         this.className = data.className;
         this.editable = data.editable;
         this.group = data.group;
+        this.type = data.type;
     }
     this.top = 0;
     this.left = 0;
@@ -3491,6 +3492,19 @@ links.Timeline.Item.prototype.getImageUrls = function (imageUrls) {
     if (this.dom) {
         links.imageloader.filterImageUrls(this.dom, imageUrls);
     }
+};
+
+/**
+ * Returns the type of the item (as in the item data 'type'.
+ *
+ * @return String the item type or "item" if type is not defined
+ */
+links.Timeline.Item.prototype.getType = function() {
+    if (this.type) {
+        return this.type;
+    }
+
+    return "item";
 };
 
 /**
@@ -4413,16 +4427,20 @@ links.Timeline.prototype.addItems = function (itemsData, preventRender) {
  * @return {Object} item
  */
 links.Timeline.prototype.createItem = function(itemData) {
-    var type = itemData.end ? 'range' : this.options.style;
-    var data = {
-        start: itemData.start,
-        end: itemData.end,
-        content: itemData.content,
-        className: itemData.className,
-        editable: itemData.editable,
-        group: this.getGroup(itemData.group)
-    };
-    // TODO: optimize this, when creating an item, all data is copied twice...
+    var type = this.options.style; // just the default
+    if (itemData.end) {
+        type ='range';
+        itemData.type = type; // TODO: does it make sense???
+    } else if (itemData.type) {
+        type = itemData.type;
+    } else {
+        //
+        // if not defined, we assign the default style
+        //
+        itemData.type = type;
+    }
+
+    itemData.group = this.getGroup(itemData.group);
 
     // TODO: is initialTop needed?
     var initialTop,
@@ -4435,11 +4453,11 @@ links.Timeline.prototype.createItem = function(itemData) {
     }
 
     if (type in this.itemTypes) {
-        return new this.itemTypes[type](data, {'top': initialTop})
+        return new this.itemTypes[type](itemData, {'top': initialTop})
     }
 
     console.log('ERROR: Unknown event style "' + type + '"');
-    return new links.Timeline.Item(data, {
+    return new links.Timeline.Item(itemData, {
         'top': initialTop
     });
 };
@@ -5158,7 +5176,7 @@ links.Timeline.ClusterGenerator.prototype.setData = function (items, options) {
             this.maxClusterItems = options.maxClusterItems;
         }
     }
-    
+
     // console.log('clustergenerator setData applyOnChangedLevel=' + this.applyOnChangedLevel); // TODO: cleanup
 };
 
@@ -5291,7 +5309,7 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
                         }
                         l--;
                     }
-                    
+
                     // aggregate until the number of items is within maxClusterItems
                     if (neighbors > this.maxClusterItems) {
                         // too busy in this window.
