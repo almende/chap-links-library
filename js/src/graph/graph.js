@@ -1110,12 +1110,14 @@ links.Graph.prototype._create = function () {
     var onmousewheel = function (event) {me._onWheel(event);};
     var ontouchstart = function (event) {me._onTouchStart(event);};
     if (this.showTooltip) {
+        var onmouseout = function (event) {me._onMouseOut(event);};
         var onmousehover = function (event) {me._onMouseHover(event);};
     }
 
     // TODO: these events are never cleaned up... can give a "memory leakage"?
     links.Graph.addEventListener(this.frame, "mousedown", onmousedown);
     links.Graph.addEventListener(this.frame, "mousemove", onmousehover);
+    links.Graph.addEventListener(this.frame, "mouseout", onmouseout);
     links.Graph.addEventListener(this.frame, "mousewheel", onmousewheel);
     links.Graph.addEventListener(this.frame, "touchstart", ontouchstart);
     links.Graph.addEventListener(this.frame, "mousedown", function() {me._checkSize();});
@@ -2862,6 +2864,27 @@ links.Graph.prototype._onMouseMove = function (event) {
     links.Graph.preventDefault(event);
 };
 
+
+/**
+ * Perform mouse out, but simulate mouse leave
+ * This function force the tooltip to hide when the mouse leaves the frame
+ * @param {Event} event
+ */
+links.Graph.prototype._onMouseOut = function (event) {
+
+    isOutside = function (evt, parent) {
+        var elem = evt.relatedTarget || evt.toElement || evt.fromElement
+        while ( elem && elem !== parent) {
+            elem = elem.parentNode;
+        }
+
+        return elem !== parent;
+    }
+
+    if (isOutside(event, this.frame)) {
+        this._setTooltip(undefined);
+    }
+}
 
 /**
  * Perform mouse hover
