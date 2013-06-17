@@ -2866,24 +2866,35 @@ links.Graph.prototype._onMouseMove = function (event) {
 
 
 /**
- * Perform mouse out, but simulate mouse leave
- * This function force the tooltip to hide when the mouse leaves the frame
+ * Perform mouse out, but simulate mouse leave.
+ * This function force the tooltip to hide when the mouse leaves the frame.
+ * It is also called (as an event listener) when the graph is dragged and the
+ * mouse button is released. This way the tooltip can be hidden after a drag.
  * @param {Event} event
  */
 links.Graph.prototype._onMouseOut = function (event) {
+    event = event || window.event;
+    var me = this;
 
-    isOutside = function (evt, parent) {
-        var elem = evt.relatedTarget || evt.toElement || evt.fromElement
-        while ( elem && elem !== parent) {
-            elem = elem.parentNode;
+    // Do not hide when dragging the graph
+    if (event.which > 0 && event.type == 'mouseout' ) {
+        if (!this.onmouseupoutside) {
+            this.onmouseupoutside = function (event) {me._onMouseOut(event);};
+            links.Graph.addEventListener(document, "mouseup", this.onmouseupoutside);
         }
-
-        return elem !== parent;
+        return;
     }
 
-    if (isOutside(event, this.frame)) {
+    // Remove event listener when mouse is released outside of graph
+    if (event.type == 'mouseup') {
+        if (this.onmouseupoutside) {
+            links.Graph.removeEventListener(document, "mouseup", this.onmouseupoutside);
+            this.onmouseupoutside = undefined;
+        }
+    }
+
+    if (links.Graph.isOutside(event, this.frame))
         this._setTooltip(undefined);
-    }
 }
 
 /**
@@ -3547,3 +3558,19 @@ links.Graph.preventDefault = function (event) {
         event.returnValue = false;  // IE browsers
     }
 };
+
+/**
+ * Check if an event took place outside a specified parent element.
+ * @param {Event} event A javascript (mouse) event object
+ * @param {Element} parent The DOM element to check if event was inside it
+ * @return {boolean}
+ */
+links.Graph.isOutside = function (event, parent) {
+    var elem = event.relatedTarget || event.toElement || event.fromElement
+
+    while ( elem && elem !== parent) {
+        elem = elem.parentNode;
+    }
+
+    return elem !== parent;
+}
