@@ -11,12 +11,12 @@
     <script type="text/javascript" src="../graph.js"></script>
     <!--[if IE]><script src="../excanvas.js"></script><![endif]-->
     <link rel="stylesheet" type="text/css" href="../graph.css">
-    
+
     <script type="text/javascript">
       google.load("visualization", "1");
-      
+
       // Set callback to run when API is loaded
-      google.setOnLoadCallback(drawVisualization); 
+      google.setOnLoadCallback(drawVisualization);
 
       // Called when the Visualization API is loaded.
       function drawVisualization() {
@@ -37,23 +37,23 @@
         // create data
         var d = new Date(2010, 9, 23, 20, 0, 0);
         for (i = 0; i < 1000; i++) {
-          data.addRow([new Date(d), 
-                       0 * functionA(i) / 200, 
+          data.addRow([new Date(d),
+                       0 * functionA(i) / 200,
                        0* functionB(i) / 200]);
           d.setMinutes(d.getMinutes() + 1);
         }
 
         // specify options
-        options = {width:  "100%", 
-                   height: "350px" 
+        options = {width:  "100%",
+                   height: "350px"
                    };
 
         // Instantiate our graph object.
         graph = new links.Graph(document.getElementById('mygraph'));
-        
-        // Draw our graph with the created data and options 
+
+        // Draw our graph with the created data and options
         graph.draw(data, options);
-        
+
         mygraph = document.getElementById('mygraph');
       }
    </script>
@@ -61,7 +61,7 @@
 
   <body>
     <div id="mygraph"></div>
-    
+
     <div id="info"></div>
   </body>
 </html>
