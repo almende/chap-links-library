@@ -29,7 +29,7 @@
  *
  * @author 	Jos de Jong, <jos@almende.org>
  * @date    2013-06-18
- * @version 1.3.1
+ * @version 1.3.2-SNAPSHOT
  */
 
 
