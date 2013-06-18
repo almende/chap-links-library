@@ -1,7 +1,16 @@
 CHAP Links Library - Graph
 
 
-<not yet released>, version 1.3.0
+2013-06-18, version 1.3.1
+
+- Option `tooltip` can now be a callback function which formats the tooltip.
+- Implemented a new data type: `event`, similar to `area`. Extended these two
+  data types with more options.
+- Fixed options `min` and `max` not being applied when options `start` and
+  `end` are not specified.
+
+
+2013-04-22, version 1.3.0
 
 - Implemented vertical background areas
 - Robustness improvements against invalid data.

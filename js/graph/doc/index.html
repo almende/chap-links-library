@@ -246,29 +246,175 @@ data.addRow([new Date(2010,7,15), 12.5, 34.6]);
     Optionally, a <code>type</code> parameter can be provided to the dataset,
     denoting the type of the data.
     Unlike the Google DataTable, a JavaScript dataset can contain different
-    data types: <code>line</code> (default) or <code>area</code>.
+    data types:
+    <code>line</code> (default), <code>area</code>, or <code>event</code>.
 </p>
 
-<ul>
-    <li><code>line</code>.
-        The default type of dataset.
-        The default type of a dataset is <code>line</code>. Graph will display
-        the dataset as a line, a dotted line, or dots, depending on the line style.
-        The data consists of an array with datapoints, each containing two
-        parameters: <code>date</code> and <code>value</code>.
-    </li>
-    <li><code>area</code>.
-        Data will be displayed as colored, horizontal background ranges.
-        The  data consists of an array with ranges, each range containing date
-        parameters <code>start</code> and <code>end</code>, and optionally a
-        string parameter <code>color</code> containing a valid HTML color for an
-        individual range. If an area has no color defined, the color will
-        be read from the configuration parameter <code>lines[].color</code>.
-        Typically, the color for a background area will be an rgba color with
-        transparency, for example <code>rgba(51, 102, 204, 0.1)</code>.
-    </li>
-</ul>
+<h4>Data type "line"</h4>
 
+<p>
+The default type of a data set is <code>line</code>. Graph will display
+the dataset as a line, a dotted line, or dots, depending on the line style.
+The data consists of an array with objects, each object containing two
+parameters:
+</p>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>date</td>
+        <td>Date</td>
+        <td>yes</td>
+        <td>The date of the data point.</td>
+    </tr>
+    <tr>
+        <td>value</td>
+        <td>Number</td>
+        <td>yes</td>
+        <td>The value of the data point.</td>
+    </tr>
+</table>
+
+<h4>Data type "area"</h4>
+
+For data type <code>area</code>,
+data will be displayed as colored, horizontal background ranges.
+The  data consists of an array with ranges, each range containing date
+parameters <code>start</code> and <code>end</code>, and optionally a
+string parameter <code>color</code> containing a valid HTML color for an
+individual range. If an area has no color defined, the color will
+be read from the configuration parameter <code>lines[].color</code>.
+Typically, the color for a background area will be an rgba color with
+transparency, for example <code>rgba(51, 102, 204, 0.1)</code>.
+
+The data consists of an array
+with objects, where each object can contain the following parameters:
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>start</td>
+        <td>Date</td>
+        <td>yes</td>
+        <td>The start date of the background area.</td>
+    </tr>
+    <tr>
+        <td>end</td>
+        <td>Date</td>
+        <td>yes</td>
+        <td>The end date of the background area.</td>
+    </tr>
+    <tr>
+        <td>text</td>
+        <td>String</td>
+        <td>no</td>
+        <td>Text displayed as a text label top left of the background area.</td>
+    </tr>
+    <tr>
+        <td>title</td>
+        <td>String</td>
+        <td>no</td>
+        <td>Text displayed when hovering the top left of the background area.</td>
+    </tr>
+    <tr>
+        <td>color</td>
+        <td>String</td>
+        <td>no</td>
+        <td>An HTML color for the line of the background area.
+            If an area has no color defined, the color will be read from
+            the configuration parameter <code>lines[].color</code>.
+            Typically, the color for a background area will be an rgba color with
+            transparency, for example <code>rgba(51, 102, 204, 0.1)</code>.</td>
+    </tr>
+    <tr>
+        <td>textColor</td>
+        <td>String</td>
+        <td>no</td>
+        <td>An HTML color for the text label of the background area.
+            If an area has no textColor defined, the textColor will be read from
+            the configuration parameter <code>lines[].textColor</code>.</td>
+    </tr>
+    <tr>
+        <td>font</td>
+        <td>String</td>
+        <td>no</td>
+        <td>The font for the text label of the background area, for example '10pt arial'.
+            If an area has no font defined, the font will be read from
+            the configuration parameter <code>lines[].font</code>.</td>
+    </tr>
+</table>
+
+
+<h4>Data type "event"</h4>
+
+Data sets of type <code>event</code> will be displayed as vertical lines.
+The data consists of an array with objects, where each object can contain the
+following parameters:
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>date</td>
+        <td>Date</td>
+        <td>yes</td>
+        <td>The date of the event.</td>
+    </tr>
+    <tr>
+        <td>text</td>
+        <td>String</td>
+        <td>no</td>
+        <td>Text displayed as a text label top right of the event.</td>
+    </tr>
+    <tr>
+        <td>title</td>
+        <td>String</td>
+        <td>no</td>
+        <td>Text displayed when hovering the top of the event line.</td>
+    </tr>
+    <tr>
+        <td>color</td>
+        <td>String</td>
+        <td>no</td>
+        <td>An HTML color for the line of the event.
+            If an event has no color defined, the color will be read from
+            the configuration parameter <code>lines[].color</code>.
+            </td>
+    </tr>
+    <tr>
+        <td>textColor</td>
+        <td>String</td>
+        <td>no</td>
+        <td>An HTML color for the text label of the event.
+            If an event has no textColor defined, the textColor will be read from
+            the configuration parameter <code>lines[].textColor</code>.</td>
+    </tr>
+    <tr>
+        <td>font</td>
+        <td>String</td>
+        <td>no</td>
+        <td>The font for the text label of the event, for example '10pt arial'.
+            If an event has no font defined, the font will be read from
+            the configuration parameter <code>lines[].font</code>.</td>
+    </tr>
+</table>
+
+
+<h4>JavaScript Array example</h4>
 
 <pre class="prettyprint lang-js">
 // a line graph
@@ -482,9 +628,16 @@ var options = {
 
 <tr>
     <td>tooltip</td>
-    <td>boolean</td>
+    <td>boolean | function</td>
     <td>true</td>
-    <td>Show a tooltip containing date and value when hovering over a function.</td>
+    <td>Show a tooltip containing date and value when hovering over a function.
+        The contents of the tooltip can be customized by providing a callback
+        function as <code>tooltip</code>. In this case the function is called
+        with an object containing parameters <code>date</code>,
+        <code>text</code>, <code>line</code>, <code>color</code>,
+        <code>radius</code> as argument,
+        and must return a string which may contain HTML.
+    </td>
 </tr>
 
 <tr>
@@ -637,6 +790,21 @@ var options = {
             option <code>legend.toggleVisibility</code>,
             which creates checkboxes to toggle the visibility of a line in the legend.
         </td>
+    </tr>
+
+    <tr>
+        <td>textColor</td>
+        <td>string</td>
+        <td>#4D4D4D</td>
+        <td>A string with an HTML color for text labels. Only applicable for
+            data sets of type <code>area</code> and <code>event</code>.</td>
+    </tr>
+    <tr>
+        <td>font</td>
+        <td>string</td>
+        <td>10pt arial</td>
+        <td>The font for text labels. Only applicable for data sets
+            of type <code>area</code> and <code>event</code>.</td>
     </tr>
 </table>
 
