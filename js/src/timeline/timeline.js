@@ -6430,9 +6430,11 @@ links.Timeline.parseJSONDate = function (date) {
         return undefined;
     }
 
-    //test for date
+    //test for date or timestamp
     if (date instanceof Date) {
         return date;
+    } else if (!isNaN(date)) {
+        return new Date(date);
     }
 
     //
