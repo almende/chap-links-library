@@ -9,6 +9,8 @@ not yet released, version 2.5.0
   start and end fields). Thanks Roberto Tyley.
 - Fixed: when updating a selected item using changeItem, the selection was not
   restored correctly.
+- Fixed not being able to define columns for fields `group`, `className`, and
+  `editable` in a Google SpreadSheet.
 
 
 2013-04-18, version 2.4.2

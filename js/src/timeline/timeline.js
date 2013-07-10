@@ -368,11 +368,11 @@ links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
  */
 links.Timeline.mapColumnIds = function (dataTable) {
     var cols = {},
-        colMax = dataTable.getNumberOfColumns(),
+        colCount = dataTable.getNumberOfColumns(),
         allUndefined = true;
 
     // loop over the columns, and map the column id's to the column indexes
-    for (var col = 0; col < colMax; col++) {
+    for (var col = 0; col < colCount; col++) {
         var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
         cols[id] = col;
         if (id == 'start' || id == 'end' || id == 'content' ||
@@ -381,12 +381,15 @@ links.Timeline.mapColumnIds = function (dataTable) {
         }
     }
 
-    // if no labels or ids are defined,
-    // use the default mapping for start, end, content
+    // if no labels or ids are defined, use the default mapping
+    // for start, end, content, group, className, editable
     if (allUndefined) {
         cols.start = 0;
         cols.end = 1;
         cols.content = 2;
+        if (colCount >= 3) {cols.group = 3}
+        if (colCount >= 4) {cols.className = 4}
+        if (colCount >= 5) {cols.editable = 5}
     }
 
     return cols;
