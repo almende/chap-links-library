@@ -7,6 +7,7 @@ not yet released, version 2.5.0
 - Integration with jQuery Themeroller. Thanks Oleg Varaksin.
 - Improved: Timeline is more robust against invalid data (data without
   start and end fields). Thanks Roberto Tyley.
+- Added an option 'unselectable'. Thanks judge.
 - Fixed: when updating a selected item using changeItem, the selection was not
   restored correctly.
 - Fixed not being able to define columns for fields `group`, `className`, and

@@ -703,6 +703,18 @@ var options = {
 </tr>
 
 <tr>
+    <td>unselectable</td>
+    <td>boolean</td>
+    <td>true</td>
+    <td>If true, a selected event on the timeline can be un unselected.
+        If false, a selected event cannot be unselected unless when selecting
+        an other event. This means that as soon as the Timeline has a selected
+        event, it will remain in a state where there is always an event selected.
+        See also the option <code>selectable</code>.
+    </td>
+</tr>
+
+<tr>
     <td>width</td>
     <td>string</td>
     <td>"100%"</td>
