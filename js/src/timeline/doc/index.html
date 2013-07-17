@@ -259,6 +259,7 @@ data.addColumn('string', 'content');
 // Optional: a column 'group'
 // Optional: a column 'className'
 // Optional: a column 'editable'
+// Optional: a column 'type'
 
 data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
 // ...
@@ -350,6 +351,16 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
             The editable setting of an individual event overwrites the global
             setting options.editable. So when the Timeline as a whole is
             read-only, individual events may be made editable, and vice versa.
+        </td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>String</td>
+        <td>no</td>
+        <td>Type of the event, optional. Available values: "box", "range", "dot".
+            By default, the type is "range" for events having a start and end
+            date, and "box" for events with a start date. This default can be
+            overwritten by the global option "style".
         </td>
     </tr>
 </table>

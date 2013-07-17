@@ -363,6 +363,7 @@ links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
  *         group: undefined,
  *         className: undefined
  *         editable: undefined
+ *         type: undefined
  *     }
  * @param {google.visualization.DataTable} dataTable
  * @type {Object} map
@@ -376,14 +377,14 @@ links.Timeline.mapColumnIds = function (dataTable) {
     for (var col = 0; col < colCount; col++) {
         var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
         cols[id] = col;
-        if (id == 'start' || id == 'end' || id == 'content' ||
-            id == 'group' || id == 'className' || id == 'editable') {
+        if (id == 'start' || id == 'end' || id == 'content' || id == 'group' ||
+            id == 'className' || id == 'editable' || id == 'type') {
             allUndefined = false;
         }
     }
 
     // if no labels or ids are defined, use the default mapping
-    // for start, end, content, group, className, editable
+    // for start, end, content, group, className, editable, type
     if (allUndefined) {
         cols.start = 0;
         cols.end = 1;
@@ -391,6 +392,7 @@ links.Timeline.mapColumnIds = function (dataTable) {
         if (colCount >= 3) {cols.group = 3}
         if (colCount >= 4) {cols.className = 4}
         if (colCount >= 5) {cols.editable = 5}
+        if (colCount >= 6) {cols.type = 6}
     }
 
     return cols;
@@ -428,7 +430,8 @@ links.Timeline.prototype.setData = function(data) {
                 'content':   ((cols.content != undefined)   ? data.getValue(row, cols.content)   : undefined),
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
-                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined)
+                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
+                'type':      ((cols.editable != undefined)  ? data.getValue(row, cols.type)      : undefined)
             }));
         }
     }
@@ -3422,7 +3425,7 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
 /**
  * @constructor links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group. type, group.
+ *                            content, group, type, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -3441,6 +3444,7 @@ links.Timeline.Item = function (data, options) {
         this.className = data.className;
         this.editable = data.editable;
         this.group = data.group;
+        this.type = data.type;
     }
     this.top = 0;
     this.left = 0;
@@ -3595,7 +3599,7 @@ links.Timeline.Item.prototype.getWidth = function (timeline) {
  * @constructor links.Timeline.ItemBox
  * @extends links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group. type, group.
+ *                            content, group, type, className, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -3884,7 +3888,7 @@ links.Timeline.ItemBox.prototype.getRight = function (timeline) {
  * @constructor links.Timeline.ItemRange
  * @extends links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group. type, group.
+ *                            content, group, type, className, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -4088,7 +4092,7 @@ links.Timeline.ItemRange.prototype.getWidth = function (timeline) {
  * @constructor links.Timeline.ItemDot
  * @extends links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group, type.
+ *                            content, group, type, className, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -4309,13 +4313,14 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
 /**
  * Retrieve the properties of an item.
  * @param {Number} index
- * @return {Object} properties   Object containing item properties:<br>
+ * @return {Object} properties  Object containing item properties:<br>
  *                              {Date} start (required),
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional),
  *                              {String} className (optional)
  *                              {boolean} editable (optional)
+ *                              {String} type (optional)
  */
 links.Timeline.prototype.getItem = function (index) {
     if (index >= this.items.length) {
@@ -4339,6 +4344,9 @@ links.Timeline.prototype.getItem = function (index) {
     if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
         properties.editable = item.editable;
     }
+    if (item.type) {
+        properties.type = item.type;
+    }
 
     return properties;
 };
@@ -4350,6 +4358,9 @@ links.Timeline.prototype.getItem = function (index) {
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional)
+ *                              {String} className (optional)
+ *                              {Boolean} editable (optional)
+ *                              {String} type (optional)
  * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
 links.Timeline.prototype.addItem = function (itemData, preventRender) {
@@ -4367,7 +4378,10 @@ links.Timeline.prototype.addItem = function (itemData, preventRender) {
  *                            {Date} start,
  *                            {Date} end,
  *                            {String} content with text or HTML code,
- *                            {String} group
+ *                            {String} group (optional)
+ *                            {String} className (optional)
+ *                            {String} editable (optional)
+ *                            {String} type (optional)
  * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
 links.Timeline.prototype.addItems = function (itemsData, preventRender) {
@@ -4404,14 +4418,15 @@ links.Timeline.prototype.addItems = function (itemsData, preventRender) {
  * @return {Object} item
  */
 links.Timeline.prototype.createItem = function(itemData) {
-    var type = itemData.end ? 'range' : this.options.style;
+    var type = itemData.type || (itemData.end ? 'range' : this.options.style);
     var data = {
         start: itemData.start,
         end: itemData.end,
         content: itemData.content,
         className: itemData.className,
         editable: itemData.editable,
-        group: this.getGroup(itemData.group)
+        group: this.getGroup(itemData.group),
+        type: type
     };
     // TODO: optimize this, when creating an item, all data is copied twice...
 
@@ -4453,12 +4468,13 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
 
     // replace item, merge the changes
     var newItem = this.createItem({
-        'start':   itemData.hasOwnProperty('start') ?   itemData.start :   oldItem.start,
-        'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
-        'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
-        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
+        'start':     itemData.hasOwnProperty('start') ?     itemData.start :     oldItem.start,
+        'end':       itemData.hasOwnProperty('end') ?       itemData.end :       oldItem.end,
+        'content':   itemData.hasOwnProperty('content') ?   itemData.content :   oldItem.content,
+        'group':     itemData.hasOwnProperty('group') ?     itemData.group :     this.getGroupName(oldItem.group),
         'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className,
-        'editable': itemData.hasOwnProperty('editable') ? itemData.editable : oldItem.editable
+        'editable':  itemData.hasOwnProperty('editable') ?  itemData.editable :  oldItem.editable,
+        'type':      itemData.hasOwnProperty('type') ?      itemData.type :      oldItem.type
     });
     this.items[index] = newItem;
 
