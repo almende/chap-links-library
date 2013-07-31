@@ -3102,7 +3102,26 @@ links.Timeline.prototype.onMouseWheel = function(event) {
             timeline.trigger("rangechanged");
         };
 
-        zoom();
+        var scroll = function () {
+            // Scroll the timeline
+            timeline.move(delta * -0.2);
+            timeline.trigger("rangechange");
+            timeline.trigger("rangechanged");
+        };
+
+        var verticalScroll = function () {
+            // Vertically scroll the timeline
+            window.scrollBy(0, delta * -50);
+            timeline.trigger("rangechange");
+            timeline.trigger("rangechanged");
+        };
+
+        if (event.shiftKey && event.ctrlKey)
+            verticalScroll();
+        else if (event.shiftKey)
+            scroll();
+        else
+            zoom();
     }
 
     // Prevent default actions caused by mouse wheel.
