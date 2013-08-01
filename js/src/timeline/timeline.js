@@ -3109,16 +3109,7 @@ links.Timeline.prototype.onMouseWheel = function(event) {
             timeline.trigger("rangechanged");
         };
 
-        var verticalScroll = function () {
-            // Vertically scroll the timeline
-            window.scrollBy(0, delta * -50);
-            timeline.trigger("rangechange");
-            timeline.trigger("rangechanged");
-        };
-
-        if (event.shiftKey && event.ctrlKey)
-            verticalScroll();
-        else if (event.shiftKey)
+        if (event.shiftKey)
             scroll();
         else
             zoom();
