@@ -5,6 +5,8 @@ not yet released, version 2.5.0
 
 - Added French and Dutch localization. Thanks sp0ken and jeroenvg.
 - Integration with jQuery Themeroller. Thanks Oleg Varaksin.
+- Implemented Shift+Scroll to move the timeline. Thanks Olivier Aubert (oaubert).
+- Implemented support for a field `type` to give events a type individually.
 - Improved: Timeline is more robust against invalid data (data without
   start and end fields). Thanks Roberto Tyley.
 - Added an option 'unselectable'. Thanks judge.

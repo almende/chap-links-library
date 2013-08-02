@@ -3109,10 +3109,12 @@ links.Timeline.prototype.onMouseWheel = function(event) {
             timeline.trigger("rangechanged");
         };
 
-        if (event.shiftKey)
+        if (event.shiftKey) {
             scroll();
-        else
+        }
+        else {
             zoom();
+        }
     }
 
     // Prevent default actions caused by mouse wheel.
