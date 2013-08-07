@@ -2518,11 +2518,10 @@ links.Timeline.prototype.onTouchStart = function(event) {
  */
 links.Timeline.prototype.onTouchMove = function(event) {
     var params = this.eventParams;
-
+    
     if (event.scale && event.scale !== 1) {
         params.zoomed = true;
     }
-
     if (!params.zoomed) {
         // move 
         this.onMouseMove(event);
@@ -2702,11 +2701,20 @@ links.Timeline.prototype.onMouseDown = function(event) {
  */
 links.Timeline.prototype.onMouseMove = function (event) {
     event = event || window.event;
-
     var params = this.eventParams,
         size = this.size,
         dom = this.dom,
         options = this.options;
+//...........Testing if is a touch event, if so, do a nasty hack...............
+    if ( event.touches && event.touches.length ){ //if is a touch event
+        delete event.pageX; delete event.pageY;
+        event.mouseX = event.targetTouches[0].pageX;
+        event.mouseY = event.targetTouches[0].pageY;
+        if (!params.mouseX){
+            params.mouseX = event.mouseX;
+            params.mouseY = event.mouseY;
+        }
+    }
 
     // calculate change in mouse position
     var mouseX = links.Timeline.getPageX(event);
@@ -2721,12 +2729,10 @@ links.Timeline.prototype.onMouseMove = function (event) {
 
     var diffX = mouseX - params.mouseX;
     var diffY = mouseY - params.mouseY;
-
     // if mouse movement is big enough, register it as a "moved" event
     if (Math.abs(diffX) >= 1) {
         params.moved = true;
     }
-
     if (params.customTime) {
         var x = this.timeToScreen(params.customTime);
         var xnew = x + diffX;
