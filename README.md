@@ -12,3 +12,8 @@ for Javascript and GWT.
 
 Links Library is part of [CHAP](http://chap.almende.com), 
 the Common Hybrid Agent Platform.
+
+-----------------------------------------------
+
+This repo contains a *nasty* fix for broken touch event handling in the original repo. 
+It is not merged because it's nasty but still it fixes the issue.
