@@ -22,6 +22,24 @@ links.locales['en'] = {
 links.locales['en_US'] = links.locales['en'];
 links.locales['en_UK'] = links.locales['en'];
 
+// French ===================================================
+links.locales['fr'] = {
+    'MONTHS': new Array("Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"),
+    'MONTHS_SHORT': new Array("Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"),
+    'DAYS': new Array("Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"),
+    'DAYS_SHORT': new Array("Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"),
+    'ZOOM_IN': "Zoomer",
+    'ZOOM_OUT': "Dézoomer",
+    'MOVE_LEFT': "Déplacer à gauche",
+    'MOVE_RIGHT': "Déplacer à droite",
+    'NEW': "Nouveau",
+    'CREATE_NEW_EVENT': "Créer un nouvel évènement"
+};
+
+links.locales['fr_FR'] = links.locales['fr'];
+links.locales['fr_BE'] = links.locales['fr'];
+links.locales['fr_CA'] = links.locales['fr'];
+
 // Catalan ===================================================
 links.locales['ca'] = {
     'MONTHS': new Array("Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Setembre", "Octubre", "Novembre", "Desembre"),
@@ -35,7 +53,7 @@ links.locales['ca'] = {
     'NEW': "Nou",
     'CREATE_NEW_EVENT': "Crear nou event"
 };
-links.locales['ca-ES'] = links.locales['ca'];
+links.locales['ca_ES'] = links.locales['ca'];
 
 // German ===================================================
 links.locales['de'] = {
@@ -99,3 +117,20 @@ links.locales['es'] = {
 };
 
 links.locales['es_ES'] = links.locales['es'];
+
+// Dutch =====================================================
+links.locales['nl'] = {
+    'MONTHS': new Array("januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"),
+    'MONTHS_SHORT': new Array("jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"),
+    'DAYS': new Array("zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"),
+    'DAYS_SHORT': new Array("zo", "ma", "di", "wo", "do", "vr", "za"),
+    'ZOOM_IN': "Inzoomen",
+    'ZOOM_OUT': "Uitzoomen",
+    'MOVE_LEFT': "Naar links",
+    'MOVE_RIGHT': "Naar rechts",
+    'NEW': "Nieuw",
+    'CREATE_NEW_EVENT': "Nieuwe gebeurtenis maken"
+};
+
+links.locales['nl_NL'] = links.locales['nl'];
+links.locales['nl_BE'] = links.locales['nl'];

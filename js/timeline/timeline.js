@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2013 Almende B.V.
  *
  * @author     Jos de Jong, <jos@almende.org>
- * @date    2013-04-18
- * @version 2.4.2
+ * @date    2013-08-20
+ * @version 2.5.0
  */
 
 /*
@@ -188,6 +188,7 @@ links.Timeline = function(container) {
         'moveable': true,
         'zoomable': true,
         'selectable': true,
+        'unselectable': true,
         'editable': false,
         'snapEvents': true,
         'groupChangeable': true,
@@ -273,6 +274,10 @@ links.Timeline = function(container) {
  */
 links.Timeline.prototype.draw = function(data, options) {
     this.setOptions(options);
+    
+    if (this.options.selectable) {
+        links.Timeline.addClassName(this.dom.frame, "timeline-selectable");
+    }
 
     // read the data
     this.setData(data);
@@ -358,31 +363,36 @@ links.Timeline.prototype.addItemType = function (typeName, typeFactory) {
  *         group: undefined,
  *         className: undefined
  *         editable: undefined
+ *         type: undefined
  *     }
  * @param {google.visualization.DataTable} dataTable
  * @type {Object} map
  */
 links.Timeline.mapColumnIds = function (dataTable) {
     var cols = {},
-        colMax = dataTable.getNumberOfColumns(),
+        colCount = dataTable.getNumberOfColumns(),
         allUndefined = true;
 
     // loop over the columns, and map the column id's to the column indexes
-    for (var col = 0; col < colMax; col++) {
+    for (var col = 0; col < colCount; col++) {
         var id = dataTable.getColumnId(col) || dataTable.getColumnLabel(col);
         cols[id] = col;
-        if (id == 'start' || id == 'end' || id == 'content' ||
-            id == 'group' || id == 'className' || id == 'editable') {
+        if (id == 'start' || id == 'end' || id == 'content' || id == 'group' ||
+            id == 'className' || id == 'editable' || id == 'type') {
             allUndefined = false;
         }
     }
 
-    // if no labels or ids are defined,
-    // use the default mapping for start, end, content
+    // if no labels or ids are defined, use the default mapping
+    // for start, end, content, group, className, editable, type
     if (allUndefined) {
         cols.start = 0;
         cols.end = 1;
         cols.content = 2;
+        if (colCount >= 3) {cols.group = 3}
+        if (colCount >= 4) {cols.className = 4}
+        if (colCount >= 5) {cols.editable = 5}
+        if (colCount >= 6) {cols.type = 6}
     }
 
     return cols;
@@ -420,7 +430,8 @@ links.Timeline.prototype.setData = function(data) {
                 'content':   ((cols.content != undefined)   ? data.getValue(row, cols.content)   : undefined),
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
-                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined)
+                'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
+                'type':      ((cols.editable != undefined)  ? data.getValue(row, cols.type)      : undefined)
             }));
         }
     }
@@ -714,18 +725,12 @@ links.Timeline.prototype.getDataRange = function (withMargin) {
                 start = item.start != undefined ? item.start.valueOf() : undefined,
                 end   = item.end != undefined   ? item.end.valueOf() : start;
 
-            if (min != undefined && start != undefined) {
-                min = Math.min(min.valueOf(), start.valueOf());
-            }
-            else {
-                min = start;
+            if (start != undefined) {
+                min = (min != undefined) ? Math.min(min.valueOf(), start.valueOf()) : start;
             }
 
-            if (max != undefined && end != undefined) {
-                max = Math.max(max, end);
-            }
-            else {
-                max = end;
+            if (end != undefined) {
+                max = (max != undefined) ? Math.max(max.valueOf(), end.valueOf()) : end;
             }
         }
     }
@@ -845,7 +850,7 @@ links.Timeline.prototype.repaintFrame = function() {
     // main frame
     if (!dom.frame) {
         dom.frame = document.createElement("DIV");
-        dom.frame.className = "timeline-frame";
+        dom.frame.className = "timeline-frame ui-widget ui-widget-content ui-corner-all";
         dom.frame.style.position = "relative";
         dom.frame.style.overflow = "hidden";
         dom.container.appendChild(dom.frame);
@@ -1868,10 +1873,8 @@ links.Timeline.prototype.repaintGroups = function() {
     labels.splice(needed, current - needed);
     labelLines.splice(needed, current - needed);
     itemLines.splice(needed, current - needed);
-
-    frame.style.borderStyle = options.groupsOnRight ?
-        "none none none solid" :
-        "none solid none none";
+    
+    links.Timeline.addClassName(frame, options.groupsOnRight ? 'timeline-groups-axis-onright' : 'timeline-groups-axis-onleft');
 
     // position the groups
     for (var i = 0, iMax = groups.length; i < iMax; i++) {
@@ -2152,7 +2155,7 @@ links.Timeline.prototype.repaintNavigation = function () {
             // create a navigation bar containing the navigation buttons
             navBar = document.createElement("DIV");
             navBar.style.position = "absolute";
-            navBar.className = "timeline-navigation";
+            navBar.className = "timeline-navigation ui-widget ui-state-highlight ui-corner-all";
             if (options.groupsOnRight) {
                 navBar.style.left = '10px';
             }
@@ -2173,8 +2176,11 @@ links.Timeline.prototype.repaintNavigation = function () {
             // create a new in button
             navBar.addButton = document.createElement("DIV");
             navBar.addButton.className = "timeline-navigation-new";
-
             navBar.addButton.title = options.CREATE_NEW_EVENT;
+            var addIconSpan = document.createElement("SPAN");
+            addIconSpan.className = "ui-icon ui-icon-circle-plus";            
+            navBar.addButton.appendChild(addIconSpan);
+            
             var onAdd = function(event) {
                 links.Timeline.preventDefault(event);
                 links.Timeline.stopPropagation(event);
@@ -2224,8 +2230,7 @@ links.Timeline.prototype.repaintNavigation = function () {
 
         if (showButtonNew && showNavigation) {
             // create a separator line
-            navBar.addButton.style.borderRightWidth = "1px";
-            navBar.addButton.style.borderRightStyle = "solid";
+            links.Timeline.addClassName(navBar.addButton, 'timeline-navigation-new-line');
         }
 
         if (showNavigation) {
@@ -2234,6 +2239,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.zoomInButton = document.createElement("DIV");
                 navBar.zoomInButton.className = "timeline-navigation-zoom-in";
                 navBar.zoomInButton.title = this.options.ZOOM_IN;
+                var ziIconSpan = document.createElement("SPAN");
+                ziIconSpan.className = "ui-icon ui-icon-circle-zoomin";
+                navBar.zoomInButton.appendChild(ziIconSpan);
+                
                 var onZoomIn = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2248,6 +2257,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.zoomOutButton = document.createElement("DIV");
                 navBar.zoomOutButton.className = "timeline-navigation-zoom-out";
                 navBar.zoomOutButton.title = this.options.ZOOM_OUT;
+                var zoIconSpan = document.createElement("SPAN");
+                zoIconSpan.className = "ui-icon ui-icon-circle-zoomout";
+                navBar.zoomOutButton.appendChild(zoIconSpan);
+                
                 var onZoomOut = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2264,6 +2277,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.moveLeftButton = document.createElement("DIV");
                 navBar.moveLeftButton.className = "timeline-navigation-move-left";
                 navBar.moveLeftButton.title = this.options.MOVE_LEFT;
+                var mlIconSpan = document.createElement("SPAN");
+                mlIconSpan.className = "ui-icon ui-icon-circle-arrow-w";
+                navBar.moveLeftButton.appendChild(mlIconSpan);
+                
                 var onMoveLeft = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2278,6 +2295,10 @@ links.Timeline.prototype.repaintNavigation = function () {
                 navBar.moveRightButton = document.createElement("DIV");
                 navBar.moveRightButton.className = "timeline-navigation-move-right";
                 navBar.moveRightButton.title = this.options.MOVE_RIGHT;
+                var mrIconSpan = document.createElement("SPAN");
+                mrIconSpan.className = "ui-icon ui-icon-circle-arrow-e";
+                navBar.moveRightButton.appendChild(mrIconSpan);
+                
                 var onMoveRight = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2942,8 +2963,10 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     }
                 }
                 else {
-                    this.unselectItem();
-                    this.trigger('select');
+                    if (options.unselectable) {
+                        this.unselectItem();
+                        this.trigger('select');
+                    }
                 }
             }
         }
@@ -3079,7 +3102,19 @@ links.Timeline.prototype.onMouseWheel = function(event) {
             timeline.trigger("rangechanged");
         };
 
-        zoom();
+        var scroll = function () {
+            // Scroll the timeline
+            timeline.move(delta * -0.2);
+            timeline.trigger("rangechange");
+            timeline.trigger("rangechanged");
+        };
+
+        if (event.shiftKey) {
+            scroll();
+        }
+        else {
+            zoom();
+        }
     }
 
     // Prevent default actions caused by mouse wheel.
@@ -3402,7 +3437,7 @@ links.Timeline.prototype.getGroupFromHeight = function(height) {
 /**
  * @constructor links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group. type, group.
+ *                            content, group, type, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -3421,6 +3456,7 @@ links.Timeline.Item = function (data, options) {
         this.className = data.className;
         this.editable = data.editable;
         this.group = data.group;
+        this.type = data.type;
     }
     this.top = 0;
     this.left = 0;
@@ -3575,7 +3611,7 @@ links.Timeline.Item.prototype.getWidth = function (timeline) {
  * @constructor links.Timeline.ItemBox
  * @extends links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group. type, group.
+ *                            content, group, type, className, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -3617,9 +3653,9 @@ links.Timeline.ItemBox.prototype.reflow = function () {
  */
 links.Timeline.ItemBox.prototype.select = function () {
     var dom = this.dom;
-    links.Timeline.addClassName(dom, 'timeline-event-selected');
-    links.Timeline.addClassName(dom.line, 'timeline-event-selected');
-    links.Timeline.addClassName(dom.dot, 'timeline-event-selected');
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
+    links.Timeline.addClassName(dom.line, 'timeline-event-selected ui-state-active');
+    links.Timeline.addClassName(dom.dot, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3628,9 +3664,9 @@ links.Timeline.ItemBox.prototype.select = function () {
  */
 links.Timeline.ItemBox.prototype.unselect = function () {
     var dom = this.dom;
-    links.Timeline.removeClassName(dom, 'timeline-event-selected');
-    links.Timeline.removeClassName(dom.line, 'timeline-event-selected');
-    links.Timeline.removeClassName(dom.dot, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
+    links.Timeline.removeClassName(dom.line, 'timeline-event-selected ui-state-active');
+    links.Timeline.removeClassName(dom.dot, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3736,14 +3772,14 @@ links.Timeline.ItemBox.prototype.updateDOM = function () {
         divBox.firstChild.innerHTML = this.content;
 
         // update class
-        divBox.className = "timeline-event timeline-event-box";
-        divLine.className = "timeline-event timeline-event-line";
-        divDot.className  = "timeline-event timeline-event-dot";
+        divBox.className = "timeline-event timeline-event-box ui-widget ui-state-default";
+        divLine.className = "timeline-event timeline-event-line ui-widget ui-state-default";
+        divDot.className  = "timeline-event timeline-event-dot ui-widget ui-state-default";
 
         if (this.isCluster) {
-            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
-            links.Timeline.addClassName(divLine, 'timeline-event-cluster');
-            links.Timeline.addClassName(divDot, 'timeline-event-cluster');
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
+            links.Timeline.addClassName(divLine, 'timeline-event-cluster ui-widget-header');
+            links.Timeline.addClassName(divDot, 'timeline-event-cluster ui-widget-header');
         }
 
         // add item specific class name when provided
@@ -3864,7 +3900,7 @@ links.Timeline.ItemBox.prototype.getRight = function (timeline) {
  * @constructor links.Timeline.ItemRange
  * @extends links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group. type, group.
+ *                            content, group, type, className, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -3883,7 +3919,7 @@ links.Timeline.ItemRange.prototype = new links.Timeline.Item();
  */
 links.Timeline.ItemRange.prototype.select = function () {
     var dom = this.dom;
-    links.Timeline.addClassName(dom, 'timeline-event-selected');
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3892,7 +3928,7 @@ links.Timeline.ItemRange.prototype.select = function () {
  */
 links.Timeline.ItemRange.prototype.unselect = function () {
     var dom = this.dom;
-    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -3967,10 +4003,10 @@ links.Timeline.ItemRange.prototype.updateDOM = function () {
         divBox.firstChild.innerHTML = this.content;
 
         // update class
-        divBox.className = "timeline-event timeline-event-range";
+        divBox.className = "timeline-event timeline-event-range ui-widget ui-state-default";
 
         if (this.isCluster) {
-            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
         }
 
         // add item specific class name when provided
@@ -4068,7 +4104,7 @@ links.Timeline.ItemRange.prototype.getWidth = function (timeline) {
  * @constructor links.Timeline.ItemDot
  * @extends links.Timeline.Item
  * @param {Object} data       Object containing parameters start, end
- *                            content, group, type.
+ *                            content, group, type, className, editable.
  * @param {Object} [options]  Options to set initial property values
  *                                {Number} top
  *                                {Number} left
@@ -4110,7 +4146,7 @@ links.Timeline.ItemDot.prototype.reflow = function () {
  */
 links.Timeline.ItemDot.prototype.select = function () {
     var dom = this.dom;
-    links.Timeline.addClassName(dom, 'timeline-event-selected');
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -4119,7 +4155,7 @@ links.Timeline.ItemDot.prototype.select = function () {
  */
 links.Timeline.ItemDot.prototype.unselect = function () {
     var dom = this.dom;
-    links.Timeline.removeClassName(dom, 'timeline-event-selected');
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
 };
 
 /**
@@ -4204,12 +4240,13 @@ links.Timeline.ItemDot.prototype.updateDOM = function () {
         // update contents
         divBox.firstChild.innerHTML = this.content;
 
-        // update class
-        divDot.className  = "timeline-event timeline-event-dot";
+        // update classes
+        divBox.className = "timeline-event-dot-container";
+        divDot.className  = "timeline-event timeline-event-dot ui-widget ui-state-default";
 
         if (this.isCluster) {
-            links.Timeline.addClassName(divBox, 'timeline-event-cluster');
-            links.Timeline.addClassName(divDot, 'timeline-event-cluster');
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
+            links.Timeline.addClassName(divDot, 'timeline-event-cluster ui-widget-header');
         }
 
         // add item specific class name when provided
@@ -4288,13 +4325,14 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
 /**
  * Retrieve the properties of an item.
  * @param {Number} index
- * @return {Object} properties   Object containing item properties:<br>
+ * @return {Object} properties  Object containing item properties:<br>
  *                              {Date} start (required),
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional),
  *                              {String} className (optional)
  *                              {boolean} editable (optional)
+ *                              {String} type (optional)
  */
 links.Timeline.prototype.getItem = function (index) {
     if (index >= this.items.length) {
@@ -4318,6 +4356,9 @@ links.Timeline.prototype.getItem = function (index) {
     if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
         properties.editable = item.editable;
     }
+    if (item.type) {
+        properties.type = item.type;
+    }
 
     return properties;
 };
@@ -4329,6 +4370,9 @@ links.Timeline.prototype.getItem = function (index) {
  *                              {Date} end (optional),
  *                              {String} content (required),
  *                              {String} group (optional)
+ *                              {String} className (optional)
+ *                              {Boolean} editable (optional)
+ *                              {String} type (optional)
  * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
 links.Timeline.prototype.addItem = function (itemData, preventRender) {
@@ -4346,7 +4390,10 @@ links.Timeline.prototype.addItem = function (itemData, preventRender) {
  *                            {Date} start,
  *                            {Date} end,
  *                            {String} content with text or HTML code,
- *                            {String} group
+ *                            {String} group (optional)
+ *                            {String} className (optional)
+ *                            {String} editable (optional)
+ *                            {String} type (optional)
  * @param {boolean} [preventRender=false]   Do not re-render timeline if true
  */
 links.Timeline.prototype.addItems = function (itemsData, preventRender) {
@@ -4383,14 +4430,15 @@ links.Timeline.prototype.addItems = function (itemsData, preventRender) {
  * @return {Object} item
  */
 links.Timeline.prototype.createItem = function(itemData) {
-    var type = itemData.end ? 'range' : this.options.style;
+    var type = itemData.type || (itemData.end ? 'range' : this.options.style);
     var data = {
         start: itemData.start,
         end: itemData.end,
         content: itemData.content,
         className: itemData.className,
         editable: itemData.editable,
-        group: this.getGroup(itemData.group)
+        group: this.getGroup(itemData.group),
+        type: type
     };
     // TODO: optimize this, when creating an item, all data is copied twice...
 
@@ -4432,12 +4480,13 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
 
     // replace item, merge the changes
     var newItem = this.createItem({
-        'start':   itemData.hasOwnProperty('start') ?   itemData.start :   oldItem.start,
-        'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
-        'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
-        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
+        'start':     itemData.hasOwnProperty('start') ?     itemData.start :     oldItem.start,
+        'end':       itemData.hasOwnProperty('end') ?       itemData.end :       oldItem.end,
+        'content':   itemData.hasOwnProperty('content') ?   itemData.content :   oldItem.content,
+        'group':     itemData.hasOwnProperty('group') ?     itemData.group :     this.getGroupName(oldItem.group),
         'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className,
-        'editable': itemData.hasOwnProperty('editable') ? itemData.editable : oldItem.editable
+        'editable':  itemData.hasOwnProperty('editable') ?  itemData.editable :  oldItem.editable,
+        'type':      itemData.hasOwnProperty('type') ?      itemData.type :      oldItem.type
     });
     this.items[index] = newItem;
 
@@ -4459,7 +4508,9 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
             animate: false
         });
 
-        newItem.select();
+        if (this.selection && this.selection.index == index) {
+            newItem.select();
+        }
     }
 };
 
@@ -6255,24 +6306,21 @@ links.Timeline.getAbsoluteTop = function(elem) {
  * @return {Number} pageY
  */
 links.Timeline.getPageY = function (event) {
+    if (('targetTouches' in event) && event.targetTouches.length) {
+        event = event.targetTouches[0];
+    }
+
     if ('pageY' in event) {
         return event.pageY;
     }
-    else {
-        var clientY;
-        if (('targetTouches' in event) && event.targetTouches.length) {
-            clientY = event.targetTouches[0].clientY;
-        }
-        else {
-            clientY = event.clientY;
-        }
 
-        var doc = document.documentElement;
-        var body = document.body;
-        return clientY +
-            ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
-            ( doc && doc.clientTop || body && body.clientTop || 0 );
-    }
+    // calculate pageY from clientY
+    var clientY = event.clientY;
+    var doc = document.documentElement;
+    var body = document.body;
+    return clientY +
+        ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
+        ( doc && doc.clientTop || body && body.clientTop || 0 );
 };
 
 /**
@@ -6281,49 +6329,64 @@ links.Timeline.getPageY = function (event) {
  * @return {Number} pageX
  */
 links.Timeline.getPageX = function (event) {
-    if ('pageY' in event) {
+    if (('targetTouches' in event) && event.targetTouches.length) {
+        event = event.targetTouches[0];
+    }
+
+    if ('pageX' in event) {
         return event.pageX;
     }
-    else {
-        var clientX;
-        if (('targetTouches' in event) && event.targetTouches.length) {
-            clientX = event.targetTouches[0].clientX;
-        }
-        else {
-            clientX = event.clientX;
-        }
 
-        var doc = document.documentElement;
-        var body = document.body;
-        return clientX +
-            ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
-            ( doc && doc.clientLeft || body && body.clientLeft || 0 );
-    }
+    // calculate pageX from clientX
+    var clientX = event.clientX;
+    var doc = document.documentElement;
+    var body = document.body;
+    return clientX +
+        ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
+        ( doc && doc.clientLeft || body && body.clientLeft || 0 );
 };
 
 /**
- * add a className to the given elements style
+ * Adds one or more className's to the given elements style
  * @param {Element} elem
  * @param {String} className
  */
 links.Timeline.addClassName = function(elem, className) {
     var classes = elem.className.split(' ');
-    if (classes.indexOf(className) == -1) {
-        classes.push(className); // add the class to the array
+    var classesToAdd = className.split(' ');
+    
+    var added = false;
+    for (var i=0; i<classesToAdd.length; i++) {
+        if (classes.indexOf(classesToAdd[i]) == -1) {
+            classes.push(classesToAdd[i]); // add the class to the array
+            added = true;
+        }
+    }
+    
+    if (added) {
         elem.className = classes.join(' ');
     }
 };
 
 /**
- * add a className to the given elements style
+ * Removes one or more className's from the given elements style
  * @param {Element} elem
  * @param {String} className
  */
 links.Timeline.removeClassName = function(elem, className) {
     var classes = elem.className.split(' ');
-    var index = classes.indexOf(className);
-    if (index != -1) {
-        classes.splice(index, 1); // remove the class from the array
+    var classesToRemove = className.split(' ');
+    
+    var removed = false;
+    for (var i=0; i<classesToRemove.length; i++) {
+        var index = classes.indexOf(classesToRemove[i]);
+        if (index != -1) {
+            classes.splice(index, 1); // remove the class from the array
+            removed = true;
+        }
+    }
+    
+    if (removed) {
         elem.className = classes.join(' ');
     }
 };

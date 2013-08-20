@@ -1,7 +1,23 @@
 CHAP Links Library - Timeline
 
 
-2012-04-18, version 2.4.2
+2013-08-20, version 2.5.0
+
+- Added French and Dutch localization. Thanks sp0ken and jeroenvg.
+- Integration with jQuery Themeroller. Thanks Oleg Varaksin.
+- Implemented Shift+Scroll to move the timeline. Thanks Olivier Aubert (oaubert).
+- Implemented support for a field `type` to give events a type individually.
+- Improved: Timeline is more robust against invalid data (data without
+  start and end fields). Thanks Roberto Tyley.
+- Added an option 'unselectable'. Thanks judge.
+- Fixed: when updating a selected item using changeItem, the selection was not
+  restored correctly.
+- Fixed not being able to define columns for fields `group`, `className`, and
+  `editable` in a Google SpreadSheet.
+- Fixed non-working touch events.
+
+
+2013-04-18, version 2.4.2
 
 - Implemented localization. (Thanks bjarkebech and José Renato).
 - Changed: renamed option intervalMin to zoomMin and intervalMax to zoomMax

@@ -30,7 +30,7 @@
 </table>
 
 
-<h2><a name="Contents" id="Contents"></a>Contents</h2>
+<h2 id="Contents">Contents</h2>
 <ul>
     <li><a href="#Overview">Overview</a></li>
     <li><a href="#Example">Example</a></li>
@@ -40,10 +40,11 @@
     <li><a href="#Methods">Methods</a></li>
     <li><a href="#Events">Events</a></li>
     <li><a href="#Styles">Styles</a></li>
+    <li><a href="#Themeroller">jQuery Themeroller integration</a></li>
     <li><a href="#Data_Policy">Data Policy</a></li>
 </ul>
 
-<h2><a name="Overview" id="Overview"></a>Overview</h2>
+<h2 id="Overview">Overview</h2>
 <p>
     The Timeline is an interactive visualization chart to visualize events in time.
     The events can take place on a single date, or have a start and end date (a range).
@@ -76,7 +77,7 @@
     The Timeline is designed to display up to 1000 events smoothly on any modern browser.
 </p>
 
-<h2><a name="Example" id="Example"></a>Example</h2>
+<h2 id="Example">Example</h2>
 <p>
     Here a timeline example. Click and drag to move the timeline, scroll to zoom the timeline.
 </p>
@@ -129,7 +130,7 @@
         ]);
 
         // specify options
-        options = {
+        var options = {
           "width":  "100%",
           "height": "99%",
           "style": "box" // optional
@@ -151,7 +152,7 @@
 </pre>
 
 
-<h2><a name="Loading" id="Loading"></a>Loading</h2>
+<h2 id="Loading">Loading</h2>
 
 <p>
     To load the Timeline, download the file
@@ -202,7 +203,7 @@ provided with data and options.
 </p>
 
 
-<h2><a name="Data_Format" id="Data_Format"></a>Data Format</h2>
+<h2 id="Data_Format">Data Format</h2>
 <p>
     The Timeline supports two data types: a JSON Array or a Google DataTable.
 </p>
@@ -258,6 +259,7 @@ data.addColumn('string', 'content');
 // Optional: a column 'group'
 // Optional: a column 'className'
 // Optional: a column 'editable'
+// Optional: a column 'type'
 
 data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
 // ...
@@ -267,7 +269,8 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
     The Timeline checks the type of the columns by first reading the
     column id, and if not provided read the column label.
     If both the column id's and label's are undefined, the Timeline will use
-    column 0 as start, column 1 as end, and column 2 as content.
+    column 0 as start, column 1 as end, column 2 as content, column 3 as group,
+    column 4 as className, and column 5 as editable.
 </p>
 
 <h3>Fields</h3>
@@ -350,11 +353,21 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
             read-only, individual events may be made editable, and vice versa.
         </td>
     </tr>
+    <tr>
+        <td>type</td>
+        <td>String</td>
+        <td>no</td>
+        <td>Type of the event, optional. Available values: "box", "range", "dot".
+            By default, the type is "range" for events having a start and end
+            date, and "box" for events with a start date. This default can be
+            overwritten by the global option "style".
+        </td>
+    </tr>
 </table>
 
 
 
-<h2><a name="Configuration_Options" id="Configuration_Options"></a>Configuration Options</h2>
+<h2 id="Configuration_Options">Configuration Options</h2>
 
 <p>
     Options can be used to customize the timeline. Options are defined as a JSON object.
@@ -414,6 +427,17 @@ var options = {
         <br><span style="background-color: orangered; color: white; padding: 3px; border-radius: 3px; font-size: 80%;"
                   title="This feature is currently in an experimental phase, and not yet suitable for a production environment."
                 >experimental</span>
+    </td>
+</tr>
+
+<tr>
+    <td>customStackOrder</td>
+    <td>function</td>
+    <td>none</td>
+    <td>Provide a custom sort function to order the items. The order of the
+        items is determining the way they are stacked. The function
+        customStackOrder is called with two parameters, both of type
+        `timeline.Item`.
     </td>
 </tr>
 
@@ -515,8 +539,10 @@ var options = {
         More locales are available in the file <code>timeline-locales.js</code>:
 
         <ul>
+            <li>Catalan, <code>ca</code> (aliases: <code>ca_ES</code>)</li>
             <li>English, <code>en</code> (aliases: <code>en_US</code>, <code>en_UK</code>)</li>
-            <li>Catalan, <code>ca</code> (aliases: <code>ca_ES</code></li>
+            <li>Dutch, <code>nl</code> (aliases: <code>nl_NL</code>, <code>nl_BE</code>)</li>
+            <li>French, <code>fr</code> (aliases: <code>fr_FR</code>, <code>fr_BE</code>, <code>fr_CA</code>)</li>
             <li>German, <code>de</code> (aliases: <code>de_DE</code>, <code>de_CH</code>)</li>
             <li>Danish, <code>da</code> (aliases: <code>da_DK</code>)</li>
             <li>Russian, <code>ru</code> (aliases: <code>ru_RU</code>)</li>
@@ -688,6 +714,18 @@ var options = {
 </tr>
 
 <tr>
+    <td>unselectable</td>
+    <td>boolean</td>
+    <td>true</td>
+    <td>If true, a selected event on the timeline can be un unselected.
+        If false, a selected event cannot be unselected unless when selecting
+        an other event. This means that as soon as the Timeline has a selected
+        event, it will remain in a state where there is always an event selected.
+        See also the option <code>selectable</code>.
+    </td>
+</tr>
+
+<tr>
     <td>width</td>
     <td>string</td>
     <td>"100%"</td>
@@ -725,7 +763,7 @@ var options = {
 
 </table>
 
-<h2><a name="Methods" id="Methods"></a>Methods</h2>
+<h2 id="Methods">Methods</h2>
 <p>
     The Timeline supports the following methods.
 </p>
@@ -743,8 +781,10 @@ var options = {
     <td>Add an item to the Timeline.
         The provided parameter <code>properties</code> is an Object,
         containing parameters <code>start</code> (Date), <code>end</code> (Date),
-        <code>content</code> (String), <code>group</code> (String).
-        Parameters <code>end</code> and <code>group</code> are optional.
+        <code>content</code> (String), <code>group</code> (String),
+        <code>className</code> (String), and <code>editable</code> (Boolean).
+        Parameters <code>start</code> and <code>content</code> are required,
+        the others are optional.
     </td>
 </tr>
 <tr>
@@ -802,8 +842,10 @@ var options = {
     <td>Change properties of an existing item in the Timeline.
         <code>index</code> (Number) is the index of the item.
         The provided parameter <code>properties</code> is an Object,
-        and can contain parameters <code>start</code> (Date), <code>end</code> (Date),
-        <code>content</code> (String), <code>group</code> (String).
+        and can contain parameters <code>start</code> (Date),
+        <code>end</code> (Date), <code>content</code> (String),
+        <code>group</code> (String), <code>className</code> (String),
+        and <code>editable</code> (Boolean).
     </td>
 </tr>
 
@@ -984,7 +1026,7 @@ var options = {
 </tr>
 </table>
 
-<h2><a name="Events" id="Events"></a>Events</h2>
+<h2 id="Events">Events</h2>
 
 <p>
     The Timeline fires events after an event is selected, the visible range changed,
@@ -1172,7 +1214,7 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
 
 </table>
 
-<h2><a name="Styles" id="Styles"></a>Styles</h2>
+<h2 id="Styles">Styles</h2>
 <p>
     All parts of the Timeline have a class name and a default css style.
     The styles can be overwritten, which enables full customization of the layout
@@ -1507,8 +1549,16 @@ div.timeline-event {
 
 </table>
 
+<h2 id="Themeroller">jQuery Themeroller integration</h2>
+<p>
+    Most of jQuery widgets are theme aware in terms of <a href="http://jqueryui.com/themeroller/">jQuery Themeroller CSS framework</a>.
+    If you would like to make the Timeline aware of jQuery themes, please include in your page a Themeroller theme of your choice
+    (<strong>ui.theme.css</strong>) and the CSS file <strong>timeline-theme.css</strong>. The file <strong>timeline.css</strong> should not be included.
+    These two files are enough to style the Timeline according to the selected theme.
+</p>
 
-<h2><a name="Data_Policy" id="Data_Policy"></a>Data Policy</h2>
+
+<h2 id="Data_Policy">Data Policy</h2>
 <p>
     All code and data are processed and rendered in the browser. No data is sent to any server.
 </p>
