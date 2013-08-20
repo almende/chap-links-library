@@ -28,47 +28,9 @@
  * Copyright (C) 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-06-18
- * @version 1.3.2-SNAPSHOT
+ * @date    2013-08-20
+ * @version 1.3.2
  */
-
-
-/*
- TODO
- add an option vZoomable and vMovable to fix vertical zooming/moving
-
- when subsampling, always take the same start - else it looks like the data is jumping
- implement option backgroundColor like all other Google Visualizations (and see Links.Network)
- css: make two style groups: haxis and vaxis
-
- add an option to select/deselect all functions in the legend
- add possibility to have a horizontal axis with numbers instead of dates
- recalculate min and max scale after each zoom action too?
-
- add a line style circle? square? triange? custom color for the circle or dot?
- enable highlighting one of the graphs (select one graph)
-
- BUGS
- when zooming in on on line segment, it is not drawn correctly (disappears)
- IE: unstable for >10000 datapoints. Maybe due to conversion to VML by excanvas? Or a bug in my code?
-
- Safari, old IE:
- sometimes, the canvas is not cleared completely (which is fixed after another redraw)
- --> test if fixed now (by clearing before resizing)
-
- the text on the vertical axis has round off errors when dealing with very small scale (1e-6)
-
- Documentation
- http://codingforums.com/showthread.php?t=99027
- http://bytes.com/topic/javascript/answers/160118-creating-xhtml-iframe
- http://www.kevlindev.com/tutorials/basics/shapes/js_dom/index.htm
- http://adomas.org/javascript-mouse-wheel/
- http://www.brainjar.com/dhtml/drag/
- http://dev-tips.com/demo/css3_circles.html
-
- */
-
-
 
 /**
  * Declare a unique namespace for CHAP's Common Hybrid Visualisation Library,
