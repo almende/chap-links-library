@@ -1,7 +1,7 @@
 CHAP Links Library - Timeline
 
 
-not yet released, version 2.5.0
+2013-08-20, version 2.5.0
 
 - Added French and Dutch localization. Thanks sp0ken and jeroenvg.
 - Integration with jQuery Themeroller. Thanks Oleg Varaksin.
@@ -14,6 +14,7 @@ not yet released, version 2.5.0
   restored correctly.
 - Fixed not being able to define columns for fields `group`, `className`, and
   `editable` in a Google SpreadSheet.
+- Fixed non-working touch events.
 
 
 2013-04-18, version 2.4.2

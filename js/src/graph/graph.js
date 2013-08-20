@@ -3247,24 +3247,21 @@ links.Graph._getAbsoluteTop = function(elem) {
  * @return {Number} pageY
  */
 links.Graph._getPageY = function (event) {
+    if (('targetTouches' in event) && event.targetTouches.length) {
+        event = event.targetTouches[0];
+    }
+
     if ('pageY' in event) {
         return event.pageY;
     }
-    else {
-        var clientY;
-        if (('targetTouches' in event) && event.targetTouches.length) {
-            clientY = event.targetTouches[0].clientY;
-        }
-        else {
-            clientY = event.clientY;
-        }
 
-        var doc = document.documentElement;
-        var body = document.body;
-        return clientY +
-            ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
-            ( doc && doc.clientTop || body && body.clientTop || 0 );
-    }
+    // calculate pageY from clientY
+    var clientY = event.clientY;
+    var doc = document.documentElement;
+    var body = document.body;
+    return clientY +
+        ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
+        ( doc && doc.clientTop || body && body.clientTop || 0 );
 };
 
 /**
@@ -3273,24 +3270,21 @@ links.Graph._getPageY = function (event) {
  * @return {Number} pageX
  */
 links.Graph._getPageX = function (event) {
-    if ('pageY' in event) {
+    if (('targetTouches' in event) && event.targetTouches.length) {
+        event = event.targetTouches[0];
+    }
+
+    if ('pageX' in event) {
         return event.pageX;
     }
-    else {
-        var clientX;
-        if (('targetTouches' in event) && event.targetTouches.length) {
-            clientX = event.targetTouches[0].clientX;
-        }
-        else {
-            clientX = event.clientX;
-        }
 
-        var doc = document.documentElement;
-        var body = document.body;
-        return clientX +
-            ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
-            ( doc && doc.clientLeft || body && body.clientLeft || 0 );
-    }
+    // calculate pageX from clientX
+    var clientX = event.clientX;
+    var doc = document.documentElement;
+    var body = document.body;
+    return clientX +
+        ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
+        ( doc && doc.clientLeft || body && body.clientLeft || 0 );
 };
 
 /**

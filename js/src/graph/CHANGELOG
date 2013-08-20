@@ -1,6 +1,11 @@
 CHAP Links Library - Graph
 
 
+2013-08-20, version 1.3.2
+
+- Fixed non-working touch events.
+
+
 2013-06-18, version 1.3.1
 
 - Option `tooltip` can now be a callback function which formats the tooltip.
