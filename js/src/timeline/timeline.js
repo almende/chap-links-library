@@ -389,10 +389,10 @@ links.Timeline.mapColumnIds = function (dataTable) {
         cols.start = 0;
         cols.end = 1;
         cols.content = 2;
-        if (colCount >= 3) {cols.group = 3}
-        if (colCount >= 4) {cols.className = 4}
-        if (colCount >= 5) {cols.editable = 5}
-        if (colCount >= 6) {cols.type = 6}
+        if (colCount > 3) {cols.group = 3}
+        if (colCount > 4) {cols.className = 4}
+        if (colCount > 5) {cols.editable = 5}
+        if (colCount > 6) {cols.type = 6}
     }
 
     return cols;
