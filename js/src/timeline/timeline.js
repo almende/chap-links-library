@@ -4350,10 +4350,10 @@ links.Timeline.prototype.getItem = function (index) {
     if (item.group) {
         properties.group = this.getGroupName(item.group);
     }
-    if ('className' in item) {
-        properties.className = this.getGroupName(item.className);
+    if (item.className) {
+        properties.className = item.className;
     }
-    if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
+    if (typeof item.editable !== 'undefined') {
         properties.editable = item.editable;
     }
     if (item.type) {
