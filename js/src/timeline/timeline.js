@@ -432,7 +432,7 @@ links.Timeline.prototype.setData = function(data) {
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
                 'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
-                'type':      ((cols.editable != undefined)  ? data.getValue(row, cols.type)      : undefined)
+                'type':      ((cols.type != undefined)      ? data.getValue(row, cols.type)      : undefined)
             }));
         }
     }
@@ -4351,10 +4351,10 @@ links.Timeline.prototype.getItem = function (index) {
     if (item.group) {
         properties.group = this.getGroupName(item.group);
     }
-    if ('className' in item) {
-        properties.className = this.getGroupName(item.className);
+    if (item.className) {
+        properties.className = item.className;
     }
-    if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
+    if (typeof item.editable !== 'undefined') {
         properties.editable = item.editable;
     }
     if (item.type) {

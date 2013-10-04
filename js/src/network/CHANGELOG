@@ -1,6 +1,12 @@
 CHAP Links Library - Network
 
 
+(not yet released), version 1.5.1
+
+- Fixed automatic scaling of nodes and links not working when all values
+  are equal.
+
+
 2013-04-26, version 1.5.0
 
 - Links connected with a selected node are now highlighted by giving them
