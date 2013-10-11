@@ -509,11 +509,8 @@ var options = {
         If true, the groups legend is drawn on the right side.</td>
 </tr>
 
-Added option groupOrder, which is `true` by default and can be used to provide
-a custom group order (or no ordering at all by setting the option to `false`).
-
 <tr>
-    <td>groupOrder</td>
+    <td>groupsOrder</td>
     <td>boolean | function</td>
     <td>true</td>
     <td>
@@ -521,7 +518,7 @@ a custom group order (or no ordering at all by setting the option to `false`).
       When true (default), groups will be ordered alphabetically.
       When false, groups will not be ordered at all.
       When a function, groups will be ordered using this sort function.
-      While sorting, the sort function is called with two objects a and b
+      While sorting, the sort function is called with two groups to compare
       as parameters, and the function must return 0 when a and b are equal,
       a value larger than 0 when a is larger than b,
       and a value smaller than 0 when a is smaller than b.
