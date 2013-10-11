@@ -508,6 +508,26 @@ var options = {
     <td>If false, the groups legend is drawn at the left side of the timeline.
         If true, the groups legend is drawn on the right side.</td>
 </tr>
+
+Added option groupOrder, which is `true` by default and can be used to provide
+a custom group order (or no ordering at all by setting the option to `false`).
+
+<tr>
+    <td>groupOrder</td>
+    <td>boolean | function</td>
+    <td>true</td>
+    <td>
+      Allows to customize the way groups are ordered.
+      When true (default), groups will be ordered alphabetically.
+      When false, groups will not be ordered at all.
+      When a function, groups will be ordered using this sort function.
+      While sorting, the sort function is called with two objects a and b
+      as parameters, and the function must return 0 when a and b are equal,
+      a value larger than 0 when a is larger than b,
+      and a value smaller than 0 when a is smaller than b.
+    </td>
+</tr>
+
 <tr>
     <td>groupsWidth</td>
     <td>string</td>
