@@ -3,6 +3,9 @@ CHAP Links Library - Timeline
 
 <not yet released>, version 2.5.1
 
+- Added option groupOrder, which is `true` by default and can be used to provide
+  a custom group order (or no ordering at all by setting the option to `false`).
+  (Thanks hansmaulwurf23).
 - Fixed an off-by-one error in mapping columns of a Google DataTable.
 - Fixed `type` not being read correctly from a Google DataTable.
   Thanks boblepepeur.

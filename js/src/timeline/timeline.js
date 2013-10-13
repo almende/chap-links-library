@@ -200,7 +200,7 @@ links.Timeline = function(container) {
         'showNavigation': false,
         'showButtonNew': false,
         'groupsOnRight': false,
-        'groupOrder' : true,
+        'groupsOrder' : true,
         'axisOnTop': false,
         'stackEvents': true,
         'animate': true,
@@ -4547,7 +4547,7 @@ links.Timeline.prototype.getGroup = function (groupName) {
         };
         groups.push(groupObj);
         // sort the groups
-        if (this.options.groupOrder == true) {
+        if (this.options.groupsOrder == true) {
 	        groups = groups.sort(function (a, b) {
 	            if (a.content > b.content) {
 	                return 1;
@@ -4557,8 +4557,8 @@ links.Timeline.prototype.getGroup = function (groupName) {
 	            }
 	            return 0;
 	        });
-        } else if (typeof(this.options.groupOrder) == "function") {
-        	groups = groups.sort(this.options.groupOrder)
+        } else if (typeof(this.options.groupsOrder) == "function") {
+        	groups = groups.sort(this.options.groupsOrder)
         }
 
         // rebuilt the groupIndexes
