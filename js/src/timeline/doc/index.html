@@ -1041,6 +1041,30 @@ var options = {
     <td>none</td>
     <td>Adjust the visible time range such that all events are visible.</td>
 </tr>
+
+<tr>
+    <td>move(moveFactor)</td>
+    <td>none</td>
+    <td>Move the timeline the given movefactor to the left or right.
+        Start and end date will be adjusted, and the timeline will be redrawn.
+        For example, try moveFactor = 0.1 or -0.1.
+        <code>moveFactor</code> is a Number that determines the moving amount.
+        A positive value will move right, a negative value will move left.
+    </td>
+</tr>
+
+<tr>
+    <td>zoom(zoomFactor, zoomAroundDate)</td>
+    <td>none</td>
+    <td>Zoom the timeline the given zoomfactor in or out. Start and end date
+        will be adjusted, and the timeline will be redrawn.
+        You can optionally give a date around which to zoom.
+        For example, try zoomfactor = 0.1 or -0.1.
+        <code>zoomFactor</code> is a Number that determines the zooming amount.
+        Positive value will zoom in, negative value will zoom out.
+        <code>zoomAroundDate</code> is a Date around which to zoom and it is optional.
+    </td>
+</tr>
 </table>
 
 <h2 id="Events">Events</h2>
