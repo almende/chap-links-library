@@ -869,7 +869,7 @@ links.Timeline.prototype.repaintFrame = function() {
     if (!dom.content) {
         // create content box where the axis and items will be created
         dom.content = document.createElement("DIV");
-		dom.content.className = "timeline-content";
+        dom.content.className = "timeline-content";
         dom.frame.appendChild(dom.content);
 
         var timelines = document.createElement("DIV");
