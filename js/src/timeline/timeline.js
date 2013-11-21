@@ -852,8 +852,6 @@ links.Timeline.prototype.repaintFrame = function() {
     if (!dom.frame) {
         dom.frame = document.createElement("DIV");
         dom.frame.className = "timeline-frame ui-widget ui-widget-content ui-corner-all";
-        dom.frame.style.position = "relative";
-        dom.frame.style.overflow = "hidden";
         dom.container.appendChild(dom.frame);
         needsReflow = true;
     }
@@ -871,8 +869,7 @@ links.Timeline.prototype.repaintFrame = function() {
     if (!dom.content) {
         // create content box where the axis and items will be created
         dom.content = document.createElement("DIV");
-        dom.content.style.position = "relative";
-        dom.content.style.overflow = "hidden";
+        dom.content.className = "timeline-content";
         dom.frame.appendChild(dom.content);
 
         var timelines = document.createElement("DIV");

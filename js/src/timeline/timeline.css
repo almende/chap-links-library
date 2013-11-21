@@ -1,5 +1,11 @@
 div.timeline-frame {
     border: 1px solid #BEBEBE;
+    position: relative;
+    overflow: hidden;
+}
+
+div.timeline-content {
+    position: relative;
     overflow: hidden;
 }
 
