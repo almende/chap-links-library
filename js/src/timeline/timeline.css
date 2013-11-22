@@ -3,6 +3,12 @@ div.timeline-frame {
     border: 1px solid #bebebe;
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
+}
+
+div.timeline-content {
+    overflow: hidden;
+    position: relative;
 }
 
 div.timeline-axis {
