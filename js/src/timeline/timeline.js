@@ -2784,6 +2784,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 right = left + (params.itemRight - params.itemLeft);
                 item.end = this.screenToTime(right);
             }
+            this.trigger('change');
         }
 
         item.setPosition(left, right);
@@ -2892,10 +2893,10 @@ links.Timeline.prototype.onMouseUp = function (event) {
                 'end': item.end
             });
 
-            // fire an add or change event. 
+            // fire an add or changed event. 
             // Note that the change can be canceled from within an event listener if 
             // this listener calls the method cancelChange().
-            this.trigger(params.addItem ? 'add' : 'change');
+            this.trigger(params.addItem ? 'add' : 'changed');
 
             if (params.addItem) {
                 if (this.applyAdd) {
