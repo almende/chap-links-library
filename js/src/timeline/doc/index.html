@@ -465,7 +465,8 @@ var options = {
     <td>If true, the events can be edited, created and deleted.
         Events can only be editable when th option <code>selectable</code> is true
         (default). When editable is true, the Timeline can fire events
-        <code>change</code>, <code>edit</code>, <code>add</code>, <code>delete</code>.
+        <code>change</code>, <code>changed</code>, <code>edit</code>,
+        <code>add</code>, <code>delete</code>.
         <br>
         This global setting editable can be overwritten for individual events
         by providing the events with a field editable,
@@ -837,9 +838,9 @@ var options = {
 <tr>
     <td>cancelChange()</td>
     <td>none</td>
-    <td>A <code>change</code> event can be canceled by calling the method
+    <td>A <code>changed</code> event can be canceled by calling the method
         <code>cancelChange</code> from within an event listener that listens for
-        <code>change</code> events. This is useful when changes need to be approved.
+        <code>changed</code> events. This is useful when changes need to be approved.
     </td>
 </tr>
 
@@ -1131,6 +1132,21 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
 
     <tr>
         <td>change</td>
+        <td>The properties of an event are changing.
+            Fired repeatedly while the user is modifying the start date or end
+            date of an event by moving (dragging) the event in the Timeline.
+            <br>
+            The selected row can be retrieved via the method <code>getSelection</code>,
+            and new start and end data can be read in the according row in the data table.
+            <br>
+        </td>
+        <td>
+            none
+        </td>
+    </tr>
+
+    <tr>
+        <td>changed</td>
         <td>The properties of an event changed.
             Fired after the user modified the start date or end date of an event
             by moving (dragging) the event in the Timeline.
@@ -1138,7 +1154,7 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
             The selected row can be retrieved via the method <code>getSelection</code>,
             and new start and end data can be read in the according row in the data table.
             <br>
-            The <code>change</code> event can be canceled by calling the method
+            The <code>changed</code> event can be canceled by calling the method
             <code>cancelChange</code> from within the event listener. This is useful
             when changes need to be approved.
         </td>

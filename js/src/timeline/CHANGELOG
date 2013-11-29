@@ -6,6 +6,8 @@ CHAP Links Library - Timeline
 - Added option groupsOrder, which is `true` by default and can be used to provide
   a custom group order (or no ordering at all by setting the option to `false`).
   (Thanks hansmaulwurf23).
+- Rename event `change` to `changed`, added event `change` which fires
+  repeatedly when an item is being changed. (Thanks bensleveritt).
 - Fixed an off-by-one error in mapping columns of a Google DataTable.
 - Fixed `type` not being read correctly from a Google DataTable.
   Thanks boblepepeur.
