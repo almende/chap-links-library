@@ -1979,6 +1979,7 @@ links.Timeline.prototype.repaintCurrentTime = function() {
     }
     var timeline = this;
     var onTimeout = function() {
+        timeline.trigger('repaintcurrenttime');
         timeline.repaintCurrentTime();
     };
     // the time equal to the width of one pixel, divided by 2 for more smoothness

@@ -1,0 +1,101 @@
+<html>
+<head>
+    <title>Timeline demo</title>
+
+    <style type="text/css">
+        body {font: 10pt arial;}
+    </style>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="../timeline.js"></script>
+    <link rel="stylesheet" type="text/css" href="../timeline.css">
+
+    <script type="text/javascript">
+        var timeline,
+            playHeadTimeline
+        ;
+
+        google.load("visualization", "1");
+
+        // Set callback to run when API is loaded
+        google.setOnLoadCallback(drawVisualization);
+
+        // Called when the Visualization API is loaded.
+        function drawVisualization() {
+            // Create and populate a data table.
+            var data = new google.visualization.DataTable();
+            data.addColumn('datetime', 'start');
+            data.addColumn('datetime', 'end');
+            data.addColumn('string', 'content');
+
+            data.addRows([
+                [new Date(), , 'Conversation<br>' +
+                        '<img src="img/comments-icon.png" style="width:32px; height:32px;">'],
+                [new Date(2010,7,23,23,0,0), , 'Mail from boss<br>' +
+                        '<img src="img/mail-icon.png" style="width:32px; height:32px;">'],
+                [new Date(2010,7,24,16,0,0), , 'Report'],
+                [new Date(2010,7,26), new Date(2010,8,2), 'Traject A'],
+                [new Date(2010,7,28), , 'Memo<br>' +
+                        '<img src="img/notes-edit-icon.png" style="width:48px; height:48px;">'],
+                [new Date(2010,7,29), , 'Phone call<br>' +
+                        '<img src="img/Hardware-Mobile-Phone-icon.png" style="width:32px; height:32px;">'],
+                [new Date(2010,7,31), new Date(2010,8,3), 'Traject B'],
+                [new Date(2010,8,4,12,0,0), , 'Report<br>' +
+                        '<img src="img/attachment-icon.png" style="width:32px; height:32px;">']
+            ]);
+
+            // specify options
+            var options = {
+                "width":  "100%",
+                "height": "300px",
+                "style": "box"
+            };
+
+            // Instantiate our timeline objects.
+            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            playHeadTimeline = new links.Timeline(document.getElementById('myfollowtheplayheadtimeline'));
+
+            // Draw our timelines with the created data and options
+            timeline.draw(data, options);
+            playHeadTimeline.draw(data, options);
+
+            // Calculate visible chart range
+            var start = new Date(Date.now() - 60000);
+            var end   = new Date(Date.now() + 60000);
+
+            // Set visible chart range
+            timeline.setVisibleChartRange(start, end);
+            playHeadTimeline.setVisibleChartRange(start, end);
+
+            // Add listener to the event repaintcurrenttime, which is triggered every time the playhead is repainted
+            links.events.addListener(playHeadTimeline, 'repaintcurrenttime', function() {
+                playHeadTimeline.setVisibleChartRangeNow();
+            });
+        }
+    </script>
+</head>
+
+<body>
+<h1>Follow the playhead</h1>
+<p>
+    The page demonstrates how you can use the repaintcurrenttime event triggered by the timeline every time the current
+    time playhead (the red, vertical line displaying the current time) is repainted to implement a simple functionality
+    where the timeline moves with the playhead instead of the playhead moving and the timeline standing still.
+</p>
+<p>
+    This could be useful if you want to follow the current events happening in the timeline without having to move it yourself.
+</p>
+
+<h2>Follow the playhead</h2>
+<div id="myfollowtheplayheadtimeline"></div>
+<h2>Playhead's default behavior</h2>
+<div id="mytimeline"></div>
+
+<!-- Information about where the used icons come from -->
+<p style="color:gray; font-size:10px; font-style:italic;">
+    Icons by <a href="http://dryicons.com" target="_blank" title="Aesthetica 2 Icons by DryIcons" style="color:gray;" >DryIcons</a>
+    and <a href="http://www.tpdkdesign.net" target="_blank" title="Refresh Cl Icons by TpdkDesign.net" style="color:gray;" >TpdkDesign.net</a>
+</p>
+
+</body>
+</html>
