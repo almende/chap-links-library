@@ -67,7 +67,7 @@
             timeline.setVisibleChartRange(start, end);
             playHeadTimeline.setVisibleChartRange(start, end);
 
-            //
+            // Add listener to the event repaintcurrenttime, which is triggered every time the playhead is repainted
             links.events.addListener(playHeadTimeline, 'repaintcurrenttime', function() {
                 playHeadTimeline.setVisibleChartRangeNow();
             });
