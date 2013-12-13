@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2013 Almende B.V.
  *
  * @author     Jos de Jong, <jos@almende.org>
- * @date    2013-08-20
- * @version 2.5.0
+ * @date    2013-12-13
+ * @version 2.5.1
  */
 
 /*
@@ -200,6 +200,7 @@ links.Timeline = function(container) {
         'showNavigation': false,
         'showButtonNew': false,
         'groupsOnRight': false,
+        'groupsOrder' : true,
         'axisOnTop': false,
         'stackEvents': true,
         'animate': true,
@@ -389,10 +390,10 @@ links.Timeline.mapColumnIds = function (dataTable) {
         cols.start = 0;
         cols.end = 1;
         cols.content = 2;
-        if (colCount >= 3) {cols.group = 3}
-        if (colCount >= 4) {cols.className = 4}
-        if (colCount >= 5) {cols.editable = 5}
-        if (colCount >= 6) {cols.type = 6}
+        if (colCount > 3) {cols.group = 3}
+        if (colCount > 4) {cols.className = 4}
+        if (colCount > 5) {cols.editable = 5}
+        if (colCount > 6) {cols.type = 6}
     }
 
     return cols;
@@ -431,7 +432,7 @@ links.Timeline.prototype.setData = function(data) {
                 'group':     ((cols.group != undefined)     ? data.getValue(row, cols.group)     : undefined),
                 'className': ((cols.className != undefined) ? data.getValue(row, cols.className) : undefined),
                 'editable':  ((cols.editable != undefined)  ? data.getValue(row, cols.editable)  : undefined),
-                'type':      ((cols.editable != undefined)  ? data.getValue(row, cols.type)      : undefined)
+                'type':      ((cols.type != undefined)      ? data.getValue(row, cols.type)      : undefined)
             }));
         }
     }
@@ -851,8 +852,6 @@ links.Timeline.prototype.repaintFrame = function() {
     if (!dom.frame) {
         dom.frame = document.createElement("DIV");
         dom.frame.className = "timeline-frame ui-widget ui-widget-content ui-corner-all";
-        dom.frame.style.position = "relative";
-        dom.frame.style.overflow = "hidden";
         dom.container.appendChild(dom.frame);
         needsReflow = true;
     }
@@ -870,8 +869,7 @@ links.Timeline.prototype.repaintFrame = function() {
     if (!dom.content) {
         // create content box where the axis and items will be created
         dom.content = document.createElement("DIV");
-        dom.content.style.position = "relative";
-        dom.content.style.overflow = "hidden";
+        dom.content.className = "timeline-content";
         dom.frame.appendChild(dom.content);
 
         var timelines = document.createElement("DIV");
@@ -2786,6 +2784,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 right = left + (params.itemRight - params.itemLeft);
                 item.end = this.screenToTime(right);
             }
+            this.trigger('change');
         }
 
         item.setPosition(left, right);
@@ -2894,10 +2893,10 @@ links.Timeline.prototype.onMouseUp = function (event) {
                 'end': item.end
             });
 
-            // fire an add or change event. 
+            // fire an add or changed event. 
             // Note that the change can be canceled from within an event listener if 
             // this listener calls the method cancelChange().
-            this.trigger(params.addItem ? 'add' : 'change');
+            this.trigger(params.addItem ? 'add' : 'changed');
 
             if (params.addItem) {
                 if (this.applyAdd) {
@@ -4350,10 +4349,10 @@ links.Timeline.prototype.getItem = function (index) {
     if (item.group) {
         properties.group = this.getGroupName(item.group);
     }
-    if ('className' in item) {
-        properties.className = this.getGroupName(item.className);
+    if (item.className) {
+        properties.className = item.className;
     }
-    if (item.hasOwnProperty('editable') && (typeof item.editable != 'undefined')) {
+    if (typeof item.editable !== 'undefined') {
         properties.editable = item.editable;
     }
     if (item.type) {
@@ -4545,15 +4544,19 @@ links.Timeline.prototype.getGroup = function (groupName) {
         };
         groups.push(groupObj);
         // sort the groups
-        groups = groups.sort(function (a, b) {
-            if (a.content > b.content) {
-                return 1;
-            }
-            if (a.content < b.content) {
-                return -1;
-            }
-            return 0;
-        });
+        if (this.options.groupsOrder == true) {
+	        groups = groups.sort(function (a, b) {
+	            if (a.content > b.content) {
+	                return 1;
+	            }
+	            if (a.content < b.content) {
+	                return -1;
+	            }
+	            return 0;
+	        });
+        } else if (typeof(this.options.groupsOrder) == "function") {
+        	groups = groups.sort(this.options.groupsOrder)
+        }
 
         // rebuilt the groupIndexes
         for (var i = 0, iMax = groups.length; i < iMax; i++) {

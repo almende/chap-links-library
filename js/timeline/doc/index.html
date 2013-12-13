@@ -465,7 +465,8 @@ var options = {
     <td>If true, the events can be edited, created and deleted.
         Events can only be editable when th option <code>selectable</code> is true
         (default). When editable is true, the Timeline can fire events
-        <code>change</code>, <code>edit</code>, <code>add</code>, <code>delete</code>.
+        <code>change</code>, <code>changed</code>, <code>edit</code>,
+        <code>add</code>, <code>delete</code>.
         <br>
         This global setting editable can be overwritten for individual events
         by providing the events with a field editable,
@@ -508,6 +509,23 @@ var options = {
     <td>If false, the groups legend is drawn at the left side of the timeline.
         If true, the groups legend is drawn on the right side.</td>
 </tr>
+
+<tr>
+    <td>groupsOrder</td>
+    <td>boolean | function</td>
+    <td>true</td>
+    <td>
+      Allows to customize the way groups are ordered.
+      When true (default), groups will be ordered alphabetically.
+      When false, groups will not be ordered at all.
+      When a function, groups will be ordered using this sort function.
+      While sorting, the sort function is called with two groups to compare
+      as parameters, and the function must return 0 when a and b are equal,
+      a value larger than 0 when a is larger than b,
+      and a value smaller than 0 when a is smaller than b.
+    </td>
+</tr>
+
 <tr>
     <td>groupsWidth</td>
     <td>string</td>
@@ -820,9 +838,9 @@ var options = {
 <tr>
     <td>cancelChange()</td>
     <td>none</td>
-    <td>A <code>change</code> event can be canceled by calling the method
+    <td>A <code>changed</code> event can be canceled by calling the method
         <code>cancelChange</code> from within an event listener that listens for
-        <code>change</code> events. This is useful when changes need to be approved.
+        <code>changed</code> events. This is useful when changes need to be approved.
     </td>
 </tr>
 
@@ -1024,6 +1042,30 @@ var options = {
     <td>none</td>
     <td>Adjust the visible time range such that all events are visible.</td>
 </tr>
+
+<tr>
+    <td>move(moveFactor)</td>
+    <td>none</td>
+    <td>Move the timeline the given movefactor to the left or right.
+        Start and end date will be adjusted, and the timeline will be redrawn.
+        For example, try moveFactor = 0.1 or -0.1.
+        <code>moveFactor</code> is a Number that determines the moving amount.
+        A positive value will move right, a negative value will move left.
+    </td>
+</tr>
+
+<tr>
+    <td>zoom(zoomFactor, zoomAroundDate)</td>
+    <td>none</td>
+    <td>Zoom the timeline the given zoomfactor in or out. Start and end date
+        will be adjusted, and the timeline will be redrawn.
+        You can optionally give a date around which to zoom.
+        For example, try zoomfactor = 0.1 or -0.1.
+        <code>zoomFactor</code> is a Number that determines the zooming amount.
+        Positive value will zoom in, negative value will zoom out.
+        <code>zoomAroundDate</code> is a Date around which to zoom and it is optional.
+    </td>
+</tr>
 </table>
 
 <h2 id="Events">Events</h2>
@@ -1090,6 +1132,21 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
 
     <tr>
         <td>change</td>
+        <td>The properties of an event are changing.
+            Fired repeatedly while the user is modifying the start date or end
+            date of an event by moving (dragging) the event in the Timeline.
+            <br>
+            The selected row can be retrieved via the method <code>getSelection</code>,
+            and new start and end data can be read in the according row in the data table.
+            <br>
+        </td>
+        <td>
+            none
+        </td>
+    </tr>
+
+    <tr>
+        <td>changed</td>
         <td>The properties of an event changed.
             Fired after the user modified the start date or end date of an event
             by moving (dragging) the event in the Timeline.
@@ -1097,7 +1154,7 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
             The selected row can be retrieved via the method <code>getSelection</code>,
             and new start and end data can be read in the according row in the data table.
             <br>
-            The <code>change</code> event can be canceled by calling the method
+            The <code>changed</code> event can be canceled by calling the method
             <code>cancelChange</code> from within the event listener. This is useful
             when changes need to be approved.
         </td>

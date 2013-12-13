@@ -1,6 +1,19 @@
 CHAP Links Library - Timeline
 
 
+2013-12-13, version 2.5.1
+
+- Added option groupsOrder, which is `true` by default and can be used to provide
+  a custom group order (or no ordering at all by setting the option to `false`).
+  (Thanks hansmaulwurf23).
+- Rename event `change` to `changed`, added event `change` which fires
+  repeatedly when an item is being changed. (Thanks bensleveritt).
+- Fixed an off-by-one error in mapping columns of a Google DataTable.
+- Fixed `type` not being read correctly from a Google DataTable.
+  Thanks boblepepeur.
+- Fixed getting the className of an item. Thanks Pedro Heliodoro.
+
+
 2013-08-20, version 2.5.0
 
 - Added French and Dutch localization. Thanks sp0ken and jeroenvg.
