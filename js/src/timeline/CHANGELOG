@@ -1,7 +1,7 @@
 CHAP Links Library - Timeline
 
 
-<not yet released>, version 2.5.1
+2013-12-13, version 2.5.1
 
 - Added option groupsOrder, which is `true` by default and can be used to provide
   a custom group order (or no ordering at all by setting the option to `false`).
