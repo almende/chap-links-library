@@ -95,7 +95,9 @@
                     var end = new Date(date.valueOf());
                     ranges.push({
                         'start': start,
-                        'end': end
+                        'end': end,
+                        'text': 'high',
+                        'title': 'Start of a high area'
                     });
                     start = null;
                 }
@@ -131,7 +133,9 @@
                     var end = new Date(date.valueOf());
                     ranges.push({
                         'start': start,
-                        'end': end
+                        'end': end,
+                        'text': 'low',
+                        'title': 'Start of a low area'
                     });
                     start = null;
                 }
@@ -155,20 +159,49 @@
         'data': createRangesAboveThreshold(dataB.data, bMax)
     };
 
+    var events = {
+        'label' : 'Events',
+        'type': 'event',
+        'data': [
+            {
+                'date': new Date(2010, 9, 23, 20, 30, 0),
+                'text': 'A',
+                'title': 'Here I pressed a button'
+            },
+            {
+                'date': new Date(2010, 9, 23, 21, 0, 0),
+                'text': 'B',
+                'title': 'Here I pressed another button'
+            }
+        ]
+    };
+
     // specify options
     var options = {
-        'width':  '100%',
-        'height': '350px',
+        width:  '100%',
+        height: '350px',
+        line: {
+            font: '10pt arial'
+        },
         lines: [
             {
                 // Threshold A
                 //legend: false,
-                color: 'rgba(51, 102, 204, 0.1)'
+                color:     'rgba(51, 102, 204, 0.1)',
+                textColor: 'rgba(51, 102, 204, 1)'
             },
             {
                 // Threshold B
                 //legend: false,
-                color: 'rgba(220, 57, 18, 0.1)'
+                color:     'rgba(220, 57, 18, 0.1)',
+                textColor: 'rgba(220, 57, 18, 1)'
+            },
+            {
+                // event
+                //legend: false,
+                //width: 4,
+                color: 'rgba(255, 165, 0, 0.7)',
+                textColor: 'rgba(255, 165, 0, 0.7)'
             },
             {
                 // Function A
@@ -185,7 +218,7 @@
     var graph = new links.Graph(document.getElementById('mygraph'));
 
     // Draw our graph with the created data and options
-    graph.draw([thresholdA, thresholdB, dataA, dataB], options);
+    graph.draw([thresholdA, thresholdB, events, dataA, dataB], options);
 
     // Draw but with safe (non-transparent) hex colors
     function safeHexColors() {

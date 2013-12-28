@@ -93,8 +93,8 @@ public class TimelineDemo2 implements EntryPoint {
   private DataTable createDataTable() {
     
     DataTable data = DataTable.create();
-    data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
-    data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
+    data.addColumn(DataTable.ColumnType.DATETIME, "start");
+    data.addColumn(DataTable.ColumnType.DATETIME, "end");
     data.addColumn(DataTable.ColumnType.STRING, "content");
 
     DateTimeFormat df = DateTimeFormat.getFormat("yyyy-MM-dd");

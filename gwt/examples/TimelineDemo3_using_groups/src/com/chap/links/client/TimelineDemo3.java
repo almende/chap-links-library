@@ -25,8 +25,8 @@ public class TimelineDemo3 implements EntryPoint {
       public void run() {
     	// create a data table
     	DataTable data = DataTable.create();
-	    data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
-	    data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
+	    data.addColumn(DataTable.ColumnType.DATETIME, "start");
+	    data.addColumn(DataTable.ColumnType.DATETIME, "end");
 	    data.addColumn(DataTable.ColumnType.STRING, "content");
 	    data.addColumn(DataTable.ColumnType.STRING, "group");
 

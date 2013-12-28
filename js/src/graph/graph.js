@@ -28,47 +28,9 @@
  * Copyright (C) 2010-2013 Almende B.V.
  *
  * @author 	Jos de Jong, <jos@almende.org>
- * @date    2013-05-31
- * @version 1.3.1-SNAPSHOT
+ * @date    2013-08-20
+ * @version 1.3.2
  */
-
-
-/*
- TODO
- add an option vZoomable and vMovable to fix vertical zooming/moving
-
- when subsampling, always take the same start - else it looks like the data is jumping
- implement option backgroundColor like all other Google Visualizations (and see Links.Network)
- css: make two style groups: haxis and vaxis
-
- add an option to select/deselect all functions in the legend
- add possibility to have a horizontal axis with numbers instead of dates
- recalculate min and max scale after each zoom action too?
-
- add a line style circle? square? triange? custom color for the circle or dot?
- enable highlighting one of the graphs (select one graph)
-
- BUGS
- when zooming in on on line segment, it is not drawn correctly (disappears)
- IE: unstable for >10000 datapoints. Maybe due to conversion to VML by excanvas? Or a bug in my code?
-
- Safari, old IE:
- sometimes, the canvas is not cleared completely (which is fixed after another redraw)
- --> test if fixed now (by clearing before resizing)
-
- the text on the vertical axis has round off errors when dealing with very small scale (1e-6)
-
- Documentation
- http://codingforums.com/showthread.php?t=99027
- http://bytes.com/topic/javascript/answers/160118-creating-xhtml-iframe
- http://www.kevlindev.com/tutorials/basics/shapes/js_dom/index.htm
- http://adomas.org/javascript-mouse-wheel/
- http://www.brainjar.com/dhtml/drag/
- http://dev-tips.com/demo/css3_circles.html
-
- */
-
-
 
 /**
  * Declare a unique namespace for CHAP's Common Hybrid Visualisation Library,
@@ -294,9 +256,12 @@ links.Graph.prototype._readData = function(data) {
     for (var i = 0, len = this.data.length; i < len; i++) {
         var graph = this.data[i];
 
-        var fields = ['date'];
+        var fields;
         if (graph.type == 'area') {
-            fields = ['start', 'end'];
+            fields = ['start', 'end']; // area
+        }
+        else {
+            fields = ['date']; // 'line' or 'event'
         }
 
         graph.dataRange = this._getDataRange(graph.data);
@@ -1110,12 +1075,14 @@ links.Graph.prototype._create = function () {
     var onmousewheel = function (event) {me._onWheel(event);};
     var ontouchstart = function (event) {me._onTouchStart(event);};
     if (this.showTooltip) {
+        var onmouseout = function (event) {me._onMouseOut(event);};
         var onmousehover = function (event) {me._onMouseHover(event);};
     }
 
     // TODO: these events are never cleaned up... can give a "memory leakage"?
     links.Graph.addEventListener(this.frame, "mousedown", onmousedown);
     links.Graph.addEventListener(this.frame, "mousemove", onmousehover);
+    links.Graph.addEventListener(this.frame, "mouseout", onmouseout);
     links.Graph.addEventListener(this.frame, "mousewheel", onmousewheel);
     links.Graph.addEventListener(this.frame, "touchstart", ontouchstart);
     links.Graph.addEventListener(this.frame, "mousedown", function() {me._checkSize();});
@@ -1929,11 +1896,14 @@ links.Graph.prototype._redrawData = function() {
     for (var col = 0, colCount = this.data.length; col < colCount; col++) {
         var style = this._getLineStyle(col);
         var color = this._getLineColor(col);
+        var textColor = this._getTextColor(col);
+        var font = this._getFont(col);
         var width = this._getLineWidth(col);
         var radius = this._getLineRadius(col);
         var visible = this._getLineVisible(col);
         var type = this.data[col].type || 'line';
         var data = this.data[col].data;
+        var d;
 
         // determine the first and last row inside the visible area
         var rowRange = this._getVisbleRowRange(data, start, end, type,
@@ -2010,14 +1980,44 @@ links.Graph.prototype._redrawData = function() {
                 case 'area':
                     // draw background area
                     for (row = rowRange.start; row <= rowRange.end; row += rowStep) {
-                        var d = data[row];
+                        d = data[row];
                         ctx.fillStyle = d.color || color;
 
                         var xStart = this.timeToScreen(d.start) - offset;
                         var yStart = this.timeToScreen(d.end) - offset;
                         ctx.fillRect(xStart, 0, yStart - xStart, height);
-                    }
 
+                        if (d.text) {
+                            // draw text
+                            ctx.font = d.font || font;
+                            ctx.textAlign = 'left';
+                            ctx.textBaseline = 'top';
+                            ctx.fillStyle = d.textColor || textColor;
+                            ctx.fillText(d.text, xStart + 2, 0);
+                        }
+                    }
+                    break;
+
+                case 'event':
+                    // draw event background area
+                    for (row = rowRange.start; row <= rowRange.end; row += rowStep) {
+                        d = data[row];
+                        ctx.fillStyle = d.color || color;
+
+                        // area with a start only
+                        var dWidth = d.width || width;
+                        xStart = this.timeToScreen(d.date) - offset;
+                        ctx.fillRect(xStart - dWidth / 2, 0, dWidth, height);
+
+                        if (d.text) {
+                            // draw text
+                            ctx.font = d.font || font;
+                            ctx.textAlign = 'left';
+                            ctx.textBaseline = 'top';
+                            ctx.fillStyle = d.textColor || textColor;
+                            ctx.fillText(d.text, xStart + dWidth / 2 + 2, 0);
+                        }
+                    }
                     break;
 
                 default:
@@ -2071,7 +2071,7 @@ links.Graph.prototype._redrawDataTooltip = function () {
             var radius = dataPoint.radius || 4;
             var color = dataPoint.color || '#4d4d4d';
             var left = this.timeToScreen(dataPoint.date) + offset;
-            var top = this.yToScreen(dataPoint.value);
+            var top = (dataPoint.value != undefined) ? this.yToScreen(dataPoint.value) : 16;
 
             if (!dot) {
                 dot = document.createElement('div');
@@ -2107,17 +2107,27 @@ links.Graph.prototype._redrawDataTooltip = function () {
             dot.style.borderWidth = radius + 'px';
             dot.style.marginLeft = -radius + 'px';
             dot.style.marginTop = -radius + 'px';
+            dot.style.display = dataPoint.title ? 'none': '';
 
+            var html;
             if (this.tooltipFormatter) {
                 // custom format function
-                label.innerHTML = this.tooltipFormatter(dataPoint);
+                html = this.tooltipFormatter(dataPoint);
             }
             else {
-                label.innerHTML = '<table style="color: ' + color + '">' +
-                    '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>' +
-                    '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>' +
-                    '</table>';
+                html = '<table style="color: ' + color + '">';
+                if (dataPoint.title) {
+                    html += '<tr><td>' + dataPoint.title + '</td></tr>';
+                }
+                else {
+                    html += '<tr><td>Date:</td><td>' + dataPoint.date + '</td></tr>';
+                    if (dataPoint.value != undefined) {
+                        html += '<tr><td>Value:</td><td>' + dataPoint.value.toPrecision(4) + '</td></tr>';
+                    }
+                }
+                html += '</table>';
             }
+            label.innerHTML = html;
 
             var width = label.clientWidth;
             var graphWidth = this.timeToScreen(this.end) - this.timeToScreen(this.start);
@@ -2162,7 +2172,7 @@ links.Graph.prototype._setTooltip = function (dataPoint) {
 
 
 /**
- * Find the data point closest to given date and value (eucledian distance).
+ * Find the data point closest to given date and value (euclidean distance).
  * If no data point is found near given position, undefined is returned.
  * @param {Date} date
  * @param {Number} value
@@ -2188,39 +2198,63 @@ links.Graph.prototype._findClosestDataPoint = function (date, value) {
         var visible = this._getLineVisible(col);
         var rowRange = this.data[col].visibleRowRange;
         var data = this.data[col].data;
+        var type = this.data[col].type;
 
         if (visible && rowRange) {
             var rowStep = this._calculateRowStep(rowRange);
             var row = rowRange.start;
-
             while (row <= rowRange.end) {
                 var dataPoint = data[row];
-                if (dataPoint.value != null ) {
-                    //if (dataPoint.date > date || row == rowRange.end) {
+                if (type == 'event') {
+                    dataPoint = {
+                        date: dataPoint.date,
+                        value: this.screenToY(16), // TODO: use the real font height
+                        text: dataPoint.text,
+                        title: dataPoint.title
+                    };
+                }
+                else if (type == 'area') {
+                    dataPoint = {
+                        date: dataPoint.start,
+                        value: this.screenToY(16), // TODO: use the real font height
+                        text: dataPoint.text,
+                        title: dataPoint.title
+                    };
+                }
 
+                if (dataPoint.value != null) {
                     // first data point found right from x.
                     var dateDistance = Math.abs(dataPoint.date - date) * this.ttsFactor;
                     if (dateDistance < maxDistance) {
                         var valueDistance = Math.abs(this.yToScreen(dataPoint.value) - this.yToScreen(value));
-                        if (valueDistance < maxDistance && isVisible(dataPoint)) {
-                            var eucledianDistance = Math.sqrt(
+                        if ((valueDistance < maxDistance) && isVisible(dataPoint)) {
+                            var distance = Math.sqrt(
                                     dateDistance * dateDistance +
                                     valueDistance * valueDistance);
-                            if (!winner || eucledianDistance < winner.eucledianDistance) {
+                            if (!winner || distance < winner.distance) {
                                 // we have a new winner
-                                var radius = Math.max(
-                                    (this._getLineStyle(col) == 'line') ?
-                                        this._getLineWidth(col) * 2 :
-                                        this._getLineRadius(col) * 2, 4);
                                 var color = this._getLineColor(col);
+                                var radius;
+                                if (type == 'event' || type == 'area') {
+                                    radius = this._getLineWidth(col);
+                                    color = this._getTextColor(col);
+                                }
+                                else if (this._getLineStyle(col) == 'line') {
+                                    radius = this._getLineWidth(col) * 2;
+                                }
+                                else {
+                                    radius = this._getLineRadius(col) * 2;
+                                }
+                                radius = Math.max(radius, 4);
 
                                 winner = {
-                                    dateDistance: dateDistance,
-                                    valueDistance: valueDistance,
-                                    eucledianDistance: eucledianDistance,
+                                    distance: distance,
                                     dataPoint: {
                                         date: dataPoint.date,
+                                        //value: (dataPoint.value != undefined) ? dataPoint.value : this.screenToY(10),
                                         value: dataPoint.value,
+                                        title: dataPoint.title,
+                                        text: dataPoint.text,
                                         color: color,
                                         radius: radius,
                                         line: col
@@ -2400,7 +2434,7 @@ links.Graph.prototype._redrawLegend = function() {
  *                           d (datetime) and v (value)
  * @param {Date} start       The start date of the visible range
  * @param {Date} end         The end date of the visible range
- * @param {String} type      Type of data. 'line' (default) or 'area'
+ * @param {String} type      Type of data. 'line' (default), 'area', or 'event'
  * @param {Object} oldRowRange  previous row range, can serve as start
  *                                to find the current visible range faster.
  * @return {object}         Range object containing start row and end row
@@ -2594,6 +2628,42 @@ links.Graph.prototype._getLineColor = function(column) {
     }
 
     return "black";
+};
+
+/**
+ * Returns a string with the text color for the given column in data.
+ * @param {int} column    The column number
+ * @return {string} color The text color for this line
+ */
+links.Graph.prototype._getTextColor = function(column) {
+    if (this.lines && column < this.lines.length) {
+        var line = this.lines[column];
+        if (line && line.textColor != undefined)
+            return line.textColor;
+    }
+
+    if (this.line && this.line.textColor != undefined)
+        return this.line.textColor;
+
+    return "#4D4D4D";
+};
+
+/**
+ * Returns a string with the font the given column in data.
+ * @param {int} column    The column number
+ * @return {string} font  The font for this line, for example '13px arial'
+ */
+links.Graph.prototype._getFont = function(column) {
+    if (this.lines && column < this.lines.length) {
+        var line = this.lines[column];
+        if (line && line.font != undefined)
+            return line.font;
+    }
+
+    if (this.line && this.line.font != undefined)
+        return this.line.font;
+
+    return "13px arial";
 };
 
 /**
@@ -2864,6 +2934,38 @@ links.Graph.prototype._onMouseMove = function (event) {
 
 
 /**
+ * Perform mouse out, but simulate mouse leave.
+ * This function force the tooltip to hide when the mouse leaves the frame.
+ * It is also called (as an event listener) when the graph is dragged and the
+ * mouse button is released. This way the tooltip can be hidden after a drag.
+ * @param {Event} event
+ */
+links.Graph.prototype._onMouseOut = function (event) {
+    event = event || window.event;
+    var me = this;
+
+    // Do not hide when dragging the graph
+    if (event.which > 0 && event.type == 'mouseout' ) {
+        if (!this.onmouseupoutside) {
+            this.onmouseupoutside = function (event) {me._onMouseOut(event);};
+            links.Graph.addEventListener(document, "mouseup", this.onmouseupoutside);
+        }
+        return;
+    }
+
+    // Remove event listener when mouse is released outside of graph
+    if (event.type == 'mouseup') {
+        if (this.onmouseupoutside) {
+            links.Graph.removeEventListener(document, "mouseup", this.onmouseupoutside);
+            this.onmouseupoutside = undefined;
+        }
+    }
+
+    if (links.Graph.isOutside(event, this.frame))
+        this._setTooltip(undefined);
+}
+
+/**
  * Perform mouse hover
  * @param {Event} event
  */
@@ -3107,24 +3209,21 @@ links.Graph._getAbsoluteTop = function(elem) {
  * @return {Number} pageY
  */
 links.Graph._getPageY = function (event) {
+    if (('targetTouches' in event) && event.targetTouches.length) {
+        event = event.targetTouches[0];
+    }
+
     if ('pageY' in event) {
         return event.pageY;
     }
-    else {
-        var clientY;
-        if (('targetTouches' in event) && event.targetTouches.length) {
-            clientY = event.targetTouches[0].clientY;
-        }
-        else {
-            clientY = event.clientY;
-        }
 
-        var doc = document.documentElement;
-        var body = document.body;
-        return clientY +
-            ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
-            ( doc && doc.clientTop || body && body.clientTop || 0 );
-    }
+    // calculate pageY from clientY
+    var clientY = event.clientY;
+    var doc = document.documentElement;
+    var body = document.body;
+    return clientY +
+        ( doc && doc.scrollTop || body && body.scrollTop || 0 ) -
+        ( doc && doc.clientTop || body && body.clientTop || 0 );
 };
 
 /**
@@ -3133,24 +3232,21 @@ links.Graph._getPageY = function (event) {
  * @return {Number} pageX
  */
 links.Graph._getPageX = function (event) {
-    if ('pageY' in event) {
+    if (('targetTouches' in event) && event.targetTouches.length) {
+        event = event.targetTouches[0];
+    }
+
+    if ('pageX' in event) {
         return event.pageX;
     }
-    else {
-        var clientX;
-        if (('targetTouches' in event) && event.targetTouches.length) {
-            clientX = event.targetTouches[0].clientX;
-        }
-        else {
-            clientX = event.clientX;
-        }
 
-        var doc = document.documentElement;
-        var body = document.body;
-        return clientX +
-            ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
-            ( doc && doc.clientLeft || body && body.clientLeft || 0 );
-    }
+    // calculate pageX from clientX
+    var clientX = event.clientX;
+    var doc = document.documentElement;
+    var body = document.body;
+    return clientX +
+        ( doc && doc.scrollLeft || body && body.scrollLeft || 0 ) -
+        ( doc && doc.clientLeft || body && body.clientLeft || 0 );
 };
 
 /**
@@ -3524,3 +3620,19 @@ links.Graph.preventDefault = function (event) {
         event.returnValue = false;  // IE browsers
     }
 };
+
+/**
+ * Check if an event took place outside a specified parent element.
+ * @param {Event} event A javascript (mouse) event object
+ * @param {Element} parent The DOM element to check if event was inside it
+ * @return {boolean}
+ */
+links.Graph.isOutside = function (event, parent) {
+    var elem = event.relatedTarget || event.toElement || event.fromElement
+
+    while ( elem && elem !== parent) {
+        elem = elem.parentNode;
+    }
+
+    return elem !== parent;
+}

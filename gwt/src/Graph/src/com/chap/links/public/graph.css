@@ -44,6 +44,7 @@ div.graph-axis-button {
     margin-right: 5px;
     margin-bottom: 5px;
     cursor: pointer;
+    line-height: 16px;
 }
 div.graph-axis-button:hover {
     background-color: gray;
@@ -90,7 +91,6 @@ div.graph-tooltip-dot {
 
 div.graph-tooltip-label {
     position: absolute;
-    width: 200px;
     background-color: white;
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid #bfbfbf;
@@ -98,6 +98,10 @@ div.graph-tooltip-label {
     box-shadow: 0 0 15px rgba(128, 128, 128, 0.2);
     padding: 5px;
     color: #4d4d4d;
+}
+
+div.graph-tooltip-label table {
+    width: 200px;
 }
 
 div.graph-tooltip-label td {

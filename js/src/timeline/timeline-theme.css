@@ -1,4 +1,10 @@
 div.timeline-frame {
+    position: relative;
+    overflow: hidden;
+}
+
+div.timeline-content {
+    position: relative;
     overflow: hidden;
 }
 

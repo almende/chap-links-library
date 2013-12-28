@@ -1,25 +1,41 @@
 div.timeline-frame {
-    border: 1px solid #BEBEBE;
+    -moz-box-sizing: border-box;
+    border: 1px solid #bebebe;
+    box-sizing: border-box;
     overflow: hidden;
+    position: relative;
+}
+
+div.timeline-content {
+    overflow: hidden;
+    position: relative;
 }
 
 div.timeline-axis {
-    border-color: #BEBEBE;
-    border-width: 1px;
+    -moz-box-sizing: border-box;
+    border-color: #bebebe;
     border-top-style: solid;
+    border-width: 1px;
+    box-sizing: border-box;
 }
+
 div.timeline-axis-grid {
+    -moz-box-sizing: border-box;
     border-left-style: solid;
     border-width: 1px;
+    box-sizing: border-box;
 }
+
 div.timeline-axis-grid-minor {
     border-color: #e5e5e5;
 }
+
 div.timeline-axis-grid-major {
     border-color: #bfbfbf;
 }
+
 div.timeline-axis-text {
-    color: #4D4D4D;
+    color: #4d4d4d;
     padding: 3px;
     white-space: nowrap;
 }
@@ -31,47 +47,50 @@ div.timeline-axis-text-major {
 }
 
 div.timeline-event {
-    color: #1A1A1A;
-    border-color: #97B0F8;
-    background-color: #D5DDF6;
+    -moz-box-sizing: border-box;
+    background-color: #d5ddf6;
+    border-color: #97b0f8;
+    box-sizing: border-box;
+    color: #1a1a1a;
     display: inline-block;
 }
 
 div.timeline-event-selected {
-    border-color: #FFC200;
-    background-color: #FFF785;
+    background-color: #fff785;
+    border-color: #ffc200;
     z-index: 999;
 }
 
+/* TODO: use another color or pattern? */
 div.timeline-event-cluster {
-    /* TODO: use another color or pattern? */
-    background: #97B0F8 url('img/cluster_bg.png');
-    color: white;
+    background: url('img/cluster_bg.png') #97b0f8;
+    color: #ffffff;
 }
+
 div.timeline-event-cluster div.timeline-event-dot {
-    border-color: #D5DDF6;
+    border-color: #d5ddf6;
 }
 
 div.timeline-event-box {
-    text-align: center;
+    -moz-border-radius: 5px; /* For Firefox 3.6 and older */
+    border-radius: 5px;
     border-style: solid;
     border-width: 1px;
-    border-radius: 5px;
-    -moz-border-radius: 5px; /* For Firefox 3.6 and older */
+    text-align: center;
 }
 
 div.timeline-event-dot {
+    -moz-border-radius: 5px; /* For Firefox 3.6 and older */
+    border-radius: 5px;
     border-style: solid;
     border-width: 5px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;  /* For Firefox 3.6 and older */
 }
 
 div.timeline-event-range {
+    -moz-border-radius: 2px; /* For Firefox 3.6 and older */
+    border-radius: 2px;
     border-style: solid;
     border-width: 1px;
-    border-radius: 2px;
-    -moz-border-radius: 2px;  /* For Firefox 3.6 and older */
 }
 
 div.timeline-event-range-drag-left {
@@ -84,71 +103,94 @@ div.timeline-event-range-drag-right {
     z-index: 1000;
 }
 
-
 div.timeline-event-line {
-    border-left-width: 1px;
+    -moz-box-sizing: border-box;
     border-left-style: solid;
+    border-left-width: 1px;
+    box-sizing: border-box;
 }
 
 div.timeline-event-content {
     margin: 5px;
-    white-space: nowrap;
     overflow: hidden;
+    white-space: nowrap;
 }
 
 div.timeline-groups-axis {
-    border-color: #BEBEBE;
+    -moz-box-sizing: border-box;
+    border-color: #bebebe;
     border-width: 1px;
+    box-sizing: border-box;
 }
+
+div.timeline-groups-axis-onleft {
+    border-style: none solid none none;
+}
+
+div.timeline-groups-axis-onright {
+    border-style: none none none solid;
+}
+
 div.timeline-groups-text {
-    color: #4D4D4D;
+    color: #4d4d4d;
     padding-left: 10px;
     padding-right: 10px;
 }
 
 div.timeline-currenttime {
-    background-color: #FF7F6E;
+    -moz-box-sizing: border-box;
+    background-color: #ff7f6e;
+    box-sizing: border-box;
     width: 2px;
 }
 
 div.timeline-customtime {
-    background-color: #6E94FF;
-    width: 2px;
+    -moz-box-sizing: border-box;
+    background-color: #6e94ff;
+    box-sizing: border-box;
     cursor: move;
+    width: 2px;
 }
 
 div.timeline-navigation {
+    -moz-border-radius: 2px; /* For Firefox 3.6 and older */
+    -moz-box-sizing: border-box;
+    background-color: #f5f5f5;
+    border: 1px solid #bebebe;
+    border-radius: 2px;
+    box-sizing: border-box;
+    color: #808080;
     font-family: arial;
     font-size: 20px;
     font-weight: bold;
-    color: gray;
-
-    border: 1px solid #BEBEBE;
-    background-color: #F5F5F5;
-    border-radius: 2px;
-    -moz-border-radius: 2px;  /* For Firefox 3.6 and older */
 }
 
-div.timeline-navigation-new, div.timeline-navigation-delete,
-div.timeline-navigation-zoom-in,  div.timeline-navigation-zoom-out,
-div.timeline-navigation-move-left, div.timeline-navigation-move-right {
+div.timeline-navigation-new,
+div.timeline-navigation-delete,
+div.timeline-navigation-zoom-in,
+div.timeline-navigation-zoom-out,
+div.timeline-navigation-move-left,
+div.timeline-navigation-move-right {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
     cursor: pointer;
-    padding: 10px 10px;
     float: left;
+    height: 36px;
+    padding: 10px;
     text-decoration: none;
-    border-color: #BEBEBE; /* border is used for the separator between new and navigation buttons */
-
-    width: 16px;
-    height: 16px;
+    width: 36px;
 }
 
 div.timeline-navigation-new {
     background: url('img/16/new.png') no-repeat center;
 }
 
+/* separator between new and navigation buttons */
+div.timeline-navigation-new-line {
+    border-right: 1px solid #bebebe;
+}
+
 div.timeline-navigation-delete {
-    padding: 0px;
-    padding-left: 5px;
     background: url('img/16/delete.png') no-repeat center;
 }
 
