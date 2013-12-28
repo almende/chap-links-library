@@ -4864,7 +4864,7 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     }
 
         // initialize final positions and fill finalItems
-        groupFinalItems = this.calculateItemsPosition(groupedItems[group.content], groupBase, group);
+        groupFinalItems = this.finalItemsPosition(groupedItems[group.content], groupBase, group);
         groupFinalItems.forEach(function(item) {
            finalItems.push(item);
         });
@@ -4881,7 +4881,7 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     //
     if (groupedItems["undefined"]) {
         // initialize final positions and fill finalItems
-        groupFinalItems = this.calculateItemsPosition(groupedItems["undefined"], groupBase);
+        groupFinalItems = this.finalItemsPosition(groupedItems["undefined"], groupBase);
         groupFinalItems.forEach(function(item) {
            finalItems.push(item);
         });
@@ -4890,7 +4890,7 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
     return finalItems;
 };
 
-links.Timeline.prototype.calculateItemsPosition = function(items, groupBase, group) {
+links.Timeline.prototype.finalItemsPosition = function(items, groupBase, group) {
     var i,
         iMax,
         options = this.options,
@@ -4926,11 +4926,11 @@ links.Timeline.prototype.calculateItemsPosition = function(items, groupBase, gro
 	    if (group) {
 	        if (axisOnTop) {
 	            group.itemsHeight = (group.itemsHeight)
-	                              ? Math.max(group.itemsHeight, finalItem.bottom - groupBase + eventMargin)
+	                              ? Math.max(group.itemsHeight, finalItem.bottom - groupBase)
 	                              : finalItem.height + eventMargin;
 	        } else {
 	            group.itemsHeight = (group.itemsHeight)
-	                              ? Math.max(group.itemsHeight, groupBase - finalItem.top  + eventMargin)
+	                              ? Math.max(group.itemsHeight, groupBase - finalItem.top)
 	                              : finalItem.height + eventMargin;
 		    }
 		}
@@ -4956,8 +4956,8 @@ links.Timeline.prototype.initialItemsPosition = function(items, groupBase) {
             right = item.getRight(this),
             left = right - width;
 
-        top = (axisOnTop) ? groupBase + eventMargin
-                          : groupBase - height - eventMargin;
+        top = (axisOnTop) ? groupBase
+                          : groupBase - height;
 
         bottom = top + height;
 
