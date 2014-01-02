@@ -211,10 +211,10 @@ links.Timeline = function(container) {
         
         // i18n: Timeline only has built-in English text per default. Include timeline-locales.js to support more localized text.
         'locale': 'en',
-        'MONTHS': new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
-        'MONTHS_SHORT': new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
-        'DAYS': new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
-        'DAYS_SHORT': new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"),
+        'MONTHS': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        'MONTHS_SHORT': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        'DAYS': ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        'DAYS_SHORT': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         'ZOOM_IN': "Zoom in",
         'ZOOM_OUT': "Zoom out",
         'MOVE_LEFT': "Move left",
@@ -4777,9 +4777,9 @@ links.Timeline.prototype.stackCancelAnimation = function() {
 
 links.Timeline.prototype.getItemsByGroup = function(items) {
     var itemsByGroup = {};
-    for (i = 0; i < items.length; ++i) {
-        item = items[i];
-        group = "undefined";
+    for (var i = 0; i < items.length; ++i) {
+        var item = items[i];
+        var group = "undefined";
 
         if (item.group) {
             if (item.group.content) {
@@ -4940,14 +4940,11 @@ links.Timeline.prototype.finalItemsPosition = function(items, groupBase, group) 
 };
 
 links.Timeline.prototype.initialItemsPosition = function(items, groupBase) {
-    var size = this.size,
-        options = this.options,
+    var options = this.options,
         axisOnTop = options.axisOnTop,
-        eventMargin = options.eventMargin,
-        eventMargin = options.eventMargin,
         finalItems = [];
 
-    for (i = 0, iMax = items.length; i < iMax; ++i) {
+    for (var i = 0, iMax = items.length; i < iMax; ++i) {
         var item = items[i],
             top,
             bottom,
@@ -4988,7 +4985,7 @@ links.Timeline.prototype.stackMoveOneStep = function(currentItems, finalItems) {
     var arrived = true;
 
     // apply new positions animated
-    for (i = 0, iMax = finalItems.length; i < iMax; i++) {
+    for (var i = 0, iMax = finalItems.length; i < iMax; i++) {
         var finalItem = finalItems[i],
             item = finalItem.item;
 
@@ -5030,7 +5027,7 @@ links.Timeline.prototype.stackMoveOneStep = function(currentItems, finalItems) {
  */
 links.Timeline.prototype.stackMoveToFinal = function(currentItems, finalItems) {
     // Put the events directly at there final position
-    for (i = 0, iMax = finalItems.length; i < iMax; i++) {
+    for (var i = 0, iMax = finalItems.length; i < iMax; i++) {
         var finalItem = finalItems[i],
             current = finalItem.item;
 

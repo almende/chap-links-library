@@ -1,6 +1,11 @@
 CHAP Links Library - Timeline
 
 
+not yet released, version 2.6.0
+
+- Implemented support for stacking items within groups. Thanks Stefano Fornari.
+
+
 2013-12-13, version 2.5.1
 
 - Added option groupsOrder, which is `true` by default and can be used to provide
