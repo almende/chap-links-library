@@ -4,6 +4,7 @@ CHAP Links Library - Timeline
 not yet released, version 2.6.0
 
 - Implemented support for stacking items within groups. Thanks Stefano Fornari.
+- Added Turkish locale. Thanks Batuhan Kucukali (LadyArch3r).
 
 
 2013-12-13, version 2.5.1
