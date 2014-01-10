@@ -134,3 +134,19 @@ links.locales['nl'] = {
 
 links.locales['nl_NL'] = links.locales['nl'];
 links.locales['nl_BE'] = links.locales['nl'];
+
+// Turkish ===================================================
+links.locales['tr'] = {
+    'MONTHS': new Array("Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"),
+    'MONTHS_SHORT': new Array("Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"),
+    'DAYS': new Array("Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"),
+    'DAYS_SHORT': new Array("Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"),
+    'ZOOM_IN': "Büyült",
+    'ZOOM_OUT': "Küçült",
+    'MOVE_LEFT': "Sola Taşı",
+    'MOVE_RIGHT': "Sağa Taşı",
+    'NEW': "New",
+    'CREATE_NEW_EVENT': "Yeni etkinlik oluştur"
+};
+
+links.locales['en_TR'] = links.locales['tr'];
