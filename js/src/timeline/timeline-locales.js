@@ -145,7 +145,7 @@ links.locales['tr'] = {
     'ZOOM_OUT': "Küçült",
     'MOVE_LEFT': "Sola Taşı",
     'MOVE_RIGHT': "Sağa Taşı",
-    'NEW': "New",
+    'NEW': "Yeni",
     'CREATE_NEW_EVENT': "Yeni etkinlik oluştur"
 };
 
