@@ -22,11 +22,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright © 2010-2012 Almende B.V.
+ * Copyright © 2010-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2013-12-13
- * @version 2.5.1
+ * @date    2014-01-13
+ * @version 2.6.0
  */
 
 package com.chap.links.client;

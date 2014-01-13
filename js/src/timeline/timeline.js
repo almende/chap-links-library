@@ -27,11 +27,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (c) 2011-2013 Almende B.V.
+ * Copyright (c) 2011-2014 Almende B.V.
  *
- * @author     Jos de Jong, <jos@almende.org>
- * @date    2013-12-13
- * @version 2.5.1
+ * @author  Jos de Jong, <jos@almende.org>
+ * @date    2014-01-13
+ * @version 2.6.0
  */
 
 /*
