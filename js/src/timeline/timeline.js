@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-01-13
- * @version 2.6.0
+ * @date    2014-01-14
+ * @version 2.6.1
  */
 
 /*
@@ -4317,7 +4317,7 @@ links.Timeline.ItemDot.prototype.getRight = function (timeline) {
 /**
  * Retrieve the properties of an item.
  * @param {Number} index
- * @return {Object} properties  Object containing item properties:<br>
+ * @return {Object} itemData    Object containing item properties:<br>
  *                              {Date} start (required),
  *                              {Date} end (optional),
  *                              {String} content (required),
@@ -4331,28 +4331,51 @@ links.Timeline.prototype.getItem = function (index) {
         throw "Cannot get item, index out of range";
     }
 
+    // take the original data as start, includes foreign fields
+    var data = this.data,
+        itemData;
+    if (google && google.visualization &&
+        data instanceof google.visualization.DataTable) {
+        // map the datatable columns
+        var cols = links.Timeline.mapColumnIds(data);
+
+        itemData = {};
+        for (var col in cols) {
+            if (cols.hasOwnProperty(col)) {
+                itemData[col] = this.data.getValue(index, cols[col]);
+            }
+        }
+    }
+    else if (links.Timeline.isArray(this.data)) {
+        // read JSON array
+        itemData = links.Timeline.clone(this.data[index]);
+    }
+    else {
+        throw "Unknown data type. DataTable or Array expected.";
+    }
+
+    // override the data with current settings of the item (should be the same)
     var item = this.items[index];
 
-    var properties = {};
-    properties.start = new Date(item.start.valueOf());
+    itemData.start = new Date(item.start.valueOf());
     if (item.end) {
-        properties.end = new Date(item.end.valueOf());
+        itemData.end = new Date(item.end.valueOf());
     }
-    properties.content = item.content;
+    itemData.content = item.content;
     if (item.group) {
-        properties.group = this.getGroupName(item.group);
+        itemData.group = this.getGroupName(item.group);
     }
     if (item.className) {
-        properties.className = item.className;
+        itemData.className = item.className;
     }
     if (typeof item.editable !== 'undefined') {
-        properties.editable = item.editable;
+        itemData.editable = item.editable;
     }
     if (item.type) {
-        properties.type = item.type;
+        itemData.type = item.type;
     }
 
-    return properties;
+    return itemData;
 };
 
 /**
@@ -4423,15 +4446,9 @@ links.Timeline.prototype.addItems = function (itemsData, preventRender) {
  */
 links.Timeline.prototype.createItem = function(itemData) {
     var type = itemData.type || (itemData.end ? 'range' : this.options.style);
-    var data = {
-        start: itemData.start,
-        end: itemData.end,
-        content: itemData.content,
-        className: itemData.className,
-        editable: itemData.editable,
-        group: this.getGroup(itemData.group),
-        type: type
-    };
+    var data = links.Timeline.clone(itemData);
+    data.type = type;
+    data.group = this.getGroup(itemData.group);
     // TODO: optimize this, when creating an item, all data is copied twice...
 
     // TODO: is initialTop needed?
@@ -6475,6 +6492,21 @@ links.Timeline.isArray = function (obj) {
         return true;
     }
     return (Object.prototype.toString.call(obj) === '[object Array]');
+};
+
+/**
+ * Shallow clone an object
+ * @param {Object} object
+ * @return {Object} clone
+ */
+links.Timeline.clone = function (object) {
+    var clone = {};
+    for (var prop in object) {
+        if (object.hasOwnProperty(prop)) {
+            clone[prop] = object[prop];
+        }
+    }
+    return clone;
 };
 
 /**
