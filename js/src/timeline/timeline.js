@@ -2909,8 +2909,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
                 if (this.applyChange) {
                     this.updateData(params.itemIndex, {
                         'start': item.start,
-                        'end': item.end,
-                        'group': this.getGroupName(item.group).toString()
+                        'end': item.end
                     });
                 }
                 else {
