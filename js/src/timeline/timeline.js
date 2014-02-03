@@ -192,6 +192,7 @@ links.Timeline = function(container) {
         'editable': false,
         'snapEvents': true,
         'groupChangeable': true,
+        'timeChangeable':false,
 
         'showCurrentTime': true, // show a red bar displaying the current time
         'showCustomTime': false, // show a blue, draggable bar displaying a custom time    
@@ -2732,7 +2733,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
             left,
             right;
 
-        if (params.itemDragLeft) {
+        if (params.itemDragLeft && options.timeChangeable) {
             // move the start of the item
             left = params.itemLeft + diffX;
             right = params.itemRight;
@@ -2748,7 +2749,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 item.start = this.screenToTime(left);
             }
         }
-        else if (params.itemDragRight) {
+        else if (params.itemDragRight && options.timeChangeable) {
             // move the end of the item
             left = params.itemLeft;
             right = params.itemRight + diffX;
@@ -2764,7 +2765,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 item.end = this.screenToTime(right);
             }
         }
-        else {
+        else if (options.timeChangeable) {
             // move the item
             left = params.itemLeft + diffX;
             item.start = this.screenToTime(left);
