@@ -174,6 +174,7 @@ links.Timeline = function(container) {
         'width': "100%",
         'height': "auto",
         'minHeight': 0,        // minimal height in pixels
+        'groupMinHeight': 0,
         'autoHeight': true,
 
         'eventMargin': 10,     // minimal margin between events
@@ -1551,7 +1552,7 @@ links.Timeline.prototype.recalcItems = function () {
             //
             var groupHeight = group.itemsHeight;
             resized = resized || (groupHeight != group.height);
-            group.height = groupHeight;
+            group.height = Math.max(groupHeight, options.groupMinHeight);
 
             actualHeight += groups[i].height + options.eventMargin;
         }
