@@ -1451,9 +1451,9 @@ links.Timeline.prototype.reflowItems = function() {
         }
 
         if (group) {
-            group.itemsHeight = group.itemsHeight ?
+            group.itemsHeight = Math.max(this.options.groupMinHeight,group.itemsHeight ?
                 Math.max(group.itemsHeight, item.height) :
-                item.height;
+                item.height);
         }
     }
 
