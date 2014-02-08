@@ -8,7 +8,7 @@ not yet released, version 2.7.0
   Thanks Martin Fischer (hansmaulwurf23).
 
 
-2013-01-14, version 2.6.1
+2014-01-14, version 2.6.1
 
 - Function `Timeline.getItem` now also returns foreign fields available in the
   items data.
