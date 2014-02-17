@@ -8,13 +8,13 @@ not yet released, version 2.7.0
   Thanks Martin Fischer (hansmaulwurf23).
 
 
-2013-01-14, version 2.6.1
+2014-01-14, version 2.6.1
 
 - Function `Timeline.getItem` now also returns foreign fields available in the
   items data.
 
 
-2013-01-13, version 2.6.0
+2014-01-13, version 2.6.0
 
 - Implemented support for stacking items within groups. Thanks Stefano Fornari.
 - Added Turkish locale. Thanks Batuhan Kucukali (LadyArch3r).
