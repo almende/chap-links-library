@@ -567,6 +567,37 @@ links.Timeline.prototype.getItemIndex = function(element) {
 };
 
 /**
+ * Find all elements within the start and end range
+ * If no element is found, returns an empty array
+ * @param start time
+ * @param end time
+ * @return Array itemsInRange
+ */
+links.Timeline.prototype.getElementsInRange = function  (start, end) {
+    var items = this.items;
+    var itemsInRange = [];
+
+    if (items) {
+        for (var i = 0, iMax = items.length; i < iMax; i++) {
+            var item = items[i];
+            if (item.end) {
+                // Time range object
+                if (start <= item.start && item.end <= end) {
+                    itemsInRange.push(item);
+                }
+            } else {
+                // Point object
+                if (start <= item.start && item.start <= end) {
+                    itemsInRange.push(item);
+                }
+            }
+        }
+    }
+    return itemsInRange;
+};
+
+
+/**
  * Set a new size for the timeline
  * @param {string} width   Width in pixels or percentage (for example "800px"
  *                         or "50%")
