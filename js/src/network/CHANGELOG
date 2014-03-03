@@ -5,6 +5,7 @@ CHAP Links Library - Network
 
 - Fixed automatic scaling of nodes and links not working when all values
   are equal.
+- Fixed broken delete links action.
 
 
 2013-04-26, version 1.5.0
