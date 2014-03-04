@@ -583,12 +583,12 @@ links.Timeline.prototype.getElementsInRange = function  (start, end) {
             if (item.end) {
                 // Time range object
                 if (start <= item.start && item.end <= end) {
-                    itemsInRange.push({"row": item.index});
+                    itemsInRange.push({"row": i});
                 }
             } else {
                 // Point object
                 if (start <= item.start && item.start <= end) {
-                    itemsInRange.push({"row": item.index});
+                    itemsInRange.push({"row": i});
                 }
             }
         }
