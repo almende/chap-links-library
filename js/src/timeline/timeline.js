@@ -583,16 +583,23 @@ links.Timeline.prototype.getElementsInRange = function  (start, end) {
             if (item.end) {
                 // Time range object
                 if (start <= item.start && item.end <= end) {
-                    itemsInRange.push(item);
+                    itemsInRange.push({"row": item.index});
                 }
             } else {
                 // Point object
                 if (start <= item.start && item.start <= end) {
-                    itemsInRange.push(item);
+                    itemsInRange.push({"row": item.index});
                 }
             }
         }
     }
+
+    //     var sel = [];
+    // if (this.selection) {
+    //     sel.push({"row": this.selection.index});
+    // }
+    // return sel;
+
     return itemsInRange;
 };
 
