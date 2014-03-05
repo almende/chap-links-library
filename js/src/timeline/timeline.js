@@ -573,7 +573,7 @@ links.Timeline.prototype.getItemIndex = function(element) {
  * @param end time
  * @return Array itemsInRange
  */
-links.Timeline.prototype.getElementsInRange = function  (start, end) {
+links.Timeline.prototype.getVisibleItems = function  (start, end) {
     var items = this.items;
     var itemsInRange = [];
 
