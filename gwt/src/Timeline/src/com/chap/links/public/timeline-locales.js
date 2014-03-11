@@ -22,6 +22,22 @@ links.locales['en'] = {
 links.locales['en_US'] = links.locales['en'];
 links.locales['en_UK'] = links.locales['en'];
 
+// Finnish ===================================================
+links.locales['fi'] = {
+    'MONTHS': ["tammikuu", "helmikuu", "maaliskuu", "huhtikuu", "toukokuu", "kesäkuu", "heinäkuu", "elokuu", "syyskuu", "lokakuu", "marraskuu", "joulukuu"],
+    'MONTHS_SHORT': ["tammi", "helmi", "maalis", "huhti", "touko", "kesä", "heinä", "elo", "syys", "loka", "marras", "joulu"],
+    'DAYS': ["sunnuntai", "maanantai", "tiistai", "keskiviiko", "torstai", "perjantai", "lauantai"],
+    'DAYS_SHORT': ["su", "ma", "ti", "ke", "to", "pe", "la"],
+    'ZOOM_IN': "Suurentaa",
+    'ZOOM_OUT': "Loitontaa",
+    'MOVE_LEFT': "Siirrä vasen",
+    'MOVE_RIGHT': "Siirrä oikealle",
+    'NEW': "Uusi",
+    'CREATE_NEW_EVENT': "Luo uusi tapahtuma"
+};
+
+links.locales['fi_FI'] = links.locales['fi'];
+
 // French ===================================================
 links.locales['fr'] = {
     'MONTHS': ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
