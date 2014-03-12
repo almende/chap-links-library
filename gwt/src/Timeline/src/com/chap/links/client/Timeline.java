@@ -128,6 +128,28 @@ public class Timeline extends Visualization<Timeline.Options> implements
 		public final native void setMinHeight(int minHeight) /*-{
 			this.minHeight = minHeight;
 		}-*/;
+		
+		/**
+		 * Set the minimum group height for the timeline in pixels. Useful when height
+		 * is set to "auto".
+		 * 
+		 * @param groupMinHeight
+		 *            Minimum group height in pixels
+		 */
+		public final native void setGroupMinHeight(int groupMinHeight) /*-{
+			this.groupMinHeight = groupMinHeight;
+		}-*/;
+		
+		
+		/**
+		 * Set the stack order for the timeline.
+		 * 
+		 * @param customStackOrder
+		 *            Java script function of the form function (a, b)
+		 */
+		public final native void setCustomStackOrder(JavaScriptObject customStackOrder) /*-{
+			this.customStackOrder = customStackOrder;
+		}-*/;
 
 		/**
 		 * Set the height for the Timeline in pixels or percentages. WHen height

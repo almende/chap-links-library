@@ -29,5 +29,9 @@
   <script src="timeline-min.js"></script>
   <script src="timeline-locales.js"></script>
   <stylesheet src="timeline.css"></stylesheet>
+  
+  <!-- Add xsi frame to get GWT Super Dev Mode to work      	  -->
+  <add-linker name="xsiframe" />
+  <set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE' />
 
 </module>
