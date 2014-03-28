@@ -1675,16 +1675,15 @@ links.TreeGrid.Grid.prototype._updateItems = function (offset, limit, callback, 
             item.dirty = false;
         }
 
-        // update the new items
-        if (newItems.length) {
-            var columns = grid.dataConnector.getOptions().columns || grid.getColumnsFromFields(newItems[0]);
-            grid.setColumns(columns);
-            grid._updateHeader(grid.columns);
-        }
-
         // store the new items 
         for (var i = 0, iMax = newItems.length; i < iMax; i++) {
             var data = newItems[i];
+            // update the new items
+            var columns = grid.dataConnector.getOptions().columns || grid.getColumnsFromFields(newItems[i]);
+            grid.setColumns(columns);
+            if(i == 0){
+            	grid._updateHeader(grid.columns);
+            }
             if (data) {
                 var index = offset + i;
                 var item = grid.getItem(index);
