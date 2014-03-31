@@ -2218,11 +2218,9 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // create a new event at the center of the frame
                 var w = timeline.size.contentWidth;
                 var x = w / 2;
-                var xstart = timeline.screenToTime(x - w / 10); // subtract 10% of timeline width
-                var xend = timeline.screenToTime(x + w / 10);   // add 10% of timeline width
+                var xstart = timeline.screenToTime(x);
                 if (options.snapEvents) {
                     timeline.step.snap(xstart);
-                    timeline.step.snap(xend);
                 }
 
                 var content = options.NEW;
@@ -2230,7 +2228,6 @@ links.Timeline.prototype.repaintNavigation = function () {
                 var preventRender = true;
                 timeline.addItem({
                     'start': xstart,
-                    'end': xend,
                     'content': content,
                     'group': group
                 }, preventRender);
@@ -3044,10 +3041,8 @@ links.Timeline.prototype.onDblClick = function (event) {
 
             // create a new event at the current mouse position
             var xstart = this.screenToTime(x);
-            var xend = this.screenToTime(x  + size.frameWidth / 10); // add 10% of timeline width
             if (options.snapEvents) {
                 this.step.snap(xstart);
-                this.step.snap(xend);
             }
 
             var content = options.NEW;
@@ -3055,7 +3050,6 @@ links.Timeline.prototype.onDblClick = function (event) {
             var preventRender = true;
             this.addItem({
                 'start': xstart,
-                'end': xend,
                 'content': content,
                 'group': this.getGroupName(group)
             }, preventRender);

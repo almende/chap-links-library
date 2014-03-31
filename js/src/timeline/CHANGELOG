@@ -8,6 +8,7 @@ not yet released, version 2.7.0
   Thanks Martin Fischer (hansmaulwurf23).
 - Implemented function `getVisibleItems(start, end)`. Thanks StephanieHe.
 - Added Finish locale. Thanks magandrez.
+- Changed default type of a newly created item from range to box.
 
 
 2014-01-14, version 2.6.1
