@@ -25,8 +25,8 @@
  * Copyright © 2010-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-01-14
- * @version 2.6.1
+ * @date    2014-04-09
+ * @version 2.7.0
  */
 
 package com.chap.links.client;

@@ -1,7 +1,7 @@
 CHAP Links Library - Timeline
 
 
-not yet released, version 2.7.0
+2014-04-09, version 2.7.0
 
 - Implemented option `timeChangeable` which allows to have items which can be
   moved to a different group but not moved in time.
