@@ -55,7 +55,7 @@
 </p>
 
 <p>
-    When the timeline is defined as editable, events can be moved to another time
+    When the timeline is defined as editable (and groupChangeable and timeChangeable are set accordingly), events can be moved to another time
     by dragging them. By double clicking, the contents of an event can be changed.
     An event can be deleted by clicking the delete button on the upper right.
     A new event can be added in different
@@ -290,7 +290,14 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
         <td>start</td>
         <td>Date</td>
         <td>yes</td>
-        <td>The start date of the event, for example <code>new Date(2010,09,23)</code>.</td>
+        <td>
+            The start date of the event, for example <code>new Date(2010,2,23)</code>.
+            <br>
+            <blockquote style="color: red; font-style: italic;">
+                Remark: Months in the JavaScript Date object are zero-based,<br>
+                so <code>new Date(2010,2,23)</code> represents 23th of March, 2010.
+            </blockquote>
+        </td>
     </tr>
     <tr>
         <td>end</td>
@@ -501,11 +508,11 @@ var options = {
 </tr>
 
 <tr>
-    <td>groupsChangeable</td>
+    <td>groupChangeable</td>
     <td>boolean</td>
     <td>false</td>
     <td>If true, items can be moved from one group to another.
-        Only applicable when groups are used.</td>
+        Only applicable when groups are used. See also option <code>timeChangeable</code>.</td>
 </tr>
 <tr>
     <td>groupsOnRight</td>
@@ -565,6 +572,7 @@ var options = {
             <li>Catalan, <code>ca</code> (aliases: <code>ca_ES</code>)</li>
             <li>English, <code>en</code> (aliases: <code>en_US</code>, <code>en_UK</code>)</li>
             <li>Dutch, <code>nl</code> (aliases: <code>nl_NL</code>, <code>nl_BE</code>)</li>
+            <li>Finnish, <code>fi</code> (aliases: <code>fi_FI</code>)</li>
             <li>French, <code>fr</code> (aliases: <code>fr_FR</code>, <code>fr_BE</code>, <code>fr_CA</code>)</li>
             <li>German, <code>de</code> (aliases: <code>de_DE</code>, <code>de_CH</code>)</li>
             <li>Danish, <code>da</code> (aliases: <code>da_DK</code>)</li>
@@ -737,6 +745,15 @@ var options = {
         and and move buttons are only visible when option `moveable` is true.
     </td>
 </tr>
+
+<tr>
+    <td>timeChangeable</td>
+    <td>boolean</td>
+    <td>true</td>
+    <td>If false, items can not be moved or dragged horizontally (neither start time nor end time is changable).
+        This is useful when items should be editable but can only be changed regarding group or content (typical use case: scheduling events). See also the option <code>groupChangeable</code>.</td>
+</tr>
+
 
 <tr>
     <td>unselectable</td>
@@ -946,6 +963,15 @@ var options = {
     <td>Returns an object with <code>start</code> and <code>end</code> properties,
         which each one of them is a Date object,
         representing the currently visible time range.</td>
+</tr>
+
+<tr>
+    <td>getVisibleItems()</td>
+    <td>Array of row indices </td>
+    <td>Returns an array of item indices whose range or value falls within the 
+        <code>start</code> and <code>end</code> properties, which each one of 
+        them is a Date object. 
+    </td>
 </tr>
 
 <tr>

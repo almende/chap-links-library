@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-01-14
- * @version 2.6.1
+ * @date    2014-04-09
+ * @version 2.7.0
  */
 
 /*
@@ -192,6 +192,7 @@ links.Timeline = function(container) {
         'editable': false,
         'snapEvents': true,
         'groupChangeable': true,
+        'timeChangeable': true,
 
         'showCurrentTime': true, // show a red bar displaying the current time
         'showCustomTime': false, // show a blue, draggable bar displaying a custom time    
@@ -564,6 +565,44 @@ links.Timeline.prototype.getItemIndex = function(element) {
 
     return index;
 };
+
+/**
+ * Find all elements within the start and end range
+ * If no element is found, returns an empty array
+ * @param start time
+ * @param end time
+ * @return Array itemsInRange
+ */
+links.Timeline.prototype.getVisibleItems = function  (start, end) {
+    var items = this.items;
+    var itemsInRange = [];
+
+    if (items) {
+        for (var i = 0, iMax = items.length; i < iMax; i++) {
+            var item = items[i];
+            if (item.end) {
+                // Time range object
+                if (start <= item.start && item.end <= end) {
+                    itemsInRange.push({"row": i});
+                }
+            } else {
+                // Point object
+                if (start <= item.start && item.start <= end) {
+                    itemsInRange.push({"row": i});
+                }
+            }
+        }
+    }
+
+    //     var sel = [];
+    // if (this.selection) {
+    //     sel.push({"row": this.selection.index});
+    // }
+    // return sel;
+
+    return itemsInRange;
+};
+
 
 /**
  * Set a new size for the timeline
@@ -2179,11 +2218,9 @@ links.Timeline.prototype.repaintNavigation = function () {
                 // create a new event at the center of the frame
                 var w = timeline.size.contentWidth;
                 var x = w / 2;
-                var xstart = timeline.screenToTime(x - w / 10); // subtract 10% of timeline width
-                var xend = timeline.screenToTime(x + w / 10);   // add 10% of timeline width
+                var xstart = timeline.screenToTime(x);
                 if (options.snapEvents) {
                     timeline.step.snap(xstart);
-                    timeline.step.snap(xend);
                 }
 
                 var content = options.NEW;
@@ -2191,7 +2228,6 @@ links.Timeline.prototype.repaintNavigation = function () {
                 var preventRender = true;
                 timeline.addItem({
                     'start': xstart,
-                    'end': xend,
                     'content': content,
                     'group': group
                 }, preventRender);
@@ -2732,7 +2768,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
             left,
             right;
 
-        if (params.itemDragLeft) {
+        if (params.itemDragLeft && options.timeChangeable) {
             // move the start of the item
             left = params.itemLeft + diffX;
             right = params.itemRight;
@@ -2748,7 +2784,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 item.start = this.screenToTime(left);
             }
         }
-        else if (params.itemDragRight) {
+        else if (params.itemDragRight && options.timeChangeable) {
             // move the end of the item
             left = params.itemLeft;
             right = params.itemRight + diffX;
@@ -2764,7 +2800,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 item.end = this.screenToTime(right);
             }
         }
-        else {
+        else if (options.timeChangeable) {
             // move the item
             left = params.itemLeft + diffX;
             item.start = this.screenToTime(left);
@@ -3005,10 +3041,8 @@ links.Timeline.prototype.onDblClick = function (event) {
 
             // create a new event at the current mouse position
             var xstart = this.screenToTime(x);
-            var xend = this.screenToTime(x  + size.frameWidth / 10); // add 10% of timeline width
             if (options.snapEvents) {
                 this.step.snap(xstart);
-                this.step.snap(xend);
             }
 
             var content = options.NEW;
@@ -3016,7 +3050,6 @@ links.Timeline.prototype.onDblClick = function (event) {
             var preventRender = true;
             this.addItem({
                 'start': xstart,
-                'end': xend,
                 'content': content,
                 'group': this.getGroupName(group)
             }, preventRender);

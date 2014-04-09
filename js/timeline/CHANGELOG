@@ -1,13 +1,23 @@
 CHAP Links Library - Timeline
 
 
-2013-01-14, version 2.6.1
+2014-04-09, version 2.7.0
+
+- Implemented option `timeChangeable` which allows to have items which can be
+  moved to a different group but not moved in time.
+  Thanks Martin Fischer (hansmaulwurf23).
+- Implemented function `getVisibleItems(start, end)`. Thanks StephanieHe.
+- Added Finish locale. Thanks magandrez.
+- Changed default type of a newly created item from range to box.
+
+
+2014-01-14, version 2.6.1
 
 - Function `Timeline.getItem` now also returns foreign fields available in the
   items data.
 
 
-2013-01-13, version 2.6.0
+2014-01-13, version 2.6.0
 
 - Implemented support for stacking items within groups. Thanks Stefano Fornari.
 - Added Turkish locale. Thanks Batuhan Kucukali (LadyArch3r).
