@@ -198,6 +198,7 @@ links.Timeline = function(container) {
         'showCustomTime': false, // show a blue, draggable bar displaying a custom time    
         'showMajorLabels': true,
         'showMinorLabels': true,
+        'onlyShowHours': false,
         'showNavigation': false,
         'showButtonNew': false,
         'groupsOnRight': false,
@@ -1095,7 +1096,8 @@ links.Timeline.prototype.repaintAxis = function() {
             x = this.timeToScreen(cur),
             isMajor = step.isMajor();
 
-        if (options.showMinorLabels) {
+        if (options.showMinorLabels && 
+          (step.scale != links.Timeline.StepDate.SCALE.MINUTE || !options.onlyShowHours || cur.getMinutes() == 0)) {
             this.repaintAxisMinorText(x, step.getLabelMinor(options));
         }
 
