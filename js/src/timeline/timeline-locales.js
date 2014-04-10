@@ -16,7 +16,20 @@ links.locales['en'] = {
     'MOVE_LEFT': "Move left",
     'MOVE_RIGHT': "Move right",
     'NEW': "New",
-    'CREATE_NEW_EVENT': "Create new event"
+    'CREATE_NEW_EVENT': "Create new event",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['en_US'] = links.locales['en'];
@@ -33,7 +46,20 @@ links.locales['fr'] = {
     'MOVE_LEFT': "Déplacer à gauche",
     'MOVE_RIGHT': "Déplacer à droite",
     'NEW': "Nouveau",
-    'CREATE_NEW_EVENT': "Créer un nouvel évènement"
+    'CREATE_NEW_EVENT': "Créer un nouvel évènement",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['fr_FR'] = links.locales['fr'];
@@ -51,7 +77,20 @@ links.locales['ca'] = {
     'MOVE_LEFT': "Moure esquerra",
     'MOVE_RIGHT': "Moure dreta",
     'NEW': "Nou",
-    'CREATE_NEW_EVENT': "Crear nou event"
+    'CREATE_NEW_EVENT': "Crear nou event",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 links.locales['ca_ES'] = links.locales['ca'];
 
@@ -66,7 +105,20 @@ links.locales['de'] = {
     'MOVE_LEFT': "Nach links verschieben",
     'MOVE_RIGHT': "Nach rechts verschieben",
     'NEW': "Neu",
-    'CREATE_NEW_EVENT': "Neues Ereignis erzeugen"
+    'CREATE_NEW_EVENT': "Neues Ereignis erzeugen",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['de_DE'] = links.locales['de'];
@@ -83,7 +135,20 @@ links.locales['da'] = {
     'MOVE_LEFT': "Move left",
     'MOVE_RIGHT': "Move right",
     'NEW': "New",
-    'CREATE_NEW_EVENT': "Create new event"
+    'CREATE_NEW_EVENT': "Create new event",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 links.locales['da_DK'] = links.locales['da'];
 
@@ -98,7 +163,20 @@ links.locales['ru'] = {
     'MOVE_LEFT': "Сдвинуть налeво",
     'MOVE_RIGHT': "Сдвинуть направо",
     'NEW': "Новый",
-    'CREATE_NEW_EVENT': "Создать новоe событиe"
+    'CREATE_NEW_EVENT': "Создать новоe событиe",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 links.locales['ru_RU'] = links.locales['ru'];
 
@@ -113,7 +191,20 @@ links.locales['es'] = {
     'MOVE_LEFT': "Mover izquierda",
     'MOVE_RIGHT': "Mover derecha",
     'NEW': "Nuevo",
-    'CREATE_NEW_EVENT': "Crear nuevo evento"
+    'CREATE_NEW_EVENT': "Crear nuevo evento",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['es_ES'] = links.locales['es'];
@@ -129,7 +220,20 @@ links.locales['nl'] = {
     'MOVE_LEFT': "Naar links",
     'MOVE_RIGHT': "Naar rechts",
     'NEW': "Nieuw",
-    'CREATE_NEW_EVENT': "Nieuwe gebeurtenis maken"
+    'CREATE_NEW_EVENT': "Nieuwe gebeurtenis maken",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['nl_NL'] = links.locales['nl'];
@@ -146,7 +250,20 @@ links.locales['tr'] = {
     'MOVE_LEFT': "Sola Taşı",
     'MOVE_RIGHT': "Sağa Taşı",
     'NEW': "Yeni",
-    'CREATE_NEW_EVENT': "Yeni etkinlik oluştur"
+    'CREATE_NEW_EVENT': "Yeni etkinlik oluştur",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "dddd dd mmmm yyyy",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "dd mmmm HH:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "HH:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "dd",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "ddd dd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "HH:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['tr_TR'] = links.locales['tr'];
@@ -156,13 +273,26 @@ links.locales['hu'] = {
     'MONTHS': ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"],
     'MONTHS_SHORT': ["jan", "feb", "márc", "ápr", "máj", "jún", "júl", "aug", "szep", "okt", "nov", "dec"],
     'DAYS': ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"],
-    'DAYS_SHORT': ["vas", "hét", "kedd", "sze", "csü", "pé", "szo"],
+    'DAYS_SHORT': ["vas", "hé", "ke", "sze", "csü", "pé", "szo"],
     'ZOOM_IN': "Nagyítás",
     'ZOOM_OUT': "Kicsinyítés",
     'MOVE_LEFT': "Balra",
     'MOVE_RIGHT': "Jobbra",
     'NEW': "Új",
-    'CREATE_NEW_EVENT': "Új esemény készítése"
+    'CREATE_NEW_EVENT': "Új esemény készítése",
+    'DATEFORMAT_MAJOR_LABEL_MONTH' : "yyyy.",
+    'DATEFORMAT_MAJOR_LABEL_DAY' : "yyyy. mmmm",
+    'DATEFORMAT_MAJOR_LABEL_HOUR' : "yyyy. mmmm d. - dddd",
+    'DATEFORMAT_MAJOR_LABEL_MINUTE' : "yyyy. mmmm d. - dddd",
+    'DATEFORMAT_MAJOR_LABEL_SECOND' : "mmmm d. - H:MM",
+    'DATEFORMAT_MAJOR_LABEL_MILLISECOND' : "H:MM:ss",
+    'DATEFORMAT_MINOR_LABEL_YEAR' : "yyyy.",
+    'DATEFORMAT_MINOR_LABEL_MONTH' : "mmm",
+    'DATEFORMAT_MINOR_LABEL_DAY' : "d.",
+    'DATEFORMAT_MINOR_LABEL_WEEKDAY' : "d. - ddd",
+    'DATEFORMAT_MINOR_LABEL_HOUR' : "H:MM",
+    'DATEFORMAT_MINOR_LABEL_MINUTE' : "H:MM",
+    'DATEFORMAT_MINOR_LABEL_SECOND' : "s"
 };
 
 links.locales['hu_HU'] = links.locales['hu'];
