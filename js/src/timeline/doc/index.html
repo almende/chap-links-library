@@ -289,7 +289,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
     <tr>
         <td>start</td>
         <td>Date</td>
-        <td>yes</td>
+        <td>yes*</td>
         <td>
             The start date of the event, for example <code>new Date(2010,2,23)</code>.
             <br>
@@ -297,6 +297,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
                 Remark: Months in the JavaScript Date object are zero-based,<br>
                 so <code>new Date(2010,2,23)</code> represents 23th of March, 2010.
             </blockquote>
+			* If the type is set to floatingRange, the start is optional.
         </td>
     </tr>
     <tr>
@@ -364,7 +365,7 @@ data.addRow([new Date(2010,7,15), new Date(2010,8,2), "Trajectory A"]);
         <td>type</td>
         <td>String</td>
         <td>no</td>
-        <td>Type of the event, optional. Available values: "box", "range", "dot".
+        <td>Type of the event, optional. Available values: "box", "range", "dot", "floatingRange".
             By default, the type is "range" for events having a start and end
             date, and "box" for events with a start date. This default can be
             overwritten by the global option "style".
