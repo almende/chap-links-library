@@ -1,6 +1,11 @@
 CHAP Links Library - Timeline
 
 
+not yet released, version 2.8.0
+
+- Implemented a new item type, `FloatingRange`. Thanks Nick Hardy (@NickHardy).
+
+
 2014-04-09, version 2.7.0
 
 - Implemented option `timeChangeable` which allows to have items which can be
