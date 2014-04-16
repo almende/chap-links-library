@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-04-09
- * @version 2.7.0
+ * @date    2014-04-14
+ * @version 2.8.0
  */
 
 /*
@@ -238,9 +238,10 @@ links.Timeline = function(container) {
 
     // add standard item types
     this.itemTypes = {
-        box:   links.Timeline.ItemBox,
-        range: links.Timeline.ItemRange,
-        dot:   links.Timeline.ItemDot
+        box:           links.Timeline.ItemBox,
+        range:         links.Timeline.ItemRange,
+        floatingRange: links.Timeline.ItemFloatingRange,
+        dot:           links.Timeline.ItemDot
     };
 
     // initialize data
@@ -581,7 +582,7 @@ links.Timeline.prototype.getVisibleItems = function  (start, end) {
         for (var i = 0, iMax = items.length; i < iMax; i++) {
             var item = items[i];
             if (item.end) {
-                // Time range object
+                // Time range object // NH use getLeft and getRight here
                 if (start <= item.start && item.end <= end) {
                     itemsInRange.push({"row": i});
                 }
@@ -2140,9 +2141,9 @@ links.Timeline.prototype.repaintDragAreas = function () {
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item) &&
-        (item instanceof links.Timeline.ItemRange)) {
-        var left = this.timeToScreen(item.start),
-            right = this.timeToScreen(item.end),
+        (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemFloatingRange)) {
+        var left = item.getLeft(this), // NH change to getLeft
+            right = item.getRight(this), // NH change to getRight
             top = item.top,
             height = item.height;
 
@@ -2697,8 +2698,8 @@ links.Timeline.prototype.onMouseDown = function(event) {
         params.itemStart = item.start;
         params.itemEnd = item.end;
         params.itemGroup = item.group;
-        params.itemLeft = item.start ? this.timeToScreen(item.start) : undefined;
-        params.itemRight = item.end ? this.timeToScreen(item.end) : undefined;
+        params.itemLeft = item.getLeft(this); // NH Use item.getLeft here
+        params.itemRight = item.getRight(this); // NH Use item.getRight here
     }
     else {
         this.dom.frame.style.cursor = 'move';
@@ -3612,6 +3613,16 @@ links.Timeline.Item.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ */
+links.Timeline.Item.prototype.getLeft = function (timeline) {
+    // Should be implemented by sub-prototype
+    return 0;
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -3897,6 +3908,27 @@ links.Timeline.ItemBox.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemBox.prototype.getLeft = function (timeline) {
+    var boxAlign = (timeline.options.box && timeline.options.box.align) ?
+        timeline.options.box.align : undefined;
+
+    var left = timeline.timeToScreen(this.start);
+    if (boxAlign == 'right') {
+        left = left - width;
+    }
+    else { // default or 'center'
+        left = (left - this.width / 2);
+    }
+
+    return left;
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -4106,6 +4138,16 @@ links.Timeline.ItemRange.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemRange.prototype.getLeft = function (timeline) {
+    return timeline.timeToScreen(this.start);
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -4123,6 +4165,237 @@ links.Timeline.ItemRange.prototype.getRight = function (timeline) {
  */
 links.Timeline.ItemRange.prototype.getWidth = function (timeline) {
     return timeline.timeToScreen(this.end) - timeline.timeToScreen(this.start);
+};
+
+/**
+ * @constructor links.Timeline.ItemFloatingRange
+ * @extends links.Timeline.Item
+ * @param {Object} data       Object containing parameters start, end
+ *                            content, group, type, className, editable.
+ * @param {Object} [options]  Options to set initial property values
+ *                                {Number} top
+ *                                {Number} left
+ *                                {Number} width
+ *                                {Number} height
+ */
+links.Timeline.ItemFloatingRange = function (data, options) {
+    links.Timeline.Item.call(this, data, options);
+};
+
+links.Timeline.ItemFloatingRange.prototype = new links.Timeline.Item();
+
+/**
+ * Select the item
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.select = function () {
+    var dom = this.dom;
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
+};
+
+/**
+ * Unselect the item
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.unselect = function () {
+    var dom = this.dom;
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
+};
+
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.createDOM = function () {
+    // background box
+    var divBox = document.createElement("DIV");
+    divBox.style.position = "absolute";
+
+    // contents box
+    var divContent = document.createElement("DIV");
+    divContent.className = "timeline-event-content";
+    divBox.appendChild(divContent);
+
+    this.dom = divBox;
+    this.updateDOM();
+
+    return divBox;
+};
+
+/**
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.showDOM = function (container) {
+    var dom = this.dom;
+    if (!dom) {
+        dom = this.createDOM();
+    }
+
+    if (dom.parentNode != container) {
+        if (dom.parentNode) {
+            // container changed. remove the item from the old container
+            this.hideDOM();
+        }
+
+        // append to the new container
+        container.appendChild(dom);
+        this.rendered = true;
+    }
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * The DOM will be kept in memory
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.hideDOM = function () {
+    var dom = this.dom;
+    if (dom) {
+        if (dom.parentNode) {
+            dom.parentNode.removeChild(dom);
+        }
+        this.rendered = false;
+    }
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.updateDOM = function () {
+    var divBox = this.dom;
+    if (divBox) {
+        // update contents
+        divBox.firstChild.innerHTML = this.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-range ui-widget ui-state-default";
+
+        if (this.isCluster) {
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
+        }
+
+        // add item specific class name when provided
+        if (this.className) {
+            links.Timeline.addClassName(divBox, this.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.updatePosition = function (timeline) {
+    var dom = this.dom;
+    if (dom) {
+        var contentWidth = timeline.size.contentWidth,
+            left = this.getLeft(timeline), // NH use getLeft
+            right = this.getRight(timeline); // NH use getRight;
+
+        // limit the width of the this, as browsers cannot draw very wide divs
+        if (left < -contentWidth) {
+            left = -contentWidth;
+        }
+        if (right > 2 * contentWidth) {
+            right = 2 * contentWidth;
+        }
+
+        dom.style.top = this.top + "px";
+        dom.style.left = left + "px";
+        //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
+        dom.style.width = Math.max(right - left, 1) + "px";
+    }
+};
+
+/**
+ * Check if the item is visible in the timeline, and not part of a cluster
+ * @param {Number} start
+ * @param {Number} end
+ * @return {boolean} visible
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.isVisible = function (start, end) {
+    if (this.cluster) {
+        return false;
+    }
+
+	// NH check for no end value
+	if (this.end && this.start) {
+		return (this.end > start)
+			&& (this.start < end);
+	} else if (this.start) {
+		return (this.start < end);
+	} else if (this.end) {
+        return (this.end > start);
+    } else {return true;}
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.setPosition = function (left, right) {
+    var dom = this.dom;
+
+    dom.style.left = left + 'px';
+    dom.style.width = (right - left) + 'px';
+
+    if (this.group) {
+        this.top = this.group.top;
+        dom.style.top = this.top + 'px';
+    }
+};
+
+/**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.getLeft = function (timeline) {
+    // NH check for no start value
+	if (this.start) {
+		return timeline.timeToScreen(this.start);
+	} else {
+		return 0;
+	}
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.getRight = function (timeline) {
+    // NH check for no end value
+	if (this.end) {
+		return timeline.timeToScreen(this.end);
+	} else {
+		return timeline.size.contentWidth;
+	}
+};
+
+/**
+ * Calculate the width of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} width
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.getWidth = function (timeline) {
+    return this.getRight(timeline) - this.getLeft(timeline);
 };
 
 /**
@@ -4335,6 +4608,16 @@ links.Timeline.ItemDot.prototype.setPosition = function (left, right) {
         this.top = this.group.top;
         dom.style.top = this.top + 'px';
     }
+};
+
+/**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemDot.prototype.getLeft = function (timeline) {
+    return timeline.timeToScreen(this.start);
 };
 
 /**
@@ -4864,13 +5147,13 @@ links.Timeline.prototype.stackOrder = function(items) {
     //if a customer stack order function exists, use it.
     var f = this.options.customStackOrder && (typeof this.options.customStackOrder === 'function') ? this.options.customStackOrder : function (a, b)
     {
-        if ((a instanceof links.Timeline.ItemRange) &&
-            !(b instanceof links.Timeline.ItemRange)) {
+        if ((a instanceof links.Timeline.ItemRange || a instanceof links.Timeline.ItemFloatingRange) &&
+            !(b instanceof links.Timeline.ItemRange || b instanceof links.Timeline.ItemFloatingRange)) {
             return -1;
         }
 
-        if (!(a instanceof links.Timeline.ItemRange) &&
-            (b instanceof links.Timeline.ItemRange)) {
+        if (!(a instanceof links.Timeline.ItemRange || a instanceof links.Timeline.ItemFloatingRange) &&
+            (b instanceof links.Timeline.ItemRange || b instanceof links.Timeline.ItemFloatingRange)) {
             return 1;
         }
 
@@ -5456,7 +5739,7 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
                             }
                             min = (min != undefined) ? Math.min(min, start) : start;
                             max = (max != undefined) ? Math.max(max, end) : end;
-                            containsRanges = containsRanges || (p instanceof links.Timeline.ItemRange);
+                            containsRanges = containsRanges || (p instanceof links.Timeline.ItemRange || p instanceof links.Timeline.ItemFloatingRange);
                             count++;
                             m++;
                         }
