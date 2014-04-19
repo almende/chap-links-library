@@ -64,7 +64,7 @@
             };
 
             // Instantiate our timeline object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             // Add event listeners
             google.visualization.events.addListener(timeline, 'select', onselect);
@@ -76,7 +76,7 @@
             google.visualization.events.addListener(timeline, 'rangechanged', onrangechanged);
 
             // Draw our timeline with the created data and options
-            timeline.draw(data, options);
+            timeline.draw(data);
             onrangechange();
         }
 

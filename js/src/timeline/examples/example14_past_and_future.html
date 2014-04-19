@@ -58,13 +58,13 @@
             };
 
             // Instantiate our timeline object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             // Add event listeners
             google.visualization.events.addListener(timeline, 'timechange', onTimeChange);
 
             // Draw our timeline with the created data and options
-            timeline.draw(data, options);
+            timeline.draw(data);
 
             // set a custom range from -2 minute to +3 minutes current time
             var start = new Date((new Date()).getTime() - 2 * 60 * 1000);
