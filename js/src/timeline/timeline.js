@@ -2977,6 +2977,14 @@ links.Timeline.prototype.onMouseUp = function (event) {
         if (!params.moved && !params.zoomed) {
             // mouse did not move -> user has selected an item
 
+            // Added functionality to obtain the timestamp for
+            // the time that was clicked, and fire off a 'timeselected' event.
+            mouseX = links.Timeline.getPageX(event);
+            var x = params.mouseX - links.Timeline.getAbsoluteLeft(this.dom.content);
+            var xstart = this.screenToTime(x);
+            this.eventParams.selectedTime = xstart;
+            this.trigger('timeselected');
+
             if (params.target === this.dom.items.deleteButton) {
                 // delete item
                 if (this.selection) {
@@ -4329,13 +4337,13 @@ links.Timeline.ItemFloatingRange.prototype.isVisible = function (start, end) {
         return false;
     }
 
-	// NH check for no end value
-	if (this.end && this.start) {
-		return (this.end > start)
-			&& (this.start < end);
-	} else if (this.start) {
-		return (this.start < end);
-	} else if (this.end) {
+    // NH check for no end value
+    if (this.end && this.start) {
+        return (this.end > start)
+            && (this.start < end);
+    } else if (this.start) {
+        return (this.start < end);
+    } else if (this.end) {
         return (this.end > start);
     } else {return true;}
 };
@@ -4366,11 +4374,11 @@ links.Timeline.ItemFloatingRange.prototype.setPosition = function (left, right) 
  */
 links.Timeline.ItemFloatingRange.prototype.getLeft = function (timeline) {
     // NH check for no start value
-	if (this.start) {
-		return timeline.timeToScreen(this.start);
-	} else {
-		return 0;
-	}
+    if (this.start) {
+        return timeline.timeToScreen(this.start);
+    } else {
+        return 0;
+    }
 };
 
 /**
@@ -4381,11 +4389,11 @@ links.Timeline.ItemFloatingRange.prototype.getLeft = function (timeline) {
  */
 links.Timeline.ItemFloatingRange.prototype.getRight = function (timeline) {
     // NH check for no end value
-	if (this.end) {
-		return timeline.timeToScreen(this.end);
-	} else {
-		return timeline.size.contentWidth;
-	}
+    if (this.end) {
+        return timeline.timeToScreen(this.end);
+    } else {
+        return timeline.size.contentWidth;
+    }
 };
 
 /**
@@ -4871,17 +4879,17 @@ links.Timeline.prototype.getGroup = function (groupName) {
         groups.push(groupObj);
         // sort the groups
         if (this.options.groupsOrder == true) {
-	        groups = groups.sort(function (a, b) {
-	            if (a.content > b.content) {
-	                return 1;
-	            }
-	            if (a.content < b.content) {
-	                return -1;
-	            }
-	            return 0;
-	        });
+            groups = groups.sort(function (a, b) {
+                if (a.content > b.content) {
+                    return 1;
+                }
+                if (a.content < b.content) {
+                    return -1;
+                }
+                return 0;
+            });
         } else if (typeof(this.options.groupsOrder) == "function") {
-        	groups = groups.sort(this.options.groupsOrder)
+            groups = groups.sort(this.options.groupsOrder)
         }
 
         // rebuilt the groupIndexes
@@ -5256,17 +5264,17 @@ links.Timeline.prototype.finalItemsPosition = function(items, groupBase, group) 
                 }
             } while (collidingItem);
         }
-	    if (group) {
-	        if (axisOnTop) {
-	            group.itemsHeight = (group.itemsHeight)
-	                              ? Math.max(group.itemsHeight, finalItem.bottom - groupBase)
-	                              : finalItem.height + eventMargin;
-	        } else {
-	            group.itemsHeight = (group.itemsHeight)
-	                              ? Math.max(group.itemsHeight, groupBase - finalItem.top)
-	                              : finalItem.height + eventMargin;
-		    }
-		}
+        if (group) {
+            if (axisOnTop) {
+                group.itemsHeight = (group.itemsHeight)
+                                  ? Math.max(group.itemsHeight, finalItem.bottom - groupBase)
+                                  : finalItem.height + eventMargin;
+            } else {
+                group.itemsHeight = (group.itemsHeight)
+                                  ? Math.max(group.itemsHeight, groupBase - finalItem.top)
+                                  : finalItem.height + eventMargin;
+            }
+        }
     }
 
     return groupFinalItems;
@@ -5448,6 +5456,11 @@ links.Timeline.prototype.trigger = function (event) {
         case 'timechanged':
             properties = {
                 'time': new Date(this.customTime.valueOf())
+            };
+            break;
+        case 'timeselected':
+            properties = {
+                'time': new Date(this.eventParams.selectedTime.valueOf())
             };
             break;
     }
