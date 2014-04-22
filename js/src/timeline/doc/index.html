@@ -1302,7 +1302,17 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
             </ul>
         </td>
     </tr>
-
+    <tr>
+        <td>timeselected</td>
+        <td>The custom time bar has been changed. Fired once after the user has mouse-clicked
+            anywhere on the timeline in order to select that time. The new custom time can be 
+            retrieved by calling <code>getCustomTime</code> method.</td>
+        <td>
+            <ul>
+                <li><code>time</code>: Date. The new custom time.</li>
+            </ul>
+        </td>
+    </tr>
 </table>
 
 <h2 id="Styles">Styles</h2>
