@@ -36,7 +36,7 @@
             };
 
             // Instantiate our timeline object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             // cancel any running animation as soon as the user changes the range
             links.events.addListener(timeline, 'rangechange', function (properties) {
@@ -44,7 +44,7 @@
             });
 
             // Draw our timeline with the created data and options
-            timeline.draw(data, options);
+            timeline.draw(data);
         }
 
         // create a simple animation

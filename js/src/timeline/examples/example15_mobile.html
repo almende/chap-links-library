@@ -129,13 +129,13 @@
         };
 
         // Instantiate our timeline object.
-        timeline = new links.Timeline(document.getElementById('mytimeline'));
+        timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
         // register event listeners
         google.visualization.events.addListener(timeline, 'edit', onEdit);
 
         // Draw our timeline with the created data and options
-        timeline.draw(data, options);
+        timeline.draw(data);
 
         // Set a customized visible range
         var start = new Date(now.getTime() - 4 * 60 * 60 * 1000);

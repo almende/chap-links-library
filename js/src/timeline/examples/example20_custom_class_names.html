@@ -109,10 +109,10 @@
             };
 
             // Instantiate our table object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             // Draw our table with the data we created locally.
-            timeline.draw(data, options);
+            timeline.draw(data);
         }
 
     </script>

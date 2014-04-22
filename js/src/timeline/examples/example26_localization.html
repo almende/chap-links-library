@@ -56,17 +56,17 @@
                 layout: "box"
             };
 
-            timeline = new links.Timeline(document.getElementById('mytimeline1'));
+            timeline = new links.Timeline(document.getElementById('mytimeline1'), options);
             options.locale = "de";
-            timeline.draw(data, options);
+            timeline.draw(data);
 
-            timeline = new links.Timeline(document.getElementById('mytimeline2'));
+            timeline = new links.Timeline(document.getElementById('mytimeline2'), options);
             options.locale = "es";
-            timeline.draw(data, options);
+            timeline.draw(data);
 
-            timeline = new links.Timeline(document.getElementById('mytimeline3'));
+            timeline = new links.Timeline(document.getElementById('mytimeline3'), options);
             options.locale = "ru";
-            timeline.draw(data, options);
+            timeline.draw(data);
         }
     </script>
 
