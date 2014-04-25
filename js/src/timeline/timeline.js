@@ -2950,6 +2950,9 @@ links.Timeline.prototype.onMouseUp = function (event) {
             // Note that the change can be canceled from within an event listener if
             // this listener calls the method cancelChange().
             this.trigger(params.addItem ? 'add' : 'changed');
+            
+            //retrieve item data again to include changes made to it in the triggered event handlers
+            item = this.items[params.itemIndex];
 
             if (params.addItem) {
                 if (this.applyAdd) {
