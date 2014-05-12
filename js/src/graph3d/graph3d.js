@@ -1530,7 +1530,7 @@ links.Graph3d.prototype._redrawDataGrid = function() {
 
         // calculate the translation of the point at the bottom (needed for sorting)
         var transBottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
-        this.dataPoints[i].dist = transBottom.length();
+        this.dataPoints[i].dist = this.showPerspective ? transBottom.length() : -transBottom.z;
     }
 
     // sort the points on depth of their (x,y) position (not on z)
@@ -1668,7 +1668,7 @@ links.Graph3d.prototype._redrawDataDot = function() {
 
         // calculate the distance from the point at the bottom to the camera
         var transBottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
-        this.dataPoints[i].dist = transBottom.length();
+        this.dataPoints[i].dist = this.showPerspective ? transBottom.length() : -transBottom.z;
     }
 
     // order the translated points by depth
@@ -1764,7 +1764,7 @@ links.Graph3d.prototype._redrawDataBar = function() {
 
         // calculate the distance from the point at the bottom to the camera
         var transBottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
-        this.dataPoints[i].dist = transBottom.length();
+        this.dataPoints[i].dist = this.showPerspective ? transBottom.length() : -transBottom.z;
     }
 
     // order the translated points by depth
@@ -1844,12 +1844,20 @@ links.Graph3d.prototype._redrawDataBar = function() {
                 (corners[0].point.z + corners[1].point.z + corners[2].point.z + corners[3].point.z) / 4
             );
             var trans = this._convertPointToTranslation(center);
-            surface.dist = trans.length();
+            surface.dist = this.showPerspective ? trans.length() : -trans.z;
         }
 
         // order the surfaces by their (translated) depth
         surfaces.sort(function (a, b) {
-            return b.dist - a.dist;
+            var diff = b.dist - a.dist;
+            if (diff) return diff;
+
+            // if equal depth, sort the top surface last
+            if (a.corners === top) return 1;
+            if (b.corners === top) return -1;
+
+            // both are equal
+            return 0;
         });
 
         // draw the ordered surfaces

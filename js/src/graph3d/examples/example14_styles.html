@@ -28,7 +28,6 @@
             var style = document.getElementById("style").value;
             var showPerspective = document.getElementById("perspective").checked;
             var barWidth = parseFloat(document.getElementById("barWidth").value) || 1;
-
             var withValue = ['bar-color', 'dot-size', 'dot-color'].indexOf(style) != -1;
 
             // Create and populate a data table.
@@ -67,11 +66,15 @@
                 verticalRatio: 0.5
             };
 
+            var camera = graph ? graph.getCameraPosition() : null;
+
             // Instantiate our graph object.
             graph = new links.Graph3d(document.getElementById('mygraph'));
 
             // Draw our graph with the created data and options
             graph.draw(data, options);
+
+            if (camera) graph.setCameraPosition(camera); // restore camera position
 
             document.getElementById("style").onchange = drawVisualization;
             document.getElementById("perspective").onchange = drawVisualization;
@@ -102,7 +105,7 @@
 
 <p>
     <label for="perspective">
-        <input type="checkbox" id="perspective" checked> Perspective
+        <input type="checkbox" id="perspective" checked> Show perspective
     </label>
 </p>
 
