@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>Graph 3D bar style</title>
+    <title>Graph 3D dot-line style</title>
 
     <style>
         body {font: 10pt arial;}
@@ -32,7 +32,7 @@
             data.addColumn('number', 'z');
 
             // create some nice looking data with sin/cos
-            var steps = 4;  // number of datapoints will be steps*steps
+            var steps = 20;  // number of datapoints will be steps*steps
             var axisMax = 10;
             var axisStep = axisMax / steps;
             for (var x = 0; x <= axisMax; x+=axisStep) {
@@ -46,8 +46,11 @@
             var options = {
                 width:  "600px",
                 height: "600px",
-                style: "bar",
-                barWidth: 1,
+                style: "dot-line",
+                xMin: -1,
+                xMax: 11,
+                yMin: -1,
+                yMax: 11,
                 showPerspective: true,
                 showGrid: true,
                 showShadow: false,
