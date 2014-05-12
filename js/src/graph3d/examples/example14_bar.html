@@ -20,7 +20,7 @@
         google.setOnLoadCallback(drawVisualization);
 
         function custom(x, y) {
-            return (Math.sin(x/Math.PI) * Math.cos(y/Math.PI) * 50 + 50);
+            return (Math.sin(x/Math.PI) * Math.cos(y/Math.PI) * 10 + 10);
         }
 
         // Called when the Visualization API is loaded.
@@ -32,7 +32,7 @@
             data.addColumn('number', 'z');
 
             // create some nice looking data with sin/cos
-            var steps = 4;  // number of datapoints will be steps*steps
+            var steps = 5;  // number of datapoints will be steps*steps
             var axisMax = 10;
             var axisStep = axisMax / steps;
             for (var x = 0; x <= axisMax; x+=axisStep) {

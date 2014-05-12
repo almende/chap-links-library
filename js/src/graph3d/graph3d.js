@@ -618,12 +618,20 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
 
     // calculate minimums and maximums
     var xRange = data.getColumnRange(this.colX);
+    if (this.style == links.Graph3d.STYLE.BAR) {
+        xRange.min -= this.barWidth / 2;
+        xRange.max += this.barWidth / 2;
+    }
     this.xMin = (this.defaultXMin !== undefined) ? this.defaultXMin : xRange.min;
     this.xMax = (this.defaultXMax !== undefined) ? this.defaultXMax : xRange.max;
     if (this.xMax <= this.xMin) this.xMax = this.xMin + 1;
     this.xStep = (this.defaultXStep !== undefined) ? this.defaultXStep : (this.xMax-this.xMin)/5;
 
     var yRange = data.getColumnRange(this.colY);
+    if (this.style == links.Graph3d.STYLE.BAR) {
+        yRange.min -= this.barWidth / 2;
+        yRange.max += this.barWidth / 2;
+    }
     this.yMin = (this.defaultYMin !== undefined) ? this.defaultYMin : yRange.min;
     this.yMax = (this.defaultYMax !== undefined) ? this.defaultYMax : yRange.max;
     if (this.yMax <= this.yMin) this.yMax = this.yMin + 1;
@@ -708,7 +716,7 @@ links.Graph3d.prototype._getDataPoints = function (data) {
             obj.point = point3d;
             obj.trans = undefined;
             obj.screen = undefined;
-            obj.bottom = new links.Point3d(x, y, 0);
+            obj.bottom = new links.Point3d(x, y, this.zMin);
 
             dataMatrix[xIndex][yIndex] = obj;
 
@@ -743,7 +751,7 @@ links.Graph3d.prototype._getDataPoints = function (data) {
 
             obj = {};
             obj.point = point;
-            obj.bottom = new links.Point3d(point.x, point.y, 0);
+            obj.bottom = new links.Point3d(point.x, point.y, this.zMin);
             obj.trans = undefined;
             obj.screen = undefined;
 
@@ -764,7 +772,7 @@ links.Graph3d.prototype._getDataPoints = function (data) {
 
             obj = {};
             obj.point = point;
-            obj.bottom = new links.Point3d(point.x, point.y, 0);
+            obj.bottom = new links.Point3d(point.x, point.y, this.zMin);
             obj.trans = undefined;
             obj.screen = undefined;
 
@@ -1756,6 +1764,10 @@ links.Graph3d.prototype._redrawDataBar = function() {
     };
     this.dataPoints.sort(sortDepth);
 
+    function sign(x) {
+        return x < 0 ? -1 : x > 0 ? 1 : 0;
+    }
+
     // draw the datapoints as bars
     var dotSize = this.frame.clientWidth * 0.02;  // px
     var halfWidth = this.barWidth / 2;
@@ -1802,25 +1814,76 @@ links.Graph3d.prototype._redrawDataBar = function() {
             borderColor = this._hsv2rgb(hue, 1, 0.8);
         }
 
-        // draw top surface
+        // calculate all corner points
+        var me = this;
         var point3d = point.point;
-        var corners = [
-            this._convert3Dto2D(new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, point3d.z)),
-            this._convert3Dto2D(new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, point3d.z)),
-            this._convert3Dto2D(new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, point3d.z)),
-            this._convert3Dto2D(new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, point3d.z))
+        var top = [
+            {point: new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, point3d.z)}
         ];
+        var bottom = [
+            {point: new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, this.zMin)}
+        ];
+
+        // calculate screen location of the points
+        top.forEach(function (obj) {
+            obj.screen = me._convert3Dto2D(obj.point);
+        });
+        bottom.forEach(function (obj) {
+            obj.screen = me._convert3Dto2D(obj.point);
+        });
+
+        // create five sides, calculate both corner points and center points
+        var surfaces = [
+            {corners: top},
+            {corners: [top[0], top[1], bottom[1], bottom[0]]},
+            {corners: [top[1], top[2], bottom[2], bottom[1]]},
+            {corners: [top[2], top[3], bottom[3], bottom[2]]},
+            {corners: [top[3], top[0], bottom[0], bottom[3]]}
+        ];
+
+        // calculate center points of each of the surfaces, and their translation
+        for (var j = 0; j < surfaces.length; j++) {
+            var surface = surfaces[j],
+                corners = surface.corners;
+
+            surface.center = new links.Point3d(
+                (corners[0].point.x + corners[1].point.x + corners[2].point.x + corners[3].point.x) / 4,
+                (corners[0].point.y + corners[1].point.y + corners[2].point.y + corners[3].point.y) / 4,
+                (corners[0].point.z + corners[1].point.z + corners[2].point.z + corners[3].point.z) / 4
+            );
+
+            surface.trans = this._convertPointToTranslation(surface.center);
+        }
+
+        // order the surfaces by their (translated) depth
+        // TODO: must be sorted by distance to camera!
+        surfaces.sort(function (a, b) {
+            return a.trans.z - b.trans.z;
+        });
+
+        // draw the ordered surfaces
         ctx.lineWidth = 1;
         ctx.strokeStyle = borderColor;
         ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(corners[3].x, corners[3].y);
-        ctx.lineTo(corners[0].x, corners[0].y);
-        ctx.lineTo(corners[1].x, corners[1].y);
-        ctx.lineTo(corners[2].x, corners[2].y);
-        ctx.lineTo(corners[3].x, corners[3].y);
-        ctx.fill();
-        ctx.stroke();
+        // NOTE: we start at j=2 instead of j=0 as we don't need to draw the two surfaces at the backside
+        for (var j = 2; j < surfaces.length; j++) {
+            var surface = surfaces[j],
+                corners = surface.corners;
+            ctx.beginPath();
+            ctx.moveTo(corners[3].screen.x, corners[3].screen.y);
+            ctx.lineTo(corners[0].screen.x, corners[0].screen.y);
+            ctx.lineTo(corners[1].screen.x, corners[1].screen.y);
+            ctx.lineTo(corners[2].screen.x, corners[2].screen.y);
+            ctx.lineTo(corners[3].screen.x, corners[3].screen.y);
+            ctx.fill();
+            ctx.stroke();
+        }
     }
 };
 
