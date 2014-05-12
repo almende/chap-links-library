@@ -498,14 +498,15 @@ links.Graph3d.prototype._setBackgroundColor = function(backgroundColor) {
 
 /// enumerate the available styles
 links.Graph3d.STYLE = {
-    DOT : 0,
-    DOTLINE : 1,
-    DOTCOLOR: 2,
-    DOTSIZE: 3,
-    LINE: 4,
-    GRID : 5,
-    SURFACE : 6,
-    BAR: 7
+    BAR: 0,
+    BARCOLOR: 1,
+    DOT : 2,
+    DOTLINE : 3,
+    DOTCOLOR: 4,
+    DOTSIZE: 5,
+    GRID : 6,
+    LINE: 7,
+    SURFACE : 8
 };
 
 /**
@@ -524,6 +525,7 @@ links.Graph3d.prototype._getStyleNumber = function(styleName) {
         case "grid":      return links.Graph3d.STYLE.GRID;
         case "surface":   return links.Graph3d.STYLE.SURFACE;
         case "bar":       return links.Graph3d.STYLE.BAR;
+        case "bar-color": return links.Graph3d.STYLE.BARCOLOR;
     }
 
     return -1;
@@ -545,6 +547,7 @@ links.Graph3d.prototype._getStyleName = function(styleNumber) {
         case links.Graph3d.STYLE.GRID:    return "grid";
         case links.Graph3d.STYLE.SURFACE: return "surface";
         case links.Graph3d.STYLE.BAR:     return "bar";
+        case links.Graph3d.STYLE.BARCOLOR:return "bar-color";
     }
 
     return "";
@@ -572,8 +575,9 @@ links.Graph3d.prototype._determineColumnIndexes = function(data, style) {
             this.colFilter = 3;
         }
     }
-    else if (this.style === links.Graph3d.STYLE.DOTCOLOR||
-        this.style === links.Graph3d.STYLE.DOTSIZE) {
+    else if (this.style === links.Graph3d.STYLE.DOTCOLOR ||
+        this.style === links.Graph3d.STYLE.DOTSIZE ||
+        this.style === links.Graph3d.STYLE.BARCOLOR) {
         // 4 columns expected, and optionally a 5th with filter values
         this.colX = 0;
         this.colY = 1;
@@ -616,9 +620,11 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
         }
     }
 
+    var withBars = this.style == links.Graph3d.STYLE.BAR || this.style == links.Graph3d.STYLE.BARCOLOR;
+
     // calculate minimums and maximums
     var xRange = data.getColumnRange(this.colX);
-    if (this.style == links.Graph3d.STYLE.BAR) {
+    if (withBars) {
         xRange.min -= this.barWidth / 2;
         xRange.max += this.barWidth / 2;
     }
@@ -628,7 +634,7 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
     this.xStep = (this.defaultXStep !== undefined) ? this.defaultXStep : (this.xMax-this.xMin)/5;
 
     var yRange = data.getColumnRange(this.colY);
-    if (this.style == links.Graph3d.STYLE.BAR) {
+    if (withBars) {
         yRange.min -= this.barWidth / 2;
         yRange.max += this.barWidth / 2;
     }
@@ -1001,7 +1007,6 @@ links.Graph3d.prototype.redraw = function(data) {
         this._readData(data);
     }
 
-    var start = new Date(); // TODO: cleanup
     if (this.dataPoints === undefined) {
         throw "Error: graph data not initialized";
     }
@@ -1019,7 +1024,8 @@ links.Graph3d.prototype.redraw = function(data) {
     else if (this.style === links.Graph3d.STYLE.LINE) {
         this._redrawDataLine();
     }
-    else if (this.style === links.Graph3d.STYLE.BAR) {
+    else if (this.style === links.Graph3d.STYLE.BAR ||
+        this.style === links.Graph3d.STYLE.BARCOLOR) {
         this._redrawDataBar();
     }
     else {
@@ -1029,9 +1035,6 @@ links.Graph3d.prototype.redraw = function(data) {
 
     this._redrawInfo();
     this._redrawLegend();
-
-    var end = new Date();
-    //document.title = " " + (end - start) // TODO: cleanup
 };
 
 /**
@@ -1526,13 +1529,13 @@ links.Graph3d.prototype._redrawDataGrid = function() {
         this.dataPoints[i].screen = screen;
 
         // calculate the translation of the point at the bottom (needed for sorting)
-        var transbottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
-        this.dataPoints[i].transbottom = transbottom;
+        var transBottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
+        this.dataPoints[i].dist = transBottom.length();
     }
 
     // sort the points on depth of their (x,y) position (not on z)
     var sortDepth = function (a, b) {
-        return a.transbottom.z - b.transbottom.z;
+        return b.dist - a.dist;
     };
     this.dataPoints.sort(sortDepth);
 
@@ -1554,6 +1557,7 @@ links.Graph3d.prototype._redrawDataGrid = function() {
                     var bDiff = links.Point3d.subtract(top.trans, right.trans);
                     var crossproduct = links.Point3d.crossProduct(aDiff, bDiff);
                     var len = crossproduct.length();
+                    // FIXME: there is a bug with determining the surface side (shadow or colored)
 
                     var topSideVisible = (crossproduct.z > 0);
                 }
@@ -1570,7 +1574,6 @@ links.Graph3d.prototype._redrawDataGrid = function() {
                     if (this.showShadow) {
                         var v = Math.min(1 + (crossproduct.x / len) / 2, 1);  // value. TODO: scale
                         var fillStyle = this._hsv2rgb(h, s, v);
-                        var strokeStyle = this.colorAxis;
                         var strokeStyle = fillStyle;
                     }
                     else  {
@@ -1662,12 +1665,15 @@ links.Graph3d.prototype._redrawDataDot = function() {
         var screen = this._convertTranslationToScreen(trans);
         this.dataPoints[i].trans = trans;
         this.dataPoints[i].screen = screen;
+
+        // calculate the distance from the point at the bottom to the camera
+        var transBottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
+        this.dataPoints[i].dist = transBottom.length();
     }
 
     // order the translated points by depth
-    // FIXME: shouldn't be sorted by z value but by distance to camera
     var sortDepth = function (a, b) {
-        return a.trans.z - b.trans.z;
+        return b.dist - a.dist;
     };
     this.dataPoints.sort(sortDepth);
 
@@ -1739,12 +1745,12 @@ links.Graph3d.prototype._redrawDataDot = function() {
 
 /**
  * Draw all datapoints as bars.
- * This function can be used when the style is "bar"
+ * This function can be used when the style is "bar" or "bar-color"
  */
 links.Graph3d.prototype._redrawDataBar = function() {
     var canvas = this.frame.canvas;
     var ctx = canvas.getContext("2d");
-    var i;
+    var i, j, surface, corners;
 
     if (this.dataPoints === undefined || this.dataPoints.length <= 0)
         return;  // TODO: throw exception?
@@ -1755,58 +1761,37 @@ links.Graph3d.prototype._redrawDataBar = function() {
         var screen = this._convertTranslationToScreen(trans);
         this.dataPoints[i].trans = trans;
         this.dataPoints[i].screen = screen;
+
+        // calculate the distance from the point at the bottom to the camera
+        var transBottom = this._convertPointToTranslation(this.dataPoints[i].bottom);
+        this.dataPoints[i].dist = transBottom.length();
     }
 
     // order the translated points by depth
-    // FIXME: shouldn't be sorted by z value but by distance to camera
     var sortDepth = function (a, b) {
-        return a.trans.z - b.trans.z;
+        return b.dist - a.dist;
     };
     this.dataPoints.sort(sortDepth);
 
-    function sign(x) {
-        return x < 0 ? -1 : x > 0 ? 1 : 0;
-    }
-
     // draw the datapoints as bars
-    var dotSize = this.frame.clientWidth * 0.02;  // px
     var halfWidth = this.barWidth / 2;
     for (i = 0; i < this.dataPoints.length; i++) {
         var point = this.dataPoints[i];
 
-        // TODO: cleanup calculation of radius
-
-        // calculate radius for the circle
-        var size;
-        if (this.style === links.Graph3d.STYLE.DOTSIZE) {
-            size = dotSize/2 + 2*dotSize * (point.point.value - this.valueMin) / (this.valueMax - this.valueMin);
-        }
-        else {
-            size = dotSize;
-        }
-
-        var radius;
-        if (this.showPerspective) {
-            radius = size / -point.trans.z;
-        }
-        else {
-            radius = size * -(this.eye.z / this.camera.getArmLength());
-        }
-        if (radius < 0) {
-            radius = 0;
-        }
-
+        // determine color
         var hue, color, borderColor;
-        if (this.style === links.Graph3d.STYLE.DOTCOLOR ) {
+        if (this.style === links.Graph3d.STYLE.BARCOLOR ) {
             // calculate the color based on the value
             hue = (1 - (point.point.value - this.valueMin) * this.scale.value) * 240;
             color = this._hsv2rgb(hue, 1, 1);
             borderColor = this._hsv2rgb(hue, 1, 0.8);
         }
-        else if (this.style === links.Graph3d.STYLE.DOTSIZE) {
+        /* TODO: implement style BARSIZE?
+        else if (this.style === links.Graph3d.STYLE.BARSIZE) {
             color = this.colorDot;
             borderColor = this.colorDotBorder;
         }
+        */
         else {
             // calculate Hue from the current value. At zMin the hue is 240, at zMax the hue is 0
             hue = (1 - (point.point.z - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
@@ -1847,24 +1832,24 @@ links.Graph3d.prototype._redrawDataBar = function() {
             {corners: [top[3], top[0], bottom[0], bottom[3]]}
         ];
 
-        // calculate center points of each of the surfaces, and their translation
-        for (var j = 0; j < surfaces.length; j++) {
-            var surface = surfaces[j],
-                corners = surface.corners;
+        // calculate center points of each of the surfaces
+        // use this to calculate the distance of this point to camera
+        for (j = 0; j < surfaces.length; j++) {
+            surface = surfaces[j];
+            corners = surface.corners;
 
-            surface.center = new links.Point3d(
+            var center = new links.Point3d(
                 (corners[0].point.x + corners[1].point.x + corners[2].point.x + corners[3].point.x) / 4,
                 (corners[0].point.y + corners[1].point.y + corners[2].point.y + corners[3].point.y) / 4,
                 (corners[0].point.z + corners[1].point.z + corners[2].point.z + corners[3].point.z) / 4
             );
-
-            surface.trans = this._convertPointToTranslation(surface.center);
+            var trans = this._convertPointToTranslation(center);
+            surface.dist = trans.length();
         }
 
         // order the surfaces by their (translated) depth
-        // TODO: must be sorted by distance to camera!
         surfaces.sort(function (a, b) {
-            return a.trans.z - b.trans.z;
+            return b.dist - a.dist;
         });
 
         // draw the ordered surfaces
@@ -1872,9 +1857,9 @@ links.Graph3d.prototype._redrawDataBar = function() {
         ctx.strokeStyle = borderColor;
         ctx.fillStyle = color;
         // NOTE: we start at j=2 instead of j=0 as we don't need to draw the two surfaces at the backside
-        for (var j = 2; j < surfaces.length; j++) {
-            var surface = surfaces[j],
-                corners = surface.corners;
+        for (j = 2; j < surfaces.length; j++) {
+            surface = surfaces[j];
+            corners = surface.corners;
             ctx.beginPath();
             ctx.moveTo(corners[3].screen.x, corners[3].screen.y);
             ctx.lineTo(corners[0].screen.x, corners[0].screen.y);
@@ -2170,9 +2155,11 @@ links.Point3d.crossProduct = function(a, b) {
  * @return {Number}  length
  */
 links.Point3d.prototype.length = function() {
-    return Math.sqrt(this.x * this.x +
-        this.y * this.y +
-        this.z * this.z);
+    return Math.sqrt(
+            this.x * this.x +
+            this.y * this.y +
+            this.z * this.z
+    );
 };
 
 /**
@@ -2425,13 +2412,13 @@ links.Filter.prototype.loadInBackground = function(index) {
  */
 links.StepNumber = function (start, end, step, prettyStep) {
     // set default values
-    this.start_ = 0;
-    this.end_ = 0;
-    this.step_ = 1;
+    this._start = 0;
+    this._end = 0;
+    this._step = 1;
     this.prettyStep = true;
     this.precision = 5;
 
-    this.current_ = 0;
+    this._current = 0;
     this.setRange(start, end, step, prettyStep);
 };
 
@@ -2445,8 +2432,8 @@ links.StepNumber = function (start, end, step, prettyStep) {
  *                             To a pretty step size (like 1, 2, 5, 10, 20, 50, ...)
  */
 links.StepNumber.prototype.setRange = function(start, end, step, prettyStep) {
-    this.start_ = start ? start : 0;
-    this.end_ = end ? end : 0;
+    this._start = start ? start : 0;
+    this._end = end ? end : 0;
 
     this.setStep(step, prettyStep);
 };
@@ -2465,9 +2452,9 @@ links.StepNumber.prototype.setStep = function(step, prettyStep) {
         this.prettyStep = prettyStep;
 
     if (this.prettyStep === true)
-        this.step_ = links.StepNumber.calculatePrettyStep(step);
+        this._step = links.StepNumber.calculatePrettyStep(step);
     else
-        this.step_ = step;
+        this._step = step;
 };
 
 /**
@@ -2503,8 +2490,8 @@ links.StepNumber.calculatePrettyStep = function (step) {
  * @return {number} current value
  */
 links.StepNumber.prototype.getCurrent = function () {
-    var currentRounded = (this.current_).toPrecision(this.precision);
-    if (this.current_ < 100000) {
+    var currentRounded = (this._current).toPrecision(this.precision);
+    if (this._current < 100000) {
         currentRounded *= 1; // remove zeros at the tail, behind the comma
     }
     return currentRounded;
@@ -2515,7 +2502,7 @@ links.StepNumber.prototype.getCurrent = function () {
  * @return {number} current step size
  */
 links.StepNumber.prototype.getStep = function () {
-    return this.step_;
+    return this._step;
 };
 
 /**
@@ -2523,21 +2510,14 @@ links.StepNumber.prototype.getStep = function () {
  * is a multiple of the step size
  */
 links.StepNumber.prototype.start = function() {
-    this.current_ = this.start_ - this.start_ % this.step_;
-
-    /* TODO: cleanup
-     if (this.prettyStep)
-     this.current_ = this.start_ - this.start_ % this.step_;
-     else
-     this.current_ = this.start_;
-     //*/
+    this._current = this._start - this._start % this._step;
 };
 
 /**
  * Do a step, add the step size to the current value
  */
 links.StepNumber.prototype.next = function () {
-    this.current_ += this.step_;
+    this._current += this._step;
 };
 
 /**
@@ -2545,7 +2525,7 @@ links.StepNumber.prototype.next = function () {
  * @return {boolean}  True if the current value has passed the end value.
  */
 links.StepNumber.prototype.end = function () {
-    return (this.current_ > this.end_);
+    return (this._current > this._end);
 };
 
 
