@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>Graph 3D cloud with sized dots</title>
+    <title>Graph 3D bar chart demo</title>
 
     <style>
         body {font: 10pt arial;}
@@ -19,47 +19,43 @@
         // Set callback to run when API is loaded
         google.setOnLoadCallback(drawVisualization);
 
+        function custom(x, y) {
+            return (Math.sin(x/Math.PI) * Math.cos(y/Math.PI) * 50 + 50);
+        }
+
         // Called when the Visualization API is loaded.
         function drawVisualization() {
-            // create the data table.
+            // Create and populate a data table.
             data = new google.visualization.DataTable();
             data.addColumn('number', 'x');
             data.addColumn('number', 'y');
             data.addColumn('number', 'z');
-            data.addColumn('number', 'value');
 
-            // create some shortcuts to math functions
-            var sqrt = Math.sqrt;
-            var pow = Math.pow;
-            var random = Math.random;
-
-            // create the animation data
-            var imax = 100;
-            for (var i = 0; i < imax; i++) {
-                var x = pow(random(), 2);
-                var y = pow(random(), 2);
-                var z = pow(random(), 2);
-
-                var dist = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-                var range = sqrt(2) - dist;
-
-                data.addRow([x, y, z, range]);
+            // create some nice looking data with sin/cos
+            var steps = 4;  // number of datapoints will be steps*steps
+            var axisMax = 10;
+            var axisStep = axisMax / steps;
+            for (var x = 0; x <= axisMax; x+=axisStep) {
+                for (var y = 0; y <= axisMax; y+=axisStep) {
+                    var value = custom(x,y);
+                    data.addRow([x, y, value]);
+                }
             }
 
             // specify options
             var options = {
                 width:  "600px",
                 height: "600px",
-                style: "dot-size",
-                showPerspective: false,
+                style: "bar",
+                xMin: -1,
+                xMax: 11,
+                yMin: -1,
+                yMax: 11,
+                showPerspective: true,
                 showGrid: true,
+                showShadow: false,
                 keepAspectRatio: true,
-                verticalRatio: 1.0,
-                cameraPosition: {
-                    horizontal: -0.54,
-                    vertical: 0.5,
-                    distance: 1.6
-                }
+                verticalRatio: 0.5
             };
 
             // Instantiate our graph object.

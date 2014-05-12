@@ -506,8 +506,8 @@ links.Graph3d.STYLE = { DOT : 0,
 
 /**
  * Retrieve the style index from given styleName
- * @param styleName    {string} Style name such as "dot", "grid", "dot-line"
- * @return styleNumber {number} Enumeration value representing the style, or -1
+ * @param {string} styleName    Style name such as "dot", "grid", "dot-line"
+ * @return {number} styleNumber Enumeration value representing the style, or -1
  *                              when not found
  */
 links.Graph3d.prototype._getStyleNumber = function(styleName) {
@@ -526,8 +526,8 @@ links.Graph3d.prototype._getStyleNumber = function(styleName) {
 
 /**
  * Retrieve the style name from given number
- * @param styleNumber  {number} A style number
- * @return styleName   {string} the name of this style number, or an empty
+ * @param {number} styleNumber  A style number
+ * @return {string} styleName   the name of this style number, or an empty
  *                              string when number is out of range.
  */
 links.Graph3d.prototype._getStyleName = function(styleNumber) {
@@ -709,7 +709,7 @@ links.Graph3d.prototype._getDataPoints = function (data) {
             dataPoints.push(obj);
         }
 
-        // fill in the pointers to the neigbors.
+        // fill in the pointers to the neighbors.
         for (var x = 0; x < dataMatrix.length; x++) {
             for (var y = 0; y < dataMatrix[x].length; y++) {
                 if (dataMatrix[x][y]) {
