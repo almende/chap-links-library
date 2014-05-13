@@ -123,7 +123,8 @@ links.Graph3d = function (container) {
     this.zMax = 1;
     this.valueMin = 0;
     this.valueMax = 1;
-    this.barWidth = 1;
+    this.xBarWidth = 1;
+    this.yBarWidth = 1;
     // TODO: customize axis range
 
     // constants
@@ -420,7 +421,8 @@ links.Graph3d.prototype.draw = function(data, options) {
         if (options.animationPreload !== undefined)  this.animationPreload = options.animationPreload;
         if (options.animationAutoStart !== undefined)this.animationAutoStart = options.animationAutoStart;
 
-        if (options.barWidth !== undefined) this.barWidth = options.barWidth;
+        if (options.xBarWidth !== undefined) this.defaultXBarWidth = options.xBarWidth;
+        if (options.yBarWidth !== undefined) this.defaultYBarWidth = options.yBarWidth;
 
         if (options.xMin !== undefined) this.defaultXMin = options.xMin;
         if (options.xStep !== undefined) this.defaultXStep = options.xStep;
@@ -609,11 +611,30 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
 
     var withBars = this.style == links.Graph3d.STYLE.BAR || this.style == links.Graph3d.STYLE.BARCOLOR;
 
+    // determine barWidth from data
+    if (withBars) {
+        if (this.defaultXBarWidth !== undefined) {
+            this.xBarWidth = this.defaultXBarWidth;
+        }
+        else {
+            var dataX = data.getDistinctValues(this.colX);
+            this.xBarWidth = (dataX[1] - dataX[0]) || 1;
+        }
+
+        if (this.defaultYBarWidth !== undefined) {
+            this.yBarWidth = this.defaultYBarWidth;
+        }
+        else {
+            var dataY = data.getDistinctValues(this.colY);
+            this.yBarWidth = (dataY[1] - dataY[0]) || 1;
+        }
+    }
+
     // calculate minimums and maximums
     var xRange = data.getColumnRange(this.colX);
     if (withBars) {
-        xRange.min -= this.barWidth / 2;
-        xRange.max += this.barWidth / 2;
+        xRange.min -= this.xBarWidth / 2;
+        xRange.max += this.xBarWidth / 2;
     }
     this.xMin = (this.defaultXMin !== undefined) ? this.defaultXMin : xRange.min;
     this.xMax = (this.defaultXMax !== undefined) ? this.defaultXMax : xRange.max;
@@ -622,8 +643,8 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
 
     var yRange = data.getColumnRange(this.colY);
     if (withBars) {
-        yRange.min -= this.barWidth / 2;
-        yRange.max += this.barWidth / 2;
+        yRange.min -= this.xBarWidth / 2;
+        yRange.max += this.yBarWidth / 2;
     }
     this.yMin = (this.defaultYMin !== undefined) ? this.defaultYMin : yRange.min;
     this.yMax = (this.defaultYMax !== undefined) ? this.defaultYMax : yRange.max;
@@ -1775,7 +1796,8 @@ links.Graph3d.prototype._redrawDataBar = function() {
     this.dataPoints.sort(sortDepth);
 
     // draw the datapoints as bars
-    var halfWidth = this.barWidth / 2;
+    var xWidth = this.xBarWidth / 2;
+    var yWidth = this.yBarWidth / 2;
     for (i = 0; i < this.dataPoints.length; i++) {
         var point = this.dataPoints[i];
 
@@ -1804,16 +1826,16 @@ links.Graph3d.prototype._redrawDataBar = function() {
         var me = this;
         var point3d = point.point;
         var top = [
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, point3d.z)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, point3d.z)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, point3d.z)},
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, point3d.z)}
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y - yWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y - yWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y + yWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y + yWidth, point3d.z)}
         ];
         var bottom = [
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, this.zMin)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, this.zMin)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, this.zMin)},
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, this.zMin)}
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y - yWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y - yWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y + yWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y + yWidth, this.zMin)}
         ];
 
         // calculate screen location of the points
