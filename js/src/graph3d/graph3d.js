@@ -1848,25 +1848,17 @@ links.Graph3d.prototype._redrawDataBar = function() {
 
         // create five sides, calculate both corner points and center points
         var surfaces = [
-            {corners: top},
-            {corners: [top[0], top[1], bottom[1], bottom[0]]},
-            {corners: [top[1], top[2], bottom[2], bottom[1]]},
-            {corners: [top[2], top[3], bottom[3], bottom[2]]},
-            {corners: [top[3], top[0], bottom[0], bottom[3]]}
+            {corners: top, center: links.Point3d.avg(bottom[0].point, bottom[2].point)},
+            {corners: [top[0], top[1], bottom[1], bottom[0]], center: links.Point3d.avg(bottom[1].point, bottom[0].point)},
+            {corners: [top[1], top[2], bottom[2], bottom[1]], center: links.Point3d.avg(bottom[2].point, bottom[1].point)},
+            {corners: [top[2], top[3], bottom[3], bottom[2]], center: links.Point3d.avg(bottom[3].point, bottom[2].point)},
+            {corners: [top[3], top[0], bottom[0], bottom[3]], center: links.Point3d.avg(bottom[0].point, bottom[3].point)}
         ];
 
-        // calculate center points of each of the surfaces
-        // use this to calculate the distance of this point to camera
+        // calculate the distance of each of the surface centers to the camera
         for (j = 0; j < surfaces.length; j++) {
             surface = surfaces[j];
-            corners = surface.corners;
-
-            var center = new links.Point3d(
-                (corners[0].point.x + corners[1].point.x + corners[2].point.x + corners[3].point.x) / 4,
-                (corners[0].point.y + corners[1].point.y + corners[2].point.y + corners[3].point.y) / 4,
-                (corners[0].point.z + corners[1].point.z + corners[2].point.z + corners[3].point.z) / 4
-            );
-            var transCenter = this._convertPointToTranslation(center);
+            var transCenter = this._convertPointToTranslation(surface.center);
             surface.dist = this.showPerspective ? transCenter.length() : -transCenter.z;
         }
 
@@ -2165,7 +2157,21 @@ links.Point3d.add = function(a, b) {
 };
 
 /**
- * Calculate the cross producto of the two provided points, returns axb
+ * Calculate the average of two 3d points
+ * @param {links.Point3d} a
+ * @param {links.Point3d} b
+ * @return {links.Point3d} The average, (a+b)/2
+ */
+links.Point3d.avg = function(a, b) {
+    return new links.Point3d(
+            (a.x + b.x) / 2,
+            (a.y + b.y) / 2,
+            (a.z + b.z) / 2
+    );
+};
+
+/**
+ * Calculate the cross product of the two provided points, returns axb
  * Documentation: http://en.wikipedia.org/wiki/Cross_product
  * @param {links.Point3d} a
  * @param {links.Point3d} b

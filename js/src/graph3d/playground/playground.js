@@ -519,7 +519,8 @@ function getOptions() {
         valueMin:          Number(document.getElementById("valueMin").value) || undefined,
         valueMax:          Number(document.getElementById("valueMax").value) || undefined,
 
-        barWidth:          Number(document.getElementById("barWidth").value) || undefined
+        xBarWidth:         Number(document.getElementById("xBarWidth").value) || undefined,
+        yBarWidth:         Number(document.getElementById("yBarWidth").value) || undefined
     };
 }
 
@@ -638,7 +639,7 @@ function drawDatasource() {
 
         // Draw our graph with the created data and options
         graph.draw(data, options);
-    }
+    };
 
     url = document.getElementById("datasourceText").value;
     document.getElementById("draw").disabled = "disabled";
