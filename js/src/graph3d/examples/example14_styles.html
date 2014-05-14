@@ -29,7 +29,7 @@
             var showPerspective = document.getElementById("perspective").checked;
             var xBarWidth = parseFloat(document.getElementById("xBarWidth").value) || undefined;
             var yBarWidth = parseFloat(document.getElementById("yBarWidth").value) || undefined;
-            var withValue = ['bar-color', 'dot-size', 'dot-color'].indexOf(style) != -1;
+            var withValue = ['bar-color', 'bar-size', 'dot-size', 'dot-color'].indexOf(style) != -1;
 
             // Create and populate a data table.
             data = new google.visualization.DataTable();
@@ -47,7 +47,7 @@
                     var z = custom(x,y);
                     var values = [x, y, z];
                     if (withValue) {
-                        var value = (x + y > 10) ? 1 : 0; // some threshold
+                        var value = (y - x);
                         values.push(value);
                     }
                     data.addRow(values);
@@ -93,6 +93,7 @@
     <select id="style">
         <option value="bar">bar</option>
         <option value="bar-color">bar-color</option>
+        <option value="bar-size">bar-size</option>
 
         <option value="dot">dot</option>
         <option value="dot-line">dot-line</option>

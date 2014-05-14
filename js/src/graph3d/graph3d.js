@@ -502,13 +502,14 @@ links.Graph3d.prototype._setBackgroundColor = function(backgroundColor) {
 links.Graph3d.STYLE = {
     BAR: 0,
     BARCOLOR: 1,
-    DOT : 2,
-    DOTLINE : 3,
-    DOTCOLOR: 4,
-    DOTSIZE: 5,
-    GRID : 6,
-    LINE: 7,
-    SURFACE : 8
+    BARSIZE: 2,
+    DOT : 3,
+    DOTLINE : 4,
+    DOTCOLOR: 5,
+    DOTSIZE: 6,
+    GRID : 7,
+    LINE: 8,
+    SURFACE : 9
 };
 
 /**
@@ -519,24 +520,16 @@ links.Graph3d.STYLE = {
  */
 links.Graph3d.prototype._getStyleNumber = function(styleName) {
     switch (styleName) {
-        case "dot":
-            return links.Graph3d.STYLE.DOT;
-        case "dot-line":
-            return links.Graph3d.STYLE.DOTLINE;
-        case "dot-color":
-            return links.Graph3d.STYLE.DOTCOLOR;
-        case "dot-size":
-            return links.Graph3d.STYLE.DOTSIZE;
-        case "line":
-            return links.Graph3d.STYLE.LINE;
-        case "grid":
-            return links.Graph3d.STYLE.GRID;
-        case "surface":
-            return links.Graph3d.STYLE.SURFACE;
-        case "bar":
-            return links.Graph3d.STYLE.BAR;
-        case "bar-color":
-            return links.Graph3d.STYLE.BARCOLOR;
+        case "dot":         return links.Graph3d.STYLE.DOT;
+        case "dot-line":    return links.Graph3d.STYLE.DOTLINE;
+        case "dot-color":   return links.Graph3d.STYLE.DOTCOLOR;
+        case "dot-size":    return links.Graph3d.STYLE.DOTSIZE;
+        case "line":        return links.Graph3d.STYLE.LINE;
+        case "grid":        return links.Graph3d.STYLE.GRID;
+        case "surface":     return links.Graph3d.STYLE.SURFACE;
+        case "bar":         return links.Graph3d.STYLE.BAR;
+        case "bar-color":   return links.Graph3d.STYLE.BARCOLOR;
+        case "bar-size":    return links.Graph3d.STYLE.BARSIZE;
     }
 
     return -1;
@@ -566,7 +559,8 @@ links.Graph3d.prototype._determineColumnIndexes = function(data, style) {
     }
     else if (this.style === links.Graph3d.STYLE.DOTCOLOR ||
         this.style === links.Graph3d.STYLE.DOTSIZE ||
-        this.style === links.Graph3d.STYLE.BARCOLOR) {
+        this.style === links.Graph3d.STYLE.BARCOLOR ||
+        this.style === links.Graph3d.STYLE.BARSIZE) {
         // 4 columns expected, and optionally a 5th with filter values
         this.colX = 0;
         this.colY = 1;
@@ -609,7 +603,9 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
         }
     }
 
-    var withBars = this.style == links.Graph3d.STYLE.BAR || this.style == links.Graph3d.STYLE.BARCOLOR;
+    var withBars = this.style == links.Graph3d.STYLE.BAR ||
+        this.style == links.Graph3d.STYLE.BARCOLOR ||
+        this.style == links.Graph3d.STYLE.BARSIZE;
 
     // determine barWidth from data
     if (withBars) {
@@ -643,7 +639,7 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
 
     var yRange = data.getColumnRange(this.colY);
     if (withBars) {
-        yRange.min -= this.xBarWidth / 2;
+        yRange.min -= this.yBarWidth / 2;
         yRange.max += this.yBarWidth / 2;
     }
     this.yMin = (this.defaultYMin !== undefined) ? this.defaultYMin : yRange.min;
@@ -749,27 +745,6 @@ links.Graph3d.prototype._getDataPoints = function (data) {
                             undefined;
                 }
             }
-        }
-    }
-    else if (this.style === links.Graph3d.STYLE.BAR) {
-        // copy all values from the google data table to a list with Point3d objects
-        for (i = 0; i < data.getNumberOfRows(); i++) {
-            point = new links.Point3d();
-            point.x = data.getValue(i, this.colX) || 0;
-            point.y = data.getValue(i, this.colY) || 0;
-            point.z = data.getValue(i, this.colZ) || 0;
-
-            if (this.colValue !== undefined) {
-                point.value = data.getValue(i, this.colValue) || 0;
-            }
-
-            obj = {};
-            obj.point = point;
-            obj.bottom = new links.Point3d(point.x, point.y, this.zMin);
-            obj.trans = undefined;
-            obj.screen = undefined;
-
-            dataPoints.push(obj);
         }
     }
     else {  // "dot", "dot-line", etc.
@@ -1035,7 +1010,8 @@ links.Graph3d.prototype.redraw = function(data) {
         this._redrawDataLine();
     }
     else if (this.style === links.Graph3d.STYLE.BAR ||
-        this.style === links.Graph3d.STYLE.BARCOLOR) {
+        this.style === links.Graph3d.STYLE.BARCOLOR ||
+        this.style === links.Graph3d.STYLE.BARSIZE) {
         this._redrawDataBar();
     }
     else {
@@ -1767,7 +1743,7 @@ links.Graph3d.prototype._redrawDataDot = function() {
 
 /**
  * Draw all datapoints as bars.
- * This function can be used when the style is "bar" or "bar-color"
+ * This function can be used when the style is "bar", "bar-color", or "bar-size"
  */
 links.Graph3d.prototype._redrawDataBar = function() {
     var canvas = this.frame.canvas;
@@ -1798,6 +1774,7 @@ links.Graph3d.prototype._redrawDataBar = function() {
     // draw the datapoints as bars
     var xWidth = this.xBarWidth / 2;
     var yWidth = this.yBarWidth / 2;
+    var dotSize = this.frame.clientWidth * 0.02;  // px
     for (i = 0; i < this.dataPoints.length; i++) {
         var point = this.dataPoints[i];
 
@@ -1809,17 +1786,21 @@ links.Graph3d.prototype._redrawDataBar = function() {
             color = this._hsv2rgb(hue, 1, 1);
             borderColor = this._hsv2rgb(hue, 1, 0.8);
         }
-        /* TODO: implement style BARSIZE?
         else if (this.style === links.Graph3d.STYLE.BARSIZE) {
             color = this.colorDot;
             borderColor = this.colorDotBorder;
         }
-        */
         else {
             // calculate Hue from the current value. At zMin the hue is 240, at zMax the hue is 0
             hue = (1 - (point.point.z - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
             color = this._hsv2rgb(hue, 1, 1);
             borderColor = this._hsv2rgb(hue, 1, 0.8);
+        }
+
+        // calculate size for the bar
+        if (this.style === links.Graph3d.STYLE.BARSIZE) {
+            xWidth = (this.xBarWidth / 2) * ((point.point.value - this.valueMin) / (this.valueMax - this.valueMin) * 0.8 + 0.2);
+            yWidth = (this.yBarWidth / 2) * ((point.point.value - this.valueMin) / (this.valueMax - this.valueMin) * 0.8 + 0.2);
         }
 
         // calculate all corner points
@@ -1860,6 +1841,9 @@ links.Graph3d.prototype._redrawDataBar = function() {
             surface = surfaces[j];
             var transCenter = this._convertPointToTranslation(surface.center);
             surface.dist = this.showPerspective ? transCenter.length() : -transCenter.z;
+            // TODO: this dept calculation doesn't work 100% of the cases due to perspective,
+            //       but the current solution is fast/simple and works in 99.9% of all cases
+            //       the issue is visible in example 14, with graph.setCameraPosition({horizontal: 2.97, vertical: 0.5, distance: 0.9})
         }
 
         // order the surfaces by their (translated) depth
