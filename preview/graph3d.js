@@ -123,7 +123,8 @@ links.Graph3d = function (container) {
     this.zMax = 1;
     this.valueMin = 0;
     this.valueMax = 1;
-    this.barWidth = 1;
+    this.xBarWidth = 1;
+    this.yBarWidth = 1;
     // TODO: customize axis range
 
     // constants
@@ -279,9 +280,11 @@ links.Graph3d.prototype._setScale = function() {
     // keep aspect ration between x and y scale if desired
     if (this.keepAspectRatio) {
         if (this.scale.x < this.scale.y) {
+            //noinspection JSSuspiciousNameCombination
             this.scale.y = this.scale.x;
         }
         else {
+            //noinspection JSSuspiciousNameCombination
             this.scale.x = this.scale.y;
         }
     }
@@ -376,11 +379,9 @@ links.Graph3d.prototype._convertTranslationToScreen = function(translation) {
 
     // shift and scale the point to the center of the screen
     // use the width of the graph to scale both horizontally and vertically.
-    var point2d = new links.Point2d(
+    return new links.Point2d(
         this.xcenter + bx * this.frame.canvas.clientWidth,
         this.ycenter - by * this.frame.canvas.clientWidth);
-
-    return point2d;
 };
 
 /**
@@ -420,7 +421,8 @@ links.Graph3d.prototype.draw = function(data, options) {
         if (options.animationPreload !== undefined)  this.animationPreload = options.animationPreload;
         if (options.animationAutoStart !== undefined)this.animationAutoStart = options.animationAutoStart;
 
-        if (options.barWidth !== undefined) this.barWidth = options.barWidth;
+        if (options.xBarWidth !== undefined) this.defaultXBarWidth = options.xBarWidth;
+        if (options.yBarWidth !== undefined) this.defaultYBarWidth = options.yBarWidth;
 
         if (options.xMin !== undefined) this.defaultXMin = options.xMin;
         if (options.xStep !== undefined) this.defaultXStep = options.xStep;
@@ -465,7 +467,7 @@ links.Graph3d.prototype.draw = function(data, options) {
 
 /**
  * Set the background styling for the graph
- * @param {string | Object} backgroundColor
+ * @param {string | {fill: string, stroke: string, strokeWidth: string}} backgroundColor
  */
 links.Graph3d.prototype._setBackgroundColor = function(backgroundColor) {
     var fill = "white";
@@ -500,13 +502,14 @@ links.Graph3d.prototype._setBackgroundColor = function(backgroundColor) {
 links.Graph3d.STYLE = {
     BAR: 0,
     BARCOLOR: 1,
-    DOT : 2,
-    DOTLINE : 3,
-    DOTCOLOR: 4,
-    DOTSIZE: 5,
-    GRID : 6,
-    LINE: 7,
-    SURFACE : 8
+    BARSIZE: 2,
+    DOT : 3,
+    DOTLINE : 4,
+    DOTCOLOR: 5,
+    DOTSIZE: 6,
+    GRID : 7,
+    LINE: 8,
+    SURFACE : 9
 };
 
 /**
@@ -517,40 +520,19 @@ links.Graph3d.STYLE = {
  */
 links.Graph3d.prototype._getStyleNumber = function(styleName) {
     switch (styleName) {
-        case "dot":       return links.Graph3d.STYLE.DOT;
-        case "dot-line":  return links.Graph3d.STYLE.DOTLINE;
-        case "dot-color": return links.Graph3d.STYLE.DOTCOLOR;
-        case "dot-size":  return links.Graph3d.STYLE.DOTSIZE;
-        case "line":      return links.Graph3d.STYLE.LINE;
-        case "grid":      return links.Graph3d.STYLE.GRID;
-        case "surface":   return links.Graph3d.STYLE.SURFACE;
-        case "bar":       return links.Graph3d.STYLE.BAR;
-        case "bar-color": return links.Graph3d.STYLE.BARCOLOR;
+        case "dot":         return links.Graph3d.STYLE.DOT;
+        case "dot-line":    return links.Graph3d.STYLE.DOTLINE;
+        case "dot-color":   return links.Graph3d.STYLE.DOTCOLOR;
+        case "dot-size":    return links.Graph3d.STYLE.DOTSIZE;
+        case "line":        return links.Graph3d.STYLE.LINE;
+        case "grid":        return links.Graph3d.STYLE.GRID;
+        case "surface":     return links.Graph3d.STYLE.SURFACE;
+        case "bar":         return links.Graph3d.STYLE.BAR;
+        case "bar-color":   return links.Graph3d.STYLE.BARCOLOR;
+        case "bar-size":    return links.Graph3d.STYLE.BARSIZE;
     }
 
     return -1;
-};
-
-/**
- * Retrieve the style name from given number
- * @param {number} styleNumber  A style number
- * @return {string} styleName   the name of this style number, or an empty
- *                              string when number is out of range.
- */
-links.Graph3d.prototype._getStyleName = function(styleNumber) {
-    switch (styleNumber) {
-        case links.Graph3d.STYLE.DOT:     return "dot";
-        case links.Graph3d.STYLE.DOTLINE: return "dot-line";
-        case links.Graph3d.STYLE.DOTCOLOR:return "dot-color";
-        case links.Graph3d.STYLE.DOTSIZE: return "dot-size";
-        case links.Graph3d.STYLE.LINE:    return "line";
-        case links.Graph3d.STYLE.GRID:    return "grid";
-        case links.Graph3d.STYLE.SURFACE: return "surface";
-        case links.Graph3d.STYLE.BAR:     return "bar";
-        case links.Graph3d.STYLE.BARCOLOR:return "bar-color";
-    }
-
-    return "";
 };
 
 /**
@@ -577,7 +559,8 @@ links.Graph3d.prototype._determineColumnIndexes = function(data, style) {
     }
     else if (this.style === links.Graph3d.STYLE.DOTCOLOR ||
         this.style === links.Graph3d.STYLE.DOTSIZE ||
-        this.style === links.Graph3d.STYLE.BARCOLOR) {
+        this.style === links.Graph3d.STYLE.BARCOLOR ||
+        this.style === links.Graph3d.STYLE.BARSIZE) {
         // 4 columns expected, and optionally a 5th with filter values
         this.colX = 0;
         this.colY = 1;
@@ -620,13 +603,34 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
         }
     }
 
-    var withBars = this.style == links.Graph3d.STYLE.BAR || this.style == links.Graph3d.STYLE.BARCOLOR;
+    var withBars = this.style == links.Graph3d.STYLE.BAR ||
+        this.style == links.Graph3d.STYLE.BARCOLOR ||
+        this.style == links.Graph3d.STYLE.BARSIZE;
+
+    // determine barWidth from data
+    if (withBars) {
+        if (this.defaultXBarWidth !== undefined) {
+            this.xBarWidth = this.defaultXBarWidth;
+        }
+        else {
+            var dataX = data.getDistinctValues(this.colX);
+            this.xBarWidth = (dataX[1] - dataX[0]) || 1;
+        }
+
+        if (this.defaultYBarWidth !== undefined) {
+            this.yBarWidth = this.defaultYBarWidth;
+        }
+        else {
+            var dataY = data.getDistinctValues(this.colY);
+            this.yBarWidth = (dataY[1] - dataY[0]) || 1;
+        }
+    }
 
     // calculate minimums and maximums
     var xRange = data.getColumnRange(this.colX);
     if (withBars) {
-        xRange.min -= this.barWidth / 2;
-        xRange.max += this.barWidth / 2;
+        xRange.min -= this.xBarWidth / 2;
+        xRange.max += this.xBarWidth / 2;
     }
     this.xMin = (this.defaultXMin !== undefined) ? this.defaultXMin : xRange.min;
     this.xMax = (this.defaultXMax !== undefined) ? this.defaultXMax : xRange.max;
@@ -635,8 +639,8 @@ links.Graph3d.prototype._dataInitialize = function (data, style) {
 
     var yRange = data.getColumnRange(this.colY);
     if (withBars) {
-        yRange.min -= this.barWidth / 2;
-        yRange.max += this.barWidth / 2;
+        yRange.min -= this.yBarWidth / 2;
+        yRange.max += this.yBarWidth / 2;
     }
     this.yMin = (this.defaultYMin !== undefined) ? this.defaultYMin : yRange.min;
     this.yMax = (this.defaultYMax !== undefined) ? this.defaultYMax : yRange.max;
@@ -743,27 +747,6 @@ links.Graph3d.prototype._getDataPoints = function (data) {
             }
         }
     }
-    else if (this.style === links.Graph3d.STYLE.BAR) {
-        // copy all values from the google data table to a list with Point3d objects
-        for (i = 0; i < data.getNumberOfRows(); i++) {
-            point = new links.Point3d();
-            point.x = data.getValue(i, this.colX) || 0;
-            point.y = data.getValue(i, this.colY) || 0;
-            point.z = data.getValue(i, this.colZ) || 0;
-
-            if (this.colValue !== undefined) {
-                point.value = data.getValue(i, this.colValue) || 0;
-            }
-
-            obj = {};
-            obj.point = point;
-            obj.bottom = new links.Point3d(point.x, point.y, this.zMin);
-            obj.trans = undefined;
-            obj.screen = undefined;
-
-            dataPoints.push(obj);
-        }
-    }
     else {  // "dot", "dot-line", etc.
         // copy all values from the google data table to a list with Point3d objects
         for (i = 0; i < data.getNumberOfRows(); i++) {
@@ -840,7 +823,6 @@ links.Graph3d.prototype.create = function () {
 
     // add event listeners to handle moving and zooming the contents
     var me = this;
-    var onkeydown = function (event) {me._onKeyDown(event);};
     var onmousedown = function (event) {me._onMouseDown(event);};
     var ontouchstart = function (event) {me._onTouchStart(event);};
     var onmousewheel = function (event) {me._onWheel(event);};
@@ -951,14 +933,17 @@ links.Graph3d.prototype._resizeCenter = function() {
  *                         Optional, can be left undefined.
  */
 links.Graph3d.prototype.setCameraPosition = function(pos) {
-    if (pos === undefined)
+    if (pos === undefined) {
         return;
+    }
 
-    if (pos.horizontal !== undefined && pos.vertical !== undefined)
+    if (pos.horizontal !== undefined && pos.vertical !== undefined) {
         this.camera.setArmRotation(pos.horizontal, pos.vertical);
+    }
 
-    if (pos.distance !== undefined)
+    if (pos.distance !== undefined) {
         this.camera.setArmLength(pos.distance);
+    }
 
     this.redraw();
 };
@@ -1025,7 +1010,8 @@ links.Graph3d.prototype.redraw = function(data) {
         this._redrawDataLine();
     }
     else if (this.style === links.Graph3d.STYLE.BAR ||
-        this.style === links.Graph3d.STYLE.BARCOLOR) {
+        this.style === links.Graph3d.STYLE.BARCOLOR ||
+        this.style === links.Graph3d.STYLE.BARSIZE) {
         this._redrawDataBar();
     }
     else {
@@ -1052,18 +1038,21 @@ links.Graph3d.prototype._redrawClear = function() {
  * Redraw the legend showing the colors
  */
 links.Graph3d.prototype._redrawLegend = function() {
+    var y;
+
     if (this.style === links.Graph3d.STYLE.DOTCOLOR ||
         this.style === links.Graph3d.STYLE.DOTSIZE) {
 
         var dotSize = this.frame.clientWidth * 0.02;
 
+        var widthMin, widthMax;
         if (this.style === links.Graph3d.STYLE.DOTSIZE) {
-            var widthMin = dotSize / 2; // px
-            var widthMax = dotSize / 2 + dotSize * 2; // Todo: put this in one function
+            widthMin = dotSize / 2; // px
+            widthMax = dotSize / 2 + dotSize * 2; // Todo: put this in one function
         }
         else {
-            var widthMin = 20; // px
-            var widthMax = 20; // px
+            widthMin = 20; // px
+            widthMax = 20; // px
         }
 
         var height = Math.max(this.frame.clientHeight * 0.25, 100);
@@ -1082,7 +1071,7 @@ links.Graph3d.prototype._redrawLegend = function() {
         // draw the color bar
         var ymin = 0;
         var ymax = height; // Todo: make height customizable
-        for (var y = ymin; y < ymax; y++) {
+        for (y = ymin; y < ymax; y++) {
             var f = (y - ymin) / (ymax - ymin);
 
             //var width = (dotSize / 2 + (1-f) * dotSize * 2); // Todo: put this in one function
@@ -1124,7 +1113,7 @@ links.Graph3d.prototype._redrawLegend = function() {
             step.next();
         }
         while (!step.end()) {
-            var y = bottom - (step.getCurrent() - this.valueMin) / (this.valueMax - this.valueMin) * height;
+            y = bottom - (step.getCurrent() - this.valueMin) / (this.valueMax - this.valueMin) * height;
 
             ctx.beginPath();
             ctx.moveTo(left - gridLineLen, y);
@@ -1218,8 +1207,12 @@ links.Graph3d.prototype._redrawInfo = function() {
  * Redraw the axis
  */
 links.Graph3d.prototype._redrawAxis = function() {
-    var canvas = this.frame.canvas;
-    var ctx = canvas.getContext("2d");
+    var canvas = this.frame.canvas,
+        ctx = canvas.getContext("2d"),
+        from, to, step, prettyStep,
+        text, xText, yText, zText,
+        offset, xOffset, yOffset,
+        xMin2d, xMax2d;
 
     // TODO: get the actual rendered style of the containerElement
     //ctx.font = this.containerElement.style.font;
@@ -1233,8 +1226,8 @@ links.Graph3d.prototype._redrawAxis = function() {
 
     // draw x-grid lines
     ctx.lineWidth = 1;
-    var prettyStep = (this.defaultXStep === undefined);
-    var step = new links.StepNumber(this.xMin, this.xMax, this.xStep, prettyStep);
+    prettyStep = (this.defaultXStep === undefined);
+    step = new links.StepNumber(this.xMin, this.xMax, this.xStep, prettyStep);
     step.start();
     if (step.getCurrent() < this.xMin) {
         step.next();
@@ -1243,8 +1236,8 @@ links.Graph3d.prototype._redrawAxis = function() {
         var x = step.getCurrent();
 
         if (this.showGrid) {
-            var from = this._convert3Dto2D(new links.Point3d(x, this.yMin, this.zMin));
-            var to = this._convert3Dto2D(new links.Point3d(x, this.yMax, this.zMin));
+            from = this._convert3Dto2D(new links.Point3d(x, this.yMin, this.zMin));
+            to = this._convert3Dto2D(new links.Point3d(x, this.yMax, this.zMin));
             ctx.strokeStyle = this.colorGrid;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
@@ -1252,16 +1245,16 @@ links.Graph3d.prototype._redrawAxis = function() {
             ctx.stroke();
         }
         else {
-            var from = this._convert3Dto2D(new links.Point3d(x, this.yMin, this.zMin));
-            var to = this._convert3Dto2D(new links.Point3d(x, this.yMin+gridLenX, this.zMin));
+            from = this._convert3Dto2D(new links.Point3d(x, this.yMin, this.zMin));
+            to = this._convert3Dto2D(new links.Point3d(x, this.yMin+gridLenX, this.zMin));
             ctx.strokeStyle = this.colorAxis;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
             ctx.lineTo(to.x, to.y);
             ctx.stroke();
 
-            var from = this._convert3Dto2D(new links.Point3d(x, this.yMax, this.zMin));
-            var to = this._convert3Dto2D(new links.Point3d(x, this.yMax-gridLenX, this.zMin));
+            from = this._convert3Dto2D(new links.Point3d(x, this.yMax, this.zMin));
+            to = this._convert3Dto2D(new links.Point3d(x, this.yMax-gridLenX, this.zMin));
             ctx.strokeStyle = this.colorAxis;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
@@ -1269,8 +1262,8 @@ links.Graph3d.prototype._redrawAxis = function() {
             ctx.stroke();
         }
 
-        var yText = (Math.cos(armAngle) > 0) ? this.yMin : this.yMax;
-        var text = this._convert3Dto2D(new links.Point3d(x, yText, this.zMin));
+        yText = (Math.cos(armAngle) > 0) ? this.yMin : this.yMax;
+        text = this._convert3Dto2D(new links.Point3d(x, yText, this.zMin));
         if (Math.cos(armAngle * 2) > 0) {
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
@@ -1292,16 +1285,16 @@ links.Graph3d.prototype._redrawAxis = function() {
 
     // draw y-grid lines
     ctx.lineWidth = 1;
-    var prettyStep = (this.defaultYStep === undefined);
-    var step = new links.StepNumber(this.yMin, this.yMax, this.yStep, prettyStep);
+    prettyStep = (this.defaultYStep === undefined);
+    step = new links.StepNumber(this.yMin, this.yMax, this.yStep, prettyStep);
     step.start();
     if (step.getCurrent() < this.yMin) {
         step.next();
     }
     while (!step.end()) {
         if (this.showGrid) {
-            var from = this._convert3Dto2D(new links.Point3d(this.xMin, step.getCurrent(), this.zMin));
-            var to = this._convert3Dto2D(new links.Point3d(this.xMax, step.getCurrent(), this.zMin));
+            from = this._convert3Dto2D(new links.Point3d(this.xMin, step.getCurrent(), this.zMin));
+            to = this._convert3Dto2D(new links.Point3d(this.xMax, step.getCurrent(), this.zMin));
             ctx.strokeStyle = this.colorGrid;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
@@ -1309,16 +1302,16 @@ links.Graph3d.prototype._redrawAxis = function() {
             ctx.stroke();
         }
         else {
-            var from = this._convert3Dto2D(new links.Point3d(this.xMin, step.getCurrent(), this.zMin));
-            var to = this._convert3Dto2D(new links.Point3d(this.xMin+gridLenY, step.getCurrent(), this.zMin));
+            from = this._convert3Dto2D(new links.Point3d(this.xMin, step.getCurrent(), this.zMin));
+            to = this._convert3Dto2D(new links.Point3d(this.xMin+gridLenY, step.getCurrent(), this.zMin));
             ctx.strokeStyle = this.colorAxis;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
             ctx.lineTo(to.x, to.y);
             ctx.stroke();
 
-            var from = this._convert3Dto2D(new links.Point3d(this.xMax, step.getCurrent(), this.zMin));
-            var to = this._convert3Dto2D(new links.Point3d(this.xMax-gridLenY, step.getCurrent(), this.zMin));
+            from = this._convert3Dto2D(new links.Point3d(this.xMax, step.getCurrent(), this.zMin));
+            to = this._convert3Dto2D(new links.Point3d(this.xMax-gridLenY, step.getCurrent(), this.zMin));
             ctx.strokeStyle = this.colorAxis;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
@@ -1326,8 +1319,8 @@ links.Graph3d.prototype._redrawAxis = function() {
             ctx.stroke();
         }
 
-        var xText = (Math.sin(armAngle ) > 0) ? this.xMin : this.xMax;
-        var text = this._convert3Dto2D(new links.Point3d(xText, step.getCurrent(), this.zMin));
+        xText = (Math.sin(armAngle ) > 0) ? this.xMin : this.xMax;
+        text = this._convert3Dto2D(new links.Point3d(xText, step.getCurrent(), this.zMin));
         if (Math.cos(armAngle * 2) < 0) {
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
@@ -1349,17 +1342,17 @@ links.Graph3d.prototype._redrawAxis = function() {
 
     // draw z-grid lines and axis
     ctx.lineWidth = 1;
-    var prettyStep = (this.defaultZStep === undefined);
-    var step = new links.StepNumber(this.zMin, this.zMax, this.zStep, prettyStep);
+    prettyStep = (this.defaultZStep === undefined);
+    step = new links.StepNumber(this.zMin, this.zMax, this.zStep, prettyStep);
     step.start();
     if (step.getCurrent() < this.zMin) {
         step.next();
     }
-    var xText = (Math.cos(armAngle ) > 0) ? this.xMin : this.xMax;
-    var yText = (Math.sin(armAngle ) < 0) ? this.yMin : this.yMax;
+    xText = (Math.cos(armAngle ) > 0) ? this.xMin : this.xMax;
+    yText = (Math.sin(armAngle ) < 0) ? this.yMin : this.yMax;
     while (!step.end()) {
         // TODO: make z-grid lines really 3d?
-        var from = this._convert3Dto2D(new links.Point3d(xText, yText, step.getCurrent()));
+        from = this._convert3Dto2D(new links.Point3d(xText, yText, step.getCurrent()));
         ctx.strokeStyle = this.colorAxis;
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
@@ -1374,8 +1367,8 @@ links.Graph3d.prototype._redrawAxis = function() {
         step.next();
     }
     ctx.lineWidth = 1;
-    var from = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMin));
-    var to = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMax));
+    from = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMin));
+    to = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMax));
     ctx.strokeStyle = this.colorAxis;
     ctx.beginPath();
     ctx.moveTo(from.x, from.y);
@@ -1385,16 +1378,16 @@ links.Graph3d.prototype._redrawAxis = function() {
     // draw x-axis
     ctx.lineWidth = 1;
     // line at yMin
-    var xMin2d = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMin, this.zMin));
-    var xMax2d = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMin, this.zMin));
+    xMin2d = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMin, this.zMin));
+    xMax2d = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMin, this.zMin));
     ctx.strokeStyle = this.colorAxis;
     ctx.beginPath();
     ctx.moveTo(xMin2d.x, xMin2d.y);
     ctx.lineTo(xMax2d.x, xMax2d.y);
     ctx.stroke();
     // line at ymax
-    var xMin2d = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMax, this.zMin));
-    var xMax2d = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMax, this.zMin));
+    xMin2d = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMax, this.zMin));
+    xMax2d = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMax, this.zMin));
     ctx.strokeStyle = this.colorAxis;
     ctx.beginPath();
     ctx.moveTo(xMin2d.x, xMin2d.y);
@@ -1404,16 +1397,16 @@ links.Graph3d.prototype._redrawAxis = function() {
     // draw y-axis
     ctx.lineWidth = 1;
     // line at xMin
-    var from = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMin, this.zMin));
-    var to = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMax, this.zMin));
+    from = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMin, this.zMin));
+    to = this._convert3Dto2D(new links.Point3d(this.xMin, this.yMax, this.zMin));
     ctx.strokeStyle = this.colorAxis;
     ctx.beginPath();
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
     // line at xMax
-    var from = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMin, this.zMin));
-    var to = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMax, this.zMin));
+    from = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMin, this.zMin));
+    to = this._convert3Dto2D(new links.Point3d(this.xMax, this.yMax, this.zMin));
     ctx.strokeStyle = this.colorAxis;
     ctx.beginPath();
     ctx.moveTo(from.x, from.y);
@@ -1423,10 +1416,10 @@ links.Graph3d.prototype._redrawAxis = function() {
     // draw x-label
     var xLabel = this.dataTable.getColumnLabel(this.colX);
     if (xLabel.length > 0) {
-        var yOffset = 0.1 / this.scale.y;
-        var xText = (this.xMin + this.xMax) / 2;
-        var yText = (Math.cos(armAngle) > 0) ? this.yMin - yOffset: this.yMax + yOffset;
-        var text = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMin));
+        yOffset = 0.1 / this.scale.y;
+        xText = (this.xMin + this.xMax) / 2;
+        yText = (Math.cos(armAngle) > 0) ? this.yMin - yOffset: this.yMax + yOffset;
+        text = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMin));
         if (Math.cos(armAngle * 2) > 0) {
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
@@ -1446,10 +1439,10 @@ links.Graph3d.prototype._redrawAxis = function() {
     // draw y-label
     var yLabel = this.dataTable.getColumnLabel(this.colY);
     if (yLabel.length > 0) {
-        var xOffset = 0.1 / this.scale.x;
-        var xText = (Math.sin(armAngle ) > 0) ? this.xMin - xOffset : this.xMax + xOffset;
-        var yText = (this.yMin + this.yMax) / 2;
-        var text = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMin));
+        xOffset = 0.1 / this.scale.x;
+        xText = (Math.sin(armAngle ) > 0) ? this.xMin - xOffset : this.xMax + xOffset;
+        yText = (this.yMin + this.yMax) / 2;
+        text = this._convert3Dto2D(new links.Point3d(xText, yText, this.zMin));
         if (Math.cos(armAngle * 2) < 0) {
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
@@ -1469,11 +1462,11 @@ links.Graph3d.prototype._redrawAxis = function() {
     // draw z-label
     var zLabel = this.dataTable.getColumnLabel(this.colZ);
     if (zLabel.length > 0) {
-        var offset = 30;  // pixels.  // TODO: relate to the max width of the values on the z axis?
-        var xText = (Math.cos(armAngle ) > 0) ? this.xMin : this.xMax;
-        var yText = (Math.sin(armAngle ) < 0) ? this.yMin : this.yMax;
-        var zText = (this.zMin + this.zMax) / 2;
-        var text = this._convert3Dto2D(new links.Point3d(xText, yText, zText));
+        offset = 30;  // pixels.  // TODO: relate to the max width of the values on the z axis?
+        xText = (Math.cos(armAngle ) > 0) ? this.xMin : this.xMax;
+        yText = (Math.sin(armAngle ) < 0) ? this.yMin : this.yMax;
+        zText = (this.zMin + this.zMax) / 2;
+        text = this._convert3Dto2D(new links.Point3d(xText, yText, zText));
         ctx.textAlign = "right";
         ctx.textBaseline = "middle";
         ctx.fillStyle = this.colorAxis;
@@ -1514,14 +1507,19 @@ links.Graph3d.prototype._hsv2rgb = function(H, S, V) {
  * This function can be used when the style is "grid"
  */
 links.Graph3d.prototype._redrawDataGrid = function() {
-    var canvas = this.frame.canvas;
-    var ctx = canvas.getContext("2d");
+    var canvas = this.frame.canvas,
+        ctx = canvas.getContext("2d"),
+        point, right, top, cross,
+        i,
+        topSideVisible, fillStyle, strokeStyle, lineWidth,
+        h, s, v, zAvg;
+
 
     if (this.dataPoints === undefined || this.dataPoints.length <= 0)
         return; // TODO: throw exception?
 
     // calculate the translations and screen position of all points
-    for (var i = 0; i < this.dataPoints.length; i++) {
+    for (i = 0; i < this.dataPoints.length; i++) {
         var trans = this._convertPointToTranslation(this.dataPoints[i].point);
         var screen = this._convertTranslationToScreen(trans);
 
@@ -1540,59 +1538,59 @@ links.Graph3d.prototype._redrawDataGrid = function() {
     this.dataPoints.sort(sortDepth);
 
     if (this.style === links.Graph3d.STYLE.SURFACE) {
-        for (var i = 0; i < this.dataPoints.length; i++) {
-            var me    = this.dataPoints[i];
-            var right = this.dataPoints[i].pointRight;
-            var top   = this.dataPoints[i].pointTop;
-            var cross = this.dataPoints[i].pointCross;
+        for (i = 0; i < this.dataPoints.length; i++) {
+            point = this.dataPoints[i];
+            right = this.dataPoints[i].pointRight;
+            top   = this.dataPoints[i].pointTop;
+            cross = this.dataPoints[i].pointCross;
 
-            if (me !== undefined && right !== undefined && top !== undefined && cross !== undefined) {
+            if (point !== undefined && right !== undefined && top !== undefined && cross !== undefined) {
 
                 if (this.showGrayBottom || this.showShadow) {
                     // calculate the cross product of the two vectors from center
                     // to left and right, in order to know whether we are looking at the
                     // bottom or at the top side. We can also use the cross product
                     // for calculating light intensity
-                    var aDiff = links.Point3d.subtract(cross.trans, me.trans);
+                    var aDiff = links.Point3d.subtract(cross.trans, point.trans);
                     var bDiff = links.Point3d.subtract(top.trans, right.trans);
                     var crossproduct = links.Point3d.crossProduct(aDiff, bDiff);
                     var len = crossproduct.length();
                     // FIXME: there is a bug with determining the surface side (shadow or colored)
 
-                    var topSideVisible = (crossproduct.z > 0);
+                    topSideVisible = (crossproduct.z > 0);
                 }
                 else {
-                    var topSideVisible = true;
+                    topSideVisible = true;
                 }
 
                 if (topSideVisible) {
                     // calculate Hue from the current value. At zMin the hue is 240, at zMax the hue is 0
-                    var zAvg = (me.point.z + right.point.z + top.point.z + cross.point.z) / 4;
-                    var h = (1 - (zAvg - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
-                    var s = 1; // saturation
+                    zAvg = (point.point.z + right.point.z + top.point.z + cross.point.z) / 4;
+                    h = (1 - (zAvg - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
+                    s = 1; // saturation
 
                     if (this.showShadow) {
-                        var v = Math.min(1 + (crossproduct.x / len) / 2, 1);  // value. TODO: scale
-                        var fillStyle = this._hsv2rgb(h, s, v);
-                        var strokeStyle = fillStyle;
+                        v = Math.min(1 + (crossproduct.x / len) / 2, 1);  // value. TODO: scale
+                        fillStyle = this._hsv2rgb(h, s, v);
+                        strokeStyle = fillStyle;
                     }
                     else  {
-                        var v = 1;
-                        var fillStyle = this._hsv2rgb(h, s, v);
-                        var strokeStyle = this.colorAxis;
+                        v = 1;
+                        fillStyle = this._hsv2rgb(h, s, v);
+                        strokeStyle = this.colorAxis;
                     }
                 }
                 else {
-                    var fillStyle = "gray";
-                    var strokeStyle = this.colorAxis;
+                    fillStyle = "gray";
+                    strokeStyle = this.colorAxis;
                 }
-                var lineWidth = 0.5;
+                lineWidth = 0.5;
 
                 ctx.lineWidth = lineWidth;
                 ctx.fillStyle = fillStyle;
                 ctx.strokeStyle = strokeStyle;
                 ctx.beginPath();
-                ctx.moveTo(me.screen.x, me.screen.y);
+                ctx.moveTo(point.screen.x, point.screen.y);
                 ctx.lineTo(right.screen.x, right.screen.y);
                 ctx.lineTo(cross.screen.x, cross.screen.y);
                 ctx.lineTo(top.screen.x, top.screen.y);
@@ -1603,42 +1601,42 @@ links.Graph3d.prototype._redrawDataGrid = function() {
         }
     }
     else { // grid style
-        for (var i = 0; i < this.dataPoints.length; i++) {
-            var me    = this.dataPoints[i];
-            var right = this.dataPoints[i].pointRight;
-            var top   = this.dataPoints[i].pointTop;
+        for (i = 0; i < this.dataPoints.length; i++) {
+            point = this.dataPoints[i];
+            right = this.dataPoints[i].pointRight;
+            top   = this.dataPoints[i].pointTop;
 
-            if (me !== undefined) {
+            if (point !== undefined) {
                 if (this.showPerspective) {
-                    var lineWidth = 2 / -me.trans.z;
+                    lineWidth = 2 / -point.trans.z;
                 }
                 else {
-                    var lineWidth = 2 * -(this.eye.z / this.camera.getArmLength());
+                    lineWidth = 2 * -(this.eye.z / this.camera.getArmLength());
                 }
             }
 
-            if (me !== undefined && right !== undefined) {
+            if (point !== undefined && right !== undefined) {
                 // calculate Hue from the current value. At zMin the hue is 240, at zMax the hue is 0
-                var zAvg = (me.point.z + right.point.z) / 2;
-                var h = (1 - (zAvg - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
+                zAvg = (point.point.z + right.point.z) / 2;
+                h = (1 - (zAvg - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
 
                 ctx.lineWidth = lineWidth;
                 ctx.strokeStyle = this._hsv2rgb(h, 1, 1);
                 ctx.beginPath();
-                ctx.moveTo(me.screen.x, me.screen.y);
+                ctx.moveTo(point.screen.x, point.screen.y);
                 ctx.lineTo(right.screen.x, right.screen.y);
                 ctx.stroke();
             }
 
-            if (me !== undefined && top !== undefined) {
+            if (point !== undefined && top !== undefined) {
                 // calculate Hue from the current value. At zMin the hue is 240, at zMax the hue is 0
-                var zAvg = (me.point.z + top.point.z) / 2;
-                var h = (1 - (zAvg - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
+                zAvg = (point.point.z + top.point.z) / 2;
+                h = (1 - (zAvg - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
 
                 ctx.lineWidth = lineWidth;
                 ctx.strokeStyle = this._hsv2rgb(h, 1, 1);
                 ctx.beginPath();
-                ctx.moveTo(me.screen.x, me.screen.y);
+                ctx.moveTo(point.screen.x, point.screen.y);
                 ctx.lineTo(top.screen.x, top.screen.y);
                 ctx.stroke();
             }
@@ -1745,7 +1743,7 @@ links.Graph3d.prototype._redrawDataDot = function() {
 
 /**
  * Draw all datapoints as bars.
- * This function can be used when the style is "bar" or "bar-color"
+ * This function can be used when the style is "bar", "bar-color", or "bar-size"
  */
 links.Graph3d.prototype._redrawDataBar = function() {
     var canvas = this.frame.canvas;
@@ -1774,7 +1772,9 @@ links.Graph3d.prototype._redrawDataBar = function() {
     this.dataPoints.sort(sortDepth);
 
     // draw the datapoints as bars
-    var halfWidth = this.barWidth / 2;
+    var xWidth = this.xBarWidth / 2;
+    var yWidth = this.yBarWidth / 2;
+    var dotSize = this.frame.clientWidth * 0.02;  // px
     for (i = 0; i < this.dataPoints.length; i++) {
         var point = this.dataPoints[i];
 
@@ -1786,12 +1786,10 @@ links.Graph3d.prototype._redrawDataBar = function() {
             color = this._hsv2rgb(hue, 1, 1);
             borderColor = this._hsv2rgb(hue, 1, 0.8);
         }
-        /* TODO: implement style BARSIZE?
         else if (this.style === links.Graph3d.STYLE.BARSIZE) {
             color = this.colorDot;
             borderColor = this.colorDotBorder;
         }
-        */
         else {
             // calculate Hue from the current value. At zMin the hue is 240, at zMax the hue is 0
             hue = (1 - (point.point.z - this.zMin) * this.scale.z  / this.verticalRatio) * 240;
@@ -1799,20 +1797,26 @@ links.Graph3d.prototype._redrawDataBar = function() {
             borderColor = this._hsv2rgb(hue, 1, 0.8);
         }
 
+        // calculate size for the bar
+        if (this.style === links.Graph3d.STYLE.BARSIZE) {
+            xWidth = (this.xBarWidth / 2) * ((point.point.value - this.valueMin) / (this.valueMax - this.valueMin) * 0.8 + 0.2);
+            yWidth = (this.yBarWidth / 2) * ((point.point.value - this.valueMin) / (this.valueMax - this.valueMin) * 0.8 + 0.2);
+        }
+
         // calculate all corner points
         var me = this;
         var point3d = point.point;
         var top = [
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, point3d.z)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, point3d.z)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, point3d.z)},
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, point3d.z)}
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y - yWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y - yWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y + yWidth, point3d.z)},
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y + yWidth, point3d.z)}
         ];
         var bottom = [
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y - halfWidth, this.zMin)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y - halfWidth, this.zMin)},
-            {point: new links.Point3d(point3d.x + halfWidth, point3d.y + halfWidth, this.zMin)},
-            {point: new links.Point3d(point3d.x - halfWidth, point3d.y + halfWidth, this.zMin)}
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y - yWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y - yWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x + xWidth, point3d.y + yWidth, this.zMin)},
+            {point: new links.Point3d(point3d.x - xWidth, point3d.y + yWidth, this.zMin)}
         ];
 
         // calculate screen location of the points
@@ -1825,26 +1829,21 @@ links.Graph3d.prototype._redrawDataBar = function() {
 
         // create five sides, calculate both corner points and center points
         var surfaces = [
-            {corners: top},
-            {corners: [top[0], top[1], bottom[1], bottom[0]]},
-            {corners: [top[1], top[2], bottom[2], bottom[1]]},
-            {corners: [top[2], top[3], bottom[3], bottom[2]]},
-            {corners: [top[3], top[0], bottom[0], bottom[3]]}
+            {corners: top, center: links.Point3d.avg(bottom[0].point, bottom[2].point)},
+            {corners: [top[0], top[1], bottom[1], bottom[0]], center: links.Point3d.avg(bottom[1].point, bottom[0].point)},
+            {corners: [top[1], top[2], bottom[2], bottom[1]], center: links.Point3d.avg(bottom[2].point, bottom[1].point)},
+            {corners: [top[2], top[3], bottom[3], bottom[2]], center: links.Point3d.avg(bottom[3].point, bottom[2].point)},
+            {corners: [top[3], top[0], bottom[0], bottom[3]], center: links.Point3d.avg(bottom[0].point, bottom[3].point)}
         ];
 
-        // calculate center points of each of the surfaces
-        // use this to calculate the distance of this point to camera
+        // calculate the distance of each of the surface centers to the camera
         for (j = 0; j < surfaces.length; j++) {
             surface = surfaces[j];
-            corners = surface.corners;
-
-            var center = new links.Point3d(
-                (corners[0].point.x + corners[1].point.x + corners[2].point.x + corners[3].point.x) / 4,
-                (corners[0].point.y + corners[1].point.y + corners[2].point.y + corners[3].point.y) / 4,
-                (corners[0].point.z + corners[1].point.z + corners[2].point.z + corners[3].point.z) / 4
-            );
-            var trans = this._convertPointToTranslation(center);
-            surface.dist = this.showPerspective ? trans.length() : -trans.z;
+            var transCenter = this._convertPointToTranslation(surface.center);
+            surface.dist = this.showPerspective ? transCenter.length() : -transCenter.z;
+            // TODO: this dept calculation doesn't work 100% of the cases due to perspective,
+            //       but the current solution is fast/simple and works in 99.9% of all cases
+            //       the issue is visible in example 14, with graph.setCameraPosition({horizontal: 2.97, vertical: 0.5, distance: 0.9})
         }
 
         // order the surfaces by their (translated) depth
@@ -1886,14 +1885,15 @@ links.Graph3d.prototype._redrawDataBar = function() {
  * This function can be used when the style is "line"
  */
 links.Graph3d.prototype._redrawDataLine = function() {
-    var canvas = this.frame.canvas;
-    var ctx = canvas.getContext("2d");
+    var canvas = this.frame.canvas,
+        ctx = canvas.getContext("2d"),
+        point, i;
 
     if (this.dataPoints === undefined || this.dataPoints.length <= 0)
         return;  // TODO: throw exception?
 
     // calculate the translations of all points
-    for (var i = 0; i < this.dataPoints.length; i++) {
+    for (i = 0; i < this.dataPoints.length; i++) {
         var trans = this._convertPointToTranslation(this.dataPoints[i].point);
         var screen = this._convertTranslationToScreen(trans);
 
@@ -1903,7 +1903,7 @@ links.Graph3d.prototype._redrawDataLine = function() {
 
     // start the line
     if (this.dataPoints.length > 0) {
-        var point = this.dataPoints[0];
+        point = this.dataPoints[0];
 
         ctx.lineWidth = 1;        // TODO: make customizable
         ctx.strokeStyle = "blue"; // TODO: make customizable
@@ -1912,8 +1912,8 @@ links.Graph3d.prototype._redrawDataLine = function() {
     }
 
     // draw the datapoints as colored circles
-    for (var i = 1; i < this.dataPoints.length; i++) {
-        var point = this.dataPoints[i];
+    for (i = 1; i < this.dataPoints.length; i++) {
+        point = this.dataPoints[i];
         ctx.lineTo(point.screen.x, point.screen.y);
     }
 
@@ -2032,7 +2032,7 @@ links.Graph3d.prototype._onTouchStart = function(event) {
 
     var me = this;
     this.ontouchmove = function (event) {me._onTouchMove(event);};
-    this.ontouchend   = function (event) {me._onTouchEnd(event);};
+    this.ontouchend  = function (event) {me._onTouchEnd(event);};
     links.addEventListener(document, "touchmove", me.ontouchmove);
     links.addEventListener(document, "touchend", me.ontouchend);
 
@@ -2141,7 +2141,21 @@ links.Point3d.add = function(a, b) {
 };
 
 /**
- * Calculate the cross producto of the two provided points, returns axb
+ * Calculate the average of two 3d points
+ * @param {links.Point3d} a
+ * @param {links.Point3d} b
+ * @return {links.Point3d} The average, (a+b)/2
+ */
+links.Point3d.avg = function(a, b) {
+    return new links.Point3d(
+            (a.x + b.x) / 2,
+            (a.y + b.y) / 2,
+            (a.z + b.z) / 2
+    );
+};
+
+/**
+ * Calculate the cross product of the two provided points, returns axb
  * Documentation: http://en.wikipedia.org/wiki/Cross_product
  * @param {links.Point3d} a
  * @param {links.Point3d} b
@@ -2476,7 +2490,7 @@ links.StepNumber.calculatePrettyStep = function (step) {
     var log10 = function (x) {return Math.log(x) / Math.LN10;};
 
     // try three steps (multiple of 1, 2, or 5
-    var step1 = 1 * Math.pow(10, Math.round(log10(step / 1))),
+    var step1 = Math.pow(10, Math.round(log10(step))),
         step2 = 2 * Math.pow(10, Math.round(log10(step / 2))),
         step5 = 5 * Math.pow(10, Math.round(log10(step / 5)));
 
@@ -2498,11 +2512,7 @@ links.StepNumber.calculatePrettyStep = function (step) {
  * @return {number} current value
  */
 links.StepNumber.prototype.getCurrent = function () {
-    var currentRounded = (this._current).toPrecision(this.precision);
-    if (this._current < 100000) {
-        currentRounded *= 1; // remove zeros at the tail, behind the comma
-    }
-    return currentRounded;
+    return parseFloat(this._current.toPrecision(this.precision));
 };
 
 /**

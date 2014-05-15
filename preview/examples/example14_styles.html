@@ -27,8 +27,9 @@
         function drawVisualization() {
             var style = document.getElementById("style").value;
             var showPerspective = document.getElementById("perspective").checked;
-            var barWidth = parseFloat(document.getElementById("barWidth").value) || 1;
-            var withValue = ['bar-color', 'dot-size', 'dot-color'].indexOf(style) != -1;
+            var xBarWidth = parseFloat(document.getElementById("xBarWidth").value) || undefined;
+            var yBarWidth = parseFloat(document.getElementById("yBarWidth").value) || undefined;
+            var withValue = ['bar-color', 'bar-size', 'dot-size', 'dot-color'].indexOf(style) != -1;
 
             // Create and populate a data table.
             data = new google.visualization.DataTable();
@@ -46,7 +47,7 @@
                     var z = custom(x,y);
                     var values = [x, y, z];
                     if (withValue) {
-                        var value = (x + y > 10) ? 1 : 0; // some threshold
+                        var value = (y - x);
                         values.push(value);
                     }
                     data.addRow(values);
@@ -58,7 +59,8 @@
                 width:  "600px",
                 height: "600px",
                 style: style,
-                barWidth: barWidth,
+                xBarWidth: xBarWidth,
+                yBarWidth: yBarWidth,
                 showPerspective: showPerspective,
                 showGrid: true,
                 showShadow: false,
@@ -78,7 +80,8 @@
 
             document.getElementById("style").onchange = drawVisualization;
             document.getElementById("perspective").onchange = drawVisualization;
-            document.getElementById("barWidth").onchange = drawVisualization
+            document.getElementById("xBarWidth").onchange = drawVisualization;
+            document.getElementById("yBarWidth").onchange = drawVisualization;
         }
     </script>
 </head>
@@ -90,6 +93,7 @@
     <select id="style">
         <option value="bar">bar</option>
         <option value="bar-color">bar-color</option>
+        <option value="bar-size">bar-size</option>
 
         <option value="dot">dot</option>
         <option value="dot-line">dot-line</option>
@@ -110,8 +114,13 @@
 </p>
 
 <p>
-    <label for="barWidth"> Bar width:
-        <input type="text" id="barWidth" value="1" style="width:50px;"> (only applicable for styles "bar" and "bar-color")
+    <label for="xBarWidth"> Bar width X:
+        <input type="text" id="xBarWidth" value="" style="width:50px;"> (only applicable for styles "bar" and "bar-color")
+    </label>
+</p>
+<p>
+    <label for="yBarWidth"> Bar width Y:
+        <input type="text" id="yBarWidth" value="" style="width:50px;"> (only applicable for styles "bar" and "bar-color")
     </label>
 </p>
 
