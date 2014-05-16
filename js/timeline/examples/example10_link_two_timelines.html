@@ -49,12 +49,12 @@
             };
 
             // Instantiate our timeline object.
-            vis1 = new links.Timeline(document.getElementById('timeline1'));
+            vis1 = new links.Timeline(document.getElementById('timeline1'), options1);
 
             google.visualization.events.addListener(vis1, 'rangechange', onrangechange1);
 
             // Draw our timeline with the created data and options
-            vis1.draw(data1, options1);
+            vis1.draw(data1);
         }
 
         function createTimeline2() {
@@ -76,12 +76,12 @@
             };
 
             // Instantiate our timeline object.
-            vis2 = new links.Timeline(document.getElementById('timeline2'));
+            vis2 = new links.Timeline(document.getElementById('timeline2'), options2);
 
             google.visualization.events.addListener(vis2, 'rangechange', onrangechange2);
 
             // Draw our timeline with the created data and options
-            vis2.draw(data2, options2);
+            vis2.draw(data2);
 
             onrangechange1();  // to set the range equal initially
         }

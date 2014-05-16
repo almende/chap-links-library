@@ -1,6 +1,14 @@
 CHAP Links Library - Timeline
 
 
+2014-05-16, version 2.8.0
+
+- Implemented a new item type, `FloatingRange`. Thanks Nick Hardy (@NickHardy).
+- Implemented options `groupMinHeight`. Thanks @sapeish.
+- Fixed event `add` not triggered in case of ctrl+click to add a new item.
+  Thanks @sapeish.
+
+
 2014-04-09, version 2.7.0
 
 - Implemented option `timeChangeable` which allows to have items which can be

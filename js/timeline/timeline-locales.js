@@ -1,4 +1,4 @@
-if (typeof links === 'undefined') {
+﻿if (typeof links === 'undefined') {
     links = {};
     links.locales = {};
 } else if (typeof links.locales === 'undefined') {
@@ -150,3 +150,19 @@ links.locales['tr'] = {
 };
 
 links.locales['tr_TR'] = links.locales['tr'];
+
+// Hungarian ===================================================
+links.locales['hu'] = {
+    'MONTHS': ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"],
+    'MONTHS_SHORT': ["jan", "feb", "márc", "ápr", "máj", "jún", "júl", "aug", "szep", "okt", "nov", "dec"],
+    'DAYS': ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"],
+    'DAYS_SHORT': ["vas", "hét", "kedd", "sze", "csü", "pé", "szo"],
+    'ZOOM_IN': "Nagyítás",
+    'ZOOM_OUT': "Kicsinyítés",
+    'MOVE_LEFT': "Balra",
+    'MOVE_RIGHT': "Jobbra",
+    'NEW': "Új",
+    'CREATE_NEW_EVENT': "Új esemény készítése"
+};
+
+links.locales['hu_HU'] = links.locales['hu'];

@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-04-09
- * @version 2.7.0
+ * @date    2014-05-16
+ * @version 2.8.0
  */
 
 /*
@@ -43,7 +43,7 @@
  * TODO
  *
  * Add zooming with pinching on Android
- * 
+ *
  * Bug: when an item contains a javascript onclick or a link, this does not work
  *      when the item is not selected (when the item is being selected,
  *      it is redrawn, which cancels any onclick or link action)
@@ -60,8 +60,8 @@
  */
 if (typeof links === 'undefined') {
     links = {};
-    // important: do not use var, as "var links = {};" will overwrite 
-    //            the existing links variable value with undefined in IE8, IE7.  
+    // important: do not use var, as "var links = {};" will overwrite
+    //            the existing links variable value with undefined in IE8, IE7.
 }
 
 
@@ -70,7 +70,7 @@ if (typeof links === 'undefined') {
  */
 if (typeof google === 'undefined') {
     google = undefined;
-    // important: do not use var, as "var google = undefined;" will overwrite 
+    // important: do not use var, as "var google = undefined;" will overwrite
     //            the existing google variable value with undefined in IE8, IE7.
 }
 
@@ -109,9 +109,11 @@ if (!Array.prototype.forEach) {
  * The timeline is developed in javascript as a Google Visualization Chart.
  *
  * @param {Element} container   The DOM element in which the Timeline will
- *                                  be created. Normally a div element.
+ *                              be created. Normally a div element.
+ * @param {Object} options      A name/value map containing settings for the
+ *                              timeline. Optional.
  */
-links.Timeline = function(container) {
+links.Timeline = function(container, options) {
     if (!container) {
         // this call was probably only for inheritance, no constructor-code is required
         return;
@@ -136,7 +138,7 @@ links.Timeline = function(container) {
 
     this.listeners = {}; // event listener callbacks
 
-    // Initialize sizes. 
+    // Initialize sizes.
     // Needed for IE (which gives an error when you try to set an undefined
     // value in a style)
     this.size = {
@@ -170,10 +172,14 @@ links.Timeline = function(container) {
 
     this.dom.container = container;
 
+    //
+    // Let's set the default options first
+    //
     this.options = {
         'width': "100%",
         'height': "auto",
         'minHeight': 0,        // minimal height in pixels
+        'groupMinHeight': 0,
         'autoHeight': true,
 
         'eventMargin': 10,     // minimal margin between events
@@ -195,7 +201,7 @@ links.Timeline = function(container) {
         'timeChangeable': true,
 
         'showCurrentTime': true, // show a red bar displaying the current time
-        'showCustomTime': false, // show a blue, draggable bar displaying a custom time    
+        'showCustomTime': false, // show a blue, draggable bar displaying a custom time
         'showMajorLabels': true,
         'showMinorLabels': true,
         'showNavigation': false,
@@ -223,6 +229,11 @@ links.Timeline = function(container) {
         'NEW': "New",
         'CREATE_NEW_EVENT': "Create new event"
     };
+    
+    //
+    // Now we can set the givenproperties
+    //
+    this.setOptions(options);
 
     this.clientTimeOffset = 0;    // difference between client time and the time
     // set via Timeline.setCurrentTime()
@@ -238,16 +249,17 @@ links.Timeline = function(container) {
 
     // add standard item types
     this.itemTypes = {
-        box:   links.Timeline.ItemBox,
-        range: links.Timeline.ItemRange,
-        dot:   links.Timeline.ItemDot
+        box:           links.Timeline.ItemBox,
+        range:         links.Timeline.ItemRange,
+        floatingRange: links.Timeline.ItemFloatingRange,
+        dot:           links.Timeline.ItemDot
     };
 
     // initialize data
     this.data = [];
     this.firstDraw = true;
 
-    // date interval must be initialized 
+    // date interval must be initialized
     this.setVisibleChartRange(undefined, undefined, false);
 
     // render for the first time
@@ -272,11 +284,16 @@ links.Timeline = function(container) {
  *                                 Object DataTable is defined in
  *                                 google.visualization.DataTable
  * @param {Object} options         A name/value map containing settings for the
- *                                 timeline. Optional.
+ *                                 timeline. Optional. The use of options here
+ *                                 is deprecated. Pass timeline options in the
+ *                                 constructor or use setOptions()
  */
 links.Timeline.prototype.draw = function(data, options) {
+    if (options) {
+        console.log("WARNING: Passing options in draw() is deprecated. Pass options to the constructur or use setOptions() instead!");
+    }
     this.setOptions(options);
-    
+
     if (this.options.selectable) {
         links.Timeline.addClassName(this.dom.frame, "timeline-selectable");
     }
@@ -310,7 +327,7 @@ links.Timeline.prototype.setOptions = function(options) {
                 this.options[i] = options[i];
             }
         }
-        
+
         // prepare i18n dependent on set locale
         if (typeof links.locales !== 'undefined' && this.options.locale !== 'en') {
             var localeOpts = links.locales[this.options.locale];
@@ -344,6 +361,15 @@ links.Timeline.prototype.setOptions = function(options) {
 
     // validate options
     this.options.autoHeight = (this.options.height === "auto");
+};
+
+/**
+ * Get options for the timeline.
+ *
+ * @return the options object
+ */
+links.Timeline.prototype.getOptions = function() {
+    return this.options;
 };
 
 /**
@@ -581,7 +607,7 @@ links.Timeline.prototype.getVisibleItems = function  (start, end) {
         for (var i = 0, iMax = items.length; i < iMax; i++) {
             var item = items[i];
             if (item.end) {
-                // Time range object
+                // Time range object // NH use getLeft and getRight here
                 if (start <= item.start && item.end <= end) {
                     itemsInRange.push({"row": i});
                 }
@@ -816,7 +842,6 @@ links.Timeline.prototype.render = function(options) {
     this.clusterItems();
     this.filterItems();
     this.stackItems(animate);
-
     this.recalcItems();
 
     // TODO: only repaint when resized or when filterItems or stackItems gave a change?
@@ -1488,9 +1513,9 @@ links.Timeline.prototype.reflowItems = function() {
         }
 
         if (group) {
-            group.itemsHeight = group.itemsHeight ?
+            group.itemsHeight = Math.max(this.options.groupMinHeight,group.itemsHeight ?
                 Math.max(group.itemsHeight, item.height) :
-                item.height;
+                item.height);
         }
     }
 
@@ -1589,7 +1614,7 @@ links.Timeline.prototype.recalcItems = function () {
             //
             var groupHeight = group.itemsHeight;
             resized = resized || (groupHeight != group.height);
-            group.height = groupHeight;
+            group.height = Math.max(groupHeight, options.groupMinHeight);
 
             actualHeight += groups[i].height + options.eventMargin;
         }
@@ -2140,9 +2165,9 @@ links.Timeline.prototype.repaintDragAreas = function () {
     var index = this.selection ? this.selection.index : -1,
         item = this.selection ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item) &&
-        (item instanceof links.Timeline.ItemRange)) {
-        var left = this.timeToScreen(item.start),
-            right = this.timeToScreen(item.end),
+        (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemFloatingRange)) {
+        var left = item.getLeft(this), // NH change to getLeft
+            right = item.getRight(this), // NH change to getRight
             top = item.top,
             height = item.height;
 
@@ -2208,9 +2233,9 @@ links.Timeline.prototype.repaintNavigation = function () {
             navBar.addButton.className = "timeline-navigation-new";
             navBar.addButton.title = options.CREATE_NEW_EVENT;
             var addIconSpan = document.createElement("SPAN");
-            addIconSpan.className = "ui-icon ui-icon-circle-plus";            
+            addIconSpan.className = "ui-icon ui-icon-circle-plus";
             navBar.addButton.appendChild(addIconSpan);
-            
+
             var onAdd = function(event) {
                 links.Timeline.preventDefault(event);
                 links.Timeline.stopPropagation(event);
@@ -2269,7 +2294,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 var ziIconSpan = document.createElement("SPAN");
                 ziIconSpan.className = "ui-icon ui-icon-circle-zoomin";
                 navBar.zoomInButton.appendChild(ziIconSpan);
-                
+
                 var onZoomIn = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2287,7 +2312,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 var zoIconSpan = document.createElement("SPAN");
                 zoIconSpan.className = "ui-icon ui-icon-circle-zoomout";
                 navBar.zoomOutButton.appendChild(zoIconSpan);
-                
+
                 var onZoomOut = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2307,7 +2332,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 var mlIconSpan = document.createElement("SPAN");
                 mlIconSpan.className = "ui-icon ui-icon-circle-arrow-w";
                 navBar.moveLeftButton.appendChild(mlIconSpan);
-                
+
                 var onMoveLeft = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2325,7 +2350,7 @@ links.Timeline.prototype.repaintNavigation = function () {
                 var mrIconSpan = document.createElement("SPAN");
                 mrIconSpan.className = "ui-icon ui-icon-circle-arrow-e";
                 navBar.moveRightButton.appendChild(mrIconSpan);
-                
+
                 var onMoveRight = function(event) {
                     links.Timeline.preventDefault(event);
                     links.Timeline.stopPropagation(event);
@@ -2697,8 +2722,8 @@ links.Timeline.prototype.onMouseDown = function(event) {
         params.itemStart = item.start;
         params.itemEnd = item.end;
         params.itemGroup = item.group;
-        params.itemLeft = item.start ? this.timeToScreen(item.start) : undefined;
-        params.itemRight = item.end ? this.timeToScreen(item.end) : undefined;
+        params.itemLeft = item.getLeft(this); // NH Use item.getLeft here
+        params.itemRight = item.getRight(this); // NH Use item.getRight here
     }
     else {
         this.dom.frame.style.cursor = 'move';
@@ -2922,10 +2947,13 @@ links.Timeline.prototype.onMouseUp = function (event) {
                 'end': item.end
             });
 
-            // fire an add or changed event. 
-            // Note that the change can be canceled from within an event listener if 
+            // fire an add or changed event.
+            // Note that the change can be canceled from within an event listener if
             // this listener calls the method cancelChange().
             this.trigger(params.addItem ? 'add' : 'changed');
+            
+            //retrieve item data again to include changes made to it in the triggered event handlers
+            item = this.items[params.itemIndex];
 
             if (params.addItem) {
                 if (this.applyAdd) {
@@ -3612,6 +3640,16 @@ links.Timeline.Item.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ */
+links.Timeline.Item.prototype.getLeft = function (timeline) {
+    // Should be implemented by sub-prototype
+    return 0;
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -3897,6 +3935,27 @@ links.Timeline.ItemBox.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemBox.prototype.getLeft = function (timeline) {
+    var boxAlign = (timeline.options.box && timeline.options.box.align) ?
+        timeline.options.box.align : undefined;
+
+    var left = timeline.timeToScreen(this.start);
+    if (boxAlign == 'right') {
+        left = left - width;
+    }
+    else { // default or 'center'
+        left = (left - this.width / 2);
+    }
+
+    return left;
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -4106,6 +4165,16 @@ links.Timeline.ItemRange.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemRange.prototype.getLeft = function (timeline) {
+    return timeline.timeToScreen(this.start);
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -4123,6 +4192,237 @@ links.Timeline.ItemRange.prototype.getRight = function (timeline) {
  */
 links.Timeline.ItemRange.prototype.getWidth = function (timeline) {
     return timeline.timeToScreen(this.end) - timeline.timeToScreen(this.start);
+};
+
+/**
+ * @constructor links.Timeline.ItemFloatingRange
+ * @extends links.Timeline.Item
+ * @param {Object} data       Object containing parameters start, end
+ *                            content, group, type, className, editable.
+ * @param {Object} [options]  Options to set initial property values
+ *                                {Number} top
+ *                                {Number} left
+ *                                {Number} width
+ *                                {Number} height
+ */
+links.Timeline.ItemFloatingRange = function (data, options) {
+    links.Timeline.Item.call(this, data, options);
+};
+
+links.Timeline.ItemFloatingRange.prototype = new links.Timeline.Item();
+
+/**
+ * Select the item
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.select = function () {
+    var dom = this.dom;
+    links.Timeline.addClassName(dom, 'timeline-event-selected ui-state-active');
+};
+
+/**
+ * Unselect the item
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.unselect = function () {
+    var dom = this.dom;
+    links.Timeline.removeClassName(dom, 'timeline-event-selected ui-state-active');
+};
+
+/**
+ * Creates the DOM for the item, depending on its type
+ * @return {Element | undefined}
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.createDOM = function () {
+    // background box
+    var divBox = document.createElement("DIV");
+    divBox.style.position = "absolute";
+
+    // contents box
+    var divContent = document.createElement("DIV");
+    divContent.className = "timeline-event-content";
+    divBox.appendChild(divContent);
+
+    this.dom = divBox;
+    this.updateDOM();
+
+    return divBox;
+};
+
+/**
+ * Append the items DOM to the given HTML container. If items DOM does not yet
+ * exist, it will be created first.
+ * @param {Element} container
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.showDOM = function (container) {
+    var dom = this.dom;
+    if (!dom) {
+        dom = this.createDOM();
+    }
+
+    if (dom.parentNode != container) {
+        if (dom.parentNode) {
+            // container changed. remove the item from the old container
+            this.hideDOM();
+        }
+
+        // append to the new container
+        container.appendChild(dom);
+        this.rendered = true;
+    }
+};
+
+/**
+ * Remove the items DOM from the current HTML container
+ * The DOM will be kept in memory
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.hideDOM = function () {
+    var dom = this.dom;
+    if (dom) {
+        if (dom.parentNode) {
+            dom.parentNode.removeChild(dom);
+        }
+        this.rendered = false;
+    }
+};
+
+/**
+ * Update the DOM of the item. This will update the content and the classes
+ * of the item
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.updateDOM = function () {
+    var divBox = this.dom;
+    if (divBox) {
+        // update contents
+        divBox.firstChild.innerHTML = this.content;
+
+        // update class
+        divBox.className = "timeline-event timeline-event-range ui-widget ui-state-default";
+
+        if (this.isCluster) {
+            links.Timeline.addClassName(divBox, 'timeline-event-cluster ui-widget-header');
+        }
+
+        // add item specific class name when provided
+        if (this.className) {
+            links.Timeline.addClassName(divBox, this.className);
+        }
+
+        // TODO: apply selected className?
+    }
+};
+
+/**
+ * Reposition the item, recalculate its left, top, and width, using the current
+ * range of the timeline and the timeline options. *
+ * @param {links.Timeline} timeline
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.updatePosition = function (timeline) {
+    var dom = this.dom;
+    if (dom) {
+        var contentWidth = timeline.size.contentWidth,
+            left = this.getLeft(timeline), // NH use getLeft
+            right = this.getRight(timeline); // NH use getRight;
+
+        // limit the width of the this, as browsers cannot draw very wide divs
+        if (left < -contentWidth) {
+            left = -contentWidth;
+        }
+        if (right > 2 * contentWidth) {
+            right = 2 * contentWidth;
+        }
+
+        dom.style.top = this.top + "px";
+        dom.style.left = left + "px";
+        //dom.style.width = Math.max(right - left - 2 * this.borderWidth, 1) + "px"; // TODO: borderWidth
+        dom.style.width = Math.max(right - left, 1) + "px";
+    }
+};
+
+/**
+ * Check if the item is visible in the timeline, and not part of a cluster
+ * @param {Number} start
+ * @param {Number} end
+ * @return {boolean} visible
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.isVisible = function (start, end) {
+    if (this.cluster) {
+        return false;
+    }
+
+	// NH check for no end value
+	if (this.end && this.start) {
+		return (this.end > start)
+			&& (this.start < end);
+	} else if (this.start) {
+		return (this.start < end);
+	} else if (this.end) {
+        return (this.end > start);
+    } else {return true;}
+};
+
+/**
+ * Reposition the item
+ * @param {Number} left
+ * @param {Number} right
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.setPosition = function (left, right) {
+    var dom = this.dom;
+
+    dom.style.left = left + 'px';
+    dom.style.width = (right - left) + 'px';
+
+    if (this.group) {
+        this.top = this.group.top;
+        dom.style.top = this.top + 'px';
+    }
+};
+
+/**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.getLeft = function (timeline) {
+    // NH check for no start value
+	if (this.start) {
+		return timeline.timeToScreen(this.start);
+	} else {
+		return 0;
+	}
+};
+
+/**
+ * Calculate the right position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} right
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.getRight = function (timeline) {
+    // NH check for no end value
+	if (this.end) {
+		return timeline.timeToScreen(this.end);
+	} else {
+		return timeline.size.contentWidth;
+	}
+};
+
+/**
+ * Calculate the width of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} width
+ * @override
+ */
+links.Timeline.ItemFloatingRange.prototype.getWidth = function (timeline) {
+    return this.getRight(timeline) - this.getLeft(timeline);
 };
 
 /**
@@ -4338,6 +4638,16 @@ links.Timeline.ItemDot.prototype.setPosition = function (left, right) {
 };
 
 /**
+ * Calculate the left position of the item
+ * @param {links.Timeline} timeline
+ * @return {Number} left
+ * @override
+ */
+links.Timeline.ItemDot.prototype.getLeft = function (timeline) {
+    return timeline.timeToScreen(this.start);
+};
+
+/**
  * Calculate the right position of the item
  * @param {links.Timeline} timeline
  * @return {Number} right
@@ -4498,7 +4808,7 @@ links.Timeline.prototype.createItem = function(itemData) {
         return new this.itemTypes[type](data, {'top': initialTop})
     }
 
-    console.log('ERROR: Unknown event style "' + type + '"');
+    console.log('ERROR: Unknown event type "' + type + '"');
     return new links.Timeline.Item(data, {
         'top': initialTop
     });
@@ -4522,10 +4832,10 @@ links.Timeline.prototype.changeItem = function (index, itemData, preventRender) 
 
     // replace item, merge the changes
     var newItem = this.createItem({
-        'start':     itemData.hasOwnProperty('start') ?     itemData.start :     oldItem.start,
-        'end':       itemData.hasOwnProperty('end') ?       itemData.end :       oldItem.end,
-        'content':   itemData.hasOwnProperty('content') ?   itemData.content :   oldItem.content,
-        'group':     itemData.hasOwnProperty('group') ?     itemData.group :     this.getGroupName(oldItem.group),
+        'start':   itemData.hasOwnProperty('start') ?   itemData.start :   oldItem.start,
+        'end':     itemData.hasOwnProperty('end') ?     itemData.end :     oldItem.end,
+        'content': itemData.hasOwnProperty('content') ? itemData.content : oldItem.content,
+        'group':   itemData.hasOwnProperty('group') ?   itemData.group :   this.getGroupName(oldItem.group),
         'className': itemData.hasOwnProperty('className') ? itemData.className : oldItem.className,
         'editable':  itemData.hasOwnProperty('editable') ?  itemData.editable :  oldItem.editable,
         'type':      itemData.hasOwnProperty('type') ?      itemData.type :      oldItem.type
@@ -4588,15 +4898,15 @@ links.Timeline.prototype.getGroup = function (groupName) {
         groups.push(groupObj);
         // sort the groups
         if (this.options.groupsOrder == true) {
-	        groups = groups.sort(function (a, b) {
-	            if (a.content > b.content) {
-	                return 1;
-	            }
-	            if (a.content < b.content) {
-	                return -1;
-	            }
-	            return 0;
-	        });
+            groups = groups.sort(function (a, b) {
+                if (a.content > b.content) {
+                    return 1;
+		        }
+		        if (a.content < b.content) {
+		            return -1;
+		        }
+		        return 0;
+        	});
         } else if (typeof(this.options.groupsOrder) == "function") {
         	groups = groups.sort(this.options.groupsOrder)
         }
@@ -4864,13 +5174,13 @@ links.Timeline.prototype.stackOrder = function(items) {
     //if a customer stack order function exists, use it.
     var f = this.options.customStackOrder && (typeof this.options.customStackOrder === 'function') ? this.options.customStackOrder : function (a, b)
     {
-        if ((a instanceof links.Timeline.ItemRange) &&
-            !(b instanceof links.Timeline.ItemRange)) {
+        if ((a instanceof links.Timeline.ItemRange || a instanceof links.Timeline.ItemFloatingRange) &&
+            !(b instanceof links.Timeline.ItemRange || b instanceof links.Timeline.ItemFloatingRange)) {
             return -1;
         }
 
-        if (!(a instanceof links.Timeline.ItemRange) &&
-            (b instanceof links.Timeline.ItemRange)) {
+        if (!(a instanceof links.Timeline.ItemRange || a instanceof links.Timeline.ItemFloatingRange) &&
+            (b instanceof links.Timeline.ItemRange || b instanceof links.Timeline.ItemFloatingRange)) {
             return 1;
         }
 
@@ -4910,8 +5220,13 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
         var group = this.groups[j];
 
         if (!groupedItems[group.content]) {
+            if (axisOnTop) {
+                groupBase += options.groupMinHeight + eventMargin;
+            } else {
+                groupBase -= (options.groupMinHeight + eventMargin);
+            }
             continue;
-    }
+        }
 
         // initialize final positions and fill finalItems
         groupFinalItems = this.finalItemsPosition(groupedItems[group.content], groupBase, group);
@@ -4973,17 +5288,18 @@ links.Timeline.prototype.finalItemsPosition = function(items, groupBase, group) 
                 }
             } while (collidingItem);
         }
-	    if (group) {
-	        if (axisOnTop) {
-	            group.itemsHeight = (group.itemsHeight)
-	                              ? Math.max(group.itemsHeight, finalItem.bottom - groupBase)
-	                              : finalItem.height + eventMargin;
-	        } else {
-	            group.itemsHeight = (group.itemsHeight)
-	                              ? Math.max(group.itemsHeight, groupBase - finalItem.top)
-	                              : finalItem.height + eventMargin;
-		    }
-		}
+
+        if (group) {
+            if (axisOnTop) {
+                group.itemsHeight = (group.itemsHeight)
+                                  ? Math.max(group.itemsHeight, finalItem.bottom - groupBase)
+                                  : finalItem.height + eventMargin;
+            } else {
+                group.itemsHeight = (group.itemsHeight)
+                                  ? Math.max(group.itemsHeight, groupBase - finalItem.top)
+                                  : finalItem.height + eventMargin;
+            }
+        }
     }
 
     return groupFinalItems;
@@ -5020,7 +5336,6 @@ links.Timeline.prototype.initialItemsPosition = function(items, groupBase) {
 
     return finalItems;
 };
-
 
 /**
  * Move the events one step in the direction of their final positions
@@ -5456,7 +5771,7 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
                             }
                             min = (min != undefined) ? Math.min(min, start) : start;
                             max = (max != undefined) ? Math.max(max, end) : end;
-                            containsRanges = containsRanges || (p instanceof links.Timeline.ItemRange);
+                            containsRanges = containsRanges || (p instanceof links.Timeline.ItemRange || p instanceof links.Timeline.ItemFloatingRange);
                             count++;
                             m++;
                         }

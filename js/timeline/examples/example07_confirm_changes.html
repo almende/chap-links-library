@@ -57,7 +57,7 @@
             };
 
             // Instantiate our timeline object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             // Make a callback function for the select event
             var onselect = function (event) {
@@ -143,7 +143,7 @@
             google.visualization.events.addListener(timeline, 'add', onadd);
 
             // Draw our timeline with the created data and options
-            timeline.draw(data, options);
+            timeline.draw(data);
         }
     </script>
 </head>

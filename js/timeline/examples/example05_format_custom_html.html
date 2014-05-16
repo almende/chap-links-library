@@ -96,14 +96,14 @@
             };
 
             // Instantiate our table object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             // Attach event listeners
             google.visualization.events.addListener(timeline, 'select', onselect);
             google.visualization.events.addListener(timeline, 'rangechange', onrangechange);
 
             // Draw our table with the data we created locally.
-            timeline.draw(data, options);
+            timeline.draw(data);
 
             // Set the scale by hand. Autoscaling will be disabled.
             // Note: you can achieve the same by specifying scale and step in the

@@ -65,7 +65,7 @@
             };
 
             // Instantiate our timeline object.
-            timeline = new links.Timeline(document.getElementById('mytimeline'));
+            timeline = new links.Timeline(document.getElementById('mytimeline'), options);
 
             function onRangeChanged(properties) {
                 document.getElementById('info').innerHTML += 'rangechanged ' +
@@ -76,7 +76,7 @@
             links.events.addListener(timeline, 'rangechanged', onRangeChanged);
 
             // Draw our timeline with the created data and options
-            timeline.draw(data, options);
+            timeline.draw(data);
         }
     </script>
 </head>
