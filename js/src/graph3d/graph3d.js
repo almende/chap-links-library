@@ -27,8 +27,8 @@
  * Copyright (C) 2010-2012 Almende B.V.
  *
  * @author  Jos de Jong, jos@almende.org
- * @date    2012-10-24
- * @version 1.2
+ * @date    2014-05-16
+ * @version 1.3
  */
 
 /*
@@ -310,8 +310,7 @@ links.Graph3d.prototype._setScale = function() {
  * @param {links.Point3d} point3d   A 3D point with parameters x, y, z
  * @return {links.Point2d} point2d  A 2D point with parameters x, y
  */
-links.Graph3d.prototype._convert3Dto2D = function(point3d)
-{
+links.Graph3d.prototype._convert3Dto2D = function(point3d) {
     var translation = this._convertPointToTranslation(point3d);
     return this._convertTranslationToScreen(translation);
 };
@@ -324,8 +323,7 @@ links.Graph3d.prototype._convert3Dto2D = function(point3d)
  *                                     the translation of the point, seen from the
  *                                     camera
  */
-links.Graph3d.prototype._convertPointToTranslation = function(point3d)
-{
+links.Graph3d.prototype._convertPointToTranslation = function(point3d) {
     var ax = point3d.x * this.scale.x,
         ay = point3d.y * this.scale.y,
         az = point3d.z * this.scale.z,
