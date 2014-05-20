@@ -2808,6 +2808,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 left = right;
                 item.start = this.screenToTime(left);
             }
+          this.trigger('change');
         }
         else if (params.itemDragRight && options.timeChangeable) {
             // move the end of the item
@@ -2824,6 +2825,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 right = left;
                 item.end = this.screenToTime(right);
             }
+          this.trigger('change');
         }
         else if (options.timeChangeable) {
             // move the item
