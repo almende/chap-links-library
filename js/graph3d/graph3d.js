@@ -24,11 +24,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (C) 2010-2012 Almende B.V.
+ * Copyright (C) 2010-2014 Almende B.V.
  *
  * @author  Jos de Jong, jos@almende.org
- * @date    2014-05-16
- * @version 1.3
+ * @date    2014-05-27
+ * @version 1.4
  */
 
 /*
@@ -94,6 +94,7 @@ links.Graph3d = function (container) {
     this.keepAspectRatio = true;
     this.showShadow = false;
     this.showGrayBottom = false; // TODO: this does not work correctly
+    this.showTooltip = false;
     this.verticalRatio = 0.5; // 0.1 to 1.0, where 1.0 results in a "cube"
 
     this.animationInterval = 1000; // milliseconds
@@ -411,6 +412,7 @@ links.Graph3d.prototype.draw = function(data, options) {
         if (options.showGrid !== undefined)          this.showGrid = options.showGrid;
         if (options.showPerspective !== undefined)   this.showPerspective = options.showPerspective;
         if (options.showShadow !== undefined)        this.showShadow = options.showShadow;
+        if (options.tooltip !== undefined)           this.showTooltip = options.tooltip;
         if (options.showAnimationControls !== undefined) this.showAnimationControls = options.showAnimationControls;
         if (options.keepAspectRatio !== undefined)   this.keepAspectRatio = options.keepAspectRatio;
         if (options.verticalRatio !== undefined)     this.verticalRatio = options.verticalRatio;
@@ -797,6 +799,7 @@ links.Graph3d.prototype.create = function () {
 
     this.frame = document.createElement("div");
     this.frame.style.position = "relative";
+    this.frame.style.overflow = "hidden";
 
     // create the graph canvas (HTML canvas element)
     this.frame.canvas = document.createElement( "canvas" );
@@ -824,12 +827,14 @@ links.Graph3d.prototype.create = function () {
     var onmousedown = function (event) {me._onMouseDown(event);};
     var ontouchstart = function (event) {me._onTouchStart(event);};
     var onmousewheel = function (event) {me._onWheel(event);};
+    var ontooltip = function (event) {me._onTooltip(event);};
     // TODO: these events are never cleaned up... can give a "memory leakage"
 
     links.addEventListener(this.frame.canvas, "keydown", onkeydown);
     links.addEventListener(this.frame.canvas, "mousedown", onmousedown);
     links.addEventListener(this.frame.canvas, "touchstart", ontouchstart);
     links.addEventListener(this.frame.canvas, "mousewheel", onmousewheel);
+    links.addEventListener(this.frame.canvas, "mousemove", ontooltip);
 
     // add the new graph to the container element
     this.containerElement.appendChild(this.frame);
@@ -1833,6 +1838,7 @@ links.Graph3d.prototype._redrawDataBar = function() {
             {corners: [top[2], top[3], bottom[3], bottom[2]], center: links.Point3d.avg(bottom[3].point, bottom[2].point)},
             {corners: [top[3], top[0], bottom[0], bottom[3]], center: links.Point3d.avg(bottom[0].point, bottom[3].point)}
         ];
+        point.surfaces = surfaces;
 
         // calculate the distance of each of the surface centers to the camera
         for (j = 0; j < surfaces.length; j++) {
@@ -1940,8 +1946,8 @@ links.Graph3d.prototype._onMouseDown = function(event) {
     if (!this.leftButtonDown && !this.touchDown) return;
 
     // get mouse position (different code for IE and all other browsers)
-    this.startMouseX = event.clientX || event.targetTouches[0].clientX;
-    this.startMouseY = event.clientY || event.targetTouches[0].clientY;
+    this.startMouseX = links.getMouseX(event);
+    this.startMouseY = links.getMouseY(event);
 
     this.startStart = new Date(this.start);
     this.startEnd = new Date(this.end);
@@ -1964,14 +1970,14 @@ links.Graph3d.prototype._onMouseDown = function(event) {
 /**
  * Perform moving operating.
  * This function activated from within the funcion links.Graph.mouseDown().
- * @param {event}   event  Well, eehh, the event
+ * @param {Event}   event  Well, eehh, the event
  */
 links.Graph3d.prototype._onMouseMove = function (event) {
     event = event || window.event;
 
     // calculate change in mouse position
-    var diffX = parseFloat(event.clientX || event.targetTouches[0].clientX) - this.startMouseX;
-    var diffY = parseFloat(event.clientY || event.targetTouches[0].clientY) - this.startMouseY;
+    var diffX = parseFloat(links.getMouseX(event)) - this.startMouseX;
+    var diffY = parseFloat(links.getMouseY(event)) - this.startMouseY;
 
     var horizontalNew = this.startArmRotation.horizontal + diffX / 200;
     var verticalNew = this.startArmRotation.vertical + diffY / 200;
@@ -2020,6 +2026,57 @@ links.Graph3d.prototype._onMouseUp = function (event) {
     links.removeEventListener(document, "mousemove", this.onmousemove);
     links.removeEventListener(document, "mouseup",   this.onmouseup);
     links.preventDefault(event);
+};
+
+/**
+ * After having moved the mouse, a tooltip should pop up when the mouse is resting on a data point
+ * @param {Event}  event   A mouse move event
+ */
+links.Graph3d.prototype._onTooltip = function (event) {
+    var delay = 300; // ms
+    var mouseX = links.getMouseX(event) - links.getAbsoluteLeft(this.frame);
+    var mouseY = links.getMouseY(event) - links.getAbsoluteTop(this.frame);
+
+    if (!this.showTooltip) {
+        return;
+    }
+
+    if (this.tooltipTimeout) {
+        clearTimeout(this.tooltipTimeout);
+    }
+
+    // (delayed) display of a tooltip only if no mouse button is down
+    if (this.leftButtonDown) {
+        this._hideTooltip();
+        return;
+    }
+
+    if (this.tooltip && this.tooltip.dataPoint) {
+        // tooltip is currently visible
+        var dataPoint = this._dataPointFromXY(mouseX, mouseY);
+        if (dataPoint !== this.tooltip.dataPoint) {
+            // datapoint changed
+            if (dataPoint) {
+                this._showTooltip(dataPoint);
+            }
+            else {
+                this._hideTooltip();
+            }
+        }
+    }
+    else {
+        // tooltip is currently not visible
+        var me = this;
+        this.tooltipTimeout = setTimeout(function () {
+            me.tooltipTimeout = null;
+
+            // show a tooltip if we have a data point
+            var dataPoint = me._dataPointFromXY(mouseX, mouseY);
+            if (dataPoint) {
+                me._showTooltip(dataPoint);
+            }
+        }, delay);
+    }
 };
 
 /**
@@ -2085,6 +2142,8 @@ links.Graph3d.prototype._onWheel = function(event) {
 
         this.camera.setArmLength(newLength);
         this.redraw();
+
+        this._hideTooltip();
     }
 
     // fire an oncamerapositionchange event
@@ -2097,6 +2156,194 @@ links.Graph3d.prototype._onWheel = function(event) {
     links.preventDefault(event);
 };
 
+/**
+ * Test whether a point lies inside given 2D triangle
+ * @param {links.Point2d} point
+ * @param {links.Point2d[]} triangle
+ * @return {boolean} Returns true if given point lies inside or on the edge of the triangle
+ * @private
+ */
+links.Graph3d.prototype._insideTriangle = function (point, triangle) {
+    var a = triangle[0],
+        b = triangle[1],
+        c = triangle[2];
+
+    function sign (x) {
+        return x > 0 ? 1 : x < 0 ? -1 : 0;
+    }
+
+    var as = sign((b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x));
+    var bs = sign((c.x - b.x) * (point.y - b.y) - (c.y - b.y) * (point.x - b.x));
+    var cs = sign((a.x - c.x) * (point.y - c.y) - (a.y - c.y) * (point.x - c.x));
+
+    // each of the three signs must be either equal to each other or zero
+    return (as == 0 || bs == 0 || as == bs) &&
+        (bs == 0 || cs == 0 || bs == cs) &&
+        (as == 0 || cs == 0 || as == cs);
+};
+
+/**
+ * Find a data point close to given screen position (x, y)
+ * @param {number} x
+ * @param {number} y
+ * @return {Object | null} The closest data point or null if not close to any data point
+ * @private
+ */
+links.Graph3d.prototype._dataPointFromXY = function (x, y) {
+    var i,
+        distMax = 100, // px
+        dataPoint = null,
+        closestDataPoint = null,
+        closestDist = null,
+        center = new links.Point2d(x, y);
+
+    if (this.style === links.Graph3d.STYLE.BAR ||
+        this.style === links.Graph3d.STYLE.BARCOLOR ||
+        this.style === links.Graph3d.STYLE.BARSIZE) {
+        // the data points are ordered from far away to closest
+        for (i = this.dataPoints.length - 1; i >= 0; i--) {
+            dataPoint = this.dataPoints[i];
+            var surfaces  = dataPoint.surfaces;
+            if (surfaces) {
+                for (var s = surfaces.length - 1; s >= 0; s--) {
+                    // split each surface in two triangles, and see if the center point is inside one of these
+                    var surface = surfaces[s];
+                    var corners = surface.corners;
+                    var triangle1 = [corners[0].screen, corners[1].screen, corners[2].screen];
+                    var triangle2 = [corners[2].screen, corners[3].screen, corners[0].screen];
+                    if (this._insideTriangle(center, triangle1) ||
+                        this._insideTriangle(center, triangle2)) {
+                        // return immediately at the first hit
+                        return dataPoint;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        // find the closest data point, using distance to the center of the point on 2d screen
+        for (i = 0; i < this.dataPoints.length; i++) {
+            dataPoint = this.dataPoints[i];
+            var point = dataPoint.screen;
+            if (point) {
+                var distX = Math.abs(x - point.x);
+                var distY = Math.abs(y - point.y);
+                var dist  = Math.sqrt(distX * distX + distY * distY);
+
+                if ((closestDist === null || dist < closestDist) && dist < distMax) {
+                    closestDist = dist;
+                    closestDataPoint = dataPoint;
+                }
+            }
+        }
+    }
+
+
+    return closestDataPoint;
+};
+
+/**
+ * Display a tooltip for given data point
+ * @param {Object} dataPoint
+ * @private
+ */
+links.Graph3d.prototype._showTooltip = function (dataPoint) {
+    var content, line, dot;
+
+    if (!this.tooltip) {
+        content = document.createElement('div');
+        content.style.position = 'absolute';
+        content.style.padding = '10px';
+        content.style.border = '1px solid #4d4d4d';
+        content.style.color = '#1a1a1a';
+        content.style.background = 'rgba(255,255,255,0.7)';
+        content.style.borderRadius = '2px';
+        content.style.boxShadow = '5px 5px 10px rgba(128,128,128,0.5)';
+
+        line = document.createElement('div');
+        line.style.position = 'absolute';
+        line.style.height = '40px';
+        line.style.width = '0';
+        line.style.borderLeft = '1px solid #4d4d4d';
+
+        dot = document.createElement('div');
+        dot.style.position = 'absolute';
+        dot.style.height = '0';
+        dot.style.width = '0';
+        dot.style.border = '5px solid #4d4d4d';
+        dot.style.borderRadius = '5px';
+
+        this.tooltip = {
+            dataPoint: null,
+            dom: {
+                content: content,
+                line: line,
+                dot: dot
+            }
+        };
+    }
+    else {
+        content = this.tooltip.dom.content;
+        line    = this.tooltip.dom.line;
+        dot     = this.tooltip.dom.dot;
+    }
+
+    this._hideTooltip();
+
+    this.tooltip.dataPoint = dataPoint;
+    if (typeof this.showTooltip === 'function') {
+        content.innerHTML = this.showTooltip(dataPoint.point);
+    }
+    else {
+        content.innerHTML = '<table>' +
+            '<tr><td>x:</td><td>' + dataPoint.point.x + '</td></tr>' +
+            '<tr><td>y:</td><td>' + dataPoint.point.y + '</td></tr>' +
+            '<tr><td>z:</td><td>' + dataPoint.point.z + '</td></tr>' +
+            '</table>';
+    }
+
+    content.style.left  = '0';
+    content.style.top   = '0';
+    this.frame.appendChild(content);
+    this.frame.appendChild(line);
+    this.frame.appendChild(dot);
+
+    // calculate sizes
+    var contentWidth    = content.offsetWidth;
+    var contentHeight   = content.offsetHeight;
+    var lineHeight      = line.offsetHeight;
+    var dotWidth        = dot.offsetWidth;
+    var dotHeight       = dot.offsetHeight;
+
+    var left = dataPoint.screen.x - contentWidth / 2;
+    left = Math.min(Math.max(left, 10), this.frame.clientWidth - 10 - contentWidth);
+
+    line.style.left     = dataPoint.screen.x + 'px';
+    line.style.top      = (dataPoint.screen.y - lineHeight) + 'px';
+    content.style.left  = left + 'px';
+    content.style.top   = (dataPoint.screen.y - lineHeight - contentHeight) + 'px';
+    dot.style.left      = (dataPoint.screen.x - dotWidth / 2) + 'px';
+    dot.style.top       = (dataPoint.screen.y - dotHeight / 2) + 'px';
+};
+
+/**
+ * Hide the tooltip when displayed
+ * @private
+ */
+links.Graph3d.prototype._hideTooltip = function () {
+    if (this.tooltip) {
+        this.tooltip.dataPoint = null;
+
+        for (var prop in this.tooltip.dom) {
+            if (this.tooltip.dom.hasOwnProperty(prop)) {
+                var elem = this.tooltip.dom[prop];
+                if (elem && elem.parentNode) {
+                    elem.parentNode.removeChild(elem);
+                }
+            }
+        }
+    }
+};
 
 /**
  * @prototype Point3d
@@ -2999,5 +3246,25 @@ links.getAbsoluteTop = function(elem) {
         elem = elem.offsetParent;
     }
     return top;
+};
+
+/**
+ * Get the horizontal mouse position from a mouse event
+ * @param {Event} event
+ * @return {number} mouse x
+ */
+links.getMouseX = function(event) {
+    if ('clientX' in event) return event.clientX;
+    return event.targetTouches[0] && event.targetTouches[0].clientX || 0;
+};
+
+/**
+ * Get the vertical mouse position from a mouse event
+ * @param {Event} event
+ * @return {number} mouse y
+ */
+links.getMouseY = function(event) {
+    if ('clientY' in event) return event.clientY;
+    return event.targetTouches[0] && event.targetTouches[0].clientY || 0;
 };
 

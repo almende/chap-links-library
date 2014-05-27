@@ -492,6 +492,19 @@ options = {
 </tr>
 
 <tr>
+    <td>tooltip</td>
+    <td>boolean | function</td>
+    <td>true</td>
+    <td>Show a tooltip showing the values of the hovered data point.
+        The contents of the tooltip can be customized by providing a callback
+        function as <code>tooltip</code>. In this case the function is called
+        with an object containing parameters <code>x</code>,
+        <code>y</code>, and <code>z</code> argument,
+        and must return a string which may contain HTML.
+    </td>
+</tr>
+
+<tr>
     <td>valueMax</td>
     <td>number</td>
     <td>none</td>
