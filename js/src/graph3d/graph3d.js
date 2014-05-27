@@ -1837,6 +1837,7 @@ links.Graph3d.prototype._redrawDataBar = function() {
             {corners: [top[2], top[3], bottom[3], bottom[2]], center: links.Point3d.avg(bottom[3].point, bottom[2].point)},
             {corners: [top[3], top[0], bottom[0], bottom[3]], center: links.Point3d.avg(bottom[0].point, bottom[3].point)}
         ];
+        point.surfaces = surfaces;
 
         // calculate the distance of each of the surface centers to the camera
         for (j = 0; j < surfaces.length; j++) {
@@ -2155,6 +2156,32 @@ links.Graph3d.prototype._onWheel = function(event) {
 };
 
 /**
+ * Test whether a point lies inside given 2D triangle
+ * @param {links.Point2d} point
+ * @param {links.Point2d[]} triangle
+ * @return {boolean} Returns true if given point lies inside or on the edge of the triangle
+ * @private
+ */
+links.Graph3d.prototype._insideTriangle = function (point, triangle) {
+    var a = triangle[0],
+        b = triangle[1],
+        c = triangle[2];
+
+    function sign (x) {
+        return x > 0 ? 1 : x < 0 ? -1 : 0;
+    }
+
+    var as = sign((b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x));
+    var bs = sign((c.x - b.x) * (point.y - b.y) - (c.y - b.y) * (point.x - b.x));
+    var cs = sign((a.x - c.x) * (point.y - c.y) - (a.y - c.y) * (point.x - c.x));
+
+    // each of the three signs must be either equal to each other or zero
+    return (as == 0 || bs == 0 || as == bs) &&
+        (bs == 0 || cs == 0 || bs == cs) &&
+        (as == 0 || cs == 0 || as == cs);
+};
+
+/**
  * Find a data point close to given screen position (x, y)
  * @param {number} x
  * @param {number} y
@@ -2162,25 +2189,54 @@ links.Graph3d.prototype._onWheel = function(event) {
  * @private
  */
 links.Graph3d.prototype._dataPointFromXY = function (x, y) {
-    var distMax = 100; // px
-    var closestDataPoint = null;
-    var closestDist = null;
+    var i,
+        distMax = 100, // px
+        dataPoint = null,
+        closestDataPoint = null,
+        closestDist = null,
+        center = new links.Point2d(x, y);
 
-    // the datapoints are ordered from far away to closest
-    for (var i = 0; i < this.dataPoints.length; i++) {
-         var dataPoint = this.dataPoints[i],
-             point = dataPoint.screen;
-        if (point) {
-            var distX = Math.abs(x - point.x);
-            var distY = Math.abs(y - point.y);
-            var dist  = Math.sqrt(distX * distX + distY * distY);
-
-            if ((closestDist === null || dist < closestDist) && dist < distMax) {
-                closestDist = dist;
-                closestDataPoint = dataPoint;
+    if (this.style === links.Graph3d.STYLE.BAR ||
+        this.style === links.Graph3d.STYLE.BARCOLOR ||
+        this.style === links.Graph3d.STYLE.BARSIZE) {
+        // the data points are ordered from far away to closest
+        for (i = this.dataPoints.length - 1; i >= 0; i--) {
+            dataPoint = this.dataPoints[i];
+            var surfaces  = dataPoint.surfaces;
+            if (surfaces) {
+                for (var s = surfaces.length - 1; s >= 0; s--) {
+                    // split each surface in two triangles, and see if the center point is inside one of these
+                    var surface = surfaces[s];
+                    var corners = surface.corners;
+                    var triangle1 = [corners[0].screen, corners[1].screen, corners[2].screen];
+                    var triangle2 = [corners[2].screen, corners[3].screen, corners[0].screen];
+                    if (this._insideTriangle(center, triangle1) ||
+                        this._insideTriangle(center, triangle2)) {
+                        // return immediately at the first hit
+                        return dataPoint;
+                    }
+                }
             }
         }
     }
+    else {
+        // find the closest data point, using distance to the center of the point on 2d screen
+        for (i = 0; i < this.dataPoints.length; i++) {
+            dataPoint = this.dataPoints[i];
+            var point = dataPoint.screen;
+            if (point) {
+                var distX = Math.abs(x - point.x);
+                var distY = Math.abs(y - point.y);
+                var dist  = Math.sqrt(distX * distX + distY * distY);
+
+                if ((closestDist === null || dist < closestDist) && dist < distMax) {
+                    closestDist = dist;
+                    closestDataPoint = dataPoint;
+                }
+            }
+        }
+    }
+
 
     return closestDataPoint;
 };
@@ -2256,7 +2312,7 @@ links.Graph3d.prototype._showTooltip = function (dataPoint) {
     var dotWidth        = dot.offsetWidth;
     var dotHeight       = dot.offsetHeight;
 
-    // TODO: max/min x and y
+    // TODO: ensure the tooltip is always positioned inside the visible window (apply a max/min x and y)
     line.style.left     = dataPoint.screen.x + 'px';
     line.style.top      = (dataPoint.screen.y - lineHeight) + 'px';
     content.style.left  = (dataPoint.screen.x - contentWidth / 2) + 'px';
