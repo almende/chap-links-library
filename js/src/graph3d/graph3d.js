@@ -799,6 +799,7 @@ links.Graph3d.prototype.create = function () {
 
     this.frame = document.createElement("div");
     this.frame.style.position = "relative";
+    this.frame.style.overflow = "hidden";
 
     // create the graph canvas (HTML canvas element)
     this.frame.canvas = document.createElement( "canvas" );
@@ -2301,6 +2302,8 @@ links.Graph3d.prototype._showTooltip = function (dataPoint) {
             '</table>';
     }
 
+    content.style.left  = '0';
+    content.style.top   = '0';
     this.frame.appendChild(content);
     this.frame.appendChild(line);
     this.frame.appendChild(dot);
@@ -2312,10 +2315,12 @@ links.Graph3d.prototype._showTooltip = function (dataPoint) {
     var dotWidth        = dot.offsetWidth;
     var dotHeight       = dot.offsetHeight;
 
-    // TODO: ensure the tooltip is always positioned inside the visible window (apply a max/min x and y)
+    var left = dataPoint.screen.x - contentWidth / 2;
+    left = Math.min(Math.max(left, 10), this.frame.clientWidth - 10 - contentWidth);
+
     line.style.left     = dataPoint.screen.x + 'px';
     line.style.top      = (dataPoint.screen.y - lineHeight) + 'px';
-    content.style.left  = (dataPoint.screen.x - contentWidth / 2) + 'px';
+    content.style.left  = left + 'px';
     content.style.top   = (dataPoint.screen.y - lineHeight - contentHeight) + 'px';
     dot.style.left      = (dataPoint.screen.x - dotWidth / 2) + 'px';
     dot.style.top       = (dataPoint.screen.y - dotHeight / 2) + 'px';
