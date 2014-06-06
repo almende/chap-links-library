@@ -42,7 +42,7 @@ links.locales['fr_CA'] = links.locales['fr'];
 
 // Catalan ===================================================
 links.locales['ca'] = {
-    'MONTHS': ["Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Setembre", "Octubre", "Novembre", "Desembre"],
+    'MONTHS': ["Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Agost" "Setembre", "Octubre", "Novembre", "Desembre"],
     'MONTHS_SHORT': ["Gen", "Feb", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Oct", "Nov", "Des"],
     'DAYS': ["Diumenge", "Dilluns", "Dimarts", "Dimecres", "Dijous", "Divendres", "Dissabte"],
     'DAYS_SHORT': ["Dm.", "Dl.", "Dm.", "Dc.", "Dj.", "Dv.", "Ds."],
