@@ -77,13 +77,13 @@ Main differences are:
 
 - The functionality of vis.js will be largely similar to that available in
   CHAP Links Library.
-- Data is now based on JSON instead of a Google DataTable, and is key based  
-  instead of row based. This makes dealing with dynamic data much easier. 
-  Data can be manipulated via a DataSet, and one can listen for changes in the  
+- Data is now based on JSON instead of a Google DataTable, and is key based
+  instead of row based. This makes dealing with dynamic data much easier.
+  Data can be manipulated via a DataSet, and one can listen for changes in the
   data and synchronize these changes with a backend server.
-- The Timeline is modularized. This makes it possible to customize and extend 
+- The Timeline is modularized. This makes it possible to customize and extend
   the Timeline much further. The Timeline and Graph will be merged into a single 
-  tool, and it will become easy to display more item types on the Timeline, 
+  tool, and it will become easy to display more item types on the Timeline,
   such as annotations.
 - The code is modularized, making it easier to maintain and extend.
 - vis.js builds upon great libraries such as [Hammer.js](http://eightmedia.github.io/hammer.js/)
@@ -92,4 +92,3 @@ Main differences are:
 - Support for older browsers has been dropped.
 
 [Go to the website of vis.js](http://visjs.org)
-
