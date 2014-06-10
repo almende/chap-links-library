@@ -61,4 +61,26 @@ The library contains the following components:
 </table>
 
 
+## Successor
+
+<img src="http://visjs.org/img/logo/vis128.png" style="align: left; padding-right: 10px;">
+CHAP Links Library now has a successor, [vis.js](http://visjs.org).
+The limitations of the architecture of CHAP Links Library have been reached, 
+and it was time for a fresh start. Main differences are:
+
+- Data is now based on JSON instead of a Google DataTable, and is key based  
+  instead of row based. This makes dealing with dynamic data much easier. 
+  Data can be manipulated via a DataSet, and one can listen for changes in the  
+  data and synchronize these changes with a backend server.
+- The Timeline is modularized. This makes it possible to customize and extend 
+  the Timeline much further. The Timeline and Graph will be merged into a single 
+  tool, and it will become easy to display more item types on the Timeline, 
+  such as annotations.
+- The code is modularized, making it easier to maintain and extend.
+
+[Go to the website of vis.js](http://visjs.org)
+
+
+
+
 <div style="height: 200px;"><br></div>
