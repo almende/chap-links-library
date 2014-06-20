@@ -68,7 +68,7 @@
             }
 
             // callback function for the change event
-            var onchange = function (event) {
+            var onchanged = function (event) {
                 // retrieve the changed row
                 var row = getSelectedRow();
 
@@ -138,7 +138,7 @@
 
             // Add event listeners
             google.visualization.events.addListener(timeline, 'select', onselect);
-            google.visualization.events.addListener(timeline, 'change', onchange);
+            google.visualization.events.addListener(timeline, 'changed', onchanged);
             google.visualization.events.addListener(timeline, 'delete', ondelete);
             google.visualization.events.addListener(timeline, 'add', onadd);
 

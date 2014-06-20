@@ -2991,6 +2991,11 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     item.group = params.itemGroup;
                     // TODO: original group should be restored too
                     item.setPosition(params.itemLeft, params.itemRight);
+
+                    this.updateData(params.itemIndex, {
+                        'start': params.itemStart,
+                        'end': params.itemEnd
+                    });
                 }
             }
 
