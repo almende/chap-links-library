@@ -593,6 +593,41 @@ links.Timeline.prototype.getItemIndex = function(element) {
     return index;
 };
 
+
+/**
+ * Find the cluster index from a given HTML element
+ * If no cluster index is found, undefined is returned
+ * @param {Element} element
+ * @return {Number | undefined} index
+ */
+links.Timeline.prototype.getClusterIndex = function(element) {
+    var e = element,
+        dom = this.dom,
+        frame = dom.items.frame,
+        clusters = this.clusters,
+        index = undefined;
+
+    if (this.clusters) {
+        // try to find the frame where the clusters are located in
+        while (e.parentNode && e.parentNode !== frame) {
+            e = e.parentNode;
+        }
+
+        if (e.parentNode === frame) {
+            // yes! we have found the parent element of all clusters
+            // retrieve its id from the array with clusters
+            for (var i = 0, iMax = clusters.length; i < iMax; i++) {
+                if (clusters[i].dom === e) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    return index;
+};
+
 /**
  * Find all elements within the start and end range
  * If no element is found, returns an empty array
@@ -2112,8 +2147,8 @@ links.Timeline.prototype.repaintDeleteButton = function () {
         dom.items.deleteButton = deleteButton;
     }
 
-    var index = this.selection ? this.selection.index : -1,
-        item = this.selection ? this.items[index] : undefined;
+    var index = (this.selection && this.selection.index !== undefined) ? this.selection.index : -1,
+        item = (this.selection && this.selection.index !== undefined) ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item)) {
         var right = item.getRight(this),
             top = item.top;
@@ -2163,8 +2198,8 @@ links.Timeline.prototype.repaintDragAreas = function () {
     }
 
     // reposition left and right drag area
-    var index = this.selection ? this.selection.index : -1,
-        item = this.selection ? this.items[index] : undefined;
+    var index = (this.selection && this.selection.index !== undefined) ? this.selection.index : -1,
+        item = (this.selection && this.selection.index !== undefined) ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item) &&
         (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemFloatingRange)) {
         var left = item.getLeft(this), // NH change to getLeft
@@ -2681,10 +2716,12 @@ links.Timeline.prototype.onMouseDown = function(event) {
     params.itemDragRight = (params.target === dragRight);
 
     if (params.itemDragLeft || params.itemDragRight) {
-        params.itemIndex = this.selection ? this.selection.index : undefined;
+        params.itemIndex = (this.selection && this.selection.index !== undefined) ? this.selection.index : undefined;
+        delete params.clusterIndex;
     }
     else {
         params.itemIndex = this.getItemIndex(params.target);
+        params.clusterIndex = this.getClusterIndex(params.target);
     }
 
     params.customTime = (params.target === dom.customTime ||
@@ -2712,6 +2749,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
             'group': this.getGroupName(group)
         });
         params.itemIndex = (this.items.length - 1);
+        delete params.clusterIndex;
         this.selectItem(params.itemIndex);
         params.itemDragRight = true;
     }
@@ -3014,7 +3052,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
 
             if (params.target === this.dom.items.deleteButton) {
                 // delete item
-                if (this.selection) {
+                if (this.selection && this.selection.index !== undefined) {
                     this.confirmDeleteItem(this.selection.index);
                 }
             }
@@ -3025,6 +3063,10 @@ links.Timeline.prototype.onMouseUp = function (event) {
                         this.selectItem(params.itemIndex);
                         this.trigger('select');
                     }
+                }
+                else if(params.clusterIndex != undefined) {
+                    this.selectCluster(params.clusterIndex);
+                    this.trigger('select');
                 }
                 else {
                     if (options.unselectable) {
@@ -3384,7 +3426,7 @@ links.Timeline.prototype.deleteItem = function(index, preventRender) {
         throw "Cannot delete row, index out of range";
     }
 
-    if (this.selection) {
+    if (this.selection && this.selection.index !== undefined) {
         // adjust the selection
         if (this.selection.index == index) {
             // item to be deleted is selected
@@ -4729,6 +4771,82 @@ links.Timeline.prototype.getItem = function (index) {
     return itemData;
 };
 
+
+/**
+ * Retrieve the properties of a cluster.
+ * @param {Number} index
+ * @return {Object} clusterdata    Object containing cluster properties:<br>
+ *                              {Date} start (required),
+ *                              {String} type (optional)
+ *                              {Array} array with item data as is in getItem()
+ */
+links.Timeline.prototype.getCluster = function (index) {
+    if (index >= this.clusters.length) {
+        throw "Cannot get cluster, index out of range";
+    }
+
+    var clusterData = {},
+        cluster = this.clusters[index],
+        clusterItems = cluster.items;
+    
+    clusterData.start = new Date(cluster.start.valueOf());
+    if (cluster.type) {
+        clusterData.type = cluster.type;
+    }
+
+    // push cluster item data
+    clusterData.items = [];
+    for(var i = 0; i < clusterItems.length; i++){
+        // take the original data as start, includes foreign fields
+        var data = this.data,
+            itemData;
+        if (google && google.visualization &&
+            data instanceof google.visualization.DataTable) {
+            // map the datatable columns
+            var cols = links.Timeline.mapColumnIds(data);
+
+            itemData = {};
+            for (var col in cols) {
+                if (cols.hasOwnProperty(col)) {
+                    itemData[col] = this.data.getValue(index, cols[col]);
+                }
+            }
+        }
+        else if (links.Timeline.isArray(this.data)) {
+            // read JSON array
+            itemData = links.Timeline.clone(this.data[index]);
+        }
+        else {
+            throw "Unknown data type. DataTable or Array expected.";
+        }
+
+        // override the data with current settings of the item (should be the same)
+        var item = clusterItems[i];
+
+        itemData.start = new Date(item.start.valueOf());
+        if (item.end) {
+            itemData.end = new Date(item.end.valueOf());
+        }
+        itemData.content = item.content;
+        if (item.group) {
+            itemData.group = this.getGroupName(item.group);
+        }
+        if (item.className) {
+            itemData.className = item.className;
+        }
+        if (typeof item.editable !== 'undefined') {
+            itemData.editable = item.editable;
+        }
+        if (item.type) {
+            itemData.type = item.type;
+        }
+
+        clusterData.items.push(itemData);
+    }
+
+    return clusterData;
+};
+
 /**
  * Add a new item.
  * @param {Object} itemData     Object containing item properties:<br>
@@ -5021,7 +5139,12 @@ links.Timeline.prototype.setSelection = function(selection) {
 links.Timeline.prototype.getSelection = function() {
     var sel = [];
     if (this.selection) {
-        sel.push({"row": this.selection.index});
+        if(this.selection.index !== undefined)
+        {
+            sel.push({"row": this.selection.index});
+        } else {
+            sel.push({"cluster": this.selection.cluster});
+        }
     }
     return sel;
 };
@@ -5057,6 +5180,24 @@ links.Timeline.prototype.selectItem = function(index) {
 };
 
 /**
+ * Select an cluster by its index
+ * @param {Number} index
+ */
+links.Timeline.prototype.selectCluster = function(index) {
+    this.unselectItem();
+
+    this.selection = undefined;
+
+    if (this.clusters[index] != undefined) {
+        this.selection = {
+            'cluster': index
+        };
+        this.repaintDeleteButton();
+        this.repaintDragAreas();
+    }
+};
+
+/**
  * Check if an item is currently selected
  * @param {Number} index
  * @return {boolean} true if row is selected, else false
@@ -5069,7 +5210,7 @@ links.Timeline.prototype.isSelected = function (index) {
  * Unselect the currently selected event (if any)
  */
 links.Timeline.prototype.unselectItem = function() {
-    if (this.selection) {
+    if (this.selection && this.selection.index !== undefined) {
         var item = this.items[this.selection.index];
 
         if (item && item.dom) {
