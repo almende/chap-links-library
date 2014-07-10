@@ -4797,51 +4797,15 @@ links.Timeline.prototype.getCluster = function (index) {
     // push cluster item data
     clusterData.items = [];
     for(var i = 0; i < clusterItems.length; i++){
-        // take the original data as start, includes foreign fields
-        var data = this.data,
-            itemData;
-        if (google && google.visualization &&
-            data instanceof google.visualization.DataTable) {
-            // map the datatable columns
-            var cols = links.Timeline.mapColumnIds(data);
-
-            itemData = {};
-            for (var col in cols) {
-                if (cols.hasOwnProperty(col)) {
-                    itemData[col] = this.data.getValue(index, cols[col]);
-                }
+        for(var j = 0; j < this.items.length; j++){
+            // TODO could be nicer to be able to have the item index into the cluster
+            if(this.items[j] == clusterItems[i])
+            {
+                clusterData.items.push(this.getItem(j));
+                break;
             }
-        }
-        else if (links.Timeline.isArray(this.data)) {
-            // read JSON array
-            itemData = links.Timeline.clone(this.data[index]);
-        }
-        else {
-            throw "Unknown data type. DataTable or Array expected.";
-        }
 
-        // override the data with current settings of the item (should be the same)
-        var item = clusterItems[i];
-
-        itemData.start = new Date(item.start.valueOf());
-        if (item.end) {
-            itemData.end = new Date(item.end.valueOf());
         }
-        itemData.content = item.content;
-        if (item.group) {
-            itemData.group = this.getGroupName(item.group);
-        }
-        if (item.className) {
-            itemData.className = item.className;
-        }
-        if (typeof item.editable !== 'undefined') {
-            itemData.editable = item.editable;
-        }
-        if (item.type) {
-            itemData.type = item.type;
-        }
-
-        clusterData.items.push(itemData);
     }
 
     return clusterData;
