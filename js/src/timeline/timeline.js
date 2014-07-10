@@ -213,6 +213,7 @@ links.Timeline = function(container, options) {
         'animate': true,
         'animateZoom': true,
         'cluster': false,
+        'clusterMaxItems': 5,
         'style': 'box',
         'customStackOrder': false, //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
         
@@ -5509,7 +5510,7 @@ links.Timeline.prototype.clusterItems = function () {
         return;
     }
 
-    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
+    var clusters = this.clusterGenerator.getClusters(this.conversion.factor, this.options.clusterMaxItems);
     if (this.clusters != clusters) {
         // cluster level changed
         var queue = this.renderQueue;
@@ -5685,11 +5686,10 @@ links.Timeline.ClusterGenerator.prototype.filterData = function () {
  *                           defined as (windowWidth / (endDate - startDate))
  * @return {Item[]} clusters
  */
-links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
+links.Timeline.ClusterGenerator.prototype.getClusters = function (scale, maxItems) {
     var level = -1,
         granularity = 2, // TODO: what granularity is needed for the cluster levels?
-        timeWindow = 0,  // milliseconds
-        maxItems = 5;    // TODO: do not hard code maxItems
+        timeWindow = 0;  // milliseconds
 
     if (scale > 0) {
         level = Math.round(Math.log(100 / scale) / Math.log(granularity));
