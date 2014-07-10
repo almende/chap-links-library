@@ -3,6 +3,7 @@ CHAP Links Library - Timeline
 
 not yet released, version 2.8.1
 
+- Added option `clusterMaxItems`. Thanks @igul.
 - Fixed 'change' event not being fired when dragging the left or right side
   of a range.
 - Fixed restoring original dates after canceling a changed item.
