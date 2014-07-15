@@ -946,6 +946,15 @@ var options = {
 </tr>
 
 <tr>
+    <td>getCluster(index)</td>
+    <td>Object</td>
+    <td>Retrieve the properties of a single cluster. The returned object can
+        contain parameters <code>start</code> (Date), and <code>items</code> that has
+        each item contained in the cluster. Each item have the same properties as in a call to
+        <code>getItem</code>.
+</tr>
+
+<tr>
     <td>getCustomTime()</td>
     <td>Date</td>
     <td>Retrieve the custom time.
@@ -974,7 +983,8 @@ var options = {
     <td>Array of selection elements</td>
     <td>Standard <code>getSelection()</code> implementation.
         Returns an array with one or multiple selections. Each selection contains
-        the property <code>row</code>.
+        the property <code>row</code> (if an item is selected) or <code>cluster</code> if
+        a cluster is selected.
     </td>
 </tr>
 
@@ -1288,11 +1298,11 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
 
     <tr>
         <td>select</td>
-        <td>When the user clicks on an event on the timeline,
+        <td>When the user clicks on an event or a cluster on the timeline,
             the corresponding row in the data table is selected.
             The visualization then fires this event.
             <br>
-            The selected row can be retrieved via the method <code>getSelection</code>.
+            The selected row or cluster can be retrieved via the method <code>getSelection</code>.
         </td>
         <td>none</td>
     </tr>
