@@ -2597,8 +2597,6 @@ links.Timeline.prototype.onTouchStart = function(event) {
     params.doubleTapStart = (new Date()).valueOf();
     params.doubleTapItemPrev = params.doubleTapItem;
     params.doubleTapItem = item;
-
-    links.Timeline.preventDefault(event);
 };
 
 /**
@@ -2634,8 +2632,6 @@ links.Timeline.prototype.onTouchMove = function(event) {
             this.trigger("rangechange");
         }
     }
-
-    links.Timeline.preventDefault(event);
 };
 
 /**
@@ -2780,8 +2776,6 @@ links.Timeline.prototype.onMouseDown = function(event) {
             params.onMouseUp = function (event) {me.onMouseUp(event);};
             links.Timeline.addEventListener(document, "mouseup", params.onMouseUp);
         }
-
-        links.Timeline.preventDefault(event);
     }
 };
 
@@ -2943,8 +2937,6 @@ links.Timeline.prototype.onMouseMove = function (event) {
         // fire a rangechange event
         this.trigger('rangechange');
     }
-
-    links.Timeline.preventDefault(event);
 };
 
 
@@ -2970,7 +2962,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
         links.Timeline.removeEventListener(document, "mouseup",   params.onMouseUp);
         delete params.onMouseUp;
     }
-    //links.Timeline.preventDefault(event);
+    links.Timeline.preventDefault(event);
 
     if (params.customTime) {
         // fire a timechanged event
