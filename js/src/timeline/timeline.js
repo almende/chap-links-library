@@ -965,6 +965,11 @@ links.Timeline.prototype.repaintFrame = function() {
     dom.frame.style.height = height;
     dom.frame.style.width = width;
 
+    // disables text selection on mouse drag
+    dom.frame.style.webkitUserSelect = "none"; // Webkit based browsers
+    dom.frame.style.MozUserSelect = "none"; // Firefox
+    dom.frame.style.uerSelect = "none"; // fallback
+
     // contents
     if (!dom.content) {
         // create content box where the axis and items will be created
@@ -1221,6 +1226,7 @@ links.Timeline.prototype.repaintAxisCharacters = function () {
         characterMinor.style.visibility = "hidden";
         characterMinor.style.paddingLeft = "0px";
         characterMinor.style.paddingRight = "0px";
+        characterMinor.setAttribute("uneselectable", "on");
         axis.frame.appendChild(characterMinor);
 
         axis.characterMinor = characterMinor;
@@ -1236,6 +1242,7 @@ links.Timeline.prototype.repaintAxisCharacters = function () {
         characterMajor.style.visibility = "hidden";
         characterMajor.style.paddingLeft = "0px";
         characterMajor.style.paddingRight = "0px";
+        characterMajor.setAttribute("uneselectable", "on");
         axis.frame.appendChild(characterMajor);
 
         axis.characterMajor = characterMajor;
@@ -1392,6 +1399,7 @@ links.Timeline.prototype.repaintAxisMinorText = function (x, text) {
         label.appendChild(content);
         label.className = "timeline-axis-text timeline-axis-text-minor";
         label.style.position = "absolute";
+        label.setAttribute("unselectable", "on");
 
         frame.appendChild(label);
 
@@ -1464,6 +1472,7 @@ links.Timeline.prototype.repaintAxisMajorText = function (x, text) {
         label.appendChild(content);
         label.style.position = "absolute";
         label.style.top = "0px";
+        label.setAttribute("unselectable", "on");
 
         frame.appendChild(label);
         majorTexts.push(label);
@@ -1976,8 +1985,10 @@ links.Timeline.prototype.repaintGroups = function() {
 
         label.style.top = group.labelTop + "px";
         labelLine.style.top = group.lineTop + "px";
+        label.setAttribute("unselectable", "on");
         itemLine.style.top = group.lineTop + "px";
         itemLine.style.width = size.contentWidth + "px";
+
     }
 
     if (!dom.groups.background) {
@@ -4070,6 +4081,7 @@ links.Timeline.ItemRange.prototype.createDOM = function () {
     // contents box
     var divContent = document.createElement("DIV");
     divContent.className = "timeline-event-content";
+    divContent.setAttribute("unselectable", "on");
     divBox.appendChild(divContent);
 
     this.dom = divBox;
@@ -4284,6 +4296,7 @@ links.Timeline.ItemFloatingRange.prototype.createDOM = function () {
     // contents box
     var divContent = document.createElement("DIV");
     divContent.className = "timeline-event-content";
+    divContent.setAttribute("unselectable", "on");
     divBox.appendChild(divContent);
 
     this.dom = divBox;
@@ -4538,6 +4551,7 @@ links.Timeline.ItemDot.prototype.createDOM = function () {
     // contents box, right from the dot
     var divContent = document.createElement("DIV");
     divContent.className = "timeline-event-content";
+    divContent.setAttribute("unselectable", "on");
     divBox.appendChild(divContent);
 
     // dot at start
