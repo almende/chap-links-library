@@ -444,6 +444,18 @@ var options = {
 </tr>
 
 <tr>
+    <td>clusterMaxItems</td>
+    <td>Number</td>
+    <td>5</td>
+    <td>The maximum quantity of items that can be shown outside a cluster. Setting a low value is useful to limit the
+        height of the container element. This value must be at least one.
+        <br><span style="background-color: orangered; color: white; padding: 3px; border-radius: 3px; font-size: 80%;"
+                  title="This feature is currently in an experimental phase, and not yet suitable for a production environment."
+                >experimental</span>
+    </td>
+</tr>
+
+<tr>
     <td>customStackOrder</td>
     <td>function</td>
     <td>none</td>
@@ -934,6 +946,15 @@ var options = {
 </tr>
 
 <tr>
+    <td>getCluster(index)</td>
+    <td>Object</td>
+    <td>Retrieve the properties of a single cluster. The returned object can
+        contain parameters <code>start</code> (Date), and <code>items</code> that has
+        each item contained in the cluster. Each item have the same properties as in a call to
+        <code>getItem</code>.
+</tr>
+
+<tr>
     <td>getCustomTime()</td>
     <td>Date</td>
     <td>Retrieve the custom time.
@@ -962,7 +983,8 @@ var options = {
     <td>Array of selection elements</td>
     <td>Standard <code>getSelection()</code> implementation.
         Returns an array with one or multiple selections. Each selection contains
-        the property <code>row</code>.
+        the property <code>row</code> (if an item is selected) or <code>cluster</code> if
+        a cluster is selected.
     </td>
 </tr>
 
@@ -975,7 +997,7 @@ var options = {
 </tr>
 
 <tr>
-    <td>getVisibleItems()</td>
+    <td>getVisibleItems(start, end)</td>
     <td>Array of row indices </td>
     <td>Returns an array of item indices whose range or value falls within the 
         <code>start</code> and <code>end</code> properties, which each one of 
@@ -1276,11 +1298,11 @@ google.visualization.events.addListener(mytimeline, 'select', onselect);
 
     <tr>
         <td>select</td>
-        <td>When the user clicks on an event on the timeline,
+        <td>When the user clicks on an event or a cluster on the timeline,
             the corresponding row in the data table is selected.
             The visualization then fires this event.
             <br>
-            The selected row can be retrieved via the method <code>getSelection</code>.
+            The selected row or cluster can be retrieved via the method <code>getSelection</code>.
         </td>
         <td>none</td>
     </tr>

@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2014 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-05-16
- * @version 2.8.0
+ * @date    2014-07-28
+ * @version 2.9.0
  */
 
 /*
@@ -213,6 +213,7 @@ links.Timeline = function(container, options) {
         'animate': true,
         'animateZoom': true,
         'cluster': false,
+        'clusterMaxItems': 5,
         'style': 'box',
         'customStackOrder': false, //a function(a,b) for determining stackorder amongst a group of items. Essentially a comparator, -ve value for "a before b" and vice versa
         
@@ -585,6 +586,41 @@ links.Timeline.prototype.getItemIndex = function(element) {
             if (items[i].dom === e) {
                 index = i;
                 break;
+            }
+        }
+    }
+
+    return index;
+};
+
+
+/**
+ * Find the cluster index from a given HTML element
+ * If no cluster index is found, undefined is returned
+ * @param {Element} element
+ * @return {Number | undefined} index
+ */
+links.Timeline.prototype.getClusterIndex = function(element) {
+    var e = element,
+        dom = this.dom,
+        frame = dom.items.frame,
+        clusters = this.clusters,
+        index = undefined;
+
+    if (this.clusters) {
+        // try to find the frame where the clusters are located in
+        while (e.parentNode && e.parentNode !== frame) {
+            e = e.parentNode;
+        }
+
+        if (e.parentNode === frame) {
+            // yes! we have found the parent element of all clusters
+            // retrieve its id from the array with clusters
+            for (var i = 0, iMax = clusters.length; i < iMax; i++) {
+                if (clusters[i].dom === e) {
+                    index = i;
+                    break;
+                }
             }
         }
     }
@@ -2111,8 +2147,8 @@ links.Timeline.prototype.repaintDeleteButton = function () {
         dom.items.deleteButton = deleteButton;
     }
 
-    var index = this.selection ? this.selection.index : -1,
-        item = this.selection ? this.items[index] : undefined;
+    var index = (this.selection && this.selection.index !== undefined) ? this.selection.index : -1,
+        item = (this.selection && this.selection.index !== undefined) ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item)) {
         var right = item.getRight(this),
             top = item.top;
@@ -2162,8 +2198,8 @@ links.Timeline.prototype.repaintDragAreas = function () {
     }
 
     // reposition left and right drag area
-    var index = this.selection ? this.selection.index : -1,
-        item = this.selection ? this.items[index] : undefined;
+    var index = (this.selection && this.selection.index !== undefined) ? this.selection.index : -1,
+        item = (this.selection && this.selection.index !== undefined) ? this.items[index] : undefined;
     if (item && item.rendered && this.isEditable(item) &&
         (item instanceof links.Timeline.ItemRange || item instanceof links.Timeline.ItemFloatingRange)) {
         var left = item.getLeft(this), // NH change to getLeft
@@ -2680,10 +2716,12 @@ links.Timeline.prototype.onMouseDown = function(event) {
     params.itemDragRight = (params.target === dragRight);
 
     if (params.itemDragLeft || params.itemDragRight) {
-        params.itemIndex = this.selection ? this.selection.index : undefined;
+        params.itemIndex = (this.selection && this.selection.index !== undefined) ? this.selection.index : undefined;
+        delete params.clusterIndex;
     }
     else {
         params.itemIndex = this.getItemIndex(params.target);
+        params.clusterIndex = this.getClusterIndex(params.target);
     }
 
     params.customTime = (params.target === dom.customTime ||
@@ -2711,6 +2749,7 @@ links.Timeline.prototype.onMouseDown = function(event) {
             'group': this.getGroupName(group)
         });
         params.itemIndex = (this.items.length - 1);
+        delete params.clusterIndex;
         this.selectItem(params.itemIndex);
         params.itemDragRight = true;
     }
@@ -2808,6 +2847,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 left = right;
                 item.start = this.screenToTime(left);
             }
+          this.trigger('change');
         }
         else if (params.itemDragRight && options.timeChangeable) {
             // move the end of the item
@@ -2824,6 +2864,7 @@ links.Timeline.prototype.onMouseMove = function (event) {
                 right = left;
                 item.end = this.screenToTime(right);
             }
+          this.trigger('change');
         }
         else if (options.timeChangeable) {
             // move the item
@@ -2989,6 +3030,11 @@ links.Timeline.prototype.onMouseUp = function (event) {
                     item.group = params.itemGroup;
                     // TODO: original group should be restored too
                     item.setPosition(params.itemLeft, params.itemRight);
+
+                    this.updateData(params.itemIndex, {
+                        'start': params.itemStart,
+                        'end': params.itemEnd
+                    });
                 }
             }
 
@@ -3006,7 +3052,7 @@ links.Timeline.prototype.onMouseUp = function (event) {
 
             if (params.target === this.dom.items.deleteButton) {
                 // delete item
-                if (this.selection) {
+                if (this.selection && this.selection.index !== undefined) {
                     this.confirmDeleteItem(this.selection.index);
                 }
             }
@@ -3017,6 +3063,10 @@ links.Timeline.prototype.onMouseUp = function (event) {
                         this.selectItem(params.itemIndex);
                         this.trigger('select');
                     }
+                }
+                else if(params.clusterIndex != undefined) {
+                    this.selectCluster(params.clusterIndex);
+                    this.trigger('select');
                 }
                 else {
                     if (options.unselectable) {
@@ -3376,7 +3426,7 @@ links.Timeline.prototype.deleteItem = function(index, preventRender) {
         throw "Cannot delete row, index out of range";
     }
 
-    if (this.selection) {
+    if (this.selection && this.selection.index !== undefined) {
         // adjust the selection
         if (this.selection.index == index) {
             // item to be deleted is selected
@@ -4721,6 +4771,46 @@ links.Timeline.prototype.getItem = function (index) {
     return itemData;
 };
 
+
+/**
+ * Retrieve the properties of a cluster.
+ * @param {Number} index
+ * @return {Object} clusterdata    Object containing cluster properties:<br>
+ *                              {Date} start (required),
+ *                              {String} type (optional)
+ *                              {Array} array with item data as is in getItem()
+ */
+links.Timeline.prototype.getCluster = function (index) {
+    if (index >= this.clusters.length) {
+        throw "Cannot get cluster, index out of range";
+    }
+
+    var clusterData = {},
+        cluster = this.clusters[index],
+        clusterItems = cluster.items;
+    
+    clusterData.start = new Date(cluster.start.valueOf());
+    if (cluster.type) {
+        clusterData.type = cluster.type;
+    }
+
+    // push cluster item data
+    clusterData.items = [];
+    for(var i = 0; i < clusterItems.length; i++){
+        for(var j = 0; j < this.items.length; j++){
+            // TODO could be nicer to be able to have the item index into the cluster
+            if(this.items[j] == clusterItems[i])
+            {
+                clusterData.items.push(this.getItem(j));
+                break;
+            }
+
+        }
+    }
+
+    return clusterData;
+};
+
 /**
  * Add a new item.
  * @param {Object} itemData     Object containing item properties:<br>
@@ -5013,7 +5103,12 @@ links.Timeline.prototype.setSelection = function(selection) {
 links.Timeline.prototype.getSelection = function() {
     var sel = [];
     if (this.selection) {
-        sel.push({"row": this.selection.index});
+        if(this.selection.index !== undefined)
+        {
+            sel.push({"row": this.selection.index});
+        } else {
+            sel.push({"cluster": this.selection.cluster});
+        }
     }
     return sel;
 };
@@ -5049,6 +5144,24 @@ links.Timeline.prototype.selectItem = function(index) {
 };
 
 /**
+ * Select an cluster by its index
+ * @param {Number} index
+ */
+links.Timeline.prototype.selectCluster = function(index) {
+    this.unselectItem();
+
+    this.selection = undefined;
+
+    if (this.clusters[index] != undefined) {
+        this.selection = {
+            'cluster': index
+        };
+        this.repaintDeleteButton();
+        this.repaintDragAreas();
+    }
+};
+
+/**
  * Check if an item is currently selected
  * @param {Number} index
  * @return {boolean} true if row is selected, else false
@@ -5061,7 +5174,7 @@ links.Timeline.prototype.isSelected = function (index) {
  * Unselect the currently selected event (if any)
  */
 links.Timeline.prototype.unselectItem = function() {
-    if (this.selection) {
+    if (this.selection && this.selection.index !== undefined) {
         var item = this.items[this.selection.index];
 
         if (item && item.dom) {
@@ -5502,7 +5615,7 @@ links.Timeline.prototype.clusterItems = function () {
         return;
     }
 
-    var clusters = this.clusterGenerator.getClusters(this.conversion.factor);
+    var clusters = this.clusterGenerator.getClusters(this.conversion.factor, this.options.clusterMaxItems);
     if (this.clusters != clusters) {
         // cluster level changed
         var queue = this.renderQueue;
@@ -5678,11 +5791,10 @@ links.Timeline.ClusterGenerator.prototype.filterData = function () {
  *                           defined as (windowWidth / (endDate - startDate))
  * @return {Item[]} clusters
  */
-links.Timeline.ClusterGenerator.prototype.getClusters = function (scale) {
+links.Timeline.ClusterGenerator.prototype.getClusters = function (scale, maxItems) {
     var level = -1,
         granularity = 2, // TODO: what granularity is needed for the cluster levels?
-        timeWindow = 0,  // milliseconds
-        maxItems = 5;    // TODO: do not hard code maxItems
+        timeWindow = 0;  // milliseconds
 
     if (scale > 0) {
         level = Math.round(Math.log(100 / scale) / Math.log(granularity));
