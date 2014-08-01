@@ -303,8 +303,8 @@ links.Timeline.prototype.draw = function(data, options) {
     this.setData(data);
 
     // set timer range. this will also redraw the timeline
-    if (options && (options.start || options.end)) {
-        this.setVisibleChartRange(options.start, options.end);
+    if (this.options && (this.options.start || this.options.end)) {
+        this.setVisibleChartRange(this.options.start, this.options.end);
     }
     else if (this.firstDraw) {
         this.setVisibleChartRangeAuto();
