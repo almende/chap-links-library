@@ -1827,7 +1827,7 @@ links.Timeline.prototype.reflowGroups = function() {
 
     // limit groupsWidth to the groups width in the options
     if (options.groupsWidth !== undefined) {
-        groupsWidth = dom.groups.frame ? dom.groups.frame.clientWidth : 0;
+        groupsWidth = dom.groups && dom.groups.frame ? dom.groups.frame.clientWidth : 0;
     }
 
     // compensate for the border width. TODO: calculate the real border width

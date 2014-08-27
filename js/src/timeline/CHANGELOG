@@ -1,6 +1,11 @@
 CHAP Links Library - Timeline
 
 
+not yet released, version 2.9.1
+
+- Fixed broken option `groupsWidth`.
+
+
 2014-07-28, version 2.9.0
 
 - Implemented function `getCluster()`, `getClusterIndex()` and `getSelection()`.
