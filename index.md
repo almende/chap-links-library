@@ -11,7 +11,7 @@ The tools are developed as
 [Google Visualization Charts](https://developers.google.com/chart/interactive/docs/gallery) 
 for Javascript and GWT. 
 CHAP Links Library is developed by [Almende](http://almende.com) as part of 
-[CHAP](http://chap.almende.com), the Common Hybrid Agent Platform.
+[CHAP](http://chap.almende.com), the Collective Human Agent Paradigm.
 
 This site contains documentation, downloads and live examples of the CHAP Links Library.
 The [Google Group CHAP Links Library](https://groups.google.com/d/forum/chap-links-library)
