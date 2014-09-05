@@ -197,7 +197,7 @@ links.Timeline = function(container, options) {
         'unselectable': true,
         'editable': false,
         'snapEvents': true,
-        'groupChangeable': true,
+        'groupsChangeable': true,
         'timeChangeable': true,
 
         'showCurrentTime': true, // show a red bar displaying the current time
