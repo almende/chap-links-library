@@ -1,5 +1,20 @@
 CHAP Links Library - Graph3d
 
+
+2014-05-27, version 1.4
+
+- Implemented tooltips.
+
+
+2014-05-16, version 1.3
+
+- Implemented new styles: 'bar', 'bar-color', and 'bar-size'.
+- Implemented options `xBarWidth` and `yBarWidth` for use with the new
+  styles 'bar' and 'bar-color'.
+- Fixed an issue with depth calculation of dots when using 'dot-line' style.
+- Some minor fixes and code cleanup.
+
+
 2012-10-24, version 1.2
 
 - Created option showAnimationControls, which enables hiding the animation

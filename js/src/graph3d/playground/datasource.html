@@ -1,11 +1,11 @@
 <html>
 
 <head>
-  <title>Graph3d documentation</title>
-  <link rel='stylesheet' href='default.css' type='text/css'>
+    <title>Graph3d documentation</title>
+    <link rel='stylesheet' href='default.css' type='text/css'>
 
-  <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="prettify/prettify.js"></script>
+    <link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="prettify/prettify.js"></script>
 </head>
 
 <body onload="prettyPrint();">
@@ -13,7 +13,7 @@
 <pre class="prettyprint lang-php">
 &lt;?php
 
-/* 
+/*
 This datasource returns a response in the form of a google query response
 
 USAGE
@@ -26,7 +26,7 @@ http://code.google.com/apis/visualization/documentation/dev/implementing_data_so
 
 EXAMPLE OF A RESPONSE FILE
 
-Note that the reqId in the response must correspond with the reqId from the 
+Note that the reqId in the response must correspond with the reqId from the
 request.
 ________________________________________________________________________________
 
@@ -63,10 +63,10 @@ ________________________________________________________________________________
 
 /**
  * A custom function
- */ 
+ */
 function custom($x, $y) {
   $d = sqrt(pow($x/100, 2) + pow($y/100, 2));
-  
+
   return 50 * exp(-5 * $d / 10) * sin($d*5)
 }
 
@@ -126,22 +126,22 @@ $ystep = ($ymax - $ymin) / $ystepnum;
 for ($x = $xmin; $x &lt; $xmax; $x+=$xstep) {
   for ($y = $ymin; $y &lt; $ymax; $y+=$ystep) {
     $value = custom($x,$y);
-    
+
     if (!$first) {
       echo ",\n";
-    } 
+    }
     else {
       echo "\n";
     }
     echo "      {c:[{v:$x}, {v:$y}, {v:$value}]}";
-    
+
     $first = false;
   }
 }
 
 
 // output the end part of the response
-echo "      
+echo "
     ]
   }
 });
@@ -151,7 +151,7 @@ echo "
 /**
  * Retrieve the request id from the get/post data
  * @return {number} $reqId       The request id, or 0 if not found
- */ 
+ */
 function getReqId() {
   $reqId = 0;
 

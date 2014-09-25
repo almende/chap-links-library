@@ -1,9 +1,27 @@
 CHAP Links Library - Timeline
 
 
-not yet released, version 2.8.0
+not yet released, version 2.9.1
+
+- Fixed broken option `groupsWidth`.
+
+
+2014-07-28, version 2.9.0
+
+- Implemented function `getCluster()`, `getClusterIndex()` and `getSelection()`.
+  Thanks @igui.
+- Added option `clusterMaxItems`. Thanks @igui.
+- Fixed 'change' event not being fired when dragging the left or right side
+  of a range.
+- Fixed restoring original dates after canceling a changed item.
+
+
+2014-05-16, version 2.8.0
 
 - Implemented a new item type, `FloatingRange`. Thanks Nick Hardy (@NickHardy).
+- Implemented options `groupMinHeight`. Thanks @sapeish.
+- Fixed event `add` not triggered in case of ctrl+click to add a new item.
+  Thanks @sapeish.
 
 
 2014-04-09, version 2.7.0
