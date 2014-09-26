@@ -291,7 +291,8 @@ links.Timeline = function(container, options) {
  */
 links.Timeline.prototype.draw = function(data, options) {
     if (options) {
-        console.log("WARNING: Passing options in draw() is deprecated. Pass options to the constructur or use setOptions() instead!");
+        console.log("WARNING: Passing options in draw() is deprecated. Pass options to the constructur or use setOptions() instead!");       
+        this.setOptions(options);
     }
     this.setOptions(options);
 
@@ -302,11 +303,7 @@ links.Timeline.prototype.draw = function(data, options) {
     // read the data
     this.setData(data);
 
-    // set timer range. this will also redraw the timeline
-    if (this.options && (this.options.start || this.options.end)) {
-        this.setVisibleChartRange(this.options.start, this.options.end);
-    }
-    else if (this.firstDraw) {
+    if (this.firstDraw) {
         this.setVisibleChartRangeAuto();
     }
 
