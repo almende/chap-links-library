@@ -1520,10 +1520,12 @@ links.Timeline.prototype.reflowItems = function() {
         groups = this.groups,
         renderedItems = this.renderedItems;
 
-    if (groups) { // TODO: need to check if labels exists?
-        // loop through all groups to reset the items height
+   if (groups) {
+        // loop through all groups to reset the items height if group has no content
         groups.forEach(function (group) {
-            group.itemsHeight = 0;
+            if (!group.content) {
+                group.itemsHeight = 0;
+            }
         });
     }
 
