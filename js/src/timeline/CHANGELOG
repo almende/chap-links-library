@@ -4,6 +4,8 @@ CHAP Links Library - Timeline
 not yet released, version 2.9.1
 
 - Fixed broken option `groupsWidth`.
+- Fixed group height collapsing when there are no items, height now reckons
+  with the label height.
 
 
 2014-07-28, version 2.9.0
