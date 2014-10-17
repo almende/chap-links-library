@@ -294,7 +294,6 @@ links.Timeline.prototype.draw = function(data, options) {
         console.log("WARNING: Passing options in draw() is deprecated. Pass options to the constructur or use setOptions() instead!");       
         this.setOptions(options);
     }
-    this.setOptions(options);
 
     if (this.options.selectable) {
         links.Timeline.addClassName(this.dom.frame, "timeline-selectable");
