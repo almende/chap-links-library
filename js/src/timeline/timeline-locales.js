@@ -166,3 +166,19 @@ links.locales['hu'] = {
 };
 
 links.locales['hu_HU'] = links.locales['hu'];
+
+// Brazilian Portuguese ===================================================
+links.locales['pt'] = {
+    'MONTHS': ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+    'MONTHS_SHORT': ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+    'DAYS': ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+    'DAYS_SHORT': ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    'ZOOM_IN': "Aproximar",
+    'ZOOM_OUT': "Afastar",
+    'MOVE_LEFT': "Mover para esquerda",
+    'MOVE_RIGHT': "Mover para direita",
+    'NEW': "Novo",
+    'CREATE_NEW_EVENT': "Criar novo evento"
+};
+
+links.locales['pt_BR'] = links.locales['pt'];
