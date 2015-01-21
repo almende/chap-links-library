@@ -927,9 +927,9 @@ links.TreeGrid.Grid.prototype.updateHeight = function (child, diffHeight) {
  * Event handler for drop event
  */
 links.TreeGrid.Grid.prototype.onDrop = function(event) {
-    var data = JSON.parse(event.dataTransfer.getData('text'));
-
     // TODO: trigger event?
+    var items = event.dataTransfer.getData('items');
+    console.log('ONDROP', event, items)
 
     if (this.dataConnector) {
         var me = this;
@@ -944,12 +944,32 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
         };
         var errback = callback;
 
-        var items = [data.item];
+
+        // prevent a circular loop, when an item is dropped on one of its own
+        // childs. So, remove items from which this item is a child
+        var i = 0;
+        while (i < items.length) {
+            var checkItem = this;
+            while (checkItem && checkItem != items[i]) {
+                checkItem = checkItem.parent;
+            }
+            if (checkItem == items[i]) {
+                items.splice(i, 1);
+            }
+            else {
+                i++;
+            }
+        }
+
+        var itemsData = [];
+        for (var i = 0; i < items.length; i++) {
+            itemsData.push(items[i].data);
+        }
         if (event.dataTransfer.dropEffect == 'move') {
-            this.dataConnector.appendItems(items, callback, errback);
+            this.dataConnector.appendItems(itemsData, callback, errback);
         }
         else if (event.dataTransfer.dropEffect == 'copy') {
-            this.dataConnector.appendItems(items, callback, errback);
+            this.dataConnector.appendItems(itemsData, callback, errback);
         }
         /* TODO
          else if (event.dataTransfer.dropEffect == 'link') {
@@ -2441,7 +2461,7 @@ links.TreeGrid.Item.prototype.onExpand = function () {
 };
 
 /**
- * Event handler for drag start event
+ * Event handler for drag over event
  */
 links.TreeGrid.Item.prototype.onDragOver = function(event) {
     if (this.dataTransfer.dragging) {
@@ -2513,7 +2533,7 @@ links.TreeGrid.Item.prototype.onDrop = function(event) {
     this.dataTransfer.dragbefore = false;
     this.repaint();
 
-    //console.log('onDrop', data, event.dataTransfer.dropEffect);
+    console.log('onDrop', event, event.dataTransfer.dropEffect);
 
     // TODO: trigger event
 
@@ -3296,11 +3316,11 @@ links.TreeGrid.DropArea.prototype.onDragLeave = function(event) {
  * Event handler for drop event
  */
 links.TreeGrid.DropArea.prototype.onDrop = function(event) {
-    var data = JSON.parse(event.dataTransfer.getData('text'));
+    var data = JSON.parse(event.dataTransfer.getData('items'));
     this.dragover = false;
     this.repaint();
 
-    //console.log('onDrop', event);
+    console.log('onDrop', event); // TODO: comment
 
     if (this.dataConnector) {
         var me = this;
@@ -5072,6 +5092,7 @@ links.TreeGrid.prototype.trigger = function (event, params) {
 links.dnd = function () {
     var dragAreas = [];              // all registered drag areas
     var dropAreas = [];              // all registered drop areas
+    var _currentDropArea = null;     // holds the currently hovered dropArea
 
     var dragArea = undefined;        // currently dragged area
     var dragImage = undefined;
@@ -5301,63 +5322,18 @@ links.dnd = function () {
         dragEvent.clientX = event.clientX;
         dragEvent.clientY = event.clientY;
 
-        // find center of the drag area
-        var left = (event.clientX - dragImageOffsetX);
-        var top = (event.clientY - dragImageOffsetY);
-        var width = dragImage.clientWidth || dragArea.element.clientWidth;
-        var height = dragImage.clientHeight || dragArea.element.clientHeight;
-        var x = left + width / 2;
-        var y = top + height / 2;
-        // console.log(dragImageOffsetX, x, left, width, dragImageOffsetY, y, top, height)
-
-        // check if there is a droparea overlapping with current dragarea
-        var currentDropArea = undefined;
-        for (var i = 0; i < dropAreas.length; i++) {
-            var dropArea = dropAreas[i];
-            var left = getAbsoluteLeft(dropArea.element);
-            var top = getAbsoluteTop(dropArea.element);
-            var width = dropArea.element.clientWidth;
-            var height = dropArea.element.clientHeight;
-
-            if (x > left && x < left + width && y > top && y < top + height &&
-                !currentDropArea &&
-                getAllowedDropEffect(dragArea.effectAllowed, dropArea.dropEffect)) {
-                // on droparea
-                currentDropArea = dropArea;
-
-                if (!dropArea.mouseOver) {
-                    if (dropArea.dragEnter) {
-                        dragEvent.dataTransfer.dropArea = dropArea;
-                        dragEvent.dataTransfer.dropEffect = undefined;
-                        dropArea.dragEnter(dragEvent);
-                    }
-                    dropArea.mouseOver = true;
-                }
-            }
-            else {
-                // not on droparea
-                if (dropArea.mouseOver) {
-                    if (dropArea.dragLeave) {
-                        dragEvent.dataTransfer.dropArea = dropArea;
-                        dragEvent.dataTransfer.dropEffect = undefined;
-                        dropArea.dragLeave(dragEvent);
-                    }
-                    dropArea.mouseOver = false;
-                }
-            }
-        }
-
-        // adjust event properties
+        // find the current dropArea
+        var currentDropArea = findDropAray(event);
         if (currentDropArea) {
+            // adjust event properties
             dragEvent.dataTransfer.dropArea = currentDropArea.element;
-            dragEvent.dataTransfer.dropEffect =
-                getAllowedDropEffect(dragArea.effectAllowed, currentDropArea.dropEffect);
+            dragEvent.dataTransfer.dropEffect = getAllowedDropEffect(dragArea.effectAllowed, currentDropArea.dropEffect);
 
             if (currentDropArea.dragOver) {
                 currentDropArea.dragOver(dragEvent);
 
                 // TODO
-                // // dropEffecct may be changed during dragOver
+                // // dropEffect may be changed during dragOver
                 //currentDropArea.dropEffect = dragEvent.dataTransfer.dropEffect;
             }
         }
@@ -5388,29 +5364,12 @@ links.dnd = function () {
         document.body.style.cursor = originalCursor || '';
         originalCursor = undefined;
 
-        var currentDropArea = undefined;
-        for (var i = 0; i < dropAreas.length; i++) {
-            var dropArea = dropAreas[i];
-
-            // perform mouse leave event
-            if (dropArea.mouseOver) {
-                if (dropArea.dragLeave) {
-                    dropArea.dragLeave(dragEvent);
-                }
-                dropArea.mouseOver = false;
-
-                // perform drop event
-                if (!currentDropArea) {
-                    currentDropArea = dropArea;
-                }
-            }
-        }
-
+        // find the current dropArea
+        var currentDropArea = findDropAray(event);
         if (currentDropArea) {
             // adjust event properties
             dragEvent.dataTransfer.dropArea = currentDropArea.element;
-            dragEvent.dataTransfer.dropEffect =
-                getAllowedDropEffect(dragArea.effectAllowed, currentDropArea.dropEffect);
+            dragEvent.dataTransfer.dropEffect = getAllowedDropEffect(dragArea.effectAllowed, currentDropArea.dropEffect);
 
             // trigger drop event
             if (dragEvent.dataTransfer.dropEffect) {
@@ -5459,6 +5418,107 @@ links.dnd = function () {
         }
 
         return undefined;
+    }
+
+    /**
+     * Find the current droparea, and call dragEnter() and dragLeave() on change of droparea.
+     * The found droparea is returned and also stored in the variable _currentDropArea
+     * @param {Event} event
+     * @return {Object| null} Returns the dropArea if found, or else null
+     */
+    function findDropAray (event) {
+        // get the hovered Item (if any)
+        var item = null;
+        var elem = event.target || event.srcElement;
+        while (elem) {
+            if (elem.item instanceof links.TreeGrid.Item) {
+                item = elem.item;
+                break;
+            }
+            elem = elem.parentNode;
+        }
+
+        var newDropArea = null;
+
+        // check if there is a droparea overlapping with current dragarea
+        if (item) {
+            for (var i = 0; i < dropAreas.length; i++) {
+                var dropArea = dropAreas[i];
+
+                if ((item.dom.frame == dropArea.element) &&
+                    !newDropArea &&
+                    getAllowedDropEffect(dragArea.effectAllowed, dropArea.dropEffect)) {
+                    // on droparea
+                    newDropArea = dropArea;
+                }
+            }
+
+            if (item.parent && item.parent.dataConnector &&
+                !newDropArea &&
+                getAllowedDropEffect(item.parent.dataConnector.options.dataTransfer.effectAllowed,
+                    item.parent.dataConnector.options.dataTransfer.dropEffect)) {
+
+                // Fake a dropArea (yes, this is a terrible hack)
+                var element = event.target || event.srcElement;
+                if (_currentDropArea && _currentDropArea.element === element) {
+                    // fake dropArea already exists
+                    newDropArea = _currentDropArea;
+                }
+                else {
+                    // create a new fake dropArea
+                    var dashedLine = document.createElement('div');
+                    dashedLine.className = 'treegrid-droparea before';
+
+                    newDropArea = {
+                        element: element,
+                        dropEffect: item.parent.dataConnector.options.dataTransfer.dropEffect,
+                        dragEnter: function (event) {
+                            //item.onDragEnter(event);
+                            item.dom.frame.appendChild(dashedLine);
+                        },
+                        dragLeave: function (event) {
+                            //item.onDragLeave(event);
+                            dashedLine.parentNode && dashedLine.parentNode.removeChild(dashedLine);
+                        },
+                        dragOver: function (event) {
+                            //item.onDragOver(event);
+                        },
+                        drop: function (event) {
+                            newDropArea.dragLeave(event);
+                            item.parent.onDrop(event);
+                        }
+                    };
+                }
+            }
+        }
+        else {
+            // TODO: get root data connector, create a fake dropArea for this
+        }
+
+        // leave current dropArea
+        if (_currentDropArea !== newDropArea) {
+            if (_currentDropArea) {
+                if (_currentDropArea.dragLeave) {
+                    dragEvent.dataTransfer.dropArea = _currentDropArea;
+                    dragEvent.dataTransfer.dropEffect = undefined;
+                    _currentDropArea.dragLeave(dragEvent);
+                }
+                _currentDropArea.mouseOver = false;
+            }
+
+            if (newDropArea) {
+                if (newDropArea.dragEnter) {
+                    dragEvent.dataTransfer.dropArea = newDropArea;
+                    dragEvent.dataTransfer.dropEffect = undefined;
+                    newDropArea.dragEnter(dragEvent);
+                }
+                newDropArea.mouseOver = true;
+            }
+
+            _currentDropArea = newDropArea;
+        }
+
+        return _currentDropArea;
     }
 
     /**

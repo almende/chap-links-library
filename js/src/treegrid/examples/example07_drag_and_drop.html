@@ -89,15 +89,13 @@
         filesTreeGrid.draw(filesDataConnector);    
 
         // Instantiate treegrid object with folders
-        var foldersOptions = {};
-        //* TDOO: cleanup temporary foldersOptions
         var foldersOptions = {
           'dataTransfer' : {
             'allowedEffect': 'move',
             'dropEffect': 'move'
           }
         };
-        //*/
+
         var foldersContainer = document.getElementById('folders');
         var foldersDataConnector = new links.DataTable(folders, foldersOptions);
         foldersTreeGrid = new links.TreeGrid(foldersContainer, treeGridOptions);

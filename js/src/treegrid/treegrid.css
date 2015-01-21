@@ -40,6 +40,13 @@
   border: 1px dashed gray;
 }
 
+.treegrid-droparea.before {
+  position: relative;
+  left: 0;
+  top: -2px;
+  width: 100%;
+  height: 4px;
+}
 
 .treegrid-item-dragbefore {
   border-top-color: red;
