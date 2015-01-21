@@ -694,6 +694,7 @@ links.TreeGrid.Frame.prototype._repaintFrame = function() {
         //mainFrame.style.overflow = 'visible'; // TODO: cleanup
         mainFrame.style.left = '0px';
         mainFrame.style.top = '0px';
+        mainFrame.frame = this;
 
         this.container.appendChild(mainFrame);
         dom.mainFrame = mainFrame;
@@ -929,7 +930,6 @@ links.TreeGrid.Grid.prototype.updateHeight = function (child, diffHeight) {
 links.TreeGrid.Grid.prototype.onDrop = function(event) {
     // TODO: trigger event?
     var items = event.dataTransfer.getData('items');
-    console.log('ONDROP', event, items)
 
     if (this.dataConnector) {
         var me = this;
@@ -1040,7 +1040,7 @@ links.TreeGrid.Grid.prototype.reflow = function() {
         indentationWidth = this.options.indentationWidth;
     for (var i = 0, iMax = widths.length; i < iMax; i++) {
         var column = columns[i];
-        if (!column.fixedWidth) {
+        if (column && !column.fixedWidth) {
             var width = widths[i] + indentationWidth;
             if (width > column.width) {
                 column.width = width;
@@ -1737,7 +1737,7 @@ links.TreeGrid.Grid.prototype._updateItems = function (offset, limit, callback, 
         if (errback) {
             errback(err);
         }
-    }
+    };
 
     if (limit > 0 || this.totalItems === undefined) {
         //console.log('_updateItems offset=' + offset + ', limit=' + limit ); // TODO: cleanup
@@ -1766,10 +1766,6 @@ links.TreeGrid.Grid.prototype._repaintHeader = function () {
  * Redraw the items in the currently visible window
  */
 links.TreeGrid.Grid.prototype._repaintItems = function () {
-    var columns = this.columns,
-        windowTop = (this.window && this.window.top) ? this.window.top : 0,
-        visibleItems = this.visibleItems;
-
     // remove items which are outside the visible window
     var visible = this.isVisible(),
         visibleItems = this.visibleItems,
@@ -1912,6 +1908,7 @@ links.TreeGrid.Header.prototype.repaint = function () {
         if (!domHeader) {
             // create the DOM
             domHeader = document.createElement('DIV');
+            domHeader.header = this;
             domHeader.treeGridType = 'header';
             domHeader.className = 'treegrid-header';
             domHeader.style.position = 'absolute';
@@ -1960,7 +1957,7 @@ links.TreeGrid.Header.prototype.repaint = function () {
         // position the columns
         var domFields = this.dom.fields;
         var columns = this.columns;
-        for (var i = 0, iMax = domFields.length; i < iMax; i++) {
+        for (var i = 0, iMax = Math.min(domFields.length, columns.length); i < iMax; i++) {
             domFields[i].style.left = columns[i].left + 'px';
         }
     }
@@ -2533,8 +2530,6 @@ links.TreeGrid.Item.prototype.onDrop = function(event) {
     this.dataTransfer.dragbefore = false;
     this.repaint();
 
-    console.log('onDrop', event, event.dataTransfer.dropEffect);
-
     // TODO: trigger event
 
     if (this.dataConnector) {
@@ -2871,9 +2866,7 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
             // create the fields
             var domFields = [];
             this.dom.fields = domFields;
-            var padding = this.options.padding;
             var fields = this.fields;
-            var height = this.height;
             for (var i = 0, iMax = fields.length; i < iMax; i++) {
                 var field = fields[i];
 
@@ -2884,7 +2877,7 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
                 domField.style.top = '0px';
 
                 var col = this.columns[i];
-                if (col.fixedWidth) {
+                if (col && col.fixedWidth) {
                     domField.style.width = col.width + 'px';
                 }
 
@@ -5323,7 +5316,7 @@ links.dnd = function () {
         dragEvent.clientY = event.clientY;
 
         // find the current dropArea
-        var currentDropArea = findDropAray(event);
+        var currentDropArea = findDropArea(event);
         if (currentDropArea) {
             // adjust event properties
             dragEvent.dataTransfer.dropArea = currentDropArea.element;
@@ -5365,7 +5358,7 @@ links.dnd = function () {
         originalCursor = undefined;
 
         // find the current dropArea
-        var currentDropArea = findDropAray(event);
+        var currentDropArea = findDropArea(event);
         if (currentDropArea) {
             // adjust event properties
             dragEvent.dataTransfer.dropArea = currentDropArea.element;
@@ -5426,7 +5419,10 @@ links.dnd = function () {
      * @param {Event} event
      * @return {Object| null} Returns the dropArea if found, or else null
      */
-    function findDropAray (event) {
+    function findDropArea (event) {
+        // TODO: dnd prototype should not have knowledge about TreeGrid.Item and dataConnectors, this is a hack
+        var newDropArea = null;
+
         // get the hovered Item (if any)
         var item = null;
         var elem = event.target || event.srcElement;
@@ -5438,25 +5434,37 @@ links.dnd = function () {
             elem = elem.parentNode;
         }
 
-        var newDropArea = null;
-
         // check if there is a droparea overlapping with current dragarea
         if (item) {
             for (var i = 0; i < dropAreas.length; i++) {
                 var dropArea = dropAreas[i];
 
-                if ((item.dom.frame == dropArea.element) &&
-                    !newDropArea &&
+                if ((item.dom.frame == dropArea.element) && !newDropArea &&
                     getAllowedDropEffect(dragArea.effectAllowed, dropArea.dropEffect)) {
                     // on droparea
                     newDropArea = dropArea;
                 }
             }
+        }
 
-            if (item.parent && item.parent.dataConnector &&
+        // see if there is a parent with droparea
+        if (!newDropArea) {
+            var parent = item && item.parent;
+            if (!parent) {
+                // header
+                var header = findAttribute(event.target || event.srcElement, 'header');
+                parent = header && header.parent;
+            }
+            if (!parent) {
+                // root
+                var frame = findAttribute(event.target || event.srcElement, 'frame');
+                parent = frame && frame.grid;
+            }
+
+            if (parent && parent.dataConnector &&
                 !newDropArea &&
-                getAllowedDropEffect(item.parent.dataConnector.options.dataTransfer.effectAllowed,
-                    item.parent.dataConnector.options.dataTransfer.dropEffect)) {
+                getAllowedDropEffect(parent.dataConnector.options.dataTransfer.effectAllowed,
+                    parent.dataConnector.options.dataTransfer.dropEffect)) {
 
                 // Fake a dropArea (yes, this is a terrible hack)
                 var element = event.target || event.srcElement;
@@ -5467,32 +5475,38 @@ links.dnd = function () {
                 else {
                     // create a new fake dropArea
                     var dashedLine = document.createElement('div');
-                    dashedLine.className = 'treegrid-droparea before';
+                    dashedLine.className = 'treegrid-droparea after';
 
                     newDropArea = {
                         element: element,
-                        dropEffect: item.parent.dataConnector.options.dataTransfer.dropEffect,
+                        dropEffect: parent.dataConnector.options.dataTransfer.dropEffect,
                         dragEnter: function (event) {
-                            //item.onDragEnter(event);
-                            item.dom.frame.appendChild(dashedLine);
+                            if (item) {
+                                item.dom.frame.appendChild(dashedLine);
+                            }
+                            else if (header) {
+                                dashedLine.style.bottom = '-5px';
+                                header.dom.header.appendChild(dashedLine);
+                            }
+                            else if (frame) {
+                                dashedLine.style.top = frame.gridHeight + 'px';
+                                dashedLine.style.bottom = '';
+                                frame.dom.mainFrame.appendChild(dashedLine);
+                            }
                         },
                         dragLeave: function (event) {
-                            //item.onDragLeave(event);
                             dashedLine.parentNode && dashedLine.parentNode.removeChild(dashedLine);
                         },
                         dragOver: function (event) {
-                            //item.onDragOver(event);
+                            // nothing to do
                         },
                         drop: function (event) {
                             newDropArea.dragLeave(event);
-                            item.parent.onDrop(event);
+                            parent.onDrop(event);
                         }
                     };
                 }
             }
-        }
-        else {
-            // TODO: get root data connector, create a fake dropArea for this
         }
 
         // leave current dropArea
@@ -5519,6 +5533,23 @@ links.dnd = function () {
         }
 
         return _currentDropArea;
+    }
+
+    /**
+     * Find an attribute in the parent tree of given element
+     * @param {EventTarget} elem
+     * @param {string} attribute
+     * @returns {* | null}
+     */
+    function findAttribute(elem, attribute) {
+        while (elem) {
+            if (elem[attribute]) {
+                return elem[attribute];
+            }
+
+            elem = elem.parentNode;
+        }
+        return null;
     }
 
     /**
