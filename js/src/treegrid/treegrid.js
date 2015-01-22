@@ -1015,7 +1015,6 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
             else {
                 this.dataConnector.appendItems(itemsData, callback, errback);
             }
-            console.log(this)
         }
         /* TODO
          else if (event.dataTransfer.dropEffect == 'link') {
