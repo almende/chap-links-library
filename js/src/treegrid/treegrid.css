@@ -45,7 +45,8 @@
   left: 0;
   bottom: -2px;
   width: 100%;
-  height: 4px;
+  height: 6px;
+  box-sizing: border-box;
 }
 
 .treegrid-item-dragbefore {

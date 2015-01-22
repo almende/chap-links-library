@@ -484,54 +484,54 @@ as they are supposed to retrieve data from a server.
     <td>Retrieve a set of items.</td>
   </tr>
 
-    <tr>
-      <td>linkItems(sourceItems, targetItem, callback, errback)</td>
-      <td>
-        <ul>
-          <li><span class="parameterType">{Object[]}</span> sourceItems</li>
-          <li><span class="parameterType">{Object}</span> targetItem</li>
-          <li><span class="parameterType">{function}</span> callback</li>
-          <li><span class="parameterType">{function}</span> errback</li>
-        </ul>
-      </td>
-      <td>none</td>
-      <td>Link one or multiple items to another item.
-            The meaning of this is dependent on the application</td>
-    </tr>
-
-    <!-- TODO
-    <tr>
-      <td>insertItemsBefore(items, beforeItem, callback, errback)</td>
-      <td>
-        <ul>
-          <li><span class="parameterType">{Array of Objects}</span> items</li>
-          <li><span class="parameterType">{Object}</span> beforeItem</li>
-          <li><span class="parameterType">{function}</span> callback</li>
-          <li><span class="parameterType">{function}</span> errback</li>
-        </ul>
-      </td>
-      <td>none</td>
-      <td>Insert a number of items before a given item.</td>
-    </tr>
-
-
-    <tr>
-      <td>moveItems(items, beforeItem, callback, errback)</td>
-      <td>
-        <ul>
-          <li><span class="parameterType">{Array of Objects}</span> items</li>
-          <li><span class="parameterType">{Object}</span> beforeItem</li>
-          <li><span class="parameterType">{function}</span> callback</li>
-          <li><span class="parameterType">{function}</span> errback</li>
-        </ul>
-      </td>
-      <td>none</td>
-      <td>Move a list of items before a given item.
+  <tr>
+    <td>insertItemsBefore(items, beforeItem, callback, errback)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> items</li>
+        <li><span class="parameterType">{Object}</span> beforeItem</li>
+        <li><span class="parameterType">{function}</span> callback</li>
+        <li><span class="parameterType">{function}</span> errback</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>Insert a number of items before a given item.
         If <code>beforeItem</code> is undefined, the items are moved to the end
-        of the data.</td>
-    </tr>
-    -->
-  
+        of the data.
+    </td>
+  </tr>
+
+  <tr>
+    <td>linkItems(sourceItems, targetItem, callback, errback)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Object[]}</span> sourceItems</li>
+        <li><span class="parameterType">{Object}</span> targetItem</li>
+        <li><span class="parameterType">{function}</span> callback</li>
+        <li><span class="parameterType">{function}</span> errback</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>Link one or multiple items to another item.
+        The meaning of this is dependent on the application</td>
+  </tr>
+
+  <tr>
+    <td>moveItems(items, beforeItem, callback, errback)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> items</li>
+        <li><span class="parameterType">{Object}</span> beforeItem</li>
+        <li><span class="parameterType">{function}</span> callback</li>
+        <li><span class="parameterType">{function}</span> errback</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>Move a list of items before a given item.
+      If <code>beforeItem</code> is undefined, the items are moved to the end
+      of the data.</td>
+  </tr>
+
   <tr> 
     <td>onEvent(event, params)</td> 
     <td>

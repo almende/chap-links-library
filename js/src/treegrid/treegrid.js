@@ -479,6 +479,21 @@ links.TreeGrid.Frame.prototype.trigger = function(event, params) {
 };
 
 /**
+ * Find the root node, a Frame, from a Grid or Item node.
+ * @param {links.TreeGrid.Item} node
+ * @returns {links.TreeGrid.Frame | null}
+ */
+links.TreeGrid.Frame.findFrame = function (node) {
+    while (node) {
+        if (node instanceof links.TreeGrid.Frame) {
+            return node;
+        }
+        node = node.parent;
+    }
+    return null;
+}
+
+/**
  * Get the HTML DOM container of the Frame
  * @return {Element} container
  */
@@ -941,9 +956,15 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
              else {
              me.onExpand();
              }*/
+
+            // update the selection
+            var frame = links.TreeGrid.Frame.findFrame(me);
+            if (frame) {
+                frame.unselect();
+                // TODO: instead of unselect, select the moved items
+            }
         };
         var errback = callback;
-
 
         // prevent a circular loop, when an item is dropped on one of its own
         // childs. So, remove items from which this item is a child
@@ -965,11 +986,36 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
         for (var i = 0; i < items.length; i++) {
             itemsData.push(items[i].data);
         }
-        if (event.dataTransfer.dropEffect == 'move') {
-            this.dataConnector.appendItems(itemsData, callback, errback);
-        }
-        else if (event.dataTransfer.dropEffect == 'copy') {
-            this.dataConnector.appendItems(itemsData, callback, errback);
+        if (event.dataTransfer.dropEffect == 'move' || event.dataTransfer.dropEffect == 'copy') {
+            var sameDataConnector = event.dropTarget &&
+                event.dragSource === event.dropTarget.parent ||
+                event.dragSource === event.dropTarget.grid;
+            event.dataTransfer.sameDataConnector = sameDataConnector;
+
+            if (this.dataConnector.insertItemsBefore !== links.DataConnector.prototype.insertItemsBefore) {
+                var item;
+                var beforeItem = null;
+                if (event.dropTarget instanceof links.TreeGrid.Item) {
+                    item = event.dropTarget;
+                    beforeItem = item.parent.items[item.index + 1];
+                }
+                else if (event.dropTarget instanceof links.TreeGrid.Header) {
+                    item = event.dropTarget;
+                    beforeItem = item.parent.items[0];
+                }
+                var beforeData = beforeItem && beforeItem.data;
+
+                if (sameDataConnector) {
+                    this.dataConnector.moveItems(itemsData, beforeData, callback, errback);
+                }
+                else {
+                    this.dataConnector.insertItemsBefore(itemsData, beforeData, callback, errback);
+                }
+            }
+            else {
+                this.dataConnector.appendItems(itemsData, callback, errback);
+            }
+            console.log(this)
         }
         /* TODO
          else if (event.dataTransfer.dropEffect == 'link') {
@@ -985,7 +1031,6 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
 
     links.TreeGrid.preventDefault(event);
 };
-
 
 /**
  * merge two arrays
@@ -3730,14 +3775,16 @@ links.DataConnector.prototype.appendItems = function (items, callback, errback) 
 /**
  * Asynchronously insert a number of items.
  * The callback returns the inserted items, which may be newly instantiated objects .
- * @param {Object[]} items    A list with items to be inserted
- * @param {Object} beforeItem The items will be inserted before this item.
- * @param {function} callback Callback method called on success. Called with one
- *                            object as parameter, containing fields:
- *                              {Number} totalItems
- *                              {Array with Objects} items    The inserted items
- * @param {function} errback  Callback method called on failure. Called with
- *                            an error message as parameter.
+ * @param {Object[]} items      A list with items to be inserted
+ * @param {Object} [beforeItem] The items will be inserted before this item.
+ *                              When beforeItem is undefined, the items will be
+ *                              moved to the end of the data.
+ * @param {function} callback   Callback method called on success. Called with one
+ *                              object as parameter, containing fields:
+ *                                {Number} totalItems
+ *                                {Array with Objects} items    The inserted items
+ * @param {function} errback    Callback method called on failure. Called with
+ *                              an error message as parameter.
  */
 links.DataConnector.prototype.insertItemsBefore = function (items, beforeItem, callback, errback) {
     errback('Error: method insertItemsBefore is not implemented');
@@ -3746,16 +3793,16 @@ links.DataConnector.prototype.insertItemsBefore = function (items, beforeItem, c
 /**
  * Asynchronously move a number of items.
  * The callback returns the moved items, which may be newly instantiated objects .
- * @param {Object[]} items    A list with items to be moved
- * @param {Object} beforeItem The items will be inserted before this item.
- *                            When beforeItem is undefined, the items will be
- *                            moved to the end of the data.
- * @param {function} callback Callback method called on success. Called with one
- *                            object as parameter, containing fields:
- *                              {Number} totalItems
- *                              {Array with Objects} items    The moved items
- * @param {function} errback  Callback method called on failure. Called with
- *                            an error message as parameter.
+ * @param {Object[]} items      A list with items to be moved
+ * @param {Object} [beforeItem] The items will be inserted before this item.
+ *                              When beforeItem is undefined, the items will be
+ *                              moved to the end of the data.
+ * @param {function} callback   Callback method called on success. Called with one
+ *                              object as parameter, containing fields:
+ *                                {Number} totalItems
+ *                                {Array with Objects} items    The moved items
+ * @param {function} errback    Callback method called on failure. Called with
+ *                              an error message as parameter.
  */
 links.DataConnector.prototype.moveItems = function (items, beforeItem, callback, errback) {
     errback('Error: method moveItems is not implemented');
@@ -3978,29 +4025,28 @@ links.DataTable.prototype.appendItems = function (items, callback, errback) {
 /**
  * Asynchronously insert a number of items.
  * The callback returns the inserted items, which may be newly instantiated objects .
- * @param {Object[]} items    A list with items to be inserted
- * @param {Object} beforeItem The items will be inserted before this item.
- * @param {function} callback Callback method called on success. Called with one
- *                            object as parameter, containing fields:
- *                              {Number} totalItems
- *                              {Array with Objects} items    The inserted items
- * @param {function} errback  Callback method called on failure. Called with
- *                            an error message as parameter.
+ * @param {Object[]} items      A list with items to be inserted
+ * @param {Object} [beforeItem] The items will be inserted before this item.
+ *                              When beforeItem is undefined, the items will be
+ *                              moved to the end of the data.
+ * @param {function} callback   Callback method called on success. Called with one
+ *                              object as parameter, containing fields:
+ *                                {Number} totalItems
+ *                                {Array with Objects} items    The inserted items
+ * @param {function} errback    Callback method called on failure. Called with
+ *                              an error message as parameter.
  */
 links.DataTable.prototype.insertItemsBefore = function (items, beforeItem, callback, errback) {
     // find the item before which the new items will be inserted
     var data = this.data;
-    var beforeIndex = data.indexOf(beforeItem);
+    var beforeIndex = beforeItem ? data.indexOf(beforeItem) : data.length;
     if (beforeIndex == -1) {
         errback("Cannot find item"); // TODO: better error
         return;
     }
 
     // insert the new data
-    var num = items.length;
-    for (var i = 0; i < num; i++) {
-        data.splice(beforeIndex + i, 0, items[i]);
-    }
+    data.splice.apply(data, [beforeIndex, 0].concat(items));
 
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
@@ -4017,20 +4063,20 @@ links.DataTable.prototype.insertItemsBefore = function (items, beforeItem, callb
 /**
  * Asynchronously move a number of items.
  * The callback returns the moved items, which may be newly instantiated objects .
- * @param {Object[]} items    A list with items to be moved
- * @param {Object} beforeItem The items will be inserted before this item.
- *                            When beforeItem is undefined, the items will be
- *                            moved to the end of the data.
- * @param {function} callback Callback method called on success. Called with one
- *                            object as parameter, containing fields:
- *                              {Number} totalItems
- *                              {Array with Objects} items    The moved items
- * @param {function} errback  Callback method called on failure. Called with
- *                            an error message as parameter.
+ * @param {Object[]} items      A list with items to be moved
+ * @param {Object} [beforeItem] The items will be inserted before this item.
+ *                              When beforeItem is undefined, the items will be
+ *                              moved to the end of the data.
+ * @param {function} callback   Callback method called on success. Called with one
+ *                              object as parameter, containing fields:
+ *                                {Number} totalItems
+ *                                {Array with Objects} items    The moved items
+ * @param {function} errback    Callback method called on failure. Called with
+ *                              an error message as parameter.
  */
 links.DataTable.prototype.moveItems = function (items, beforeItem, callback, errback) {
     // find the index of the before item
-    var beforeIndex = this.data.indexOf(beforeItem);
+    var beforeIndex = beforeItem ? this.data.indexOf(beforeItem) : this.data.length;
     if (beforeIndex == -1) {
         errback("Cannot find item"); // TODO: better error
         return;
@@ -4050,11 +4096,21 @@ links.DataTable.prototype.moveItems = function (items, beforeItem, callback, err
         }
     }
 
-    // if all items are found, move them
-    for (var i = 0; i < num; i++) {
-        this.data.splice(indexes[i], 1);
-        this.data.splice(beforeIndex, 0, items[i]);
+    // order the indexes in ascending order
+    indexes.sort(function (a, b) {
+        return a > b ? 1 : a < b ? -1 : 0;
+    });
+
+    // if all items are found, move them from the last to the first (else we alter the indexes)
+    var offset = 0;
+    for (var i = num - 1; i >= 0; i--) {
+        var index = indexes[i];
+        if (index < beforeIndex) {
+            offset++;
+        }
+        this.data.splice(index, 1);
     }
+    this.data.splice.apply(this.data, [beforeIndex - offset, 0].concat(items));
 
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
@@ -4556,6 +4612,8 @@ links.TreeGrid.Frame.prototype.onDragStart = function(event) {
         }
     }
 
+    event.dragSource = parent;  // TODO: this does not work when there are multiple parents in a multi selection
+
     if (items.length > 0) {
         var dragImage = this.dom.dragImage;
         if (dragImage) {
@@ -4576,7 +4634,8 @@ links.TreeGrid.Frame.prototype.onDragStart = function(event) {
  */
 links.TreeGrid.Frame.prototype.onDragEnd = function(event) {
     var dropEffect = event.dataTransfer.dropEffect;
-    if (dropEffect == 'move') {
+    if (dropEffect == 'move' && !event.dataTransfer.sameDataConnector) {
+        // note: in case of sameDataConnector, the event is already handled by onDrop() as a moveItems event.
         var frame = this;
         var items = event.dataTransfer.getData('items');
         var callbacksInProgress = items.length;
@@ -4671,7 +4730,7 @@ links.TreeGrid.Frame.prototype.select = function(node, keepSelection, selectRang
     var triggerEvent = false;
 
     if (selectRange) {
-        var startNode = this.selection.pop();
+        var startNode = this.selection.shift();
         var endNode = node;
 
         // ensure having nodes in the same grid
@@ -4700,7 +4759,7 @@ links.TreeGrid.Frame.prototype.select = function(node, keepSelection, selectRang
                 var node = parent.items[index];
                 node.select();
                 node.repaint();
-                this.selection.unshift(node);
+                this.selection.push(node);
                 index++;
             }
         }
@@ -4711,10 +4770,10 @@ links.TreeGrid.Frame.prototype.select = function(node, keepSelection, selectRang
                 node.select();
                 node.repaint();
 
-                // important to add to the beginning of the array, we want to keep
-                // our 'start' node at the end of the selection array, needed when
+                // important to add to the end of the array, we want to keep
+                // our 'start' node at the start of the selection array, needed when
                 // we adjust this range.
-                this.selection.unshift(node);
+                this.selection.push(node);
                 index--;
             }
         }
@@ -5502,6 +5561,7 @@ links.dnd = function () {
                         },
                         drop: function (event) {
                             newDropArea.dragLeave(event);
+                            event.dropTarget = item || header || frame;
                             parent.onDrop(event);
                         }
                     };

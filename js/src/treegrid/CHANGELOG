@@ -2,6 +2,11 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+not yet released, version 1.3.0
+
+- implemented support for moving items.
+
+
 2012-07-03, version 1.2.0
 
 - implemented method linkItems. Items can be linked to each other via drag and,
