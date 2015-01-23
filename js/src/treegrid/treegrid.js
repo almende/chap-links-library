@@ -3721,8 +3721,7 @@ links.DataConnector.prototype.trigger = function (event, params) {
  * @param {function} errback  Callback method called on failure. Called with
  *                            an error message as parameter.
  */
-links.DataConnector.prototype.getChanges = function (index, num, items,
-                                                     callback, errback) {
+links.DataConnector.prototype.getChanges = function (index, num, items, callback, errback) {
     throw 'Error: method getChanges is not implemented';
 };
 
@@ -3974,7 +3973,13 @@ links.DataTable.prototype.updateItems = function (items, callback, errback) {
         var item = items[i];
         var index = data.indexOf(item);
         if (index != -1) {
-            data[index] = item;
+            // clone the item, so we can distinguish changed items by their pointer
+            data[index] = {};
+            for (var prop in item) {
+                if (item.hasOwnProperty(prop)) {
+                    data[index][prop] = item[prop];
+                }
+            }
         }
         else {
             errback("Cannot find item"); // TODO: better error
@@ -5987,3 +5992,4 @@ links.TreeGrid.preventDefault = function (event) {
         event.returnValue = false;  // IE browsers
     }
 };
+

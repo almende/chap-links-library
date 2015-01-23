@@ -576,8 +576,7 @@ as they are supposed to retrieve data from a server.
   </tr> 
   -->
   
-  <!-- TODO
-  <tr> 
+  <tr>
     <td>updateItems(items, callback, errback)</td> 
     <td>
       <ul>
@@ -587,9 +586,11 @@ as they are supposed to retrieve data from a server.
       </ul>
     </td>
     <td>none</td> 
-    <td>Update a list of items. The updated items are returned in the callback.</td> 
-  </tr> 
-  -->
+    <td>Update a list of items. The updated items are returned in the callback.
+      The passed <code>items</code> must contain the original objects retrieved
+      from the DataConnector, with changed properties.</td>
+  </tr>
+
 </table>
 
 

@@ -4,7 +4,9 @@ http://almende.github.com/chap-links-library/
 
 not yet released, version 1.3.0
 
-- implemented support for moving items.
+- implemented support for moving items, added DataConnector functions
+  `moveItems` and `insertItemsBefore`.
+- implemented support for updating items in a DataConnector using `updateItems`.
 
 
 2012-07-03, version 1.2.0
