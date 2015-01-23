@@ -27,11 +27,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (c) 2011-2012 Almende B.V.
+ * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
  * @date    2012-07-03
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 /*
@@ -960,8 +960,15 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
             // update the selection
             var frame = links.TreeGrid.Frame.findFrame(me);
             if (frame) {
-                frame.unselect();
-                // TODO: instead of unselect, select the moved items
+                // select the moved items
+                var first = me.items[startIndex];
+                frame.select(first);
+                if (items.length > 1) {
+                    var last = me.items[startIndex + items.length - 1];
+                    if (last) {
+                        frame.select(last, false, true);
+                    }
+                }
             }
         };
         var errback = callback;
@@ -1004,6 +1011,7 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
                     beforeItem = item.parent.items[0];
                 }
                 var beforeData = beforeItem && beforeItem.data;
+                var startIndex = beforeItem && beforeItem.index || this.itemCount;
 
                 if (sameDataConnector) {
                     this.dataConnector.moveItems(itemsData, beforeData, callback, errback);

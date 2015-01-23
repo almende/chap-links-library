@@ -844,16 +844,35 @@ The DataConnector also supports an interface for data manipulation.
 For example when drag and drop is enabled in the TreeGrid, items can be 
 dragged from one DataConnector and dropped in another DataConnector.
 If a DataConnector needs to support drag and drop, the methods 
-<code>removeItems</code> and <code>appendItems</code> must be implemented.
+<code>appendItems</code>, <code>insertItemsBefore</code>, <code>moveItems</code>,
+<code>removeItems</code>, <code>updateItems</code>,
+and optionally <code>linkItems</code> must be implemented.
 See <a href="#Methods">Methods</a> for the exact definition of these methods.
 </p>
 
+The following types of drag and drop events can occur:
+<ul>
+    <li>
+        <b>move</b><br>
+        When a move event takes place via drag an drop,
+        the method <code>removeItems</code> is called in the source dataconnector,
+        and <code>appendItems</code> or <code>insertItemsBefore</code> on the target
+        dataconnector. When items are moved inside the same dataconnector, the
+        <code>moveItems</code> method is called on this dataconnector.
+    </li>
+    <li>
+        <b>copy</b><br>
+        When a copy event takes place via drag an drop,
+        the method <code>appendItems</code> or <code>insertItemsBefore</code> on the
+        target dataconnector is called.
+    </li>
+    <li>
+        <b>link</b><br>
+        When a link event takes place via drag an drop,
+        the method <code>linkItems</code> on the target dataconnector is called.
+    </li>
+</ul>
 <p>
-When a move event takes place via drag an drop,
-the method <code>removeItems</code> is called in the source dataconnector, 
-and <code>appendItems</code> from the target dataconnector. 
-When a copy event takes place via drag an drop,
-the method <code>appendItems</code> from the target dataconnector is called. 
 </p>
 
 <p>

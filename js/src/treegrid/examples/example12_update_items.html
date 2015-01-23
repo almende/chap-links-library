@@ -94,7 +94,9 @@
 
                 // update the item
                 data.updateItems([item], function (props) {
-                    alert('Status of item ' + item._id + ' has been changed to ' + (item._accepted ? 'accepted' : 'open'));
+                    setTimeout(function () {
+                        alert('Status of item ' + item._id + ' has been changed to ' + (item._accepted ? 'accepted' : 'open'));
+                    }, 0)
                 }, function (err) {
                     console.log('Error', err);
                 })
