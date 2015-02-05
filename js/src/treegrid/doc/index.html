@@ -355,7 +355,7 @@ var data = [
     </li>
 
     <li>
-        <b>Actions</b>
+        <b id="Actions">Actions</b>
         <p>
             Each item can contain a field <code>_actions</code>, containing an array
             with one or multiple actions. Actions are displayed as a button or
@@ -382,6 +382,13 @@ var data = [
             </tr>
 
             <tr>
+                <td>height</td>
+                <td>String</td>
+                <td>no</td>
+                <td>The height of the action icon or text, for example '32px'.</td>
+            </tr>
+
+            <tr>
                 <td>image</td>
                 <td>String</td>
                 <td>no</td>
@@ -404,6 +411,13 @@ var data = [
                 <td>no</td>
                 <td>When the mouse is hovered over an action, the title will be displayed.
                     The title can contain an explanation of the action.</td>
+            </tr>
+
+            <tr>
+                <td>width</td>
+                <td>String</td>
+                <td>no</td>
+                <td>The width of the action icon or text, for example '32px'.</td>
             </tr>
 
         </table>
@@ -627,9 +641,11 @@ google.visualization.events.addListener(mytreegrid, 'select', onselect);
 </p>
 
 <table>
-    <col width="10%">
-    <col width="60%">
-    <col width="30%">
+    <colgroup>
+        <col width="10%">
+        <col width="60%">
+        <col width="30%">
+    </colgroup>
 
     <tr>
         <th>name</th>
@@ -736,9 +752,11 @@ google.visualization.events.addListener(mytreegrid, 'select', onselect);
 </pre>
 
 <table>
-<col width="25%">
-<col width="50%">
-<col width="25%">
+    <colgroup>
+        <col width="25%">
+        <col width="50%">
+        <col width="25%">
+    </colgroup>
 
 <tr>
     <th>Class name</th>

@@ -430,6 +430,57 @@ links.TreeGrid.Node.prototype.onResize = function() {
     }
 };
 
+/**
+ * Generate HTML Dom with action icons
+ * @param {links.TreeGrid.Node} node
+ * @param {Array} actions
+ * @returns {HTMLElement}
+ */
+links.TreeGrid.Node.createActionIcons = function (node, actions) {
+    var domActions = document.createElement('DIV');
+    var domAction;
+    domActions.style.position = 'absolute';
+    domActions.className = 'treegrid-actions';
+    domActions.style.top = 0 + 'px';
+    domActions.style.right = 24 + 'px';  // reckon with width of the scrollbar
+    for (var i = 0, iMax = actions.length; i < iMax; i++) {
+        var action = actions[i];
+        if (action.event) {
+            if (action.image) {
+                // create an image button
+                domAction = document.createElement('INPUT');
+                domAction.treeGridType = 'action';
+                domAction.type = 'image';
+                domAction.className = 'treegrid-action-image';
+                domAction.title = action.title || '';
+                domAction.src = action.image;
+                domAction.event = action.event;
+                domAction.item = node;
+                domAction.style.width = action.width || '';
+                domAction.style.height = action.height || '';
+                domActions.appendChild(domAction);
+            }
+            else {
+                // create a text link
+                domAction = document.createElement('A');
+                domAction.treeGridType = 'action';
+                domAction.className = 'treegrid-action-link';
+                domAction.href = '#';
+                domAction.title = action.title || '';
+                domAction.innerHTML = action.text ? action.text : action.event;
+                domAction.event = action.event;
+                domAction.item = node;
+                domAction.style.width = action.width || '';
+                domAction.style.height = action.height || '';
+                domActions.appendChild(domAction);
+            }
+        }
+        else {
+            // TODO: throw warning?
+        }
+    }
+    return domActions;
+};
 
 /**
  * The Frame is the base for a TreeGrid, it creates a DOM container and creates
@@ -1990,6 +2041,24 @@ links.TreeGrid.Header.prototype.repaint = function () {
             }
         }
 
+        var actions = this.parent && this.parent.dataConnector && this.parent.dataConnector.actions;
+        if (JSON.stringify(actions) !== JSON.stringify(this.actions)) {
+            console.log('Actions', JSON.stringify(actions)); // TODO: cleanup
+            this.actions = actions;
+
+            if (this.dom.actions) {
+                var parent = this.dom.actions.parentNode;
+                parent && parent.removeChild(this.dom.actions);
+                delete this.dom.actions;
+            }
+
+            if (actions) {
+                var domActions = links.TreeGrid.Node.createActionIcons(this, actions);
+                this.dom.actions = domActions;
+                domHeader.appendChild(domActions);
+            }
+        }
+
         // reposition the header
         var absTop = Math.max(this.getAbsTop(), 0);
         domHeader.style.top = absTop + 'px';
@@ -2051,6 +2120,10 @@ links.TreeGrid.Header.prototype.reflow = function () {
         // leave fieldsHeight as it is...
     }
 
+    // calculate the height of action icons (if any)
+    var domActions = this.dom && this.dom.actions;
+    var actionsHeight = domActions ? domActions.clientHeight : 0;
+
     /* TODO: needed for auto sizing with
      // calculate the width of the header
      var contentWidth = 0;
@@ -2064,8 +2137,7 @@ links.TreeGrid.Header.prototype.reflow = function () {
     this.width = this.getVisibleWindow().width - this.getAbsLeft();
 
     // calculate total height
-    var height = 0;
-    height += this.fieldsHeight;
+    var height = Math.max(this.fieldsHeight, actionsHeight);
 
     var diffHeight = (height - this.height);
     if  (diffHeight) {
@@ -2075,6 +2147,25 @@ links.TreeGrid.Header.prototype.reflow = function () {
     }
 
     return resized;
+};
+
+/**
+ * Handle a click on an action icon in a header
+ * @param {string} event
+ */
+links.TreeGrid.Header.prototype.onEvent = function (event) {
+    var dataConnector = this.parent.dataConnector; // TODO: not so nice accessing dataconnector like this
+    var params = {
+        dataConnector: dataConnector || null
+    };
+
+    // send the event to the treegrid
+    links.events.trigger(this.getTreeGrid(), event, params);
+
+    // send the event to the dataconnector
+    if (dataConnector) {
+        dataConnector._onEvent(event, params);
+    }
 };
 
 /**
@@ -2940,46 +3031,8 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
 
             // create the actions
             if (this.actions) {
-                var actions = this.actions;
-                var domActions = document.createElement('DIV');
+                var domActions = links.TreeGrid.Node.createActionIcons(this, this.actions);
                 this.dom.actions = domActions;
-                domActions.style.position = 'absolute';
-                domActions.className = 'treegrid-actions';
-                domActions.style.top = 0 + 'px';
-                domActions.style.right = 24 + 'px';  // reckon with width of the scrollbar      
-                for (var i = 0, iMax = actions.length; i < iMax; i++) {
-                    var action = actions[i];
-                    if (action.event) {
-                        if (action.image) {
-                            // create an image button
-                            var domAction = document.createElement('INPUT');
-                            domAction.treeGridType = 'action';
-                            domAction.type = 'image';
-                            domAction.className = 'treegrid-action-image';
-                            domAction.title = action.title || '';
-                            domAction.src = action.image;
-                            domAction.event = action.event;
-                            domAction.item = this;
-                            domActions.appendChild(domAction);
-                        }
-                        else {
-                            // create a text link
-                            var domAction = document.createElement('A');
-                            domAction.treeGridType = 'action';
-                            domAction.className = 'treegrid-action-link';
-                            domAction.href = '#';
-                            domAction.title = action.title || '';
-                            domAction.innerHTML = action.text ? action.text : action.event;
-                            domAction.event = action.event;
-                            domAction.item = this;
-                            domActions.appendChild(domAction);
-                        }
-                    }
-                    else {
-                        // TODO: throw warning?
-                    }
-                }
-
                 domFrame.appendChild(domActions);
             }
 
@@ -3921,6 +3974,15 @@ links.DataConnector.prototype.setOptions = function (options) {
  */
 links.DataConnector.prototype.getOptions = function () {
     return this.options;
+};
+
+/**
+ * Set action icons
+ * @param {Array} actions
+ */
+links.DataConnector.prototype.setActions = function (actions) {
+    this.actions = actions;
+    this.trigger('change', undefined);
 };
 
 /**

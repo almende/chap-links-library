@@ -423,9 +423,9 @@ as they are supposed to retrieve data from a server.
 
 <table>
   <colgroup>
-    <col width="250px"></col>
-    <col width="250px"></col>
-    <col width="100px"></col>
+    <col width="250px" />
+    <col width="250px" />
+    <col width="100px" />
   </colgroup>
     
   <tr> 
@@ -575,9 +575,25 @@ as they are supposed to retrieve data from a server.
     <td></td> 
   </tr> 
   -->
-  
+
   <tr>
-    <td>updateItems(items, callback, errback)</td> 
+    <td>setActions(actions)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> actions</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>
+        Set a number of action icons for the data connector. The action icons will be
+        displayed in the header of the Grid where the dataconnectors data is rendered.
+        See section <a href="index.html#Actions">Actions</a> for more information
+        over the available fields.
+    </td>
+  </tr>
+
+  <tr>
+    <td>updateItems(items, callback, errback)</td>
     <td>
       <ul>
         <li><span class="parameterType">{Array of Objects}</span> items</li>
@@ -585,7 +601,7 @@ as they are supposed to retrieve data from a server.
         <li><span class="parameterType">{function}</span> errback</li>
       </ul>
     </td>
-    <td>none</td> 
+    <td>none</td>
     <td>Update a list of items. The updated items are returned in the callback.
       The passed <code>items</code> must contain the original objects retrieved
       from the DataConnector, with changed properties.</td>
@@ -686,14 +702,15 @@ this depends on what the DataConnector will be used for: read-only or read/write
 
 <p>
 Examples of DataConnector implementations can be found in:
-  <ul>
-    <li><a href="../examples/example03_simulated_delay.html">example03_simulated_delay.html</a></li>
-    <li><a href="../examples/example04_search_youtube.html">example04_search_youtube.html</a></li>
-    <li><a href="../examples/example08_linkedin_connections.html">example08_linkedin_connections.html</a></li>
-    <li><a href="dataconnector_implementation_example.js">dataconnector_implementation_example.js</a></li>
-    <li>The implementation links.DataTable, located in <a href="../treegrid.js">treegrid.js</li>
-  </ul>
 </p>
+<ul>
+  <li><a href="../examples/example03_simulated_delay.html">example03_simulated_delay.html</a></li>
+  <li><a href="../examples/example04_search_youtube.html">example04_search_youtube.html</a></li>
+  <li><a href="../examples/example08_linkedin_connections.html">example08_linkedin_connections.html</a></li>
+  <li><a href="dataconnector_implementation_example.js">dataconnector_implementation_example.js</a></li>
+  <li>The implementation links.DataTable, located in <a href="../treegrid.js">treegrid.js</a></li>
+</ul>
+
 
 
 <h3><a name="Constructor" id="Constructor"></a>Constructor</h3>
