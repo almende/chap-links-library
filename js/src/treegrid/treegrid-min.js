@@ -12,10 +12,11 @@
  License for the specific language governing permissions and limitations under
  the License.
 
- Copyright (c) 2011-2012 Almende B.V. <http://www.almende.com>
+ Copyright (c) 2011-2015 Almende B.V. <http://www.almende.com>
 
- @author Jos de Jong <jos@almende.org>
- @date   2012-02-09
+ @author  Jos de Jong <jos@almende.org>
+ @date    2015-02-09
+ @version 1.3.0
 
  Licensed under the Apache License, Version 2.0 (the "License"); you may not
  use this file except in compliance with the License. You may obtain a copy
