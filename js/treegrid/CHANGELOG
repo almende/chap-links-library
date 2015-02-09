@@ -2,6 +2,14 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+2015-02-09, version 1.3.0
+
+- implemented support for moving items, added DataConnector functions
+  `moveItems` and `insertItemsBefore`.
+- implemented support for updating items in a DataConnector using `updateItems`.
+- implemented method `setActions` to set action icons in a grids header.
+
+
 2012-07-03, version 1.2.0
 
 - implemented method linkItems. Items can be linked to each other via drag and,

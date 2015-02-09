@@ -423,9 +423,9 @@ as they are supposed to retrieve data from a server.
 
 <table>
   <colgroup>
-    <col width="250px"></col>
-    <col width="250px"></col>
-    <col width="100px"></col>
+    <col width="250px" />
+    <col width="250px" />
+    <col width="100px" />
   </colgroup>
     
   <tr> 
@@ -484,54 +484,54 @@ as they are supposed to retrieve data from a server.
     <td>Retrieve a set of items.</td>
   </tr>
 
-    <tr>
-      <td>linkItems(sourceItems, targetItem, callback, errback)</td>
-      <td>
-        <ul>
-          <li><span class="parameterType">{Object[]}</span> sourceItems</li>
-          <li><span class="parameterType">{Object}</span> targetItem</li>
-          <li><span class="parameterType">{function}</span> callback</li>
-          <li><span class="parameterType">{function}</span> errback</li>
-        </ul>
-      </td>
-      <td>none</td>
-      <td>Link one or multiple items to another item.
-            The meaning of this is dependent on the application</td>
-    </tr>
-
-    <!-- TODO
-    <tr>
-      <td>insertItemsBefore(items, beforeItem, callback, errback)</td>
-      <td>
-        <ul>
-          <li><span class="parameterType">{Array of Objects}</span> items</li>
-          <li><span class="parameterType">{Object}</span> beforeItem</li>
-          <li><span class="parameterType">{function}</span> callback</li>
-          <li><span class="parameterType">{function}</span> errback</li>
-        </ul>
-      </td>
-      <td>none</td>
-      <td>Insert a number of items before a given item.</td>
-    </tr>
-
-
-    <tr>
-      <td>moveItems(items, beforeItem, callback, errback)</td>
-      <td>
-        <ul>
-          <li><span class="parameterType">{Array of Objects}</span> items</li>
-          <li><span class="parameterType">{Object}</span> beforeItem</li>
-          <li><span class="parameterType">{function}</span> callback</li>
-          <li><span class="parameterType">{function}</span> errback</li>
-        </ul>
-      </td>
-      <td>none</td>
-      <td>Move a list of items before a given item.
+  <tr>
+    <td>insertItemsBefore(items, beforeItem, callback, errback)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> items</li>
+        <li><span class="parameterType">{Object}</span> beforeItem</li>
+        <li><span class="parameterType">{function}</span> callback</li>
+        <li><span class="parameterType">{function}</span> errback</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>Insert a number of items before a given item.
         If <code>beforeItem</code> is undefined, the items are moved to the end
-        of the data.</td>
-    </tr>
-    -->
-  
+        of the data.
+    </td>
+  </tr>
+
+  <tr>
+    <td>linkItems(sourceItems, targetItem, callback, errback)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Object[]}</span> sourceItems</li>
+        <li><span class="parameterType">{Object}</span> targetItem</li>
+        <li><span class="parameterType">{function}</span> callback</li>
+        <li><span class="parameterType">{function}</span> errback</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>Link one or multiple items to another item.
+        The meaning of this is dependent on the application</td>
+  </tr>
+
+  <tr>
+    <td>moveItems(items, beforeItem, callback, errback)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> items</li>
+        <li><span class="parameterType">{Object}</span> beforeItem</li>
+        <li><span class="parameterType">{function}</span> callback</li>
+        <li><span class="parameterType">{function}</span> errback</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>Move a list of items before a given item.
+      If <code>beforeItem</code> is undefined, the items are moved to the end
+      of the data.</td>
+  </tr>
+
   <tr> 
     <td>onEvent(event, params)</td> 
     <td>
@@ -575,10 +575,25 @@ as they are supposed to retrieve data from a server.
     <td></td> 
   </tr> 
   -->
-  
-  <!-- TODO
-  <tr> 
-    <td>updateItems(items, callback, errback)</td> 
+
+  <tr>
+    <td>setActions(actions)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> actions</li>
+      </ul>
+    </td>
+    <td>none</td>
+    <td>
+        Set a number of action icons for the data connector. The action icons will be
+        displayed in the header of the Grid where the dataconnectors data is rendered.
+        See section <a href="index.html#Actions">Actions</a> for more information
+        over the available fields.
+    </td>
+  </tr>
+
+  <tr>
+    <td>updateItems(items, callback, errback)</td>
     <td>
       <ul>
         <li><span class="parameterType">{Array of Objects}</span> items</li>
@@ -586,10 +601,12 @@ as they are supposed to retrieve data from a server.
         <li><span class="parameterType">{function}</span> errback</li>
       </ul>
     </td>
-    <td>none</td> 
-    <td>Update a list of items. The updated items are returned in the callback.</td> 
-  </tr> 
-  -->
+    <td>none</td>
+    <td>Update a list of items. The updated items are returned in the callback.
+      The passed <code>items</code> must contain the original objects retrieved
+      from the DataConnector, with changed properties.</td>
+  </tr>
+
 </table>
 
 
@@ -685,14 +702,15 @@ this depends on what the DataConnector will be used for: read-only or read/write
 
 <p>
 Examples of DataConnector implementations can be found in:
-  <ul>
-    <li><a href="../examples/example03_simulated_delay.html">example03_simulated_delay.html</a></li>
-    <li><a href="../examples/example04_search_youtube.html">example04_search_youtube.html</a></li>
-    <li><a href="../examples/example08_linkedin_connections.html">example08_linkedin_connections.html</a></li>
-    <li><a href="dataconnector_implementation_example.js">dataconnector_implementation_example.js</a></li>
-    <li>The implementation links.DataTable, located in <a href="../treegrid.js">treegrid.js</li>
-  </ul>
 </p>
+<ul>
+  <li><a href="../examples/example03_simulated_delay.html">example03_simulated_delay.html</a></li>
+  <li><a href="../examples/example04_search_youtube.html">example04_search_youtube.html</a></li>
+  <li><a href="../examples/example08_linkedin_connections.html">example08_linkedin_connections.html</a></li>
+  <li><a href="dataconnector_implementation_example.js">dataconnector_implementation_example.js</a></li>
+  <li>The implementation links.DataTable, located in <a href="../treegrid.js">treegrid.js</a></li>
+</ul>
+
 
 
 <h3><a name="Constructor" id="Constructor"></a>Constructor</h3>
@@ -843,16 +861,35 @@ The DataConnector also supports an interface for data manipulation.
 For example when drag and drop is enabled in the TreeGrid, items can be 
 dragged from one DataConnector and dropped in another DataConnector.
 If a DataConnector needs to support drag and drop, the methods 
-<code>removeItems</code> and <code>appendItems</code> must be implemented.
+<code>appendItems</code>, <code>insertItemsBefore</code>, <code>moveItems</code>,
+<code>removeItems</code>, <code>updateItems</code>,
+and optionally <code>linkItems</code> must be implemented.
 See <a href="#Methods">Methods</a> for the exact definition of these methods.
 </p>
 
+The following types of drag and drop events can occur:
+<ul>
+    <li>
+        <b>move</b><br>
+        When a move event takes place via drag an drop,
+        the method <code>removeItems</code> is called in the source dataconnector,
+        and <code>appendItems</code> or <code>insertItemsBefore</code> on the target
+        dataconnector. When items are moved inside the same dataconnector, the
+        <code>moveItems</code> method is called on this dataconnector.
+    </li>
+    <li>
+        <b>copy</b><br>
+        When a copy event takes place via drag an drop,
+        the method <code>appendItems</code> or <code>insertItemsBefore</code> on the
+        target dataconnector is called.
+    </li>
+    <li>
+        <b>link</b><br>
+        When a link event takes place via drag an drop,
+        the method <code>linkItems</code> on the target dataconnector is called.
+    </li>
+</ul>
 <p>
-When a move event takes place via drag an drop,
-the method <code>removeItems</code> is called in the source dataconnector, 
-and <code>appendItems</code> from the target dataconnector. 
-When a copy event takes place via drag an drop,
-the method <code>appendItems</code> from the target dataconnector is called. 
 </p>
 
 <p>

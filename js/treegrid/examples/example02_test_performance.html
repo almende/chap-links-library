@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html>
   <head>
     <title>TreeGrid DataTable</title>
@@ -45,8 +45,7 @@
           'capacity': Math.round(Math.random() * 100 + 100) * 10
         };
         if (index > 3) {
-          var orders = createOrders(orderCount);
-          truck['orders'] = orders;
+          truck['orders'] = createOrders(orderCount);
         }
         return truck;
       }
@@ -69,7 +68,7 @@
           'id': 'Order ' + (index + 1),
           'postcode': String(Math.random() * 10000).substring(0, 4) + "AB",
           'capacity': Math.round(Math.random() * 10 + 10) * 10
-        }
+        };
         if (Math.random() > 0.7) {
           order._icons.push({'image': 'img/24/success-icon.png', 'title': 'Order completed', 'width': '24px'});
         }
@@ -97,14 +96,12 @@
       }
 
       function createPackage(index) {
-        var pkg = {
+        return {
           'name': 'Package ' + (index + 1),
           'contents': Math.random() > 0.67 ? 'eggs' : 
             (Math.random() > 0.5 ? 'bread' : 'milk'),
           'capacity': Math.round(Math.random() * 10 + 10) * 2
         };
-
-        return pkg;
       }
 
       function createPackages(packageCount) {

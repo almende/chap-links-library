@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>TreeGrid update items</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+
+    <style>
+        body {
+            font-family: verdana, arial, serif;
+            font-size: 12pt;
+        }
+        td.main {
+            vertical-align: top;
+        }
+
+        img.icon {
+            vertical-align: top;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var treegrid;
+        var data;
+        var _allAccepted = false;
+
+        function createProduct(id, accepted) {
+            return {
+                _id: id,
+                _accepted: accepted,
+                _actions: createActions(accepted),
+                name: '<img src="img/24/autoship-icon.png" style="width: 24px; height: 24px;" class="icon"> Product ' + id,
+                weight: (Math.round(20 + Math.random() * 40) / 10) + ' kg'
+            };
+        }
+
+        function createActions(accepted) {
+            return [
+                {
+                    event: 'accept',
+                    title: 'Accept the product',
+                    image: accepted ? 'img/24/Package-Accept-icon.png' : 'img/24/product-icon.png',
+                    width: '24px',
+                    height: '24px'
+                }
+            ];
+        }
+
+        function createHeaderActions(allAccepted) {
+            return [
+                {
+                    event: 'accept_all',
+                    title: 'Accept all products',
+                    image: allAccepted ? 'img/24/Package-Accept-icon.png' : 'img/24/product-icon.png',
+                    width: '24px',
+                    height: '24px'
+                }
+            ];
+        }
+
+        function createProducts(productCount) {
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+            var products = [];
+            for (var i = 0; i < productCount; i++) {
+                var id = chars[i];
+                var accepted = Math.random() > 0.5;
+                var product = createProduct(id, accepted);
+                products.push(product);
+            }
+
+            return new links.DataTable(products);
+        }
+
+        // Called when the page is loaded
+        function drawTreeGrid() {
+            var productCount = 20;
+            data = createProducts(productCount);
+            data.setActions(createHeaderActions(_allAccepted));
+
+            // specify options
+            var options = {
+                width: '400px',
+                height: '300px'
+            };
+
+            // Instantiate our treegrid object.
+            treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+            // register listeners for interesting events
+            var info = document.getElementById('log');
+
+            // The following event is defined and fired via action button 'accept'
+            links.events.addListener(treegrid, 'accept', function (properties) {
+
+                // change the _accepted status of the item(s) (will be just one item in this case)
+                var item = properties.items[0];
+                item._accepted = !item._accepted;
+                item._actions = createActions(item._accepted);
+
+                console.log('event: accept', event, ' properties:', properties, 'new status:', item._accepted);
+
+                // update the item
+                data.updateItems([item], function (props) {
+                    setTimeout(function () {
+                        info.innerHTML += ('Status of item ' + item._id + ' has been changed to ' + (item._accepted ? 'accepted' : 'open') + '<br>');
+                    }, 0)
+                }, function (err) {
+                    console.log('Error', err);
+                })
+            });
+
+            // The following event is defined and fired via action button 'accept_all' on the header
+            links.events.addListener(treegrid, 'accept_all', function (properties) {
+                console.log('event: accept_all', event, ' properties:', properties);
+
+                _allAccepted = !_allAccepted;
+
+                data.getItems(0, Infinity, function (properties) {
+                    // update the action icons in the header
+                    data.setActions(createHeaderActions(_allAccepted));
+
+                    // update all items
+                    var items = properties.items;
+                    for(var i = 0; i < items.length; i++) {
+                        items[i]._accepted = _allAccepted;
+                        items[i]._actions = createActions(_allAccepted);
+                    }
+                    data.updateItems(items, function () {
+                        setTimeout(function () {
+                            info.innerHTML += ('Status of all items has been changed to ' + (_allAccepted ? 'accepted' : 'open') + '<br>');
+                        }, 0)
+                    });
+                }, function (err) {
+                    console.log('Error', err);
+                });
+            });
+
+            // Draw our treegrid with the created data and options
+            treegrid.draw(data);
+        }
+    </script>
+</head>
+
+<body onload="drawTreeGrid();">
+<h1>TreeGrid update items</h1>
+<p>Click the product icon to swap the "accepted" status of the products.</p>
+
+<table>
+    <tr>
+        <td class="main"><div id="mytreegrid"></div></td>
+        <td class="main"><div id="log"></div></td>
+    </tr>
+</table>
+
+</body>
+</html>
