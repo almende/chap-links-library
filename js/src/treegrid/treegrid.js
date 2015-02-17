@@ -31,7 +31,7 @@
  *
  * @author   Jos de Jong, <jos@almende.org>
  * @date    2012-07-03
- * @version 1.3.0
+ * @version 1.4.0-SNAPSHOT
  */
 
 /*
@@ -509,6 +509,8 @@ links.TreeGrid.Frame = function (container, options) {
         'width': 0
     };
 
+    this.hoveredItem = null;
+
     // create the HTML DOM
     this.repaint();
 };
@@ -765,18 +767,22 @@ links.TreeGrid.Frame.prototype._repaintFrame = function() {
         this.container.appendChild(mainFrame);
         dom.mainFrame = mainFrame;
 
-        links.TreeGrid.addEventListener(mainFrame, 'mousedown',
-            function (event) {
-                frame.onMouseDown(event);
-            });
-        links.TreeGrid.addEventListener(mainFrame, 'mousewheel',
-            function (event) {
-                frame.onMouseWheel(event);
-            });
-        links.TreeGrid.addEventListener(mainFrame, 'touchstart',
-            function (event) {
-                frame.onTouchStart(event);
-            });
+        links.TreeGrid.addEventListener(mainFrame, 'mousedown', function (event) {
+            frame.onMouseDown(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'mouseover', function (event) {
+            frame.onMouseOver(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'mouseleave', function (event) {
+            // this is mouseleave on purpose, must not be mouseout
+            frame.onMouseLeave(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'mousewheel', function (event) {
+            frame.onMouseWheel(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'touchstart', function (event) {
+            frame.onTouchStart(event);
+        });
 
         var dragImage = document.createElement('div');
         dragImage.innerHTML = '1 item';
@@ -4793,6 +4799,41 @@ links.TreeGrid.Frame.prototype.onMouseDown = function(event) {
 };
 
 /**
+ * Hover over an item
+ * @param {event} event
+ */
+links.TreeGrid.Frame.prototype.onMouseOver = function (event) {
+    event = event || window.event;
+
+    // check whether hovering an item
+    var item = links.TreeGrid.getItemFromTarget(event.target);
+    //console.log('enter', event, item)
+
+    if (this.hoveredItem !== item) {
+        if (this.hoveredItem) {
+            this.trigger('leave', {item: this.hoveredItem.data});
+        }
+
+        if (item) {
+            this.trigger('enter', {item: item.data});
+        }
+
+        this.hoveredItem = item || null;
+    }
+};
+
+/**
+ * Leave the frame
+ * @param {event} event
+ */
+links.TreeGrid.Frame.prototype.onMouseLeave = function (event) {
+    if (this.hoveredItem) {
+        this.trigger('leave', {item: this.hoveredItem.data});
+    }
+    this.hoveredItem = null;
+};
+
+/**
  * Set given node selected
  * @param {links.TreeGrid.Node} node
  * @param {Boolean} keepSelection  If true, the current node is added to the
@@ -4884,7 +4925,7 @@ links.TreeGrid.Frame.prototype.select = function(node, keepSelection, selectRang
 
     // trigger selection event
     this.trigger('select', {
-        //'index': node.index, // TOOD: cleanup
+        //'index': node.index, // TODO: cleanup
         'items': this.getSelection()
     });
 };
@@ -5196,25 +5237,6 @@ links.TreeGrid.prototype.trigger = function (event, params) {
  *     }
  *   });
  *
- *
- * @license
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy
- * of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- *
- * Copyright (c) 2011-2015 Almende B.V. <http://www.almende.com>
- *
- * @author  Jos de Jong <jos@almende.org>
- * @date    2015-02-09
- * @version 1.3.0
  */
 links.dnd = function () {
     var dragAreas = [];              // all registered drag areas

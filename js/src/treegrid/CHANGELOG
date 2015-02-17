@@ -2,6 +2,12 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+not yet released, version 1.4.0
+
+- Implemented events `enter` and `leave`, fired when the mouse is hovered
+  over an item in the TreeGrid.
+
+
 2015-02-09, version 1.3.0
 
 - implemented support for moving items, added DataConnector functions

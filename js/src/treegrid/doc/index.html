@@ -666,6 +666,16 @@ google.visualization.events.addListener(mytreegrid, 'select', onselect);
     </tr>
 
     <tr>
+        <td>enter</td>
+        <td>Fired when the mouse hovers over an item. See also <code>leave</code>.</td>
+        <td>
+            <ul>
+                <li><code>item</code>: Object. The data of the currently hovered item.</li>
+            </ul>
+        </td>
+    </tr>
+
+    <tr>
         <td>expand</td>
         <td>Expand an item. This is only possible when the item contains
             nested data. This data will be displayed as a subgrid below the item.
@@ -674,6 +684,16 @@ google.visualization.events.addListener(mytreegrid, 'select', onselect);
             <ul>
                 <li><code>items</code>: Array with Objects. This array will contain
                     one item: the expanded item.</li>
+            </ul>
+        </td>
+    </tr>
+
+    <tr>
+        <td>leave</td>
+        <td>Fired when the mouse leaves an item. See also <code>enter</code>.</td>
+        <td>
+            <ul>
+                <li><code>item</code>: Object. The data of the left item.</li>
             </ul>
         </td>
     </tr>

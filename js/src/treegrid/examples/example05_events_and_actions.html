@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html>
   <head>
     <title>TreeGrid events and actions</title>
@@ -22,6 +22,11 @@
         color: white;
         background-color: #E157E9;
         border-color: #BF29C8;
+      }
+      div.treegrid-item:hover {
+        background-color: rgba(255, 255, 128, 0.5);
+      }
+      div.treegrid-item-selected:hover {
       }
 
       img.icon {
@@ -117,35 +122,51 @@
         
         // bind the events to our functions
         links.events.addListener(treegrid, 'expand', function (properties) {
-          info.innerHTML += 'event: expand, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          log('event: expand, name: ' + getNameOfFirstItem(properties.items));
         });
         links.events.addListener(treegrid, 'collapse', function (properties) {
-          info.innerHTML += 'event: collapse, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          log('event: collapse, name: ' + getNameOfFirstItem(properties.items));
         });
         links.events.addListener(treegrid, 'select', function (properties) {
-          info.innerHTML += 'event: select, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          log('event: select, name: ' + getNameOfFirstItem(properties.items));
         });
-        
+        links.events.addListener(treegrid, 'enter', function (properties) {
+          log('event: enter, name: ' + properties.item.name);
+        });
+        links.events.addListener(treegrid, 'leave', function (properties) {
+          log('event: leave, name: ' + properties.item.name);
+        });
+
         // The following three events are defined and fired via action buttons
         links.events.addListener(treegrid, 'edit', function (properties) {
-          info.innerHTML += 'event: edit, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          log('event: edit, name: ' + getNameOfFirstItem(properties.items));
           alert('so you would like to edit item ' + getNameOfFirstItem(properties.items) + '?');
         });
         links.events.addListener(treegrid, 'ok', function (properties) {
-          info.innerHTML += 'event: ok, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          log('event: ok, name: ' + getNameOfFirstItem(properties.items));
           alert('Is that person ok?');
         });
         links.events.addListener(treegrid, 'delete', function (properties) {
-          info.innerHTML += 'event: delete, name: ' + getNameOfFirstItem(properties.items) + '<br>';
+          log('event: delete, name: ' + getNameOfFirstItem(properties.items));
           alert('why?');
           /* TODO: implement a real deletion
           data.splice(properties.index, 1);
           //*/
         });
 
+        var logs = [];
+        function log(msg) {
+          logs.push(msg);
+          while(logs.length > 20) {
+              logs.shift();
+          }
+          info.innerHTML = logs.join('<br>');
+        }
+
         // Draw our treegrid with the created data and options 
         treegrid.draw(data);
       }
+
    </script>
   </head>
 
