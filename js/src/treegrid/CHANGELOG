@@ -4,6 +4,8 @@ http://almende.github.com/chap-links-library/
 
 not yet released, version 1.4.0
 
+- Implemented methods `getSelection()`, `setSelection(items)`,
+  `expand(items)`, and `collapse(items)` on the TreeGrid.
 - Implemented events `enter` and `leave`, fired when the mouse is hovered
   over an item in the TreeGrid.
 

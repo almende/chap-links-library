@@ -595,11 +595,32 @@ var options = {
     </tr>
 
     <tr>
+        <td>collapse(items)</td>
+        <td>none</td>
+        <td>Collapse one or multiple items. Items can be retrieved from a DataConnector using <code>getItems()</code>.
+        </td>
+    </tr>
+
+    <tr>
         <td>draw(data, options)</td>
         <td>none</td>
         <td>Loads data, sets options, and draws the TreeGrid.
             <code>data</code> is a JSON Array or DataTable.
             <code>options</code> is an (optional) JSON Object containing values for options.
+        </td>
+    </tr>
+
+    <tr>
+        <td>expand(items)</td>
+        <td>none</td>
+        <td>Expand one or multiple items. Items can be retrieved from a DataConnector using <code>getItems()</code>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>getSelection()</td>
+        <td>Array</td>
+        <td>Retrieve the selected items.
         </td>
     </tr>
 
@@ -611,6 +632,14 @@ var options = {
             this method can be used to force a redraw of the TreeGrid.
         </td>
     </tr>
+
+    <tr>
+        <td>setSelection(items)</td>
+        <td>none</td>
+        <td>Replace the current selection. Parameter <code>items</code> can be a single item or an array with multiple items. Items can be retrieved from a DataConnector using <code>getItems()</code>.
+        </td>
+    </tr>
+
 </table>
 
 <h2><a name="Events" id="Events"></a>Events</h2>

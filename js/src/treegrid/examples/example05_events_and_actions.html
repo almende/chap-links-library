@@ -60,7 +60,7 @@
           var department = createDepartment(i);
           departments.push(department);
         }
-        return departments;
+        return new links.DataTable(departments);
       }      
       
       function createPerson(index, count) {

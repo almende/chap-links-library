@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>TreeGrid programmatic select, expand, collapse</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+
+    <script type="text/javascript">
+        var treegrid;
+        var data;
+
+        function createDepartment(index) {
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var personCount = Math.round(Math.random() * 20);
+            var department = {
+                'name': 'Department ' + chars.charAt(index),
+                'employees': personCount,
+                'sales': '$ ' + (10 + personCount * 10 * Math.round(7 * Math.random())) + '.000'
+            };
+            department.persons = createPersons(personCount);
+            return department;
+        }
+
+        function createDepartments(departmentCount) {
+            var departments = [];
+            for (var i = 0; i < departmentCount; i++) {
+                var department = createDepartment(i);
+                departments.push(department);
+            }
+            return new links.DataTable(departments);
+        }
+
+        function createPerson(index, count) {
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var person = {
+                'name': 'Person '+ chars[index],
+                'age': Math.round(20 + Math.random() * 40)
+            };
+
+            return person;
+        }
+
+        function createPersons(personCount) {
+            var persons = [];
+            for (var i = 0; i < personCount; i++) {
+                var person = createPerson(i);
+                persons.push(person);
+            }
+            return persons;
+        }
+
+        // Called when the page is loaded
+        function drawTreeGrid() {
+            var departmentCount = 20;
+            data = createDepartments(departmentCount);
+
+            var options = {
+                'width': '500px',
+                'height': '400px'
+            };
+
+            treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+            treegrid.draw(data);
+
+            function getIndex() {
+                return parseInt(document.getElementById('index').value);
+            }
+
+            document.getElementById('select').onclick = function () {
+                var index = getIndex();
+                var num = 1;
+                data.getItems(index, num, function (params) {
+                    treegrid.setSelection(params.items);
+                }, function (err) {
+                    console.log('Error', err);
+                })
+            };
+
+            document.getElementById('expand').onclick = function () {
+                var index = getIndex();
+                var num = 1;
+                data.getItems(index, num, function (params) {
+                    treegrid.expand(params.items);
+                }, function (err) {
+                    console.log('Error', err);
+                })
+            };
+
+            document.getElementById('collapse').onclick = function () {
+                var index = getIndex();
+                var num = 1;
+                data.getItems(index, num, function (params) {
+                    treegrid.collapse(params.items);
+                }, function (err) {
+                    console.log('Error', err);
+                })
+            };
+        }
+    </script>
+</head>
+
+<body onload="drawTreeGrid();">
+    <h1>TreeGrid programmatic select, expand, hover</h1>
+
+    <p>
+        <label for="index">Index:</label>
+        <input id="index" value="2" />
+        <input type="button" value="select" id="select" />
+        <input type="button" value="expand" id="expand" />
+        <input type="button" value="collapse" id="collapse" />
+    </p>
+
+    <div id="mytreegrid"></div>
+</body>
+</html>
