@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2012-07-03
- * @version 1.3.0
+ * @date    2015-02-23
+ * @version 1.4.0
  */
 
 /*
@@ -197,6 +197,56 @@ links.TreeGrid.prototype.redraw = function() {
     if (this.frame) {
         this.frame.onRangeChange();
     }
+};
+
+/**
+ * Expand one or multiple items
+ * @param {Object | Object[]} items     A single object or an array with
+ *                                      multiple objects
+ */
+links.TreeGrid.prototype.expand = function(items) {
+    if (!links.TreeGrid.isArray(items)) {
+        items = [items];
+    }
+
+    for (var i = 0; i < items.length; i++) {
+        var itemData = items[i];
+        var item = this.frame.findItem(itemData);
+        item && item.expand();
+    }
+};
+
+/**
+ * Collapse one or multiple items
+ * @param {Object | Object[]} items     A single object or an array with
+ *                                      multiple objects
+ */
+links.TreeGrid.prototype.collapse = function(items) {
+    if (!links.TreeGrid.isArray(items)) {
+        items = [items];
+    }
+
+    for (var i = 0; i < items.length; i++) {
+        var itemData = items[i];
+        var item = this.frame.findItem(itemData);
+        item && item.collapse();
+    }
+};
+
+/**
+ * Get the selected items
+ * @return {Array[]} selected items
+ */
+links.TreeGrid.prototype.getSelection = function() {
+    return this.frame.getSelection();
+};
+
+/**
+ * Set the selected items
+ * @param {Array[] | Object} items   a single item or array with items
+ */
+links.TreeGrid.prototype.setSelection = function(items) {
+    this.frame.setSelection(items);
 };
 
 /**
@@ -509,11 +559,25 @@ links.TreeGrid.Frame = function (container, options) {
         'width': 0
     };
 
+    this.hoveredItem = null;
+
     // create the HTML DOM
     this.repaint();
 };
 
 links.TreeGrid.Frame.prototype = new links.TreeGrid.Node();
+
+/**
+ * Find an Item by its data
+ * @param {Object} itemData
+ * @return {links.TreeGrid.Item | null}
+ */
+links.TreeGrid.Frame.prototype.findItem = function (itemData) {
+    if (this.grid) {
+        return this.grid.findItem(itemData);
+    }
+    return null;
+};
 
 /**
  * Trigger an event, but do this via the treegrid object
@@ -765,18 +829,22 @@ links.TreeGrid.Frame.prototype._repaintFrame = function() {
         this.container.appendChild(mainFrame);
         dom.mainFrame = mainFrame;
 
-        links.TreeGrid.addEventListener(mainFrame, 'mousedown',
-            function (event) {
-                frame.onMouseDown(event);
-            });
-        links.TreeGrid.addEventListener(mainFrame, 'mousewheel',
-            function (event) {
-                frame.onMouseWheel(event);
-            });
-        links.TreeGrid.addEventListener(mainFrame, 'touchstart',
-            function (event) {
-                frame.onTouchStart(event);
-            });
+        links.TreeGrid.addEventListener(mainFrame, 'mousedown', function (event) {
+            frame.onMouseDown(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'mouseover', function (event) {
+            frame.onMouseOver(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'mouseleave', function (event) {
+            // this is mouseleave on purpose, must not be mouseout
+            frame.onMouseLeave(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'mousewheel', function (event) {
+            frame.onMouseWheel(event);
+        });
+        links.TreeGrid.addEventListener(mainFrame, 'touchstart', function (event) {
+            frame.onTouchStart(event);
+        });
 
         var dragImage = document.createElement('div');
         dragImage.innerHTML = '1 item';
@@ -915,7 +983,6 @@ links.TreeGrid.Grid = function (data, options) {
 
 links.TreeGrid.Grid.prototype = new links.TreeGrid.Node();
 
-
 /**
  * update the data: update items in the visible range, and update the item count
  */
@@ -1005,7 +1072,7 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
              me.onResize();
              }
              else {
-             me.onExpand();
+             me.expand();
              }*/
 
             // update the selection
@@ -1628,7 +1695,7 @@ links.TreeGrid.Grid.prototype._removeItem = function (item) {
     var index = items.indexOf(item);
     if (index != -1) {
         if (item.expanded) {
-            item.onExpand();
+            item.collapse();
         }
 
         var visIndex = this.visibleItems.indexOf(item);
@@ -1961,6 +2028,45 @@ links.TreeGrid.Grid.prototype._repaintDropAreas = function () {
             dropArea.hide();
         }
     }
+};
+
+links.TreeGrid.Grid.prototype.expand = function (items) {
+    if (!links.TreeGrid.isArray(items)) {
+        items = [items];
+    }
+
+    for (var i = 0; i < items.length; i++) {
+        var itemsData = items[i];
+        var item = this.findItem(itemsData);
+        item && item.expand();
+    }
+};
+
+links.TreeGrid.Grid.prototype.collapse = function (items) {
+    if (!links.TreeGrid.isArray(items)) {
+        items = [items];
+    }
+
+    for (var i = 0; i < items.length; i++) {
+        var itemsData = items[i];
+        var item = this.findItem(itemsData);
+        item && item.collapse();
+    }
+};
+
+/**
+ * Find an Item by its data
+ * @param {Object} itemData
+ * @return {links.TreeGrid.Item | null}
+ */
+links.TreeGrid.Grid.prototype.findItem = function (itemData) {
+    for (var i = 0; i < this.items.length; i++) {
+        var found = this.items[i].findItem(itemData);
+        if (found) {
+            return found;
+        }
+    }
+    return null;
 };
 
 /**
@@ -2363,6 +2469,23 @@ links.TreeGrid.Item = function (params) {
 links.TreeGrid.Item.prototype = new links.TreeGrid.Node();
 
 /**
+ * Find an Item by its data
+ * @param {Object} itemData
+ * @return {links.TreeGrid.Item | null}
+ */
+links.TreeGrid.Item.prototype.findItem = function (itemData) {
+    if (this.data === itemData) {
+        return this;
+    }
+
+    if (this.grid) {
+        return this.grid.findItem(itemData);
+    }
+
+    return null;
+};
+
+/**
  * Evaluate given function with a custom current object
  * When the given fn is a string, it will be evaluated
  * WARNING: evaluating fn when it is a string is unsafe. It is safer to provide
@@ -2556,14 +2679,61 @@ links.TreeGrid.Item.prototype.onEvent = function (event) {
 };
 
 /**
- * Expand or collapse the item
+ * Create grid if not yet instantiated
+ * @return {links.TreeGrid.Grid} Returns the created (or already existing) grid
+ * @private
  */
-links.TreeGrid.Item.prototype.onExpand = function () {
-    if (this.expanded) {
-        // collapse the item
-        this.dom.buttonExpand.className = 'treegrid-fold';
+links.TreeGrid.Item.prototype._createGrid = function () {
+    if (!this.grid) {
+        // create a grid for the child data
+        this.grid = new links.TreeGrid.Grid(this.dataConnector, this.options);
+        this.grid.setParent(this);
+        this.grid.setLeft(this.left + this.options.indentationWidth);
+        this.grid.setTop(this.height);
+    }
+    return this.grid;
+};
+
+/**
+ * Expand the item
+ */
+links.TreeGrid.Item.prototype.expand = function () {
+    if (this.expanded) return;
+
+    if (this.dataConnector) {
+        this.expanded = true;
+        this.parent.registerExpandedItem(this);
+
+        if (this.dom.buttonExpand) {
+            this.dom.buttonExpand.className = 'treegrid-unfold';
+        }
+
+        // create grid if not yet instantiated
+        this._createGrid();
+
+        // if grid was already loaded before, make it visible
+        this.setVisible(true);
+        this.grid.setVisible(true);
+        this.gridHeight += (this.grid.getHeight() + this.options.padding);
+
+        this.onEvent('expand');
+        this.onResize();
+    }
+};
+
+/**
+ * Collapse the item
+ */
+links.TreeGrid.Item.prototype.collapse = function () {
+    if (!this.expanded) return;
+
+    if (this.dataConnector) {
         this.expanded = false;
         this.parent.unregisterExpandedItem(this);
+
+        if (this.dom.buttonExpand) {
+            this.dom.buttonExpand.className = 'treegrid-fold';
+        }
 
         if (this.grid) {
             this.grid.setVisible(false);
@@ -2572,32 +2742,20 @@ links.TreeGrid.Item.prototype.onExpand = function () {
         }
 
         this.onEvent('collapse');
+        this.onResize();
+    }
+};
+
+/**
+ * Toggle expand/collapse of the item
+ */
+links.TreeGrid.Item.prototype.toggleExpand = function () {
+    if (this.expanded) {
+        this.collapse();
     }
     else {
-        // expand the item
-        this.dom.buttonExpand.className = 'treegrid-unfold';
-        this.expanded = true;
-        this.parent.registerExpandedItem(this);
-
-        if (this.dataConnector) {
-            if (!this.grid) {
-                // create a grid for the child data
-                this.grid = new links.TreeGrid.Grid(this.dataConnector, this.options);
-                this.grid.setParent(this);
-                this.grid.setLeft(this.left + this.options.indentationWidth);
-                this.grid.setTop(this.height);
-            }
-
-            // if grid was already loaded before, make it visible
-            this.grid.setVisible(true);
-
-            this.gridHeight += (this.grid.getHeight() + this.options.padding);
-        }
-
-        this.onEvent('expand');
+        this.expand();
     }
-
-    this.onResize();
 };
 
 /**
@@ -2683,7 +2841,7 @@ links.TreeGrid.Item.prototype.onDrop = function(event) {
                 me.onResize();
             }
             else {
-                me.onExpand();
+                me.expand();
             }
             //*/
         };
@@ -3743,6 +3901,7 @@ links.TreeGrid.VerticalScroll.prototype._callbackOnChangeHandlers = function() {
 links.DataConnector = function (options) {
     this.options = options || {};
     this.eventListeners = []; // registered event handlers
+    this.expanded = false;
 };
 
 /**
@@ -3909,7 +4068,6 @@ links.DataConnector.prototype._onEvent = function (event, params) {
     this.onEvent(event, params);
 };
 
-
 /**
  * onEvent handler
  * @param {String} event
@@ -3922,7 +4080,7 @@ links.DataConnector.prototype.onEvent = function (event, params) {
 
 // TODO: comment
 links.DataConnector.prototype.setFilters = function (filters) {
-    errback('Error: method setFilters is not implemented');
+    console.log('Error: method setFilters is not implemented');
 };
 
 /**
@@ -4018,7 +4176,7 @@ links.DataTable.prototype.getItems = function (index, num, callback, errback) {
     for (var i = index, iMax = Math.min(index + num, count) ; i < iMax; i++) {
         items.push(filteredData[i]);
     }
-    callback({
+    callback && callback({
         'totalItems': filteredData.length,
         'items':      items
     });
@@ -4052,7 +4210,7 @@ links.DataTable.prototype.updateItems = function (items, callback, errback) {
             }
         }
         else {
-            errback("Cannot find item"); // TODO: better error
+            errback && errback("Cannot find item"); // TODO: better error
             return;
         }
     }
@@ -4060,7 +4218,7 @@ links.DataTable.prototype.updateItems = function (items, callback, errback) {
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
 
-    callback({
+    callback && callback({
         'totalItems': this.filteredData.length,
         'items': items
     });
@@ -4088,7 +4246,7 @@ links.DataTable.prototype.appendItems = function (items, callback, errback) {
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
 
-    callback({
+    callback && callback({
         'totalItems': this.filteredData.length,
         'items': items
     });
@@ -4115,7 +4273,7 @@ links.DataTable.prototype.insertItemsBefore = function (items, beforeItem, callb
     var data = this.data;
     var beforeIndex = beforeItem ? data.indexOf(beforeItem) : data.length;
     if (beforeIndex == -1) {
-        errback("Cannot find item"); // TODO: better error
+        errback && errback("Cannot find item"); // TODO: better error
         return;
     }
 
@@ -4125,7 +4283,7 @@ links.DataTable.prototype.insertItemsBefore = function (items, beforeItem, callb
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
 
-    callback({
+    callback && callback({
         'totalItems': this.filteredData.length,
         'items': items
     });
@@ -4152,7 +4310,7 @@ links.DataTable.prototype.moveItems = function (items, beforeItem, callback, err
     // find the index of the before item
     var beforeIndex = beforeItem ? this.data.indexOf(beforeItem) : this.data.length;
     if (beforeIndex == -1) {
-        errback("Cannot find item"); // TODO: better error
+        errback && errback("Cannot find item"); // TODO: better error
         return;
     }
 
@@ -4165,7 +4323,7 @@ links.DataTable.prototype.moveItems = function (items, beforeItem, callback, err
             indexes[i] = index;
         }
         else {
-            errback("Cannot find item"); // TODO: better error
+            errback && errback("Cannot find item"); // TODO: better error
             return;
         }
     }
@@ -4189,7 +4347,7 @@ links.DataTable.prototype.moveItems = function (items, beforeItem, callback, err
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
 
-    callback({
+    callback && callback({
         'totalItems': this.filteredData.length,
         'items': items
     });
@@ -4217,7 +4375,7 @@ links.DataTable.prototype.removeItems = function (items, callback, errback) {
             this.data.splice(index, 1);
         }
         else {
-            errback("Cannot find item"); // TODO: better error
+            errback && errback("Cannot find item"); // TODO: better error
             return;
         }
     }
@@ -4225,7 +4383,7 @@ links.DataTable.prototype.removeItems = function (items, callback, errback) {
     // perform filtering and sorting again if there is a filter set
     this.updateFilters();
 
-    callback({
+    callback && callback({
         'totalItems': this.filteredData.length,
         'items': items
     });
@@ -4259,7 +4417,7 @@ links.DataTable.prototype.getChanges = function (index, num, items, callback, er
         }
     }
 
-    callback({
+    callback && callback({
         'totalItems': this.filteredData.length,
         'items': changedItems
     });
@@ -4769,7 +4927,7 @@ links.TreeGrid.Frame.prototype.onMouseDown = function(event) {
     var target = links.TreeGrid.getTarget(event);
 
     if (target.treeGridType && target.treeGridType == 'expand') {
-        target.grid.onExpand();
+        target.grid.toggleExpand();
         links.TreeGrid.stopPropagation(event); // TODO: does not work
     }
     else if (target.treeGridType && target.treeGridType == 'action') {
@@ -4790,6 +4948,41 @@ links.TreeGrid.Frame.prototype.onMouseDown = function(event) {
     }
 
     links.TreeGrid.preventDefault(event);
+};
+
+/**
+ * Hover over an item
+ * @param {event} event
+ */
+links.TreeGrid.Frame.prototype.onMouseOver = function (event) {
+    event = event || window.event;
+
+    // check whether hovering an item
+    var item = links.TreeGrid.getItemFromTarget(event.target);
+    //console.log('enter', event, item)
+
+    if (this.hoveredItem !== item) {
+        if (this.hoveredItem) {
+            this.trigger('leave', {item: this.hoveredItem.data});
+        }
+
+        if (item) {
+            this.trigger('enter', {item: item.data});
+        }
+
+        this.hoveredItem = item || null;
+    }
+};
+
+/**
+ * Leave the frame
+ * @param {event} event
+ */
+links.TreeGrid.Frame.prototype.onMouseLeave = function (event) {
+    if (this.hoveredItem) {
+        this.trigger('leave', {item: this.hoveredItem.data});
+    }
+    this.hoveredItem = null;
 };
 
 /**
@@ -4884,7 +5077,7 @@ links.TreeGrid.Frame.prototype.select = function(node, keepSelection, selectRang
 
     // trigger selection event
     this.trigger('select', {
-        //'index': node.index, // TOOD: cleanup
+        //'index': node.index, // TODO: cleanup
         'items': this.getSelection()
     });
 };
@@ -4916,7 +5109,7 @@ links.TreeGrid.Frame.prototype.unselect = function(triggerEvent) {
 
 /**
  * Get the selected items
- * @param {Object[]} selected items
+ * @return {Array[]} selected items
  */
 links.TreeGrid.Frame.prototype.getSelection = function() {
     // create an array with the data of the selected items (instead of the items 
@@ -4928,6 +5121,28 @@ links.TreeGrid.Frame.prototype.getSelection = function() {
     }
 
     return selectedData;
+};
+
+/**
+ * Set the selected items
+ * @param {Array[] | Object} items   a single item or array with items
+ */
+links.TreeGrid.Frame.prototype.setSelection = function(items) {
+    this.unselect();
+
+    if (!items) {
+        items = [];
+    }
+    else if (!links.TreeGrid.isArray(items)) {
+        items = [items];
+    }
+
+    var keepSelection = true;
+    for (var i = 0; i < items.length; i++) {
+        var itemData = items[i];
+        var item = this.findItem(itemData);
+        item && this.select(item, keepSelection);
+    }
 };
 
 /**
@@ -5196,25 +5411,6 @@ links.TreeGrid.prototype.trigger = function (event, params) {
  *     }
  *   });
  *
- *
- * @license
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy
- * of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- *
- * Copyright (c) 2011-2015 Almende B.V. <http://www.almende.com>
- *
- * @author  Jos de Jong <jos@almende.org>
- * @date    2015-02-09
- * @version 1.3.0
  */
 links.dnd = function () {
     var dragAreas = [];              // all registered drag areas

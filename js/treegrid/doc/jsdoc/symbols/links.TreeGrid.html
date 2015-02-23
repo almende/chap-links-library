@@ -286,6 +286,15 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.html#collapse">collapse</a></b>(items)
+								</div>
+								<div class="description">Collapse one or multiple items</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.html#draw">draw</a></b>(data, options)
 								</div>
 								<div class="description">Main drawing logic.</div>
@@ -300,6 +309,15 @@ ul.inheritsList
 								<div class="description">Evaluate given function with a custom current object
 When the given fn is a string, it will be evaluated
 WARNING: evaluating fn when it is a string is unsafe.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.html#expand">expand</a></b>(items)
+								</div>
+								<div class="description">Expand one or multiple items</div>
 							</td>
 						</tr>
 					
@@ -328,6 +346,15 @@ scrollbars etc.</div>
 								<div class="fixedFont">links.TreeGrid.<b><a href="../symbols/links.TreeGrid.html#.getItemFromTarget">getItemFromTarget</a></b>(target)
 								</div>
 								<div class="description">Recursively find the treegrid item of which this target element is a part of.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.html#getSelection">getSelection</a></b>()
+								</div>
+								<div class="description">Get the selected items</div>
 							</td>
 						</tr>
 					
@@ -392,6 +419,15 @@ returns a copy of the merged arrays, containing only distinct elements</div>
 								<div class="fixedFont">links.TreeGrid.<b><a href="../symbols/links.TreeGrid.html#.removeEventListener">removeEventListener</a></b>(element, action, listener, useCapture)
 								</div>
 								<div class="description">Remove an event listener from an element</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.html#setSelection">setSelection</a></b>(items)
+								</div>
+								<div class="description">Set the selected items</div>
 							</td>
 						</tr>
 					
@@ -543,6 +579,43 @@ returns a copy of the merged arrays, containing only distinct elements</div>
 
 					<hr />
 				
+					<a name="collapse"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>collapse</b>(items)
+					
+					</div>
+					<div class="description">
+						Collapse one or multiple items
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object | Object[]}</span> <b>items</b>
+									
+								</dt>
+								<dd>A single object or an array with
+                                     multiple objects</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name="draw"> </a>
 					<div class="fixedFont">
 					
@@ -622,6 +695,43 @@ WARNING: evaluating fn when it is a string is unsafe. It is safer to provide
 									
 								</dt>
 								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="expand"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>expand</b>(items)
+					
+					</div>
+					<div class="description">
+						Expand one or multiple items
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object | Object[]}</span> <b>items</b>
+									
+								</dt>
+								<dd>A single object or an array with
+                                     multiple objects</dd>
 							
 							</dl>
 						
@@ -754,6 +864,38 @@ scrollbars etc.
 							<dt class="heading">Returns:</dt>
 							
 								<dd><span class="light fixedFont">{<a href="../symbols/links.TreeGrid.Item.html">links.TreeGrid.Item</a>}</span> item    Item or undefined when not found</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="getSelection"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/Array.html">Array</a>[]}</span>
+					<b>getSelection</b>()
+					
+					</div>
+					<div class="description">
+						Get the selected items
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/Array.html">Array</a>[]}</span> selected items</dd>
 							
 							</dl>
 						
@@ -1033,6 +1175,42 @@ due to resizing of the page
 
 					<hr />
 				
+					<a name="setSelection"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setSelection</b>(items)
+					
+					</div>
+					<div class="description">
+						Set the selected items
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/Array.html">Array</a>[] | Object}</span> <b>items</b>
+									
+								</dt>
+								<dd>a single item or array with items</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name=".stopPropagation"> </a>
 					<div class="fixedFont">&lt;static&gt; 
 					
@@ -1178,7 +1356,7 @@ due to resizing of the page
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Feb 09 2015 10:49:15 GMT+0100 (CET)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Feb 23 2015 08:31:19 GMT+0100 (CET)
 		</div>
 	</body>
 </html>

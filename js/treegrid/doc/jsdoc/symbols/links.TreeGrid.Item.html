@@ -277,6 +277,33 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#collapse">collapse</a></b>()
+								</div>
+								<div class="description">Collapse the item</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#expand">expand</a></b>()
+								</div>
+								<div class="description">Expand the item</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#findItem">findItem</a></b>(itemData)
+								</div>
+								<div class="description">Find an Item by its data</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#getFieldWidths">getFieldWidths</a></b>()
 								</div>
 								<div class="description">Calculate the width of the fields from the HTML DOM</div>
@@ -341,15 +368,6 @@ this will highlight the current item</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#onExpand">onExpand</a></b>()
-								</div>
-								<div class="description">Expand or collapse the item</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#reflow">reflow</a></b>()
 								</div>
 								<div class="description">Recalculate the size of the DOM elements of the header</div>
@@ -371,6 +389,15 @@ this will highlight the current item</div>
 								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#setFields">setFields</a></b>(data, columns)
 								</div>
 								<div class="description">read the field values from the item data</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.TreeGrid.Item.html#toggleExpand">toggleExpand</a></b>()
+								</div>
+								<div class="description">Toggle expand/collapse of the item</div>
 							</td>
 						</tr>
 					
@@ -451,6 +478,99 @@ this will highlight the current item</div>
 				<div class="sectionTitle">
 					Method Detail
 				</div>
+				
+					<a name="collapse"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>collapse</b>()
+					
+					</div>
+					<div class="description">
+						Collapse the item
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="expand"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>expand</b>()
+					
+					</div>
+					<div class="description">
+						Expand the item
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="findItem"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/links.TreeGrid.Item.html">links.TreeGrid.Item</a> | null}</span>
+					<b>findItem</b>(itemData)
+					
+					</div>
+					<div class="description">
+						Find an Item by its data
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Object}</span> <b>itemData</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/links.TreeGrid.Item.html">links.TreeGrid.Item</a> | null}</span> </dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
 				
 					<a name="getFieldWidths"> </a>
 					<div class="fixedFont">
@@ -697,31 +817,6 @@ this will highlight the current item
 
 					<hr />
 				
-					<a name="onExpand"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>onExpand</b>()
-					
-					</div>
-					<div class="description">
-						Expand or collapse the item
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
 					<a name="reflow"> </a>
 					<div class="fixedFont">
 					
@@ -822,6 +917,31 @@ this will highlight the current item
 
 					<hr />
 				
+					<a name="toggleExpand"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>toggleExpand</b>()
+					
+					</div>
+					<div class="description">
+						Toggle expand/collapse of the item
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
 					<a name="update"> </a>
 					<div class="fixedFont">
 					
@@ -903,7 +1023,7 @@ updateHeight() is called via an onUpdateHeight() from a child node.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Feb 09 2015 10:49:15 GMT+0100 (CET)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Feb 23 2015 08:31:19 GMT+0100 (CET)
 		</div>
 	</body>
 </html>
