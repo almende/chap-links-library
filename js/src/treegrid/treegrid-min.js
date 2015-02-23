@@ -15,8 +15,8 @@
  Copyright (c) 2011-2015 Almende B.V.
 
  @author   Jos de Jong, <jos@almende.org>
- @date    2012-07-03
- @version 1.4.0-SNAPSHOT
+ @date    2015-02-23
+ @version 1.4.0
 */
 typeof links==="undefined"&&(links={});typeof google==="undefined"&&(google=void 0);
 links.TreeGrid=function(a,b){if(!Array.prototype.indexOf)Array.prototype.indexOf=function(a){for(var b=0;b<this.length;b++)if(this[b]==a)return b;return-1};this.options={width:"100%",height:"100%",padding:4,indentationWidth:20,items:{defaultHeight:24,minHeight:24},dropAreaHeight:0};try{b.itemHeight!=void 0&&console.log("WARNING: property option.itemHeight is no longer supported. It is changed to options.items.defaultHeight")}catch(c){}for(b&&links.TreeGrid.extend(this.options,b);a.hasChildNodes();)a.removeChild(a.firstChild);

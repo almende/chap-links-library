@@ -2,7 +2,7 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
-not yet released, version 1.4.0
+2015-02-23, version 1.4.0
 
 - Implemented methods `getSelection()`, `setSelection(items)`,
   `expand(items)`, and `collapse(items)` on the TreeGrid.
