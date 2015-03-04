@@ -258,3 +258,17 @@ links.locales['ko'] = {
     'NEW': "신규",
     'CREATE_NEW_EVENT': "새 이벤트 생성"
 };
+
+// Polish ===================================================
+links.locales['pl'] = {
+    'MONTHS': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+    'MONTHS_SHORT': ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+    'DAYS': ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+    'DAYS_SHORT': ["niedz", "pon", "wt", "śr", "czw", "pt", "sob"],
+    'ZOOM_IN': "Powiększ",
+    'ZOOM_OUT': "Zmniejsz",
+    'MOVE_LEFT': "Przesuń w lewo",
+    'MOVE_RIGHT': "Przesuń w prawo",
+    'NEW': "Nowy",
+    'CREATE_NEW_EVENT': "Utwórz nowe wydarzenie"
+};
