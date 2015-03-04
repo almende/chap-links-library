@@ -27,11 +27,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (c) 2011-2014 Almende B.V.
+ * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author  Jos de Jong, <jos@almende.org>
- * @date    2014-07-28
- * @version 2.9.0
+ * @date    2015-03-04
+ * @version 2.9.1
  */
 
 /*
@@ -197,7 +197,7 @@ links.Timeline = function(container, options) {
         'unselectable': true,
         'editable': false,
         'snapEvents': true,
-        'groupChangeable': true,
+        'groupsChangeable': true,
         'timeChangeable': true,
 
         'showCurrentTime': true, // show a red bar displaying the current time
@@ -291,9 +291,9 @@ links.Timeline = function(container, options) {
  */
 links.Timeline.prototype.draw = function(data, options) {
     if (options) {
-        console.log("WARNING: Passing options in draw() is deprecated. Pass options to the constructur or use setOptions() instead!");
+        console.log("WARNING: Passing options in draw() is deprecated. Pass options to the constructur or use setOptions() instead!");       
+        this.setOptions(options);
     }
-    this.setOptions(options);
 
     if (this.options.selectable) {
         links.Timeline.addClassName(this.dom.frame, "timeline-selectable");
@@ -302,11 +302,7 @@ links.Timeline.prototype.draw = function(data, options) {
     // read the data
     this.setData(data);
 
-    // set timer range. this will also redraw the timeline
-    if (options && (options.start || options.end)) {
-        this.setVisibleChartRange(options.start, options.end);
-    }
-    else if (this.firstDraw) {
+    if (this.firstDraw) {
         this.setVisibleChartRangeAuto();
     }
 
@@ -1526,7 +1522,7 @@ links.Timeline.prototype.reflowItems = function() {
     if (groups) { // TODO: need to check if labels exists?
         // loop through all groups to reset the items height
         groups.forEach(function (group) {
-            group.itemsHeight = 0;
+            group.itemsHeight = group.labelHeight || 0;
         });
     }
 
@@ -1827,7 +1823,7 @@ links.Timeline.prototype.reflowGroups = function() {
 
     // limit groupsWidth to the groups width in the options
     if (options.groupsWidth !== undefined) {
-        groupsWidth = dom.groups.frame ? dom.groups.frame.clientWidth : 0;
+        groupsWidth = dom.groups && dom.groups.frame ? dom.groups.frame.clientWidth : 0;
     }
 
     // compensate for the border width. TODO: calculate the real border width

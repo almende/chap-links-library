@@ -1,6 +1,17 @@
 CHAP Links Library - Timeline
 
 
+2015-03-04, version 2.9.1
+
+- Fixed broken option `groupsWidth`.
+- Fixed group height collapsing when there are no items, height now reckons
+  with the label height.
+- Added Brazilian Portuguese locale, thanks @gmmoreira.
+- Added locales Portuguese, Chinese, Arabic, Japanese, Korean. Thanks Mario
+  Fischer.
+- Added Polish locale, thanks @pbrzoski.
+
+
 2014-07-28, version 2.9.0
 
 - Implemented function `getCluster()`, `getClusterIndex()` and `getSelection()`.
