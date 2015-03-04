@@ -197,6 +197,8 @@ links.locales['pt'] = {
     'CREATE_NEW_EVENT': "Criar novo evento"
 };
 
+links.locales['pt_PT'] = links.locales['pt'];
+
 
 // Chinese ===================================================
 links.locales['zh'] = {
@@ -212,8 +214,8 @@ links.locales['zh'] = {
     'CREATE_NEW_EVENT': "创建新的事件"
 };
 
-links.locales['zh_cn'] = links.locales['zh'];
-links.locales['zh_tr'] = links.locales['zh'];
+links.locales['zh_CN'] = links.locales['zh'];
+links.locales['zh_TR'] = links.locales['zh'];
 
 
 // Arabic ===================================================
@@ -230,6 +232,8 @@ links.locales['ar'] = {
     'CREATE_NEW_EVENT': "إنشاء حدث جديد"
 };
 
+links.locales['ar_AR'] = links.locales['ar'];
+
 
 // Japanese ===================================================
 links.locales['ja'] = {
@@ -245,6 +249,8 @@ links.locales['ja'] = {
     'CREATE_NEW_EVENT': "新しいイベントの作成"
 };
 
+links.locales['ja_JA'] = links.locales['ja'];
+
 // Korean ===================================================
 links.locales['ko'] = {
     'MONTHS': ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
@@ -259,6 +265,8 @@ links.locales['ko'] = {
     'CREATE_NEW_EVENT': "새 이벤트 생성"
 };
 
+links.locales['ko_KO'] = links.locales['ko'];
+
 // Polish ===================================================
 links.locales['pl'] = {
     'MONTHS': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
@@ -272,3 +280,5 @@ links.locales['pl'] = {
     'NEW': "Nowy",
     'CREATE_NEW_EVENT': "Utwórz nowe wydarzenie"
 };
+
+links.locales['ko'] = links.locales['ko_KO'];
