@@ -4008,7 +4008,7 @@ links.Network.Link.prototype._text = function (ctx, text, x, y) {
         ctx.font = ((this.from.selected || this.to.selected) ? "bold " : "") +
             this.fontSize + "px " + this.fontFace;
         ctx.fillStyle = 'white';
-        var width = ctx.measureText(this.text).width;
+        var width = ctx.measureText(text).width;
         var height = this.fontSize;
         var left = x - width / 2;
         var top = y - height / 2;
@@ -4019,7 +4019,7 @@ links.Network.Link.prototype._text = function (ctx, text, x, y) {
         ctx.fillStyle = this.fontColor || "black";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText(this.text, left, top);
+        ctx.fillText(text, left, top);
     }
 };
 
