@@ -3985,12 +3985,12 @@ links.Network.Link.prototype._drawText = function (ctx) {
     }
     
     if (this.textFrom) {
-        var point = this._pointOnLine(0.3);
+        var point = this._pointOnLine(0.25);
         this._text(ctx, this.textFrom, point.x, point.y);
     }
     
     if (this.textTo) {
-        var point = this._pointOnLine(0.7);
+        var point = this._pointOnLine(0.75);
         this._text(ctx, this.textTo, point.x, point.y);
     }
 };
