@@ -3612,7 +3612,9 @@ links.Network.Link.prototype.setProperties = function(properties, constants) {
     if (properties.id != undefined)         {this.id = properties.id;}
     if (properties.style != undefined)      {this.style = properties.style;}
     if (properties.text != undefined)       {this.text = properties.text;}
-    if (this.text) {
+    if (properties.textTo != undefined)       {this.textTo = properties.textTo;}
+    if (properties.textFrom != undefined)       {this.textFrom = properties.textFrom;}
+    if (this.text || this.textTo || this.textFrom) {
         this.fontSize = constants.links.fontSize;
         this.fontFace = constants.links.fontFace;
         this.fontColor = constants.links.fontColor;
@@ -3904,10 +3906,7 @@ links.Network.Link.prototype._drawLine = function(ctx) {
         this._line(ctx);
 
         // draw text
-        if (this.text) {
-            point = this._pointOnLine(0.5);
-            this._text(ctx, this.text, point.x, point.y);
-        }
+        this._drawText(ctx);
     }
     else {
         var radius = this.length / 2 / Math.PI;
@@ -3974,6 +3973,29 @@ links.Network.Link.prototype._circle = function (ctx, x, y, radius) {
 };
 
 /**
+ * Draw text properties of a link if applicable
+ * @param {CanvasRenderingContext2D} ctx
+ * @author Marc-Antoine Fortier
+ * @date 2015-03-16
+ */
+links.Network.Link.prototype._drawText = function (ctx) {
+    if (this.text) {
+        point = this._pointOnLine(0.5);
+        this._text(ctx, this.text, point.x, point.y);
+    }
+    
+    if (this.textFrom) {
+        var point = this._pointOnLine(0.25);
+        this._text(ctx, this.textFrom, point.x, point.y);
+    }
+    
+    if (this.textTo) {
+        var point = this._pointOnLine(0.75);
+        this._text(ctx, this.textTo, point.x, point.y);
+    }
+};
+
+/**
  * Draw text with white background and with the middle at (x, y)
  * @param {CanvasRenderingContext2D} ctx
  * @param {String} text
@@ -3986,7 +4008,7 @@ links.Network.Link.prototype._text = function (ctx, text, x, y) {
         ctx.font = ((this.from.selected || this.to.selected) ? "bold " : "") +
             this.fontSize + "px " + this.fontFace;
         ctx.fillStyle = 'white';
-        var width = ctx.measureText(this.text).width;
+        var width = ctx.measureText(text).width;
         var height = this.fontSize;
         var left = x - width / 2;
         var top = y - height / 2;
@@ -3997,7 +4019,7 @@ links.Network.Link.prototype._text = function (ctx, text, x, y) {
         ctx.fillStyle = this.fontColor || "black";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText(this.text, left, top);
+        ctx.fillText(text, left, top);
     }
 };
 
@@ -4064,10 +4086,7 @@ links.Network.Link.prototype._drawDashLine = function(ctx) {
     ctx.stroke();
 
     // draw text
-    if (this.text) {
-        var point = this._pointOnLine(0.5);
-        this._text(ctx, this.text, point.x, point.y);
-    }
+    this._drawText(ctx);
 };
 
 /**
@@ -4145,10 +4164,7 @@ links.Network.Link.prototype._drawMovingDot = function(ctx) {
         if (this.dot > 1.0) this.dot = 0.0;
 
         // draw text
-        if (this.text) {
-            point = this._pointOnLine(0.5);
-            this._text(ctx, this.text, point.x, point.y);
-        }
+        this._drawText(ctx);
     }
     else {
         // TODO: moving dot for a circular edge
@@ -4186,10 +4202,7 @@ links.Network.Link.prototype._drawArrow = function(ctx) {
         }
 
         // draw text
-        if (this.text) {
-            point = this._pointOnLine(0.5);
-            this._text(ctx, this.text, point.x, point.y);
-        }
+        this._drawText(ctx);
     }
     else {
         // draw circle
@@ -4222,10 +4235,7 @@ links.Network.Link.prototype._drawArrow = function(ctx) {
         }
 
         // draw text
-        if (this.text) {
-            point = this._pointOnCircle(x, y, radius, 0.5);
-            this._text(ctx, this.text, point.x, point.y);
-        }
+        this._drawText(ctx);
     }
 };
 
@@ -4274,10 +4284,7 @@ links.Network.Link.prototype._drawArrowEnd = function(ctx) {
         ctx.stroke();
 
         // draw text
-        if (this.text) {
-            var point = this._pointOnLine(0.5);
-            this._text(ctx, this.text, point.x, point.y);
-        }
+        this._drawText(ctx);
     }
     else {
         // draw circle
@@ -4318,10 +4325,7 @@ links.Network.Link.prototype._drawArrowEnd = function(ctx) {
         ctx.stroke();
 
         // draw text
-        if (this.text) {
-            point = this._pointOnCircle(x, y, radius, 0.5);
-            this._text(ctx, this.text, point.x, point.y);
-        }
+        this._drawText(ctx);
     }
 
 };
