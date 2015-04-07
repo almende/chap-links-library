@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>TreeGrid demo - selective drag and drop</title>
+
+    <style>
+      th {
+        text-align: left;
+      }
+      p {
+        max-width: 700px;
+      }
+    </style>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var ordersTreeGrid;
+      var ordersDataConnector;
+      var trucksTreeGrid;
+      var trucksDataConnector;
+
+      // Called when the page is loaded
+      function draw() {
+        // randomly generate some orders
+        var orders = [];
+        for (var i = 0; i < 50; i++) {
+          orders.push({
+            'name': 'Order ' + i,
+            'size': (Math.round(Math.random() * 50) * 10 + 100) + ' kB',
+            'date': (new Date()).toDateString(),
+            '_id': i     // this is a hidden field, as it starts with an underscore
+          });
+        }
+        
+        // randomly generate a list with trucks, containing a dataconnector which supports
+        // drag and drop
+        var list = [];
+        var chars = 'ABCDE';
+        for (var i in chars) {
+          var c = chars[i];
+          var options = {
+            'dataTransfer' : {
+              'allowedEffect': 'move',
+              'dropEffect': 'move'
+            }
+          };
+          var dataConnector = new links.DataTable([], options);
+
+          function isOdd (item) {
+            return item._id % 2 === 1;
+          }
+
+          dataConnector.insertItemsBefore = function (items, beforeItem, callback, errback) {
+            console.log('insertItemsBefore:', items);
+
+            // only accept items with odd id's
+            var accepted = items.filter(isOdd);
+            console.log('-> accepting items:', accepted);
+
+            // insert the filtered items
+            links.DataTable.prototype.insertItemsBefore.call(this, accepted, beforeItem, callback, errback);
+          };
+          dataConnector.appendItems = function (items, callback, errback) {
+            console.log('appendItems:', items);
+
+            // only accept items with odd id's
+            var accepted = items.filter(isOdd);
+            console.log('-> accepting items:', accepted);
+
+            // append the filtered items
+            links.DataTable.prototype.appendItems.call(this, accepted, callback, errback);
+          };
+
+          var item = {
+            'name': 'Truck ' + c,
+            'files': dataConnector,
+            '_id': c
+          };
+          list.push(item);
+        }
+
+        // specify options
+        var treeGridOptions = {
+          'width': '350px',
+          'height': '400px'
+        };  
+
+        // Instantiate treegrid object with orders
+        var ordersOptions = {
+          'columns': [
+            {'name': 'name', 'text': 'Name', 'title': 'Name of the orders'},
+            {'name': 'size', 'text': 'Size', 'title': 'Size of the orders in kB (kilo bytes)'},
+            {'name': 'date', 'text': 'Date', 'title': 'Date the order is last updated'}
+          ],
+          'dataTransfer' : {
+            'allowedEffect': 'move',
+            'dropEffect': 'none'
+          }
+        };
+        ordersTreeGrid = new links.TreeGrid(document.getElementById('orders'), {
+            'width': '350px',
+            'height': '400px'
+        });
+        ordersDataConnector = new links.DataTable(orders, ordersOptions);
+        ordersTreeGrid.draw(ordersDataConnector);
+
+        // Instantiate treegrid object with a list of trucks
+        var listOptions = {
+          'dataTransfer' : {
+            'allowedEffect': 'none',
+            'dropEffect': 'none'
+          }
+        };
+
+        trucksDataConnector = new links.DataTable(list, listOptions);
+        trucksTreeGrid = new links.TreeGrid(document.getElementById('trucks'), {
+            'width': '350px',
+            'height': '400px'
+        });
+        trucksTreeGrid.draw(trucksDataConnector);
+      }
+   </script>
+  </head>
+
+  <body onload="draw();">
+    <p>
+      This example demonstrates how to control dropping items. In this example, the DataConnector where the orders are dropped will only accept odd numbered orders.
+    </p>
+
+    <table id="main">
+      <tr>
+        <th>Orders</th>
+        <th>Trucks</th>
+      </tr>
+      <tr>
+        <td id="orders"></td>
+        <td id="trucks"></td>
+      </tr>
+    </table>
+    
+  </body>
+</html>

@@ -2,6 +2,12 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+2015-04-07, version 1.5.0
+
+- Implemented selective drag and drop: the DataConnector where the items
+  are dropped can accept a selection of the dropped items, and send back
+  only the accepted items.
+
 2015-02-23, version 1.4.0
 
 - Implemented methods `getSelection()`, `setSelection(items)`,

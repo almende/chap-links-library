@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2015-02-23
- * @version 1.4.0
+ * @date    2015-04-07
+ * @version 1.5.0
  */
 
 /*
@@ -855,8 +855,8 @@ links.TreeGrid.Frame.prototype._repaintFrame = function() {
             'dragImage': dragImage,
             'dragImageOffsetX': 10,
             'dragImageOffsetY': -10,
-            'dragStart': function (event) {return frame.onDragStart(event);},
-            'dragEnd': function (event) {return frame.onDragEnd(event);}
+            'dragStart': function (event) {return frame.onDragStart(event);}
+            //'dragEnd': function (event) {return frame.onDragEnd(event);} // TODO: cleanup
         });
     }
 
@@ -1066,7 +1066,7 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
 
     if (this.dataConnector) {
         var me = this;
-        var callback = function () {
+        var callback = function (resp) {
             /* TODO
              if (me.expanded) {      
              me.onResize();
@@ -1075,19 +1075,34 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
              me.expand();
              }*/
 
+            // set the returned items as accepted items
+            if (resp && resp.items) {
+                accepted = items.filter(function (item) {
+                    return resp.items.indexOf(item.data) !== -1;
+                });
+                event.dataTransfer.setData('items', accepted);
+            }
+            else {
+                accepted = items;
+            }
+
             // update the selection
             var frame = links.TreeGrid.Frame.findFrame(me);
-            if (frame) {
+            if (frame && accepted.length > 0) {
                 // select the moved items
                 var first = me.items[startIndex];
                 frame.select(first);
-                if (items.length > 1) {
-                    var last = me.items[startIndex + items.length - 1];
+                if (accepted.length > 1) {
+                    var last = me.items[startIndex + accepted.length - 1];
                     if (last) {
                         frame.select(last, false, true);
                     }
                 }
             }
+
+            // fire the dragEnd event on the source frame
+            var srcFrame = event.dataTransfer.getData('srcFrame');
+            srcFrame.onDragEnd(event);
         };
         var errback = callback;
 
@@ -1129,7 +1144,7 @@ links.TreeGrid.Grid.prototype.onDrop = function(event) {
                     beforeItem = item.parent.items[0];
                 }
                 var beforeData = beforeItem && beforeItem.data;
-                var startIndex = beforeItem && beforeItem.index || this.itemCount;
+                var startIndex = beforeItem ? beforeItem.index : this.itemCount;
 
                 if (sameDataConnector) {
                     this.dataConnector.moveItems(itemsData, beforeData, callback, errback);
@@ -2831,11 +2846,9 @@ links.TreeGrid.Item.prototype.onDrop = function(event) {
     this.dataTransfer.dragbefore = false;
     this.repaint();
 
-    // TODO: trigger event
-
     if (this.dataConnector) {
         var me = this;
-        var callback = function () {
+        var callback = function (resp) {
             //* TODO
             if (me.expanded) {
                 me.onResize();
@@ -2844,6 +2857,20 @@ links.TreeGrid.Item.prototype.onDrop = function(event) {
                 me.expand();
             }
             //*/
+
+            // set the returned items as accepted items
+            if (resp && resp.items) {
+                accepted = event.dataTransfer.getData('items').filter(function (item) {
+                    return resp.items.indexOf(item.data) !== -1;
+                });
+                event.dataTransfer.setData('items', accepted);
+            }
+
+            // TODO: select the just dropped items
+
+            // fire the dragEnd event on the source frame
+            var srcFrame = event.dataTransfer.getData('srcFrame');
+            srcFrame.onDragEnd(event);
         };
         var errback = callback;
 
@@ -3575,8 +3602,6 @@ links.TreeGrid.DropArea.prototype.onDrop = function(event) {
     var data = JSON.parse(event.dataTransfer.getData('items'));
     this.dragover = false;
     this.repaint();
-
-    console.log('onDrop', event); // TODO: comment
 
     if (this.dataConnector) {
         var me = this;
@@ -4854,6 +4879,7 @@ links.TreeGrid.Frame.prototype.onDragStart = function(event) {
         }
 
         event.dataTransfer.setData('items', items);
+        event.dataTransfer.setData('srcFrame', this);
         return true;
     }
     else {
