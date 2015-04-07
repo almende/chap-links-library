@@ -63,10 +63,6 @@ The library contains the following components:
 
 ## Successor
 
-<a href="http://visjs.org">
-  <img src="http://visjs.org/img/logo/vis128.png" style="float: right; padding-left: 10px;">
-</a>
-
 CHAP Links Library now has a successor: [vis.js](http://visjs.org).
 A couple of fundamental limitations in the current architecture of CHAP Links 
 Library have been reached. Therefore, a new initiative has been started,
