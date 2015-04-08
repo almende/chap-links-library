@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2015-04-07
- * @version 1.5.0
+ * @date    2015-04-08
+ * @version 1.6.0
  */
 
 /*
