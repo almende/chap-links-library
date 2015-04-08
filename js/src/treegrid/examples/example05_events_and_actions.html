@@ -45,7 +45,7 @@
           'name': 'Department ' + chars.charAt(index),
           'employees': personCount,
           'sales': '$ ' + (10 + personCount * 10 * Math.round(7 * Math.random())) + '.000'
-        }
+        };
         department.persons = createPersons(personCount);
         department._actions = [
           {'event': 'delete', 'title': 'Delete this department', 'image': 'img/24/Close-2-icon.png'}
@@ -63,12 +63,12 @@
         return new links.DataTable(departments);
       }      
       
-      function createPerson(index, count) {
+      function createPerson(index) {
         var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var person = {
           'name': '<img src="img/24/Preppy-icon.png" class="icon"> Person '+ chars[index],
           'age': Math.round(20 + Math.random() * 40)
-        }
+        };
         
         person._actions = [
           {'event': 'edit', 'image': 'img/24/Document-Write-icon.png'},
