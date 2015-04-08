@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2015-04-07
- * @version 1.5.0
+ * @date    2015-04-08
+ * @version 1.6.0
  */
 
 /*
@@ -505,6 +505,7 @@ links.TreeGrid.Node.createActionIcons = function (node, actions) {
                 domAction.title = action.title || '';
                 domAction.src = action.image;
                 domAction.event = action.event;
+                domAction.id = action.id;
                 domAction.item = node;
                 domAction.style.width = action.width || '';
                 domAction.style.height = action.height || '';
@@ -519,6 +520,7 @@ links.TreeGrid.Node.createActionIcons = function (node, actions) {
                 domAction.title = action.title || '';
                 domAction.innerHTML = action.text ? action.text : action.event;
                 domAction.event = action.event;
+                domAction.id = action.id;
                 domAction.item = node;
                 domAction.style.width = action.width || '';
                 domAction.style.height = action.height || '';
