@@ -166,3 +166,119 @@ links.locales['hu'] = {
 };
 
 links.locales['hu_HU'] = links.locales['hu'];
+
+// Brazilian Portuguese ===================================================
+links.locales['pt'] = {
+    'MONTHS': ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+    'MONTHS_SHORT': ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+    'DAYS': ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+    'DAYS_SHORT': ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    'ZOOM_IN': "Aproximar",
+    'ZOOM_OUT': "Afastar",
+    'MOVE_LEFT': "Mover para esquerda",
+    'MOVE_RIGHT': "Mover para direita",
+    'NEW': "Novo",
+    'CREATE_NEW_EVENT': "Criar novo evento"
+};
+
+links.locales['pt_BR'] = links.locales['pt'];
+
+// Portuguese ===================================================
+links.locales['pt'] = {
+    'MONTHS': ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro", "Outubro", "Novembro", "Dezembro"],
+    'MONTHS_SHORT': ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+    'DAYS': ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+    'DAYS_SHORT': ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    'ZOOM_IN': "Mais Zoom",
+    'ZOOM_OUT': "Menos Zoom",
+    'MOVE_LEFT': "Esquerda",
+    'MOVE_RIGHT': "Direita",
+    'NEW': "Novo",
+    'CREATE_NEW_EVENT': "Criar novo evento"
+};
+
+links.locales['pt_PT'] = links.locales['pt'];
+
+
+// Chinese ===================================================
+links.locales['zh'] = {
+    'MONTHS': ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+    'MONTHS_SHORT': ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+    'DAYS': ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+    'DAYS_SHORT': ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+    'ZOOM_IN': "放大",
+    'ZOOM_OUT': "缩小",
+    'MOVE_LEFT': "左移",
+    'MOVE_RIGHT': "右移",
+    'NEW': "新建",
+    'CREATE_NEW_EVENT': "创建新的事件"
+};
+
+links.locales['zh_CN'] = links.locales['zh'];
+links.locales['zh_TR'] = links.locales['zh'];
+
+
+// Arabic ===================================================
+links.locales['ar'] = {
+    'MONTHS': ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+    'MONTHS_SHORT': ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+    'DAYS': ["الأحد", "الأثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+    'DAYS_SHORT': ["الأحد", "الأثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+    'ZOOM_IN': "تكبير",
+    'ZOOM_OUT': "تصغير",
+    'MOVE_LEFT': "تحريك لليسار",
+    'MOVE_RIGHT': "تحريك لليمين",
+    'NEW': "جديد",
+    'CREATE_NEW_EVENT': "إنشاء حدث جديد"
+};
+
+links.locales['ar_AR'] = links.locales['ar'];
+
+
+// Japanese ===================================================
+links.locales['ja'] = {
+    'MONTHS': ["一月", "二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+    'MONTHS_SHORT': ["一月", "二月", "三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],
+    'DAYS': ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"],
+    'DAYS_SHORT': ["日", "月", "火", "水", "木", "金", "土"],
+    'ZOOM_IN': "拡大する",
+    'ZOOM_OUT': "縮小する",
+    'MOVE_LEFT': "左に移動",
+    'MOVE_RIGHT': "右に移動",
+    'NEW': "新しい",
+    'CREATE_NEW_EVENT': "新しいイベントの作成"
+};
+
+links.locales['ja_JA'] = links.locales['ja'];
+
+// Korean ===================================================
+links.locales['ko'] = {
+    'MONTHS': ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+    'MONTHS_SHORT': ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+    'DAYS': ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
+    'DAYS_SHORT': ["일", "월", "화", "수", "목", "금", "토"],
+    'ZOOM_IN': "줌 인",
+    'ZOOM_OUT': "줌 아웃",
+    'MOVE_LEFT': "왼쪽으로 이동",
+    'MOVE_RIGHT': "오른쪽으로 이동",
+    'NEW': "신규",
+    'CREATE_NEW_EVENT': "새 이벤트 생성"
+};
+
+links.locales['ko_KO'] = links.locales['ko'];
+
+// Polish ===================================================
+links.locales['pl'] = {
+    'MONTHS': ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+    'MONTHS_SHORT': ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"],
+    'DAYS': ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+    'DAYS_SHORT': ["niedz", "pon", "wt", "śr", "czw", "pt", "sob"],
+    'ZOOM_IN': "Powiększ",
+    'ZOOM_OUT': "Zmniejsz",
+    'MOVE_LEFT': "Przesuń w lewo",
+    'MOVE_RIGHT': "Przesuń w prawo",
+    'NEW': "Nowy",
+    'CREATE_NEW_EVENT': "Utwórz nowe wydarzenie"
+};
+
+links.locales['ko'] = links.locales['ko_KO'];
