@@ -12,3 +12,10 @@ for Javascript and GWT.
 
 Links Library is part of [CHAP](http://chap.almende.com), 
 the Common Hybrid Agent Platform.
+
+
+## Successor
+
+CHAP Links Library has a successor and is no longer actively developed. The successor of the library is vis.js: 
+
+http://visjs.org
