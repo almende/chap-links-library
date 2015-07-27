@@ -2,6 +2,11 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+2015-07-27, version 1.6.1
+
+- Fixed a bug sometimes calculating the wrong top position of items.
+
+
 2015-04-08, version 1.6.0
 
 - Actions can now have an additional field `id`.

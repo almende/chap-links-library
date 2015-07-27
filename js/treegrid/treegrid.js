@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date    2015-04-08
- * @version 1.6.0
+ * @date    2015-07-27
+ * @version 1.6.1
  */
 
 /*
@@ -1978,6 +1978,7 @@ links.TreeGrid.Grid.prototype._repaintItems = function () {
         for (var i = iStart; i < iEnd; i++) {
             var item = this.getItem(i);
             item.setVisible(true);
+            item.top = this._calculateItemTop(item.index);
             if (visibleItems.indexOf(item) == -1) {
                 visibleItems.push(item);
             }
