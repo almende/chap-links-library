@@ -1961,11 +1961,8 @@ links.TreeGrid.Grid.prototype._repaintItems = function () {
         var item = visibleItems[i];
         if (item.index < this.offset || item.index >= this.offset + this.limit || !visible) {
             item.hide();
-            var index = visibleItems.indexOf(item);
-            if (index != -1) {
-                visibleItems.splice(index, 1);
-                i--;
-            }
+            visibleItems.splice(i, 1);
+            i--;
         }
         i++;
     }
@@ -1978,7 +1975,6 @@ links.TreeGrid.Grid.prototype._repaintItems = function () {
         for (var i = iStart; i < iEnd; i++) {
             var item = this.getItem(i);
             item.setVisible(true);
-            item.top = this._calculateItemTop(item.index);
             if (visibleItems.indexOf(item) == -1) {
                 visibleItems.push(item);
             }
@@ -2340,15 +2336,22 @@ links.TreeGrid.Grid.prototype.setItemCount = function (itemCount) {
     if (diff < 0) {
         // there are items removed
         var oldItemCount = this.itemCount;
-        var items = this.items;
+
+        // adjust the itemsHeight
         for (var i = itemCount; i < oldItemCount; i++) {
-            var item = items[i];
-            if (item) {
-                item.hide();
-                delete items[i];
-            }
+            var item = this.items[i];
             var itemHeight = item ? item.getHeight() : defaultHeight;
             this.itemsHeight -= (itemHeight + this.dropAreaHeight);
+        }
+
+        // remove all items at the tail
+        // important: loop until this.items.length, not oldItemCount
+        for (var i = oldItemCount; i < this.items.length; i++) {
+            var item = this.items[i];
+            if (item) {
+                item.hide();
+                delete this.items[i];
+            }
         }
 
         if (itemCount == 0) {
