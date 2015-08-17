@@ -1272,7 +1272,10 @@ links.TreeGrid.Grid.prototype.reflow = function() {
     var left = indentationWidth + this.iconsWidth;
     for (var i = 0, iMax = columns.length; i < iMax; i++) {
         var column = columns[i];
-        column.left = left;
+        if (left != column.left) {
+            column.left = left;
+            resized = true;
+        }
         left += column.width;
     }
 
@@ -1342,6 +1345,8 @@ links.TreeGrid.Grid.prototype.reflow = function() {
         this.height = height;
         this.onUpdateHeight(diffHeight);
     }
+
+    console.log('Grid.reflow', resized)
 
     return resized;
 };
