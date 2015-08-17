@@ -2,7 +2,7 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
-not yet released, version 1.6.2
+2015-08-17, version 1.6.2
 
 - Fixed dragging items being broken due to the fix of v1.6.1.
 - Fixed column left positions being set to zero after replacing all items
