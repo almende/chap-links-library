@@ -1346,8 +1346,6 @@ links.TreeGrid.Grid.prototype.reflow = function() {
         this.onUpdateHeight(diffHeight);
     }
 
-    console.log('Grid.reflow', resized)
-
     return resized;
 };
 
