@@ -2145,13 +2145,12 @@ links.TreeGrid.Header.prototype.repaint = function () {
 
             if (this.columns) {
                 // create fields
-                var columns = this.columns,
-                    padding = this.options.padding;
+                var padding = this.options.padding;
                 for (var i = 0, iMax = columns.length; i < iMax; i++) {
                     if (!this.dom.fields[i]) {
                         var column = this.columns[i];
                         var domField = document.createElement('DIV');
-                        domField.className = 'treegrid-header-field';
+                        domField.className = 'treegrid-header-field' + (column.sortable ? ' treegrid-sortable' : '');
                         domField.style.position = 'absolute';
                         domField.style.top = '0px';
                         domField.innerHTML = column.text || column.name || '';
@@ -2164,9 +2163,9 @@ links.TreeGrid.Header.prototype.repaint = function () {
             }
         }
 
+        // update actions
         var actions = this.parent && this.parent.dataConnector && this.parent.dataConnector.actions;
         if (JSON.stringify(actions) !== JSON.stringify(this.actions)) {
-            console.log('Actions', JSON.stringify(actions)); // TODO: cleanup
             this.actions = actions;
 
             if (this.dom.actions) {
@@ -2179,6 +2178,65 @@ links.TreeGrid.Header.prototype.repaint = function () {
                 var domActions = links.TreeGrid.Node.createActionIcons(this, actions);
                 this.dom.actions = domActions;
                 domHeader.appendChild(domActions);
+            }
+        }
+
+        // update filters (create sorting buttons
+        var filters = this.parent && this.parent.dataConnector && this.parent.dataConnector.filters;
+        if (!this.filters || JSON.stringify(filters) !== JSON.stringify(this.filters)) {
+            this.filters = filters;
+
+            var orderIcons = {
+                asc: '&blacktriangledown;',
+                desc: '&blacktriangle;',
+                'null': '&blacktriangle;&blacktriangledown;',
+            }
+
+            if (this.columns) {
+                for (var i = 0, iMax = columns.length; i < iMax; i++) {
+                    var column = this.columns[i];
+                    var domField = this.dom.fields[i];
+
+                    // remove old dom field
+                    if (domField.domSort) {
+                        domField.removeChild(domField.domSort);
+                        delete domField.domSort;
+                    }
+
+                    if (column.sortable) {
+                        // create new DOM field
+                        var dataConnector = this.parent.dataConnector;
+                        var filters = dataConnector.filters;
+                        var filter = null;
+                        if (filters) {
+                            for (var j = 0; j < dataConnector.filters.length; j++) {
+                                if (filters[j].field == column.name) {
+                                    filter = filters[j];
+                                    break;
+                                }
+                            }
+                        }
+
+                        var domSort = document.createElement('SPAN');
+                        var order = filter && filter.order;
+                        domSort.innerHTML = ' ' + orderIcons[filter && filter.order];
+                        domSort.title = 'Sort this column';
+
+                        domField.appendChild(domSort);
+                        domField.domSort = domSort;
+                        (function (field, order) {
+                            domField.onclick = function () {
+                                dataConnector.setFilters([
+                                    {
+                                        field: field,
+                                        order: (order === 'asc') ? 'desc' : (order === 'desc') ? null : 'asc'
+                                    }
+                                ]);
+                                dataConnector.trigger('change', undefined);
+                            }
+                        })(column.name, order)
+                    }
+                }
             }
         }
 
@@ -2200,7 +2258,6 @@ links.TreeGrid.Header.prototype.repaint = function () {
 
         // position the columns
         var domFields = this.dom.fields;
-        var columns = this.columns;
         for (var i = 0, iMax = Math.min(domFields.length, columns.length); i < iMax; i++) {
             domFields[i].style.left = columns[i].left + 'px';
         }
