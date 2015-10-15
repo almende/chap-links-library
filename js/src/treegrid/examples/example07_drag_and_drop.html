@@ -80,11 +80,14 @@
         filesTreeGrid = new links.TreeGrid(filesContainer, treeGridOptions);
         filesDataConnector = new links.DataTable(files, filesOptions);
         /*
-        filesDataConnector.setFilters([{
+        filesDataConnector.setFiltering([{
+          'field': 'size',
+          'startValue': '300 kB',
+          'endValue': '500 kB'
+        }]);
+        filesDataConnector.setSorting([{
           'field': 'size',
           'order': 'asc'
-          //'startValue': '300 kB',
-          //'endValue': '500 kB',
         }]);
         //*/
         filesTreeGrid.draw(filesDataConnector);    
