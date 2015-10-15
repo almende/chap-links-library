@@ -2,6 +2,13 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+2015-10-15, version 1.7.0
+
+- Implemented support for sorting. DataConnectors now have new methods
+  `setSorting` and `getSorting`, and columns can be configured to be
+  `sortable`.
+
+
 2015-08-17, version 1.6.2
 
 - Fixed dragging items being broken due to the fix of v1.6.1.

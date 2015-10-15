@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date     2015-08-17
- * @version  1.6.2
+ * @date     2015-10-15
+ * @version  1.7.0
  */
 
 /*
@@ -2189,7 +2189,7 @@ links.TreeGrid.Header.prototype.repaint = function () {
             var orderIcons = {
                 asc: '&blacktriangledown;',
                 desc: '&blacktriangle;',
-                'null': '&blacktriangle;&blacktriangledown;',
+                'null': '&blacktriangle;&blacktriangledown;'
             }
 
             if (this.columns) {
