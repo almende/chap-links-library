@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>TreeGrid sorting</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+
+    <style>
+        body {
+            font-family: verdana, arial, sans-serif;
+            font-size: 12pt;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var treegrid, data;
+
+        // Called when the page is loaded
+        function drawTreeGrid() {
+            var tableData = [
+                {name: 'Klaas',     age: '25', city: 'Rotterdam', hobbies: 'Computer games'},
+                {name: 'Johan',     age: '28', city: 'Groningen', hobbies: 'Reading'},
+                {name: 'Kees',      age: '22', city: 'Amsterdam', hobbies: 'None'},
+                {name: 'Christine', age: '31', city: 'Rotterdam', hobbies: 'Movies'},
+                {name: 'Bart',      age: '23', city: 'Utrecht',   hobbies: 'Going out'},
+                {name: 'Silvia',    age: '26', city: 'Den Haag',  hobbies: 'Shopping'}
+            ];
+            var tableOptions  = {
+                columns: [
+                    {name: 'name',    text: 'Name',    sortable: true},
+                    {name: 'age',     text: 'Age',     sortable: true},
+                    {name: 'city',    text: 'City',    sortable: true},
+                    {name: 'hobbies', text: 'Hobbies', sortable: false}
+                ]
+            };
+            data = new links.DataTable(tableData, tableOptions);
+
+            // specify options
+            var options = {
+                width: '500px',
+                height: '400px'
+            };
+
+            // Instantiate our treegrid object.
+            treegrid = new links.TreeGrid(document.getElementById('mytreegrid'), options);
+
+            // Draw our treegrid with the created data and options
+            treegrid.draw(data);
+        }
+
+    </script>
+</head>
+
+<body onload="drawTreeGrid();">
+<h1>TreeGrid sorting</h1>
+<p>
+    This demo shows how to enable sorting of the columns in the TreeGrid. Sorting must be supported by the DataConnector, which is typically connected to a back-end server.
+</p>
+
+
+<table><tr><td class="main">
+    <div id="mytreegrid"></div>
+</td><td class="main">
+    <div id="log"></div>
+</td></tr></table>
+
+</body>
+</html>

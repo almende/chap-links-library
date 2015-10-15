@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date     2015-08-17
- * @version  1.6.2
+ * @date     2015-10-15
+ * @version  1.7.0
  */
 
 /*
@@ -2145,13 +2145,12 @@ links.TreeGrid.Header.prototype.repaint = function () {
 
             if (this.columns) {
                 // create fields
-                var columns = this.columns,
-                    padding = this.options.padding;
+                var padding = this.options.padding;
                 for (var i = 0, iMax = columns.length; i < iMax; i++) {
                     if (!this.dom.fields[i]) {
                         var column = this.columns[i];
                         var domField = document.createElement('DIV');
-                        domField.className = 'treegrid-header-field';
+                        domField.className = 'treegrid-header-field' + (column.sortable ? ' treegrid-sortable' : '');
                         domField.style.position = 'absolute';
                         domField.style.top = '0px';
                         domField.innerHTML = column.text || column.name || '';
@@ -2164,9 +2163,9 @@ links.TreeGrid.Header.prototype.repaint = function () {
             }
         }
 
+        // update actions
         var actions = this.parent && this.parent.dataConnector && this.parent.dataConnector.actions;
         if (JSON.stringify(actions) !== JSON.stringify(this.actions)) {
-            console.log('Actions', JSON.stringify(actions)); // TODO: cleanup
             this.actions = actions;
 
             if (this.dom.actions) {
@@ -2179,6 +2178,63 @@ links.TreeGrid.Header.prototype.repaint = function () {
                 var domActions = links.TreeGrid.Node.createActionIcons(this, actions);
                 this.dom.actions = domActions;
                 domHeader.appendChild(domActions);
+            }
+        }
+
+        // update filters (create sorting buttons
+        var filters = this.parent && this.parent.dataConnector && this.parent.dataConnector.filters;
+        if (!this.filters || JSON.stringify(filters) !== JSON.stringify(this.filters)) {
+            this.filters = filters;
+
+            var orderIcons = {
+                asc: '&blacktriangledown;',
+                desc: '&blacktriangle;',
+                'null': '&blacktriangle;&blacktriangledown;'
+            }
+
+            if (this.columns) {
+                for (var i = 0, iMax = columns.length; i < iMax; i++) {
+                    var column = this.columns[i];
+                    var domField = this.dom.fields[i];
+
+                    // remove old dom field
+                    if (domField.domSort) {
+                        domField.removeChild(domField.domSort);
+                        delete domField.domSort;
+                    }
+
+                    if (column.sortable) {
+                        // create new DOM field
+                        var dataConnector = this.parent.dataConnector;
+                        var entries = dataConnector.getSorting();
+                        var entry = null;
+                        if (entries) {
+                            for (var j = 0; j < entries.length; j++) {
+                                if (entries[j].field == column.name) {
+                                    entry = entries[j];
+                                    break;
+                                }
+                            }
+                        }
+
+                        var domSort = document.createElement('SPAN');
+                        var order = entry && entry.order;
+                        domSort.innerHTML = ' ' + orderIcons[entry && entry.order];
+                        domSort.title = 'Sort this column';
+                        domSort.className = 'treegrid-order';
+
+                        domField.appendChild(domSort);
+                        domField.domSort = domSort;
+                        (function (field, order) {
+                            domField.onclick = function () {
+                                dataConnector.setSorting([{
+                                    field: field,
+                                    order: (order === 'asc') ? 'desc' : (order === 'desc') ? null : 'asc'
+                                }]);
+                            }
+                        })(column.name, order)
+                    }
+                }
             }
         }
 
@@ -2200,7 +2256,6 @@ links.TreeGrid.Header.prototype.repaint = function () {
 
         // position the columns
         var domFields = this.dom.fields;
-        var columns = this.columns;
         for (var i = 0, iMax = Math.min(domFields.length, columns.length); i < iMax; i++) {
             domFields[i].style.left = columns[i].left + 'px';
         }
@@ -4113,8 +4168,23 @@ links.DataConnector.prototype.onEvent = function (event, params) {
 };
 
 // TODO: comment
-links.DataConnector.prototype.setFilters = function (filters) {
-    console.log('Error: method setFilters is not implemented');
+links.DataConnector.prototype.setFiltering = function (filters) {
+    console.log('Error: method setFiltering is not implemented');
+};
+
+// TODO: comment
+links.DataConnector.prototype.setSorting = function (sorting) {
+    console.log('Error: method setSorting is not implemented');
+};
+
+// TODO: comment
+links.DataConnector.prototype.getFiltering = function (filters) {
+    console.log('Error: method getFiltering is not implemented');
+};
+
+// TODO: comment
+links.DataConnector.prototype.getSorting = function (sorting) {
+    console.log('Error: method getSorting is not implemented');
 };
 
 /**
@@ -4249,8 +4319,8 @@ links.DataTable.prototype.updateItems = function (items, callback, errback) {
         }
     }
 
-    // perform filtering and sorting again if there is a filter set
-    this.updateFilters();
+    // perform filtering and sorting again
+    this._applySortingAndFilters();
 
     callback && callback({
         'totalItems': this.filteredData.length,
@@ -4277,8 +4347,8 @@ links.DataTable.prototype.appendItems = function (items, callback, errback) {
         this.data.push(items[i]);
     }
 
-    // perform filtering and sorting again if there is a filter set
-    this.updateFilters();
+    // perform filtering and sorting again
+    this._applySortingAndFilters();
 
     callback && callback({
         'totalItems': this.filteredData.length,
@@ -4314,8 +4384,8 @@ links.DataTable.prototype.insertItemsBefore = function (items, beforeItem, callb
     // insert the new data
     data.splice.apply(data, [beforeIndex, 0].concat(items));
 
-    // perform filtering and sorting again if there is a filter set
-    this.updateFilters();
+    // perform filtering and sorting again
+    this._applySortingAndFilters();
 
     callback && callback({
         'totalItems': this.filteredData.length,
@@ -4378,8 +4448,8 @@ links.DataTable.prototype.moveItems = function (items, beforeItem, callback, err
     }
     this.data.splice.apply(this.data, [beforeIndex - offset, 0].concat(items));
 
-    // perform filtering and sorting again if there is a filter set
-    this.updateFilters();
+    // perform filtering and sorting again
+    this._applySortingAndFilters();
 
     callback && callback({
         'totalItems': this.filteredData.length,
@@ -4414,8 +4484,8 @@ links.DataTable.prototype.removeItems = function (items, callback, errback) {
         }
     }
 
-    // perform filtering and sorting again if there is a filter set
-    this.updateFilters();
+    // perform filtering and sorting again
+    this._applySortingAndFilters();
 
     callback && callback({
         'totalItems': this.filteredData.length,
@@ -4461,7 +4531,7 @@ links.DataTable.prototype.getChanges = function (index, num, items, callback, er
  * Force the DataTable to be changed by incrementing the update sequence
  */
 links.DataTable.prototype.update = function () {
-    this.updateFilters();
+    this._applySortingAndFilters();
 
     this.trigger('change', undefined);
 };
@@ -4476,101 +4546,130 @@ links.DataTable.prototype.onEvent = function (event, params) {
 };
 
 /**
- * Update the filters (if any).
- * This method is executed after the data has been changed.
- */
-links.DataTable.prototype.updateFilters = function () {
-    if (this.filters) {
-        this.setFilters(this.filters);
-    }
-    else {
-        this.filteredData = this.data;
-    }
-};
-
-/**
  * Set a filter for this DataTable
  * @param {Object[]} filters An array containing filter objects.
- *                                     a filter object contains parameters
- *                                     field, value, startValue, endValue,
- *                                     values, order
+ *                                     a filter object can contain parameters
+ *                                     `field`, `value`, `startValue`, `endValue`,
+ *                                     `values`.
  */
-// TODO: comment
-links.DataTable.prototype.setFilters = function (filters) {
-    var data = this.data;
-    var filteredData = [];
-    this.filteredData = filteredData;
+links.DataTable.prototype.setFiltering = function (filters) {
     this.filters = filters;
+    this._applySortingAndFilters();
+    this.trigger('change', undefined);
+}
 
+/**
+ * Returns the current filtering array, returns undefined if there is no sorting defined.
+ * @return {Object[] | undefined}
+ */
+links.DataTable.prototype.getFiltering = function () {
+    return this.sorting;
+}
+
+/**
+ * Set sorting for this DataTable. Can sort one or multiple columns
+ * @param {Array.<{field: string, order: string}>} filters
+ *                             An array containing sorting objects.
+ *                             a sorting object contains parameters
+ *                             `field`, `order`. Order can be `asc`, `desc`, or null.
+ */
+links.DataTable.prototype.setSorting = function (sorting) {
+    this.sorting = sorting;
+    this._applySortingAndFilters();
+    this.trigger('change', undefined);
+}
+
+/**
+ * Returns the current sorting array, returns undefined if there is no sorting defined.
+ * @return {Array.<{field: string, order: string}> | undefined}
+ */
+links.DataTable.prototype.getSorting = function () {
+    return this.sorting;
+}
+
+/**
+ * Apply sorting and filtering (if set)
+ * This method is executed after the data has been changed.
+ * See also methods `setSorting` and `setFiltering`
+ */
+links.DataTable.prototype._applySortingAndFilters = function () {
     // filter the data
-    for (var i = 0, iMax = data.length; i < iMax; i++) {
-        var item = data[i];
-        var emit = true;
-        for (var f = 0, fMax = filters.length; f < fMax; f++) {
-            var filter = filters[f];
-            if (filter.field) {
-                var value = item[filter.field];
-                if (filter.value && (value != filter.value)) {
-                    emit = false;
-                }
-                if (filter.startValue && value < filter.startValue) {
-                    emit = false;
-                }
-                if (filter.endValue && value > filter.endValue) {
-                    emit = false;
-                }
-                if (filter.values && (filter.values.indexOf(value) == -1)) {
-                    emit = false;
+    if (this.filters) {
+        this.filteredData = [];
+        for (var i = 0, iMax = this.data.length; i < iMax; i++) {
+            var item = this.data[i];
+            var emit = true;
+            for (var f = 0, fMax = this.filters.length; f < fMax; f++) {
+                var filter = this.filters[f];
+                if (filter.field) {
+                    var value = item[filter.field];
+                    if (filter.value && (value != filter.value)) {
+                        emit = false;
+                    }
+                    if (filter.startValue && value < filter.startValue) {
+                        emit = false;
+                    }
+                    if (filter.endValue && value > filter.endValue) {
+                        emit = false;
+                    }
+                    if (filter.values && (filter.values.indexOf(value) == -1)) {
+                        emit = false;
+                    }
                 }
             }
-        }
 
-        if (emit) {
-            filteredData.push(item);
+            if (emit) {
+                this.filteredData.push(item);
+            }
         }
     }
-
-    // create a list with fields that need to be ordered
-    var orders = [];
-    for (var f = 0, fMax = filters.length; f < fMax; f++) {
-        var filter = filters[f];
-        if (filter.field && filter.order) {
-            var order = filter.order.toUpperCase();
-            if (order == 'ASC' || order == 'DESC') {
-                orders.push({
-                    'field': filter.field,
-                    'direction': ((order == 'ASC') ? 1 : -1)
-                });
-            }
-            else {
-                throw 'Unknown order "' + order + '". ' +
-                    'Available values: "ASC", "DESC".';
-            }
-        }
+    else {
+        this.filteredData = this.data.slice(0);
     }
 
     // order the filtered data
-    var ordersLength = orders.length;
-    if (ordersLength) {
-        filteredData.sort(function (a, b) {
-            for (var i = 0; i < ordersLength; i++) {
-                var order = orders[i],
-                    field = order.field,
-                    direction = order.direction;
-
-                if (a[field] == b[field]) {
-                    if (i == ordersLength - 1) {
-                        return 0;
-                    }
-                    else {
-                        // compare with the next filter
-                    }
+    if (this.sorting) {
+        // create a list with fields that need to be ordered
+        var orders = [];
+        for (var f = 0, fMax = this.sorting.length; f < fMax; f++) {
+            var entry = this.sorting[f];
+            if (entry.field && entry.order) {
+                var order = entry.order.toLowerCase();
+                if (order == 'asc' || order == 'desc') {
+                    orders.push({
+                        'field': entry.field,
+                        'direction': ((order == 'asc') ? 1 : -1)
+                    });
                 }
                 else {
-                    return (a[field] > b[field]) ? direction : -direction;
+                    throw 'Unknown order "' + order + '". ' +
+                        'Available values: "asc", "desc".';
                 }
             }
-        });
+        }
+
+        var len = orders.length;
+        if (len > 0) {
+            this.filteredData.sort(function (a, b) {
+                for (var i = 0; i < len; i++) {
+                    var order = orders[i];
+                    var field = order.field;
+                    var direction = order.direction;
+
+                    if (a[field] == b[field]) {
+                        if (i == len - 1) {
+                            return 0;
+                        }
+                        else {
+                            // compare with the next filter
+                        }
+                    }
+                    else {
+                        return (a[field] > b[field]) ? direction : -direction;
+                    }
+                }
+            });
+        }
     }
 };
 
@@ -4774,14 +4873,30 @@ links.CouchConnector.prototype.getChanges = function (index, num, items,
  * Set a filter for this DataTable
  * @param {Object[]} filters An array containing filter objects.
  *                                     a filter object contains parameters
- *                                     field, value, startValue, endValue, order
+ *                                     field, value, startValue, endValue
  */
-links.CouchConnector.prototype.setFilters = function (filters) {
+links.CouchConnector.prototype.setFiltering = function (filters) {
     if (filters.length > 1) {
         throw "CouchConnector can currently only handle one filter";
     }
     else if (filters.length > 0) {
         this.filter = filters[0];
+    }
+
+    // TODO: invalidate currently retrieved data
+};
+
+/**
+ * Set a filter for this DataTable
+ * @param {Object[]} sorting  An array containing one or multipel objects.
+ *                            contains parameters `field`, `order`
+ */
+links.CouchConnector.prototype.setSorting = function (sorting) {
+    if (filters.length > 1) {
+        throw "CouchConnector can currently only handle one order";
+    }
+    else if (sorting.length > 0) {
+        this.sorting = sorting[0];
     }
 
     // TODO: invalidate currently retrieved data

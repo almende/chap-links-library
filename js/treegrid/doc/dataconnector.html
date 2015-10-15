@@ -371,7 +371,15 @@ The following options are available.
       </span>
     </td> 
   </tr>
-  
+
+  <tr>
+    <td>sortable</td>
+    <td>boolean</td>
+    <td>no</td>
+    <td>If true, the column header will contain a button to sort this column.
+      Sorting must be supported by the used DataConnector.</td>
+  </tr>
+
 </table>
 
 <p>
@@ -485,6 +493,23 @@ as they are supposed to retrieve data from a server.
   </tr>
 
   <tr>
+    <td>getSorting()</td>
+    <td>
+      none
+    </td>
+    <td>Array</td>
+    <td>Retrieve the array with currently set sorting. Returns undefined if not set.
+      The returned array contains objects structured as: <pre>[
+  {
+    field: string,
+    order: 'asc' | 'desc'
+  },
+  // ...
+]</pre>
+    </td>
+  </tr>
+
+  <tr>
     <td>insertItemsBefore(items, beforeItem, callback, errback)</td>
     <td>
       <ul>
@@ -560,9 +585,9 @@ as they are supposed to retrieve data from a server.
     <td>Remove items from the data connector.
       The removed items are returned in the callback.</td> 
   </tr> 
-  <!-- TODO: setFilters and setOptions
+  <!-- TODO: setFiltering and setOptions
   <tr> 
-    <td>setFilters(filters)</td> 
+    <td>setFiltering(filters)</td>
     <td></td> 
     <td></td> 
     <td></td> 
@@ -589,6 +614,25 @@ as they are supposed to retrieve data from a server.
         displayed in the header of the Grid where the dataconnectors data is rendered.
         See section <a href="index.html#Actions">Actions</a> for more information
         over the available fields.
+    </td>
+  </tr>
+
+  <tr>
+    <td>setSorting(sorting)</td>
+    <td>
+      <ul>
+        <li><span class="parameterType">{Array of Objects}</span> sorting</li>
+      </ul>
+    </td>
+    <td>Array</td>
+    <td>Set sorting order for one or multiple fields (columns).
+      The sorting array contains objects structured as: <pre>[
+  {
+    field: string,
+    order: 'asc' | 'desc'
+  },
+  // ...
+]</pre>
     </td>
   </tr>
 

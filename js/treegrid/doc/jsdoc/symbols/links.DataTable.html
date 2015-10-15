@@ -295,9 +295,27 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#getFiltering">getFiltering</a></b>()
+								</div>
+								<div class="description">Returns the current filtering array, returns undefined if there is no sorting defined.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#getItems">getItems</a></b>(index, num, callback, errback)
 								</div>
 								<div class="description">Asynchronously get a number of items by index</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#getSorting">getSorting</a></b>()
+								</div>
+								<div class="description">Returns the current sorting array, returns undefined if there is no sorting defined.</div>
 							</td>
 						</tr>
 					
@@ -340,9 +358,18 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#setFilters">setFilters</a></b>(filters)
+								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#setFiltering">setFiltering</a></b>(filters)
 								</div>
 								<div class="description">Set a filter for this DataTable</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#setSorting">setSorting</a></b>(filters)
+								</div>
+								<div class="description">Set sorting for this DataTable.</div>
 							</td>
 						</tr>
 					
@@ -352,15 +379,6 @@ ul.inheritsList
 								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#update">update</a></b>()
 								</div>
 								<div class="description">Force the DataTable to be changed by incrementing the update sequence</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/links.DataTable.html#updateFilters">updateFilters</a></b>()
-								</div>
-								<div class="description">Update the filters (if any).</div>
 							</td>
 						</tr>
 					
@@ -557,6 +575,38 @@ The changed items can be updated via the method getItems.
 
 					<hr />
 				
+					<a name="getFiltering"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Object[] | undefined}</span>
+					<b>getFiltering</b>()
+					
+					</div>
+					<div class="description">
+						Returns the current filtering array, returns undefined if there is no sorting defined.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Object[] | undefined}</span> </dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name="getItems"> </a>
 					<div class="fixedFont">
 					
@@ -609,6 +659,38 @@ The changed items can be updated via the method getItems.
 						
 						
 						
+						
+						
+						
+
+					<hr />
+				
+					<a name="getSorting"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Array.<{field: string|order: string}> | undefined}</span>
+					<b>getSorting</b>()
+					
+					</div>
+					<div class="description">
+						Returns the current sorting array, returns undefined if there is no sorting defined.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Array.<{field: string|order: string}> | undefined}</span> </dd>
+							
+							</dl>
 						
 						
 						
@@ -832,11 +914,11 @@ The callback returns the removed items.
 
 					<hr />
 				
-					<a name="setFilters"> </a>
+					<a name="setFiltering"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>setFilters</b>(filters)
+					<b>setFiltering</b>(filters)
 					
 					</div>
 					<div class="description">
@@ -856,9 +938,47 @@ The callback returns the removed items.
 									
 								</dt>
 								<dd>An array containing filter objects.
-                                    a filter object contains parameters
-                                    field, value, startValue, endValue,
-                                    values, order</dd>
+                                    a filter object can contain parameters
+                                    `field`, `value`, `startValue`, `endValue`,
+                                    `values`.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setSorting"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setSorting</b>(filters)
+					
+					</div>
+					<div class="description">
+						Set sorting for this DataTable. Can sort one or multiple columns
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Array.<{field: string|order: string}>}</span> <b>filters</b>
+									
+								</dt>
+								<dd>An array containing sorting objects.
+                            a sorting object contains parameters
+                            `field`, `order`. Order can be `asc`, `desc`, or null.</dd>
 							
 							</dl>
 						
@@ -880,32 +1000,6 @@ The callback returns the removed items.
 					</div>
 					<div class="description">
 						Force the DataTable to be changed by incrementing the update sequence
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="updateFilters"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>updateFilters</b>()
-					
-					</div>
-					<div class="description">
-						Update the filters (if any).
-This method is executed after the data has been changed.
 						
 						
 					</div>
@@ -987,7 +1081,7 @@ The callback returns the updated items, which may be newly instantiated objects 
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Aug 17 2015 14:22:16 GMT+0200 (CEST)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Thu Oct 15 2015 15:51:07 GMT+0200 (CEST)
 		</div>
 	</body>
 </html>
