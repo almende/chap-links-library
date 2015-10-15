@@ -2231,7 +2231,6 @@ links.TreeGrid.Header.prototype.repaint = function () {
                                     field: field,
                                     order: (order === 'asc') ? 'desc' : (order === 'desc') ? null : 'asc'
                                 }]);
-                                dataConnector.trigger('change', undefined);
                             }
                         })(column.name, order)
                     }
@@ -4556,6 +4555,7 @@ links.DataTable.prototype.onEvent = function (event, params) {
 links.DataTable.prototype.setFiltering = function (filters) {
     this.filters = filters;
     this._applySortingAndFilters();
+    this.trigger('change', undefined);
 }
 
 /**
@@ -4576,6 +4576,7 @@ links.DataTable.prototype.getFiltering = function () {
 links.DataTable.prototype.setSorting = function (sorting) {
     this.sorting = sorting;
     this._applySortingAndFilters();
+    this.trigger('change', undefined);
 }
 
 /**
