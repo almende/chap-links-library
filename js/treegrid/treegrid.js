@@ -30,8 +30,8 @@
  * Copyright (c) 2011-2015 Almende B.V.
  *
  * @author   Jos de Jong, <jos@almende.org>
- * @date     2015-10-15
- * @version  1.7.0
+ * @date     2015-11-20
+ * @version  1.8.0
  */
 
 /*
@@ -1728,6 +1728,11 @@ links.TreeGrid.Grid.prototype._removeItem = function (item) {
         item.hide();
         items.splice(index, 1);
         this.itemCount--;
+
+        // update index of all lower down items
+        for (var i = index, iMax = items.length; i < iMax; i++) {
+            items[i].index = i;
+        }
     }
 };
 
@@ -3341,8 +3346,9 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
         }
 
         // position the frame
+        var left = this.getAbsLeft();
         domFrame.style.top = this.getAbsTop() + 'px';
-        domFrame.style.left = this.getAbsLeft() + 'px';
+        domFrame.style.left = left + 'px';
         // TODO
         //domFrame.style.top = 0 + 'px';
         //domFrame.style.left = 0 + 'px';
@@ -3374,6 +3380,8 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
 
         // check the class name depending on the status
         var className = 'treegrid-item';
+        className += ((this.index % 2) ? ' treegrid-item-odd' : ' treegrid-item-even');
+        className += ' treegrid-level-' + (left / this.options.indentationWidth);
         if (this.selected || this.dataTransfer.dragging) {
             className += ' treegrid-item-selected';
         }

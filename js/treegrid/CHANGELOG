@@ -2,6 +2,14 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+2015-11-20, version 1.8.0
+
+- Implemented css styles `.treegrid-item-even` and `.treegrid-item-odd`,
+  which all items have alternately. Can be used to create CSS zebra stripes.
+- Implemented css styles `.treegrid-level-0`, `.treegrid-level-1`,
+  `.treegrid-level-2`, etc. denoting how many levels deep an item is nested.
+
+
 2015-10-15, version 1.7.0
 
 - Implemented support for sorting. DataConnectors now have new methods
