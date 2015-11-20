@@ -858,11 +858,35 @@ google.visualization.events.addListener(mytreegrid, 'select', onselect);
 </tr>
 
 <tr>
-    <td>.treegrid-item</td>
+    <td>.treegrid-item-selected</td>
     <td>A selected item.</td>
     <td>
         background-color: #FFFF80;<br>
         border-color: #FFD500;<br>
+    </td>
+</tr>
+
+<tr>
+    <td>
+        .treegrid-item-even<br>
+        .treegrid-item-odd
+    </td>
+    <td>All items have alternately a style <code>treegrid-item-even</code> or <code>treegrid-item-odd</code>, which can be used to create CSS zebra stripes.</td>
+    <td>
+        (none)
+    </td>
+</tr>
+
+<tr>
+    <td>
+        .treegrid-level-0<br>
+        .treegrid-level-1<br>
+        .treegrid-level-2<br>
+        ...
+    </td>
+    <td>All items have this style denoting how many levels deep they are nested.</td>
+    <td>
+        (none)
     </td>
 </tr>
 

@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>TreeGrid zebra stripes</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+
+    <style>
+      .treegrid-item-even {
+        border: none;
+      }
+
+      .treegrid-item-even.treegrid-item-selected {
+      }
+
+      .treegrid-item-odd {
+        border: none;
+        background: #f5f5f5;
+      }
+
+      .treegrid-item-odd.treegrid-item-selected {
+        background: #FFFF80;
+      }
+
+      /*
+       NOTE: to give items a different styling depending on their level
+       of nesting, css classes .treegrid-level-0, .treegrid-level-1,
+       .treegrid-level-2, etc. can be used.
+      */
+    </style>
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+      
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        data = [
+          {
+            "firstname": "John",
+            "lastname": "Smith",
+            "age": 15,
+            "class": "B10",
+            "courses": [
+              {
+                "course": "physics", 
+                "grade": "B", 
+                "tests": [
+                  {"test": "test 1", "grade": "A"},
+                  {"test": "test 2", "grade": "B"},
+                  {"test": "final exam", "grade": "B"}
+                ]
+              },
+              {"course": "maths", "grade": "C"},
+              {"course": "economy", "grade": "B"}
+            ]
+          },
+          {
+            "firstname": "Susan",
+            "lastname": "Brown",
+            "age": 17,
+            "class": "A2"
+          },
+          {
+            "firstname": "David",
+            "lastname": "Harris",
+            "age": 17,
+            "class": "A2",
+            "courses": [
+              {"course": "economy", "grade": "A"},
+              {"course": "maths", "grade": "D"}
+            ]           
+          },
+          {
+            "firstname": "Jude",
+            "lastname": "Wallace",
+            "age": 17,
+            "class": "A2"
+          },
+          {
+            "firstname": "Jude",
+            "lastname": "Wallace",
+            "age": 17,
+            "class": "A2"
+          },
+          {
+            "firstname": "Jonathan",
+            "lastname": "Berry",
+            "age": 17,
+            "class": "A2"
+          },
+          {
+            "firstname": "Joel",
+            "lastname": "Carr",
+            "age": 17,
+            "class": "A2"
+          },
+          {
+            "firstname": "Edward",
+            "lastname": "Lawson",
+            "age": 15,
+            "class": "B11"
+          },
+          {
+            "firstname": "Taylor",
+            "lastname": "Marshall",
+            "age": 14,
+            "class": "B10"
+          },
+          {
+            "firstname": "Alessandro",
+            "lastname": "Kelly",
+            "age": 14,
+            "class": "C2"
+          },
+          {
+            "firstname": "Mason",
+            "lastname": "Nguyen",
+            "age": 14,
+            "class": "B8"
+          },
+          {
+            "firstname": "Tristin",
+            "lastname": "Savage",
+            "age": 14,
+            "class": "C2"
+          },
+          {
+            "firstname": "Philip",
+            "lastname": "Ortiz",
+            "age": 14,
+            "class": "B8"
+          },
+          {
+            "firstname": "Isaac",
+            "lastname": "Saunders",
+            "age": 14,
+            "class": "B8"
+          }
+        ];
+
+        // specify options
+        var options = {
+          'width': '500px',
+          'height': '400px'
+        };  
+
+        // Instantiate our treegrid object.
+        var container = document.getElementById('mytreegrid');
+        treegrid = new links.TreeGrid(container, options);
+
+        data = new links.DataTable(data);
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(data);        
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>TreeGrid zebra stripes</h1>
+    <div id="mytreegrid"></div>
+  </body>
+</html>
