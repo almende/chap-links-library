@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>TreeGrid responsive columns</title>
+
+    <script type="text/javascript" src="../treegrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="../treegrid.css">
+    
+    <script type="text/javascript">
+      var treegrid;
+      var data;
+      var dataConnector;
+
+      // Called when the page is loaded
+      function drawTreeGrid() {
+        var container = document.getElementById('mytreegrid');
+
+        function createConnectorOptions () {
+          var indentation = 20; // account for the left indentation
+          var treegridWidth = container.clientWidth - indentation;
+
+          // calculate the width we want the columns to have
+          // as a percentage of the total TreeGrid with
+          return {
+            columns: [
+              {
+                name: 'firstname',
+                text: 'First name',
+                width: 1/4 * treegridWidth  // 25%
+              },
+              {
+                name: 'lastname',
+                text: 'Last name',
+                width: 1/4 * treegridWidth  // 25%
+              },
+              {
+                name: 'fullname',
+                text: 'Full name',
+                width: 2/4 * treegridWidth,  // 50%
+                format: function() {
+                  return this.firstname + ' ' + this.lastname;
+                }
+              }
+            ]
+          }
+        }
+
+        data = [
+          {firstname: 'John bla bla bla', lastname: 'Smith foo foo'},
+          {firstname: 'Susan', lastname: 'Brown'},
+          {firstname: 'David', lastname: 'Harris'},
+          {firstname: 'Harry', lastname: 'Jones'}
+        ];
+        dataConnector = new links.DataTable(data, createConnectorOptions());
+
+        // specify options
+        var options = {
+          width: '100%',
+          height: '400px'
+        };  
+
+        // Instantiate our treegrid object.
+        treegrid = new links.TreeGrid(container, options);
+
+        // Draw our treegrid with the created data and options 
+        treegrid.draw(dataConnector);
+
+        window.onresize = function () {
+          dataConnector.setOptions(createConnectorOptions());
+        };
+
+        window.onresize();
+      }
+   </script>
+  </head>
+
+  <body onload="drawTreeGrid();">
+    <h1>TreeGrid responsive columns</h1>
+    <p>
+      The TreeGrid itself not responsive, but using some JavaScript it's possible to make the column widths responsive.
+      In the TreeGrid below, the columns have widths of 25%, 25%, and 50%.
+    </p>
+    <div id="mytreegrid"></div>
+  </body>
+</html>

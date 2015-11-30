@@ -2,6 +2,11 @@ CHAP Links Library - TREEGRID
 http://almende.github.com/chap-links-library/
 
 
+not yet released, version 1.8.1
+
+- Allow dynamic updating of the column widths.
+
+
 2015-11-20, version 1.8.0
 
 - Implemented css styles `.treegrid-item-even` and `.treegrid-item-odd`,

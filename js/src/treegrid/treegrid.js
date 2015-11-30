@@ -1200,6 +1200,14 @@ links.TreeGrid.Grid.prototype.reflow = function() {
     var resized = false,
         visibleItems = this.visibleItems;
 
+    // check for changes in columns options
+    var latestColumns = this.dataConnector.getOptions().columns;
+    var columnsStr = JSON.stringify(latestColumns);
+    if (columnsStr != this.lastColumnsStr) {
+        this.setColumns(latestColumns);
+        this.lastColumnsStr = columnsStr;
+    }
+
     // preform a reflow on all childs (the header, visible items, expanded items)
     if (this.header) {
         var headerResized = this.header.reflow();
@@ -1244,7 +1252,7 @@ links.TreeGrid.Grid.prototype.reflow = function() {
         for (var j = 0, jMax = columns.length; j < jMax; j++) {
             var column = columns[j];
 
-            if (!column.fixedWidth) {
+            if (column && !column.fixedWidth) {
                 var width = widths[j] + indentationWidth;
                 if (width > column.width) {
                     column.width = width;
@@ -2250,19 +2258,15 @@ links.TreeGrid.Header.prototype.repaint = function () {
         domHeader.style.height = this.height + 'px';
         domHeader.style.width = this.width + 'px';
 
-        /* TODO: width of the header?
-         if (this.left) {
-         var lastColumn = this.columns[this.columns.length-1];
-         header.dom.style.width = lastColumn.left+ lastColumn.width + 'px';
-         }
-         else {
-         header.dom.style.width = '100%';
-         }*/
-
         // position the columns
         var domFields = this.dom.fields;
         for (var i = 0, iMax = Math.min(domFields.length, columns.length); i < iMax; i++) {
-            domFields[i].style.left = columns[i].left + 'px';
+            var col = columns[i];
+            domFields[i].style.left = col.left + 'px';
+
+            if (col && col.fixedWidth) {
+                domFields[i].style.width = col.width + 'px';
+            }
         }
     }
     else {
@@ -3273,11 +3277,6 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
                 //domField.style.position = 'relative';
                 domField.style.top = '0px';
 
-                var col = this.columns[i];
-                if (col && col.fixedWidth) {
-                    domField.style.width = col.width + 'px';
-                }
-
                 domField.innerHTML = field;
                 domFrame.appendChild(domField);
                 domFields.push(domField);
@@ -3369,6 +3368,10 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
                 var domField = domFields[i];
                 if (domField) {
                     domField.style.left = col.left + 'px';
+
+                    if (col && col.fixedWidth) {
+                        domField.style.width = col.width + 'px';
+                    }
                 }
             }
         }
@@ -4237,6 +4240,7 @@ links.DataConnector.prototype.removeEventListener = function (callback) {
  */
 links.DataConnector.prototype.setOptions = function (options) {
     this.options = options || {};
+    this.trigger('change', undefined);
 };
 
 /**
