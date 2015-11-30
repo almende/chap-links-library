@@ -1227,7 +1227,8 @@ links.TreeGrid.Grid.prototype.reflow = function() {
         indentationWidth = this.options.indentationWidth;
     for (var i = 0, iMax = widths.length; i < iMax; i++) {
         var column = columns[i];
-        if (column && !column.fixedWidth) {
+        //if (!column.fixedWidth) { // TODO: cleanup
+        if (true) {
             var width = widths[i] + indentationWidth;
             if (width > column.width) {
                 column.width = width;
@@ -1244,10 +1245,12 @@ links.TreeGrid.Grid.prototype.reflow = function() {
         for (var j = 0, jMax = columns.length; j < jMax; j++) {
             var column = columns[j];
 
-            if (!column.fixedWidth) {
+            //if (!column.fixedWidth) { // TODO: cleanup
+            if (true) {
                 var width = widths[j] + indentationWidth;
                 if (width > column.width) {
                     column.width = width;
+                    console.log('column', i, column)
                     resized = true;
                 }
             }
@@ -1618,12 +1621,16 @@ links.TreeGrid.Grid.prototype.setColumns = function (columns) {
             }
         }
 
-        // set a fixed width if applicable
-        newColumn.fixedWidth = (column.width != undefined);
-
         // copy values from new column data
         for (field in column) {
-            newColumn[field] = column[field];
+            if (field == 'width') {
+                newColumn.fixedWidth = (typeof column.width === 'number')
+                    ? (column.width + 'px')
+                    : column.width; // a string like '100px' or '25%'
+            }
+            else {
+                newColumn[field] = column[field];
+            }
         }
 
         // store the new colum fields
@@ -2263,6 +2270,9 @@ links.TreeGrid.Header.prototype.repaint = function () {
         var domFields = this.dom.fields;
         for (var i = 0, iMax = Math.min(domFields.length, columns.length); i < iMax; i++) {
             domFields[i].style.left = columns[i].left + 'px';
+            if (columns[i].fixedWidth) {
+                domFields[i].style.width = columns[i].fixedWidth;
+            }
         }
     }
     else {
@@ -3275,7 +3285,7 @@ links.TreeGrid.Item.prototype._repaintFields = function() {
 
                 var col = this.columns[i];
                 if (col && col.fixedWidth) {
-                    domField.style.width = col.width + 'px';
+                    domField.style.width = col.fixedWidth;
                 }
 
                 domField.innerHTML = field;
