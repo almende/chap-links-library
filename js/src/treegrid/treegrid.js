@@ -2230,7 +2230,7 @@ links.TreeGrid.Header.prototype.repaint = function () {
 
                         domField.appendChild(domSort);
                         domField.domSort = domSort;
-                        (function (field, order) {
+                        (function (field, type, order) {
                             domField.onclick = function () {
                                 dataConnector.setSorting([{
                                     field: field,
