@@ -5885,7 +5885,7 @@ links.Timeline.ClusterGenerator.prototype.getClusters = function (scale, maxItem
                         var cluster;
                         var title = 'Cluster containing ' + count +
                             ' events. Zoom in to see the individual events.';
-                        var content = '<div title="' + title + '" data-cluster-id="' + clusters.length + '" class="timeline-cluster">' + count + '</div>';
+                        var content = '<div title="' + title + '" data-cluster-id="' + clusters.length + '" class="timeline-cluster">' + count + 'events </div>';
                         var group = item.group ? item.group.content : undefined;
                         if (containsRanges) {
                             // boxes and/or ranges
