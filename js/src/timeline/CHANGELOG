@@ -3,6 +3,7 @@ CHAP Links Library - Timeline
 not yet released, version 2.10.0
 
 - Implemented optional text at the start and end of a label. Thanks @marcantoinefortier.
+- Added data attribute `cluster-index` to cluster items. Thanks @Sanchiz.
 - Fixed #349: broken options `scale` and `step` when passing via the
   timeline constructor.
 
