@@ -19,26 +19,27 @@
         // Called when the page is loaded
         function drawTreeGrid() {
             var tableData = [
-                {name: 'Klaas',     age: '25', city: 'Rotterdam', hobbies: 'Computer games'},
-                {name: 'Johan',     age: '28', city: 'Groningen', hobbies: 'Reading'},
-                {name: 'Kees',      age: '22', city: 'Amsterdam', hobbies: 'None'},
-                {name: 'Christine', age: '31', city: 'Rotterdam', hobbies: 'Movies'},
-                {name: 'Bart',      age: '23', city: 'Utrecht',   hobbies: 'Going out'},
-                {name: 'Silvia',    age: '26', city: 'Den Haag',  hobbies: 'Shopping'}
+                {name: 'Klaas',     age: '25', city: 'Rotterdam', hobbies: 'Computer games', dateEnter: '20 Nov, 2015'},
+                {name: 'Johan',     age: '28', city: 'Groningen', hobbies: 'Reading', dateEnter: '19 Sep, 2014'},
+                {name: 'Kees',      age: '22', city: 'Amsterdam', hobbies: 'None', dateEnter: '18 Sep, 2014'},
+                {name: 'Christine', age: '31', city: 'Rotterdam', hobbies: 'Movies', dateEnter: '1 Jan, 2013'},
+                {name: 'Bart',      age: '23', city: 'Utrecht',   hobbies: 'Going out', dateEnter: '30 Nov, 2015'},
+                {name: 'Silvia',    age: '26', city: 'Den Haag',  hobbies: 'Shopping', dateEnter: '15 Feb, 2015'}
             ];
             var tableOptions  = {
                 columns: [
                     {name: 'name',    text: 'Name',    sortable: true},
                     {name: 'age',     text: 'Age',     sortable: true},
                     {name: 'city',    text: 'City',    sortable: true},
-                    {name: 'hobbies', text: 'Hobbies', sortable: false}
+                    {name: 'hobbies', text: 'Hobbies', sortable: false},
+                    {name: 'dateEnter', text: 'Time entering city', sortable: true, sortableType: 'date'}
                 ]
             };
             data = new links.DataTable(tableData, tableOptions);
 
             // specify options
             var options = {
-                width: '500px',
+                width: '700px',
                 height: '400px'
             };
 

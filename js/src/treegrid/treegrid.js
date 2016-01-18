@@ -2238,14 +2238,15 @@ links.TreeGrid.Header.prototype.repaint = function () {
 
                         domField.appendChild(domSort);
                         domField.domSort = domSort;
-                        (function (field, order) {
+                        (function (field, type, order) {
                             domField.onclick = function () {
                                 dataConnector.setSorting([{
                                     field: field,
+                                    type: (type) ? type : "string",
                                     order: (order === 'asc') ? 'desc' : (order === 'desc') ? null : 'asc'
                                 }]);
                             }
-                        })(column.name, order)
+                        })(column.name, column.sortableType, order)
                     }
                 }
             }
@@ -4645,11 +4646,12 @@ links.DataTable.prototype._applySortingAndFilters = function () {
         var orders = [];
         for (var f = 0, fMax = this.sorting.length; f < fMax; f++) {
             var entry = this.sorting[f];
-            if (entry.field && entry.order) {
+            if (entry.field && entry.order && entry.type) {
                 var order = entry.order.toLowerCase();
                 if (order == 'asc' || order == 'desc') {
                     orders.push({
                         'field': entry.field,
+                        'type': entry.type,
                         'direction': ((order == 'asc') ? 1 : -1)
                     });
                 }
@@ -4666,9 +4668,12 @@ links.DataTable.prototype._applySortingAndFilters = function () {
                 for (var i = 0; i < len; i++) {
                     var order = orders[i];
                     var field = order.field;
+                    var type = order.type;
                     var direction = order.direction;
+                    var aField = (!a[field]) ? "" : (type == "date") ? new Date(a[field]) : a[field].toLowerCase();
+                    var bField = (!b[field]) ? "" : (type == "date") ? new Date(b[field]) : b[field].toLowerCase();
 
-                    if (a[field] == b[field]) {
+                    if (aField == bField) {
                         if (i == len - 1) {
                             return 0;
                         }
@@ -4677,7 +4682,7 @@ links.DataTable.prototype._applySortingAndFilters = function () {
                         }
                     }
                     else {
-                        return (a[field] > b[field]) ? direction : -direction;
+                        return (aField > bField) ? direction : -direction;
                     }
                 }
             });
