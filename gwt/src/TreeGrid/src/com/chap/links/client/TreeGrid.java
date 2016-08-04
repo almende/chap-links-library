@@ -1,5 +1,6 @@
 package com.chap.links.client;
 
+import com.chap.links.client.events.SelectHandler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.json.client.JSONArray;
@@ -13,6 +14,7 @@ import com.google.gwt.visualization.client.visualizations.Visualization;
  * TreeGrid class is a GWT wrapper for the javascript code.
  */
 public class TreeGrid extends Visualization<TreeGrid.Options> {
+
 	/**
 	 * Options for drawing the treegrid. Create an instance via the method
 	 * create, for example TreeGrid.Options options = TreeGrid.Options.create();
@@ -240,5 +242,27 @@ public class TreeGrid extends Visualization<TreeGrid.Options> {
 		
 		dataConnector = null;
 		options = null;
-	}	
+	}
+
+  /**
+   * Add a select handler.
+   * When the user clicks on a TreeGrid's row, the corresponding row is selected and the
+   * visualization then fires the select event.
+   *
+   * @param handler		A select handler
+   */
+  public final void addSelectHandler(com.google.gwt.visualization.client.events.SelectHandler handler) {
+    com.google.gwt.visualization.client.events.SelectHandler.addHandler(this, "select", handler);
+  }
+
+  /**
+   * Add a select handler.
+   * When the user clicks on a TreeGrid's row, the corresponding row is selected and the
+   * visualization then fires the select event.
+   *
+   * @param handler		A select handler
+   */
+  public final void addSelectHandler(SelectHandler handler) {
+    SelectHandler.addHandler(this, "select", handler);
+  }
 }
