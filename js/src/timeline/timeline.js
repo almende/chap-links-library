@@ -228,7 +228,12 @@ links.Timeline = function(container, options) {
         'MOVE_LEFT': "Move left",
         'MOVE_RIGHT': "Move right",
         'NEW': "New",
-        'CREATE_NEW_EVENT': "Create new event"
+        'CREATE_NEW_EVENT': "Create new event",
+        
+        /*custom events*/
+        'createdItem': function (item) { /* do nothing */ },
+        'updatedItem': function (item) { /* do nothing */ },
+        'hiddenItem': function (item) { /* do nothing */ }
     };
 
     this.clientTimeOffset = 0;    // difference between client time and the time
@@ -1749,6 +1754,9 @@ links.Timeline.prototype.repaintItems = function() {
         item.showDOM(frame);
         item.getImageUrls(newImageUrls);
         renderedItems.push(item);
+        
+        //fire custom created item event
+        this.options.createdItem(item);
     }
     while (item = queue.update.shift()) {
         item.updateDOM(frame);
@@ -1757,6 +1765,9 @@ links.Timeline.prototype.repaintItems = function() {
         if (index == -1) {
             renderedItems.push(item);
         }
+        
+        //fire custom updated item event
+        this.options.updatedItem(item);
     }
     while (item = queue.hide.shift()) {
         item.hideDOM(frame);
@@ -1764,6 +1775,9 @@ links.Timeline.prototype.repaintItems = function() {
         if (index != -1) {
             renderedItems.splice(index, 1);
         }
+        
+        //fire custom hidden item event
+        this.options.hiddenItem(item);
     }
 
     // reposition all visible items
