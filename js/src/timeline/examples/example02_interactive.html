@@ -123,6 +123,13 @@
             var row = getSelectedRow();
             document.getElementById("info").innerHTML += "item " + row + " created<br>";
             var content = data.getValue(row, 2);
+
+            data.setValue(row, 1, null);
+            // set end to null to make a box instead of a range
+            // column 0 is start
+            // column 1 is end
+            // column 2 is content
+
             var newContent = prompt("Enter content", content);
             if (newContent != undefined) {
                 data.setValue(row, 2, newContent);
