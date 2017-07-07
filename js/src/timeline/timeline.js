@@ -5328,9 +5328,9 @@ links.Timeline.prototype.stackCalculateFinal = function(items) {
 
         if (!groupedItems[group.content]) {
             if (axisOnTop) {
-                groupBase += options.groupMinHeight + eventMargin;
+                groupBase += Math.max(options.groupMinHeight, group.labelHeight) + eventMargin;
             } else {
-                groupBase -= (options.groupMinHeight + eventMargin);
+                groupBase -= (Math.max(options.groupMinHeight, group.labelHeight) + eventMargin);
             }
             continue;
         }
