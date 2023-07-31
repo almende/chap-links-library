@@ -87,6 +87,21 @@ links.locales['da'] = {
 };
 links.locales['da_DK'] = links.locales['da'];
 
+// Swedish ===================================================
+links.locales['sv'] = {
+    'MONTHS': ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'],
+    'MONTHS_SHORT': ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+    'DAYS': ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'],
+    'DAYS_SHORT': ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'],
+    'ZOOM_IN': "Zooma in",
+    'ZOOM_OUT': "Zooma ut",
+    'MOVE_LEFT': "Flytta till vänster",
+    'MOVE_RIGHT': "Flytta till höger",
+    'NEW': "Ny",
+    'CREATE_NEW_EVENT': "Skapa en ny händelse"
+};
+links.locales['sv_SE'] = links.locales['sv'];
+
 // Russian ===================================================
 links.locales['ru'] = {
     'MONTHS': ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
